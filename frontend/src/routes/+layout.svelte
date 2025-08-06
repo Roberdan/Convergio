@@ -1,0 +1,39 @@
+<script lang="ts">
+  import '../app.css';
+  import { page } from '$app/stores';
+
+  // Dynamic page title based on route
+  $: pageTitle = getPageTitle($page.route.id);
+
+  function getPageTitle(routeId: string | null): string {
+    if (routeId?.includes('dashboard')) return 'Dashboard';
+    if (routeId?.includes('agents')) return 'AI Agents';
+    if (routeId?.includes('talents')) return 'Talents';
+    if (routeId?.includes('vector')) return 'Vector Search';
+    if (routeId?.includes('analytics')) return 'Analytics';
+    if (routeId?.includes('costs')) return 'Cost Management';
+    if (routeId === '/') return 'Home';
+    return 'Convergio2030';
+  }
+</script>
+
+<svelte:head>
+  <title>{pageTitle} - Convergio2030</title>
+  <meta name="description" content="Convergio2030 - Unified AI-Native Enterprise Platform (No Auth Required)" />
+</svelte:head>
+
+<!-- Root Layout - Super Clean, No Auth -->
+<div class="min-h-screen bg-gray-50 dark:bg-surface-0">
+  <slot />
+</div>
+
+<style>
+  :global(html) {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  :global(body) {
+    margin: 0;
+    padding: 0;
+  }
+</style>

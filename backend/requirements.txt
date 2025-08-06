@@ -1,0 +1,108 @@
+# 🚀 Convergio2030 - Unified Backend Dependencies
+# Modern FastAPI + SQLAlchemy 2.0 + Redis + AI Stack (2025)
+
+# ================================
+# 🌐 WEB FRAMEWORK & API
+# ================================
+fastapi==0.115.6                    # High-performance async web framework
+uvicorn[standard]==0.34.0           # ASGI server with auto-reload
+pydantic==2.10.5                    # Data validation (rewritten in Rust - 5x faster)
+pydantic-settings==2.7.0            # Environment settings management
+
+# ================================  
+# 🗄️ DATABASE & ORM (ASYNC)
+# ================================
+sqlalchemy[asyncio]==2.0.36         # SQLAlchemy 2.0 with async support
+asyncpg==0.30.0                     # Async PostgreSQL driver
+alembic==1.14.0                     # Database migrations
+psycopg2-binary==2.9.9              # PostgreSQL adapter (fallback)
+
+# ================================
+# 🚀 CACHE & SESSION STORE
+# ================================
+redis==5.2.1                        # Redis client
+aioredis==2.0.1                     # Async Redis client for FastAPI
+
+# ================================
+# 🔐 AUTHENTICATION & SECURITY  
+# ================================
+python-jose[cryptography]==3.3.0    # JWT tokens with RS256 support
+passlib[bcrypt]==1.7.4              # Password hashing with bcrypt
+bcrypt==4.2.1                       # Secure password hashing
+cryptography>=45.0.5                # Cryptographic recipes and primitives
+
+# ================================
+# 🤖 AI & AGENTS (FROM AGENTS SERVICE)
+# ================================
+autogen-agentchat==0.7.1            # Modern AutoGen for multi-agent orchestration
+autogen-core==0.7.1                 # AutoGen core functionality
+autogen-ext==0.7.1                  # AutoGen extensions
+openai>=1.66.2                      # OpenAI API client
+anthropic==0.40.0                   # Anthropic Claude API client
+tiktoken>=0.9.0                     # Tokenizer for OpenAI models
+
+# ================================
+# 🔍 VECTOR SEARCH (FROM VECTOR SERVICE)
+# ================================
+pgvector==0.2.5                     # PostgreSQL vector extension
+numpy==1.26.4                       # Numerical computing
+sentence-transformers==3.3.1        # Sentence embeddings
+faiss-cpu==1.9.0                    # Facebook AI Similarity Search
+chromadb==0.5.23                    # Vector database
+
+# ================================
+# 🌐 HTTP & NETWORKING
+# ================================
+httpx>=0.27.0,<1.0.0               # Async HTTP client (compatible with anthropic and chromadb)
+requests>=2.32.4                    # HTTP library (sync fallback)
+aiofiles==24.1.0                    # Async file operations
+websockets==13.1                    # WebSocket support
+
+# ================================
+# 📊 MONITORING & OBSERVABILITY
+# ================================
+prometheus-client==0.21.1           # Prometheus metrics
+opentelemetry-api>=1.34.1          # OpenTelemetry tracing
+opentelemetry-sdk>=1.34.1          # OpenTelemetry SDK
+opentelemetry-instrumentation-fastapi>=0.52b0  # FastAPI instrumentation
+structlog==24.4.0                   # Structured logging
+rich==13.9.4                        # Rich text and beautiful formatting
+
+# ================================
+# 🛠️ UTILITIES & HELPERS
+# ================================
+python-dotenv==1.0.1                # Environment variables from .env
+python-multipart==0.0.19            # Form data parsing
+email-validator==2.2.0              # Email validation
+python-slugify==8.0.4               # URL-friendly slugs
+pytz==2024.2                        # Timezone handling
+
+# ================================
+# 🧪 DEVELOPMENT & TESTING
+# ================================
+pytest==8.3.4                       # Testing framework
+pytest-asyncio==0.24.0              # Async testing support
+pytest-cov==6.0.0                   # Coverage reporting
+fakeredis==2.26.2                   # Redis testing mock
+
+# ================================
+# 🚀 PERFORMANCE & OPTIMIZATION
+# ================================
+orjson==3.10.12                     # Fast JSON serialization
+ujson==5.10.0                       # Ultra-fast JSON (fallback)
+cachetools==5.5.0                   # Caching utilities
+asyncio-throttle==1.0.2             # Rate limiting for async
+
+# ================================
+# 📈 BACKGROUND TASKS & QUEUES
+# ================================
+celery==5.4.0                       # Distributed task queue
+flower==2.0.1                       # Celery monitoring tool
+rq==2.1.0                           # Simple job queues (Redis Queue)
+
+# ================================
+# 🔒 SECURITY ENHANCEMENTS
+# ================================
+slowapi==0.1.9                      # Rate limiting
+python-whois==0.9.5                 # Domain validation
+secure==0.3.0                       # Security headers
