@@ -11,10 +11,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# Authentication removed - no auth required for this version
+# Authentication removed - no auth required for some endpoints
 from src.core.database import get_db_session
 from src.core.redis import cache_get, cache_set
-from src.models.user import User
 
 logger = structlog.get_logger()
 router = APIRouter(tags=["Cost Management"])
@@ -60,8 +59,7 @@ class AgentBudgetRequest(BaseModel):
 
 @router.get("/overview")
 async def get_system_cost_overview(
-    time_range: str = Query("30d", description="Time range: 7d, 30d, 90d"),
-    current_user: User = Depends(get_current_user)
+    time_range: str = Query("30d", description="Time range: 7d, 30d, 90d")
 ):
     """
     💰 Get system-wide cost overview
@@ -128,8 +126,7 @@ async def get_system_cost_overview(
 @router.get("/agents/{agent_id}/summary", response_model=CostSummaryResponse)
 async def get_agent_cost_summary(
     agent_id: str,
-    time_range: str = Query("30d"),
-    current_user: User = Depends(get_current_user)
+    time_range: str = Query("30d")
 ):
     """
     🤖 Get cost summary for specific agent
@@ -166,9 +163,7 @@ async def get_agent_cost_summary(
 
 
 @router.get("/providers", response_model=List[LLMProviderResponse])
-async def get_llm_providers(
-    current_user: User = Depends(get_current_user)
-):
+async def get_llm_providers():
     """
     🏭 Get available LLM providers
     
@@ -216,7 +211,6 @@ async def get_llm_providers(
 @router.post("/budgets")
 async def create_agent_budget(
     request: AgentBudgetRequest,
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db_session)
 ):
     """
@@ -235,9 +229,9 @@ async def create_agent_budget(
         
         # Create budget record (in a real system, this would be stored in DB)
         budget_data = {
-            "id": f"budget_{request.agent_id}_{current_user.id}",
+            "id": f"budget_{request.agent_id}_default",
             "agent_id": request.agent_id,
-            "user_id": current_user.id,
+            "user_id": "default",
             "monthly_budget_usd": request.monthly_budget_usd,
             "alert_threshold_percentage": request.alert_threshold_percentage,
             "auto_disable_at_limit": request.auto_disable_at_limit,
@@ -251,7 +245,7 @@ async def create_agent_budget(
         logger.info("📊 Agent budget created",
                    agent_id=request.agent_id,
                    budget_usd=request.monthly_budget_usd,
-                   user_id=current_user.id)
+                   user_id="default")
         
         return {
             "message": "Budget created successfully",
@@ -272,8 +266,7 @@ async def create_agent_budget(
 
 @router.get("/agents/{agent_id}/alerts", response_model=List[BudgetAlertResponse])
 async def get_budget_alerts(
-    agent_id: str,
-    current_user: User = Depends(get_current_user)
+    agent_id: str
 ):
     """
     🚨 Get budget alerts for agent
@@ -283,7 +276,7 @@ async def get_budget_alerts(
     
     try:
         # Get budget data for agent
-        budget_key = f"budget:{agent_id}_{current_user.id}"
+        budget_key = f"budget:{agent_id}_default"
         budget_data = await cache_get(budget_key)
         
         if not budget_data:
@@ -320,10 +313,43 @@ async def get_budget_alerts(
         )
 
 
+@router.get("/realtime/current")
+async def get_realtime_cost():
+    """
+    🔄 Get real-time current cost totals
+    
+    Returns current cost information for header display - no auth required
+    """
+    
+    try:
+        # Get real cost data from agents system
+        cost_data = await _get_realtime_cost_data()
+        
+        return {
+            "total_cost_usd": cost_data["total_cost"],
+            "today_cost_usd": cost_data["today_cost"],
+            "total_interactions": cost_data["total_interactions"], 
+            "total_tokens": cost_data["total_tokens"],
+            "status": cost_data["status"],
+            "last_updated": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error("❌ Failed to get realtime cost", error=str(e))
+        return {
+            "total_cost_usd": 0.0,
+            "today_cost_usd": 0.0,
+            "total_interactions": 0,
+            "total_tokens": 0,
+            "status": "error",
+            "error": str(e),
+            "last_updated": datetime.utcnow().isoformat()
+        }
+
+
 @router.post("/interactions")
 async def record_interaction_cost(
-    interaction_data: Dict[str, Any],
-    current_user: User = Depends(get_current_user)
+    interaction_data: Dict[str, Any]
 ):
     """
     📝 Record cost for AI interaction
@@ -341,7 +367,7 @@ async def record_interaction_cost(
         # Record interaction in cost tracking system
         cost_record = {
             "id": f"cost_{int(datetime.utcnow().timestamp())}",
-            "user_id": current_user.id,
+            "user_id": "default",
             "agent_id": agent_id,
             "model": model_used,
             "tokens_used": tokens_used,
@@ -353,7 +379,7 @@ async def record_interaction_cost(
         await cache_set(f"cost_record:{cost_record['id']}", cost_record, ttl=2592000)
         
         # Update running totals
-        await _update_cost_totals(agent_id, current_user.id, cost_usd)
+        await _update_cost_totals(agent_id, "default", cost_usd)
         
         logger.info("📝 Interaction cost recorded",
                    agent_id=agent_id,
@@ -465,10 +491,67 @@ async def _get_current_agent_usage(agent_id: str) -> float:
     return 23.45
 
 
-async def _update_cost_totals(agent_id: str, user_id: int, cost_usd: float) -> None:
+async def _get_realtime_cost_data() -> Dict[str, Any]:
+    """Get real-time cost data from agents system."""
+    
+    try:
+        from src.agents.orchestrator import get_agent_orchestrator
+        
+        orchestrator = await get_agent_orchestrator()
+        if orchestrator and orchestrator.cost_tracker:
+            daily_summary = await orchestrator.cost_tracker.get_daily_summary()
+            weekly_summary = await orchestrator.cost_tracker.get_weekly_summary()
+            
+            return {
+                "total_cost": weekly_summary.get("total_cost_usd", 0.0),
+                "today_cost": daily_summary.get("total_cost_usd", 0.0),
+                "total_interactions": daily_summary.get("total_interactions", 0),
+                "total_tokens": daily_summary.get("total_tokens", 0),
+                "status": daily_summary.get("status", "unknown")
+            }
+    except Exception as e:
+        logger.warning("Could not get real cost data from orchestrator", error=str(e))
+    
+    # Fallback to Redis cache totals
+    try:
+        today_key = f"daily_total:{datetime.utcnow().strftime('%Y-%m-%d')}"
+        total_key = "system_total_cost"
+        
+        today_cost = await cache_get(today_key) or 0.0
+        total_cost = await cache_get(total_key) or 0.0
+        
+        return {
+            "total_cost": total_cost,
+            "today_cost": today_cost,
+            "total_interactions": 0,
+            "total_tokens": 0,
+            "status": "cached"
+        }
+    except:
+        # Final fallback with mock data
+        return {
+            "total_cost": 23.45,
+            "today_cost": 4.67,
+            "total_interactions": 156,
+            "total_tokens": 45678,
+            "status": "mock"
+        }
+
+
+async def _update_cost_totals(agent_id: str, user_id: str, cost_usd: float) -> None:
     """Update running cost totals."""
     
     # Update monthly total for agent
     monthly_key = f"monthly_cost:{agent_id}:{datetime.utcnow().strftime('%Y-%m')}"
     current_total = await cache_get(monthly_key) or 0.0
     await cache_set(monthly_key, current_total + cost_usd, ttl=2592000)
+    
+    # Update daily total
+    today_key = f"daily_total:{datetime.utcnow().strftime('%Y-%m-%d')}"
+    daily_total = await cache_get(today_key) or 0.0
+    await cache_set(today_key, daily_total + cost_usd, ttl=86400)  # 24 hours
+    
+    # Update system total
+    total_key = "system_total_cost"
+    system_total = await cache_get(total_key) or 0.0
+    await cache_set(total_key, system_total + cost_usd, ttl=2592000)  # 30 days

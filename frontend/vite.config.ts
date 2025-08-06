@@ -27,16 +27,7 @@ export default defineConfig({
 	// Build configuration
 	build: {
 		target: 'es2022',
-		sourcemap: true,
-		rollupOptions: {
-			output: {
-				manualChunks: {
-					vendor: ['svelte', '@sveltejs/kit'],
-					charts: ['chart.js', 'd3'],
-					utils: ['date-fns', 'clsx', 'tailwind-merge']
-				}
-			}
-		}
+		sourcemap: true
 	},
 	
 	// Optimization

@@ -20,37 +20,30 @@ router = APIRouter(tags=["Talent Management"])
 
 # Request/Response models
 class TalentCreateRequest(BaseModel):
-    username: str
-    email: Optional[EmailStr] = None
+    email: EmailStr
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    position: Optional[str] = None
-    department: Optional[str] = None
-    manager_id: Optional[int] = None
+    password_hash: Optional[str] = None
+    is_admin: Optional[bool] = False
 
 
 class TalentUpdateRequest(BaseModel):
     email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    position: Optional[str] = None
-    department: Optional[str] = None
-    manager_id: Optional[int] = None
-    is_active: Optional[bool] = None
+    is_admin: Optional[bool] = None
 
 
 class TalentResponse(BaseModel):
     id: int
-    username: str
-    email: Optional[str]
+    email: str
+    username: str  # Computed from email
     first_name: Optional[str]
     last_name: Optional[str]
     full_name: str
-    position: Optional[str]
-    department: Optional[str]
-    manager_id: Optional[int]
-    is_active: bool
-    created_at: datetime
+    is_admin: Optional[bool]
+    is_active: bool  # Computed from deleted_at
+    created_at: Optional[datetime]
     updated_at: Optional[datetime]
 
 
@@ -58,14 +51,13 @@ class TalentResponse(BaseModel):
 async def get_all_talents(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    department: Optional[str] = None,
     is_active: Optional[bool] = None,
     db: AsyncSession = Depends(get_db_session)
 ):
     """
     👥 Get all talents with filtering and pagination
     
-    Supports filtering by department and active status
+    Supports filtering by active status
     """
     
     try:
@@ -73,7 +65,6 @@ async def get_all_talents(
             db, 
             skip=skip, 
             limit=limit,
-            department=department,
             is_active=is_active
         )
         
@@ -85,9 +76,7 @@ async def get_all_talents(
                 first_name=talent.first_name,
                 last_name=talent.last_name,
                 full_name=talent.full_name,
-                position=talent.position,
-                department=talent.department,
-                manager_id=talent.manager_id,
+                is_admin=talent.is_admin,
                 is_active=talent.is_active,
                 created_at=talent.created_at,
                 updated_at=talent.updated_at,

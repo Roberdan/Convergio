@@ -30,6 +30,8 @@ class DatabaseTools:
     @staticmethod
     async def get_database_session() -> AsyncSession:
         """Get async database session"""
+        from src.core.database import init_db
+        await init_db()  # Ensure database is initialized
         async for session in get_db_session():
             return session
 

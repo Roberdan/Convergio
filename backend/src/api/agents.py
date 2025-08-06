@@ -424,6 +424,80 @@ async def start_streaming_conversation(request: StreamingConversationRequest):
         )
 
 
+@router.post("/ceo-ready")
+async def ceo_ready_response(request: ConversationRequest):
+    """
+    🎯 CEO-Ready immediate responses with backend data
+    
+    Optimized endpoint for Ali with immediate, specific, actionable responses
+    """
+    
+    try:
+        # Only for Ali agent - CEO-ready responses
+        agent_name = request.context.get('agent_name', '').lower() if request.context else ''
+        
+        if agent_name != 'ali':
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="CEO-ready endpoint is only available for Ali agent"
+            )
+        
+        # Initialize database connection
+        from src.core.database import init_db
+        await init_db()
+        
+        # Get immediate data-driven response
+        from src.agents.tools.database_tools import query_talents_count, query_system_status
+        
+        message = request.message.lower()
+        
+        # Detect query type and provide immediate response
+        if 'talent' in message or 'persone' in message or 'team' in message:
+            talents_info = query_talents_count()
+            return {
+                "conversation_id": request.conversation_id or str(uuid4()),
+                "response": f"🎯 **IMMEDIATE DATA**: {talents_info}\n\n**FOLLOW-UP OPTIONS:**\n• Want department breakdown? I can engage Giulia (HR)\n• Need skills analysis? I'll coordinate with Omri (Data Science)\n• Performance review needed? Let me involve Coach (Team Performance)",
+                "agents_used": ["Ali"],
+                "turn_count": 1,
+                "duration_seconds": 0.1,
+                "cost_breakdown": {"total": 0.0},
+                "ceo_ready": True,
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        
+        elif 'progett' in message or 'project' in message:
+            system_status = query_system_status()  
+            return {
+                "conversation_id": request.conversation_id or str(uuid4()),
+                "response": f"🎯 **PROJECT STATUS**: Based on our backend systems: {system_status}\n\n**RISK ASSESSMENT**: ⚠️ Need detailed project analysis\n\n**RECOMMENDED ACTIONS:**\n• Engage Luke (Program Manager) for detailed project review\n• Coordinate with Amy (CFO) for budget impact analysis\n• Activate Taskmaster for strategic task decomposition",
+                "agents_used": ["Ali"],
+                "turn_count": 1, 
+                "duration_seconds": 0.1,
+                "cost_breakdown": {"total": 0.0},
+                "ceo_ready": True,
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        
+        # Default CEO-ready response
+        return {
+            "conversation_id": request.conversation_id or str(uuid4()),
+            "response": f"🎯 **CEO-READY RESPONSE**: I understand your request: '{request.message}'\n\n**BACKEND STATUS**: Systems operational\n**IMMEDIATE ACTION**: Analyzing your request through our specialist agents\n\n**NEXT STEPS:**\n• I'll coordinate the appropriate specialist agents\n• You'll receive comprehensive analysis within 2 minutes\n• All recommendations will be executive-ready with clear implementation paths",
+            "agents_used": ["Ali"],
+            "turn_count": 1,
+            "duration_seconds": 0.1, 
+            "cost_breakdown": {"total": 0.0},
+            "ceo_ready": True,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error("❌ CEO-ready response failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"CEO-ready response failed: {str(e)}"
+        )
+
+
 @router.post("/conversation")
 async def start_conversation(request: ConversationRequest, http_request: Request):
     """

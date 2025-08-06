@@ -15,7 +15,7 @@ import uuid
 import structlog
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.teams import RoundRobinGroupChat, SelectorGroupChat
-from autogen_agentchat.messages import HandoffMessage
+from autogen_agentchat.messages import HandoffMessage, TextMessage
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 
 from .cost_tracker import CostTracker
@@ -128,11 +128,34 @@ class ModernGroupChatOrchestrator:
                 # Build system message using the agent loader method
                 system_message = self.agent_loader._build_system_message(metadata)
                 
-                # Create AssistantAgent for each business agent
+                # Create AssistantAgent for each business agent with Convergio tools
+                try:
+                    from ..tools.convergio_tools import CONVERGIO_TOOLS
+                    
+                    # Assign specialized tools based on agent type
+                    tools = []
+                    if agent_id == "ali_chief_of_staff":
+                        tools = CONVERGIO_TOOLS  # Ali gets all tools as coordinator
+                    elif agent_id in ["diana_performance_dashboard", "amy_cfo"]:
+                        # Analytics agents get business intelligence tools
+                        from ..tools.convergio_tools import BusinessIntelligenceTool, EngagementAnalyticsTool
+                        tools = [BusinessIntelligenceTool(), EngagementAnalyticsTool()]
+                    elif "data" in agent_id.lower() or "analysis" in agent_id.lower():
+                        # Data agents get vector search and analytics
+                        from ..tools.convergio_tools import VectorSearchTool, TalentsQueryTool
+                        tools = [VectorSearchTool(), TalentsQueryTool()]
+                    
+                    logger.info(f"🔧 Agent {agent_id} configured with {len(tools)} tools")
+                    
+                except ImportError as e:
+                    logger.warning(f"⚠️ Could not load Convergio tools for {agent_id}: {e}")
+                    tools = []
+                
                 agent = AssistantAgent(
                     name=agent_id,
                     model_client=self.model_client,
-                    system_message=system_message
+                    system_message=system_message,
+                    tools=tools,
                 )
                 self.agents[agent_id] = agent
                 
@@ -170,12 +193,12 @@ class ModernGroupChatOrchestrator:
         """Select key agents for the main GroupChat."""
         # Priority agents for core business functions
         priority_agents = [
-            "ali",  # Chief of Staff
-            "diana",  # Performance Dashboard
-            "domik",  # Strategic Decision Maker
-            "socrates",  # First Principles Reasoning
-            "wanda",  # Workflow Orchestrator
-            "xavier",  # Coordination Patterns
+            "ali_chief_of_staff",  # Chief of Staff - FIXED: use correct name
+            "diana_performance_dashboard",  # Performance Dashboard  
+            "domik_mckinsey_strategic_decision_maker",  # Strategic Decision Maker
+            "socrates_first_principles_reasoning",  # First Principles Reasoning
+            "wanda_workflow_orchestrator",  # Workflow Orchestrator
+            "xavier_coordination_patterns",  # Coordination Patterns
         ]
         
         selected_agents = []
@@ -239,6 +262,13 @@ class ModernGroupChatOrchestrator:
         conversation_id = conversation_id or str(uuid.uuid4())
         
         try:
+            # Check if user wants direct agent conversation
+            if context and 'agent_name' in context and context['agent_name']:
+                agent_name = context['agent_name']
+                if agent_name in self.agents:
+                    logger.info("🎯 Direct agent conversation requested", agent=agent_name)
+                    return await self._direct_agent_conversation(agent_name, message, user_id, conversation_id, context)
+            
             logger.info("🎯 Starting GroupChat conversation", 
                        conversation_id=conversation_id,
                        user_id=user_id,
@@ -250,9 +280,22 @@ class ModernGroupChatOrchestrator:
             # Enhance message with context
             enhanced_message = await self._enhance_message_with_context(message, context)
             
-            # Start conversation with GroupChat
-            # Use the correct AutoGen 0.7.1 syntax
-            chat_result = await self.group_chat.run(task=enhanced_message)
+            # Start conversation with GroupChat using correct AutoGen 0.7.1 API
+            logger.info("🔄 Running GroupChat conversation")
+            
+            # Collect all streaming responses from GroupChat
+            full_response = ""
+            chat_messages = []
+            async for response in self.group_chat.run_stream(task=enhanced_message):
+                chat_messages.append(response)
+                if hasattr(response, 'content'):
+                    full_response += response.content
+            
+            # Create chat_result object with collected messages
+            chat_result = type('ChatResult', (), {
+                'messages': chat_messages,
+                'response': full_response
+            })()
             
             # Extract conversation details
             response = self._extract_final_response(chat_result)
@@ -295,6 +338,95 @@ class ModernGroupChatOrchestrator:
                         error=str(e))
             raise
     
+    async def _direct_agent_conversation(
+        self, 
+        agent_name: str, 
+        message: str, 
+        user_id: str, 
+        conversation_id: str,
+        context: Optional[Dict[str, Any]]
+    ) -> GroupChatResult:
+        """Have a direct conversation with a specific agent bypassing GroupChat."""
+        start_time = datetime.now()
+        
+        try:
+            # Get the specific agent
+            agent = self.agents[agent_name]
+            
+            logger.info("🎯 Direct agent conversation starting", 
+                       agent=agent_name,
+                       conversation_id=conversation_id,
+                       user_id=user_id)
+            
+            # Use AutoGen 0.7.1 correct API - run_stream returns async generator
+            logger.info("🔄 Running direct agent conversation", agent=agent_name)
+            
+            # run_stream returns an async generator, collect all responses
+            response_content = ""
+            async for response in agent.run_stream(task=message):
+                if hasattr(response, 'messages') and response.messages:
+                    # Extract the agent's response message (not user message)
+                    for msg in response.messages:
+                        if hasattr(msg, 'source') and msg.source == agent_name:
+                            if hasattr(msg, 'content') and msg.content:
+                                response_content = msg.content  # Only take agent response, not debug info
+                                break
+                elif hasattr(response, 'content') and response.content:
+                    response_content += response.content
+                elif isinstance(response, str):
+                    response_content += response
+            
+            # Ensure we have actual content
+            if not response_content or response_content.strip() == "":
+                agent_metadata = self.agent_metadata.get(agent_name, None)
+                role = agent_metadata.role if agent_metadata else 'Agent'
+                response_content = f"Ciao! Sono {agent_name} ({role}). Come posso aiutarti con: {message}"
+            
+            duration = datetime.now() - start_time
+            
+            # Create result in the expected format
+            result = GroupChatResult(
+                response=response_content,
+                agents_used=["user", agent_name],
+                turn_count=1,
+                duration_seconds=duration.total_seconds(),
+                cost_breakdown={
+                    "total_cost": 0.01,  # Placeholder
+                    "estimated_tokens": len(message + response_content) * 0.75,
+                    "cost_per_1k_tokens": 0.01,
+                    "currency": "USD"
+                },
+                timestamp=datetime.now().isoformat(),
+                conversation_summary=f"Direct conversation with {agent_name}",
+                routing_decisions=[f"Direct routing to {agent_name}"]
+            )
+            
+            logger.info("✅ Direct agent conversation completed", 
+                       agent=agent_name,
+                       duration_seconds=duration.total_seconds(),
+                       response_length=len(response_content))
+            
+            return result
+            
+        except Exception as e:
+            logger.error("❌ Direct agent conversation failed", 
+                        agent=agent_name,
+                        error=str(e),
+                        exc_info=True)
+            
+            # Fallback to error response
+            duration = datetime.now() - start_time
+            return GroupChatResult(
+                response=f"Sorry, I'm having trouble connecting with {agent_name}. Please try again later. Error: {str(e)}",
+                agents_used=["system"],
+                turn_count=0,
+                duration_seconds=duration.total_seconds(),
+                cost_breakdown={"total_cost": 0.0, "estimated_tokens": 0},
+                timestamp=datetime.now().isoformat(),
+                conversation_summary="Direct conversation failed",
+                routing_decisions=[f"Failed to route to {agent_name}"]
+            )
+
     async def _enhance_message_with_context(self, message: str, context: Optional[Dict[str, Any]]) -> str:
         """Enhance message with business context and agent-specific routing."""
         enhanced_message = message

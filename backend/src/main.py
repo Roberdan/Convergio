@@ -37,6 +37,7 @@ from src.api.vector import router as vector_router
 from src.api.health import router as health_router
 from src.api.user_keys import router as user_keys_router
 from src.api.ali_intelligence import router as ali_intelligence_router
+from src.api.cost_management import router as cost_management_router
 
 # Setup structured logging
 setup_logging()
@@ -61,10 +62,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         logger.info("🚀 Initializing Redis connection pool...")  
         await init_redis()
         
-        # Initialize REAL AI agents system (skip for now)
-        logger.info("🤖 AI agents system ready (fallback mode)")
-        # from src.agents.orchestrator import initialize_agents
-        # await initialize_agents()
+        # Initialize REAL AI agents system
+        logger.info("🤖 Initializing REAL AI agents system...")
+        from src.agents.orchestrator import initialize_agents
+        await initialize_agents()
+        logger.info("✅ REAL Agent System initialized successfully")
         
         # Vector search integrated in API
         logger.info("🔍 Vector search engine ready")
@@ -184,6 +186,9 @@ def create_app() -> FastAPI:
     
     # Ali Intelligence System (CEO assistant)
     app.include_router(ali_intelligence_router, prefix="/api/v1", tags=["Ali Intelligence"])
+    
+    # Cost Management & Monitoring (no auth required for real-time data)
+    app.include_router(cost_management_router, prefix="/api/v1/cost-management", tags=["Cost Management"])
     
     # ================================
     # 🔄 GLOBAL EXCEPTION HANDLERS

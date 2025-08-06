@@ -15,41 +15,40 @@ from src.core.database import Base
 
 
 class Talent(Base):
-    """Talent model for organizational management - standalone without user auth"""
+    """Talent model matching the existing Convergio database schema"""
     
     __tablename__ = "talents"
     
     # Primary key
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     
-    # Basic info (previously from User model)
-    username: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
-    email: Mapped[Optional[str]] = mapped_column(String(255), unique=True, index=True)
+    # Basic info - matching existing schema
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     first_name: Mapped[Optional[str]] = mapped_column(String(100))
     last_name: Mapped[Optional[str]] = mapped_column(String(100))
     
-    # Organizational fields
-    position: Mapped[Optional[str]] = mapped_column(String(200))
-    department: Mapped[Optional[str]] = mapped_column(String(100))
-    manager_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("talents.id"))
+    # Legacy fields - matching existing schema
+    password_hash: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # Legacy field
+    is_admin: Mapped[Optional[bool]] = mapped_column(Boolean, default=False)      # Legacy field
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))  # Legacy field
     
-    # Status
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Vector embeddings - existing in DB
+    skills_embedding: Mapped[Optional[bytes]] = mapped_column(nullable=True)        # vector(1536)
+    experience_embedding: Mapped[Optional[bytes]] = mapped_column(nullable=True)    # vector(1536)
+    profile_embedding: Mapped[Optional[bytes]] = mapped_column(nullable=True)       # vector(1536)
     
-    # Timestamps
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), 
+    # Timestamps - matching existing schema
+    created_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=False),  # existing schema uses timestamp without time zone
         server_default=func.now(),
-        nullable=False
+        nullable=True
     )
     updated_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True),
-        onupdate=func.now()
+        DateTime(timezone=False),  # existing schema uses timestamp without time zone
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True
     )
-    
-    # Relationships
-    manager: Mapped[Optional["Talent"]] = relationship("Talent", remote_side=[id], back_populates="subordinates")
-    subordinates: Mapped[List["Talent"]] = relationship("Talent", back_populates="manager")
     
     @property
     def full_name(self) -> str:
@@ -61,7 +60,17 @@ class Talent(Base):
         elif self.last_name:
             return self.last_name
         else:
-            return self.username
+            return self.email.split('@')[0]  # Use email username as fallback
+    
+    @property 
+    def username(self) -> str:
+        """Get username from email for compatibility"""
+        return self.email.split('@')[0] if self.email else "unknown"
+    
+    @property
+    def is_active(self) -> bool:
+        """Check if talent is active (not deleted)"""
+        return self.deleted_at is None
     
     @classmethod
     async def get_all(
@@ -69,18 +78,17 @@ class Talent(Base):
         db: AsyncSession, 
         skip: int = 0, 
         limit: int = 100,
-        department: Optional[str] = None,
         is_active: Optional[bool] = None
     ) -> List["Talent"]:
         """Get all talents with filtering"""
         
         query = select(cls)
         
-        # Apply filters
-        if department:
-            query = query.where(cls.department == department)
-        if is_active is not None:
-            query = query.where(cls.is_active == is_active)
+        # Apply active filter (using deleted_at)
+        if is_active is True:
+            query = query.where(cls.deleted_at.is_(None))
+        elif is_active is False:
+            query = query.where(cls.deleted_at.is_not(None))
         
         # Apply pagination
         query = query.offset(skip).limit(limit)
@@ -98,9 +106,10 @@ class Talent(Base):
     
     @classmethod
     async def get_by_username(cls, db: AsyncSession, username: str) -> Optional["Talent"]:
-        """Get talent by username"""
+        """Get talent by username (using email prefix)"""
         
-        query = select(cls).where(cls.username == username)
+        # Search for email that starts with username@
+        query = select(cls).where(cls.email.like(f"{username}@%"))
         result = await db.execute(query)
         return result.scalar_one_or_none()
     
@@ -139,58 +148,27 @@ class Talent(Base):
     
     @classmethod
     async def get_subordinates(cls, db: AsyncSession, manager_id: int) -> List["Talent"]:
-        """Get all subordinates of a manager"""
+        """Get all subordinates of a manager - not supported in current schema"""
         
-        query = select(cls).where(cls.manager_id == manager_id)
-        result = await db.execute(query)
-        return result.scalars().all()
+        # Current database schema doesn't have manager_id
+        return []
     
     @classmethod
     async def get_hierarchy(cls, db: AsyncSession, talent_id: int) -> Dict[str, Any]:
-        """Get complete hierarchy for a talent"""
+        """Get talent hierarchy - simplified for current schema"""
         
         talent = await cls.get_by_id(db, talent_id)
         if not talent:
             return {}
         
-        # Get manager chain
-        managers = []
-        current = talent
-        while current.manager_id:
-            manager = await cls.get_by_id(db, current.manager_id)
-            if manager:
-                managers.append({
-                    "id": manager.id,
-                    "username": manager.username,
-                    "full_name": manager.full_name,
-                    "position": manager.position,
-                    "department": manager.department
-                })
-                current = manager
-            else:
-                break
-        
-        # Get subordinates
-        subordinates = await cls.get_subordinates(db, talent_id)
-        subordinates_data = [
-            {
-                "id": sub.id,
-                "username": sub.username,
-                "full_name": sub.full_name,
-                "position": sub.position,
-                "department": sub.department
-            }
-            for sub in subordinates
-        ]
-        
         return {
             "talent": {
                 "id": talent.id,
                 "username": talent.username,
+                "email": talent.email,
                 "full_name": talent.full_name,
-                "position": talent.position,
-                "department": talent.department
+                "is_admin": talent.is_admin
             },
-            "managers": managers,
-            "subordinates": subordinates_data
+            "managers": [],  # No manager hierarchy in current schema
+            "subordinates": []  # No subordinates in current schema
         }

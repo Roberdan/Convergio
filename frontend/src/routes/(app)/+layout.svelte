@@ -3,6 +3,7 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import AliAssistant from '$lib/components/AliAssistant.svelte';
+  import CostDisplay from '$lib/components/CostDisplay.svelte';
   
   // Simple navigation items
   const navItems = [
@@ -36,7 +37,17 @@
   });
   
   function isActive(href: string): boolean {
-    return currentPath === href;
+    // Handle exact match and base path matching
+    if (currentPath === href) {
+      return true;
+    }
+    
+    // Handle nested routes - if we're on /dashboard/sub, still highlight /dashboard
+    if (href !== '/' && currentPath.startsWith(href + '/')) {
+      return true;
+    }
+    
+    return false;
   }
 </script>
 
@@ -64,7 +75,7 @@
             <button
               on:click={() => goto(item.href)}
               class="flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors {isActive(item.href) 
-                ? 'bg-gray-100 text-gray-900' 
+                ? 'bg-orange-100 text-orange-900 font-semibold' 
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}"
             >
               <img src={item.iconPath} alt="" class="h-3 w-3" />
@@ -73,10 +84,16 @@
           {/each}
         </nav>
         
-        <!-- Status Indicator -->
-        <div class="flex items-center space-x-2 text-xs text-green-600">
-          <div class="h-1.5 w-1.5 bg-green-500 rounded-full"></div>
-          <span class="hidden sm:inline">Online</span>
+        <!-- Status & Cost Indicators -->
+        <div class="flex items-center space-x-4">
+          <!-- Cost Display -->
+          <CostDisplay />
+          
+          <!-- Status Indicator -->
+          <div class="flex items-center space-x-2 text-xs text-green-600">
+            <div class="h-1.5 w-1.5 bg-green-500 rounded-full"></div>
+            <span class="hidden sm:inline">Online</span>
+          </div>
         </div>
       </div>
     </div>

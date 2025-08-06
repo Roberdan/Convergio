@@ -29,6 +29,7 @@
     {
       id: 1,
       name: "Ali",
+      key: "ali_chief_of_staff",  // Backend agent key
       role: "Chief of Staff",
       description: "Strategic coordinator and master orchestrator",
       specialty: "Executive assistance, team coordination, strategic planning",
@@ -476,7 +477,7 @@
           user_id: 'user-agent-interaction',
           context: {
             agent_id: selectedAgent.id,
-            agent_name: selectedAgent.name,
+            agent_name: selectedAgent.key || selectedAgent.name,  // Use backend key
             agent_role: selectedAgent.role,
             agent_specialty: selectedAgent.specialty
           }
