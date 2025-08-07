@@ -1,5 +1,5 @@
 """
-🗄️ Convergio2030 - Database Management
+🗄️ Convergio - Database Management
 Async SQLAlchemy 2.0 + PostgreSQL with connection pooling
 """
 
@@ -57,7 +57,7 @@ def create_database_engine() -> AsyncEngine:
             "command_timeout": 30,
             "server_settings": {
                 "jit": "off",  # Disable JIT for better performance
-                "application_name": "convergio2030_backend",
+                "application_name": "convergio_backend",
             },
         },
     )

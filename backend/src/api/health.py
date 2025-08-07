@@ -1,5 +1,5 @@
 """
-🏥 Convergio2030 - Health Check API
+🏥 Convergio - Health Check API
 Comprehensive system health monitoring
 """
 
@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db_session, check_database_health
 from src.core.redis import get_redis_client
-from src.agents.utils.config import get_settings
+from src.core.config import get_settings
 
 logger = structlog.get_logger()
 router = APIRouter(tags=["Health"])
@@ -32,7 +32,7 @@ async def basic_health():
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
-        "service": "convergio2030-backend",
+        "service": "convergio-backend",
         "version": settings.app_version,
         "build": settings.build_number,
         "environment": settings.environment
@@ -52,7 +52,7 @@ async def detailed_health(db: AsyncSession = Depends(get_db_session)):
     health_data = {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
-        "service": "convergio2030-backend",
+        "service": "convergio-backend",
         "version": settings.app_version,
         "build": settings.build_number,
         "environment": settings.environment,
@@ -167,18 +167,40 @@ async def agents_health():
     """
     
     try:
-        # TODO: Implement actual agents health check
-        # For now, return basic status
-        return {
-            "status": "healthy",
-            "message": "Agents service integrated in unified backend",
-            "capabilities": [
-                "autogen_agents",
-                "orchestration", 
-                "task_execution",
-                "real_time_communication"
-            ]
-        }
+        # Implement actual agents health check
+        from src.agents.orchestrator import get_agent_orchestrator
+        from src.agents.services.agent_loader import DynamicAgentLoader
+        
+        try:
+            orchestrator = await get_agent_orchestrator()
+            loader = DynamicAgentLoader("src/agents/definitions")
+            agents_metadata = loader.scan_and_load_agents()
+            
+            agents_count = len(agents_metadata)
+            agents_healthy = agents_count > 0
+            
+            return {
+                "status": "healthy" if agents_healthy else "degraded",
+                "message": f"Agents service operational with {agents_count} agents loaded",
+                "agents_count": agents_count,
+                "orchestrator_ready": True,
+                "capabilities": [
+                    "autogen_agents",
+                    "orchestration", 
+                    "task_execution",
+                    "real_time_communication"
+                ]
+            }
+            
+        except Exception as orchestrator_error:
+            logger.warning(f"⚠️ Orchestrator initialization failed: {orchestrator_error}")
+            return {
+                "status": "degraded",
+                "message": "Agents service available but orchestrator not ready",
+                "agents_count": 0,
+                "orchestrator_ready": False,
+                "error": str(orchestrator_error)
+            }
         
     except Exception as e:
         logger.error("❌ Agents health check failed", error=str(e))
@@ -197,18 +219,50 @@ async def vector_health():
     """
     
     try:
-        # TODO: Implement actual vector health check
-        # For now, return basic status
-        return {
-            "status": "healthy",
-            "message": "Vector service integrated in unified backend",
-            "capabilities": [
-                "embeddings_generation",
-                "similarity_search",
-                "pgvector_support",
-                "document_indexing"
-            ]
-        }
+        # Implement actual vector health check
+        from src.core.database import get_db_session
+        from src.models.document import Document
+        
+        try:
+            # Test database connection and vector extension
+            async for db in get_db_session():
+                # Check if we can query documents table
+                total_docs = await Document.count_total(db)
+                
+                # Test vector capabilities (if any documents exist)
+                vector_ready = True
+                if total_docs > 0:
+                    try:
+                        # Test a simple vector query
+                        sample_doc = await Document.get_first(db)
+                        if sample_doc and hasattr(sample_doc, 'embeddings'):
+                            vector_ready = sample_doc.embeddings is not None
+                    except:
+                        vector_ready = False
+                
+                return {
+                    "status": "healthy" if vector_ready else "degraded",
+                    "message": f"Vector service operational - {total_docs} documents indexed",
+                    "documents_count": total_docs,
+                    "vector_extension": "pgvector" if vector_ready else "unavailable",
+                    "capabilities": [
+                        "embeddings_generation",
+                        "similarity_search",
+                        "pgvector_support",
+                        "document_indexing"
+                    ]
+                }
+                break  # Only need first session
+            
+        except Exception as db_error:
+            logger.warning(f"⚠️ Database connection failed: {db_error}")
+            return {
+                "status": "degraded",
+                "message": "Vector service available but database not ready",
+                "documents_count": 0,
+                "vector_extension": "unavailable",
+                "error": str(db_error)
+            }
         
     except Exception as e:
         logger.error("❌ Vector health check failed", error=str(e))

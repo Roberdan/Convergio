@@ -1,5 +1,5 @@
 """
-📝 Convergio2030 - Structured Logging Configuration
+📝 Convergio - Structured Logging Configuration
 """
 
 import logging

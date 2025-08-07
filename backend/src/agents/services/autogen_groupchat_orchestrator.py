@@ -45,9 +45,11 @@ class ModernGroupChatOrchestrator:
     def __init__(self, 
                  state_manager: RedisStateManager, 
                  cost_tracker: CostTracker,
-                 agents_directory: str = None):
+                 agents_directory: str = None,
+                 memory_system=None):
         """Initialize Modern GroupChat Orchestrator."""
         self.state_manager = state_manager
+        self.memory_system = memory_system
         self.cost_tracker = cost_tracker
         self.settings = get_settings()
         
@@ -280,6 +282,20 @@ class ModernGroupChatOrchestrator:
             # Enhance message with context
             enhanced_message = await self._enhance_message_with_context(message, context)
             
+            # Retrieve relevant memory context if memory system is available
+            if self.memory_system:
+                try:
+                    memory_context = await self.memory_system.retrieve_relevant_context(
+                        user_id=user_id,
+                        query=message,
+                        limit=5
+                    )
+                    if memory_context:
+                        enhanced_message += f"\n\n[CONTEXT FROM MEMORY]: {memory_context}"
+                        logger.info("🧠 Enhanced message with memory context", memory_entries=len(memory_context))
+                except Exception as e:
+                    logger.warning("⚠️ Memory retrieval failed", error=str(e))
+            
             # Start conversation with GroupChat using correct AutoGen 0.7.1 API
             logger.info("🔄 Running GroupChat conversation")
             
@@ -310,6 +326,24 @@ class ModernGroupChatOrchestrator:
             
             # Store conversation in Redis
             await self._store_conversation(conversation_id, user_id, chat_result, cost_breakdown)
+            
+            # Store conversation in memory system if available
+            if self.memory_system:
+                try:
+                    await self.memory_system.store_conversation(
+                        user_id=user_id,
+                        agent_id="group_chat",
+                        content=f"User: {message}\nResponse: {response}",
+                        metadata={
+                            "conversation_id": conversation_id,
+                            "agents_used": agents_used,
+                            "turn_count": turn_count,
+                            "cost": cost_breakdown.get("total_cost", 0)
+                        }
+                    )
+                    logger.info("🧠 Stored conversation in memory system")
+                except Exception as e:
+                    logger.warning("⚠️ Memory storage failed", error=str(e))
             
             duration = (datetime.now() - start_time).total_seconds()
             

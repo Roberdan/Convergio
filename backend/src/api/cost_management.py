@@ -1,5 +1,5 @@
 """
-💰 Convergio2030 - Cost Management API
+💰 Convergio - Cost Management API
 AI usage cost tracking and budget management integrated with agents system
 """
 

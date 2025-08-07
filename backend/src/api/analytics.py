@@ -1,5 +1,5 @@
 """
-📊 Convergio2030 - Analytics & Dashboard API
+📊 Convergio - Analytics & Dashboard API
 Real-time analytics with performance metrics and KPIs
 """
 
@@ -49,7 +49,6 @@ class DashboardAnalyticsResponse(BaseModel):
 @router.get("/dashboard", response_model=DashboardAnalyticsResponse)
 async def get_dashboard_analytics(
     time_range: str = Query("7d", description="Time range: 1d, 7d, 30d"),
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db_session)
 ):
     """
@@ -128,7 +127,6 @@ async def get_dashboard_analytics(
 
 @router.get("/performance", response_model=PerformanceMetricsResponse)
 async def get_performance_metrics(
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db_session)
 ):
     """
@@ -163,9 +161,7 @@ async def get_performance_metrics(
 
 
 @router.get("/real-time")
-async def get_real_time_metrics(
-    current_user: User = Depends(get_current_user)
-):
+async def get_real_time_metrics():
     """
     🔴 Get real-time system metrics
     
@@ -206,7 +202,6 @@ async def get_real_time_metrics(
 async def export_analytics_data(
     format: str = Query("json", description="Export format: json, csv, xlsx"),
     time_range: str = Query("30d", description="Time range for export"),
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db_session)
 ):
     """

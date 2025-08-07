@@ -1,5 +1,5 @@
 """
-👥 Convergio2030 - Talent Model (No Auth Version)
+👥 Convergio - Talent Model (No Auth Version)
 SQLAlchemy 2.0 Talent model with organizational hierarchy - no authentication required
 """
 

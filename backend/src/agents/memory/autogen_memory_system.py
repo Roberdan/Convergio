@@ -470,5 +470,12 @@ class AutoGenMemorySystem:
         await self.redis.expire(conversation_key, timedelta(days=self.memory_retention_days))
 
 
-# Global memory system instance
-memory_system = AutoGenMemorySystem()
+# Global memory system instance - initialized lazily
+memory_system = None
+
+def get_memory_system():
+    """Get or create the global memory system instance"""
+    global memory_system
+    if memory_system is None:
+        memory_system = AutoGenMemorySystem()
+    return memory_system

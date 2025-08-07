@@ -298,3 +298,9 @@ ROUTING INTELLIGENCE:
         """Reload all agents (useful for development/testing)."""
         logger.info("Reloading agents from directory")
         return self.scan_and_load_agents()
+
+
+# Global agent loader instance - use absolute path
+import os
+_backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+agent_loader = DynamicAgentLoader(os.path.join(_backend_dir, "agents", "definitions"))

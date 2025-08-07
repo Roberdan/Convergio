@@ -1,4 +1,23 @@
-# 🚀 Convergio2030 - Unified Backend Dependencies
+# Web Framework
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy
+asyncpg # Modern async driver for PostgreSQL
+
+# In-Memory Cache
+redis
+
+# Vector Database (using pgvector in PostgreSQL)
+
+# OpenAI
+openai
+
+# Other necessary libraries
+python-dotenv
+pydantic
+
 # Modern FastAPI + SQLAlchemy 2.0 + Redis + AI Stack (2025)
 
 # ================================
@@ -34,9 +53,9 @@ cryptography>=45.0.5                # Cryptographic recipes and primitives
 # ================================
 # 🤖 AI & AGENTS (FROM AGENTS SERVICE)
 # ================================
-autogen-agentchat==0.7.1            # Modern AutoGen for multi-agent orchestration
-autogen-core==0.7.1                 # AutoGen core functionality
-autogen-ext==0.7.1                  # AutoGen extensions
+autogen-agentchat==0.7.2            # Modern AutoGen for multi-agent orchestration
+autogen-core==0.7.2                 # AutoGen core functionality
+autogen-ext==0.7.2                  # AutoGen extensions
 openai>=1.66.2                      # OpenAI API client
 anthropic==0.40.0                   # Anthropic Claude API client
 tiktoken>=0.9.0                     # Tokenizer for OpenAI models
@@ -92,6 +111,7 @@ orjson==3.10.12                     # Fast JSON serialization
 ujson==5.10.0                       # Ultra-fast JSON (fallback)
 cachetools==5.5.0                   # Caching utilities
 asyncio-throttle==1.0.2             # Rate limiting for async
+psutil==7.0.0                       # System and process monitoring
 
 # ================================
 # 📈 BACKGROUND TASKS & QUEUES

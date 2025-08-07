@@ -1,5 +1,5 @@
 """
-👥 Convergio2030 - Talents Management API (No Auth Version)
+👥 Convergio - Talents Management API (No Auth Version)
 Complete talent management with hierarchy and profiles - no authentication required
 """
 

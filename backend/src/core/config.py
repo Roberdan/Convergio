@@ -1,5 +1,5 @@
 """
-🔧 Convergio2030 - Configuration Management
+🔧 Convergio - Configuration Management
 Environment-based settings with validation and type safety
 """
 
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     
     # API Configuration
     API_V1_PREFIX: str = Field(default="/api/v1", description="API version 1 prefix") 
-    PROJECT_NAME: str = Field(default="Convergio2030", description="Project name")
+    PROJECT_NAME: str = Field(default="Convergio", description="Project name")
     PROJECT_VERSION: str = Field(default="2.0.0", description="Project version")
     
     # ================================
@@ -100,8 +100,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = Field(default="RS256", description="JWT algorithm")
     JWT_TOKEN_EXPIRY: int = Field(default=86400, description="JWT token expiry (24h)")  
     JWT_REFRESH_EXPIRY: int = Field(default=2592000, description="JWT refresh expiry (30d)")
-    JWT_ISSUER: str = Field(default="convergio2030.io", description="JWT issuer")
-    JWT_AUDIENCE: str = Field(default="convergio2030.io", description="JWT audience")
+    JWT_ISSUER: str = Field(default="convergio.io", description="JWT issuer")
+    JWT_AUDIENCE: str = Field(default="convergio.io", description="JWT audience")
     
     # RSA Keys for JWT signing
     JWT_PRIVATE_KEY_PATH: str = Field(
@@ -129,7 +129,7 @@ class Settings(BaseSettings):
     
     # Trusted hosts (production)  
     TRUSTED_HOSTS: str = Field(
-        default="localhost,127.0.0.1,*.convergio2030.io",
+        default="localhost,127.0.0.1,*.convergio.io",
         description="Trusted hosts for production (comma-separated)"
     )
     
@@ -220,6 +220,10 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Get cached application settings"""
     return Settings()
+
+
+# Global settings instance for easy importing
+settings = get_settings()
 
 
 def get_project_root() -> Path:

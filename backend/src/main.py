@@ -1,5 +1,5 @@
 """
-🚀 Convergio2030 - Unified Backend Main Application
+🚀 Convergio - Unified Backend Main Application
 Modern FastAPI + SQLAlchemy 2.0 + Redis + AI Agents + Vector Search
 
 Architecture: Single Python service replacing 4 microservices
@@ -25,7 +25,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from src.agents.utils.config import get_settings
+from src.core.config import get_settings
 from src.core.database import init_db, close_db
 from src.core.redis import init_redis, close_redis
 from src.core.logging import setup_logging
@@ -38,6 +38,12 @@ from src.api.health import router as health_router
 from src.api.user_keys import router as user_keys_router
 from src.api.ali_intelligence import router as ali_intelligence_router
 from src.api.cost_management import router as cost_management_router
+from src.api.analytics import router as analytics_router
+from src.api.workflows import router as workflows_router
+from src.api.agent_signatures import router as agent_signatures_router
+from src.api.component_serialization import router as serialization_router
+from src.api.agent_management import router as agent_management_router
+from src.api.swarm_coordination import router as swarm_coordination_router
 
 # Setup structured logging
 setup_logging()
@@ -51,7 +57,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     """Application lifespan management - startup and shutdown events"""
     
     # 🚀 STARTUP
-    logger.info("🚀 Starting Convergio2030 Unified Backend", version="2.0.0")
+    logger.info("🚀 Starting Convergio Unified Backend", version="2.0.0")
     
     try:
         # Initialize database
@@ -62,30 +68,45 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         logger.info("🚀 Initializing Redis connection pool...")  
         await init_redis()
         
-        # Initialize REAL AI agents system
-        logger.info("🤖 Initializing REAL AI agents system...")
-        from src.agents.orchestrator import initialize_agents
-        await initialize_agents()
-        logger.info("✅ REAL Agent System initialized successfully")
+        # Initialize AI agent system
+        logger.info("🤖 Initializing AI agent orchestration system...")
+        try:
+            from src.agents.orchestrator import initialize_agents
+            await initialize_agents()
+            logger.info("✅ AI Agent System initialized successfully")
+        except Exception as agent_error:
+            logger.warning(f"⚠️ AI agents partially initialized: {agent_error}")
+            logger.info("📈 Backend operational, agent system will retry on next startup")
+        
+        # Initialize streaming orchestrator system
+        logger.info("🌊 Initializing streaming orchestrator system...")
+        try:
+            from src.agents.services.streaming_orchestrator import get_streaming_orchestrator
+            streaming_orchestrator = get_streaming_orchestrator()
+            await streaming_orchestrator.initialize()
+            logger.info("✅ Streaming Orchestrator initialized successfully")
+        except Exception as streaming_error:
+            logger.warning(f"⚠️ Streaming orchestrator initialization failed: {streaming_error}")
+            logger.info("📈 Backend operational, streaming system will retry on demand")
         
         # Vector search integrated in API
         logger.info("🔍 Vector search engine ready")
         
-        logger.info("✅ Convergio2030 backend startup completed successfully")
+        logger.info("✅ Convergio backend startup completed successfully")
         
     except Exception as e:
-        logger.error("❌ Failed to start Convergio2030 backend", error=str(e))
+        logger.error("❌ Failed to start Convergio backend", error=str(e))
         raise
     
     yield
     
     # 🛑 SHUTDOWN
-    logger.info("🛑 Shutting down Convergio2030 backend...")
+    logger.info("🛑 Shutting down Convergio backend...")
     
     try:
         await close_redis()
         await close_db()
-        logger.info("✅ Convergio2030 backend shutdown completed")
+        logger.info("✅ Convergio backend shutdown completed")
     except Exception as e:
         logger.error("❌ Error during shutdown", error=str(e))
 
@@ -96,7 +117,7 @@ def create_app() -> FastAPI:
     
     # Create FastAPI app with lifespan management
     app = FastAPI(
-        title="🚀 Convergio2030 - Unified AI Platform",
+        title="🚀 Convergio - Unified AI Platform",
         description="""
         **Next-Generation AI-Native Business Platform**
         
@@ -111,9 +132,9 @@ def create_app() -> FastAPI:
         **Scalability**: Horizontal scaling + Background tasks + WebSockets
         """,
         version="2.0.0",
-        docs_url="/docs" if settings.environment != "production" else None,
-        redoc_url="/redoc" if settings.environment != "production" else None,
-        openapi_url="/openapi.json" if settings.environment != "production" else None,
+        docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
+        redoc_url="/redoc" if settings.ENVIRONMENT != "production" else None,
+        openapi_url="/openapi.json" if settings.ENVIRONMENT != "production" else None,
         lifespan=lifespan,
     )
     
@@ -133,7 +154,7 @@ def create_app() -> FastAPI:
     )
     
     # Trusted hosts (production security)
-    if settings.environment == "production":
+    if settings.ENVIRONMENT == "production":
         app.add_middleware(
             TrustedHostMiddleware,
             allowed_hosts=settings.trusted_hosts_list,
@@ -190,6 +211,24 @@ def create_app() -> FastAPI:
     # Cost Management & Monitoring (no auth required for real-time data)
     app.include_router(cost_management_router, prefix="/api/v1/cost-management", tags=["Cost Management"])
     
+    # Analytics & Dashboard (CEO Dashboard Supreme support)
+    app.include_router(analytics_router, prefix="/api/v1/analytics", tags=["Analytics"])
+    
+    # Workflows & Business Process Automation (GraphFlow) - FIX: Add proper prefix
+    app.include_router(workflows_router, prefix="/api/v1/workflows", tags=["Workflows"])
+    
+    # Agent Digital Signatures & Validation - FIX: Add proper prefix
+    app.include_router(agent_signatures_router, prefix="/api/v1/agent-signatures", tags=["Agent Signatures"])
+    
+    # Component Serialization & State Management - FIX: Add proper prefix  
+    app.include_router(serialization_router, prefix="/api/v1/serialization", tags=["Component Serialization"])
+    
+    # Agent Management System (CRUD operations for agents)
+    app.include_router(agent_management_router, prefix="/api/v1/agent-management", tags=["Agent Management"])
+    
+    # Swarm Coordination System (Advanced agent coordination with swarm intelligence)
+    app.include_router(swarm_coordination_router, prefix="/api/v1/swarm", tags=["Swarm Coordination"])
+    
     # ================================
     # 🔄 GLOBAL EXCEPTION HANDLERS
     # ================================
@@ -207,7 +246,7 @@ def create_app() -> FastAPI:
         )
         
         # Don't expose internal errors in production
-        if settings.environment == "production":
+        if settings.ENVIRONMENT == "production":
             return JSONResponse(
                 status_code=500,
                 content={
@@ -233,10 +272,10 @@ def create_app() -> FastAPI:
     async def root():
         """Root endpoint with service information"""
         return {
-            "service": "Convergio2030 Unified Backend",
+            "service": "Convergio Unified Backend",
             "version": settings.app_version,
             "build": settings.build_number,
-            "environment": settings.environment,
+            "environment": settings.ENVIRONMENT,
             "status": "🚀 Running",
             "architecture": "FastAPI + SQLAlchemy 2.0 + Redis + AI",
             "features": [
@@ -245,7 +284,7 @@ def create_app() -> FastAPI:
                 "🔍 Vector Search Engine",
                 "📊 Real-time Analytics"
             ],
-            "docs": "/docs" if settings.environment != "production" else None
+            "docs": "/docs" if settings.ENVIRONMENT != "production" else None
         }
     
     logger.info("✅ FastAPI application configured successfully")
@@ -262,11 +301,11 @@ if __name__ == "__main__":
     uvicorn.run(
         "src.main:app",
         host="0.0.0.0",
-        port=9000,  # Convergio2030 port (no conflicts)
-        reload=settings.environment != "production",
+        port=9000,  # Convergio port (no conflicts)
+        reload=settings.ENVIRONMENT != "production",
         log_level="info",
         loop="asyncio",
         # Performance optimizations
-        workers=1 if settings.environment != "production" else 4,
-        access_log=settings.environment != "production",
+        workers=1 if settings.ENVIRONMENT != "production" else 4,
+        access_log=settings.ENVIRONMENT != "production",
     )

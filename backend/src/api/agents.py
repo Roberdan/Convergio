@@ -1,5 +1,5 @@
 """
-🤖 Convergio2030 - AI Agents API
+🤖 Convergio - AI Agents API
 Integrated AutoGen agents with orchestration and real-time communication
 """
 
@@ -19,6 +19,7 @@ import httpx
 from src.core.database import get_db_session
 from src.core.redis import cache_get, cache_set
 from src.api.user_keys import get_user_api_key
+from src.agents.services.streaming_orchestrator import get_streaming_orchestrator
 
 logger = structlog.get_logger()
 router = APIRouter(tags=["AI Agents"])
@@ -100,11 +101,7 @@ AVAILABLE_AGENTS = {
         "description": "Agent architecture design, implementation, and coordination",
         "system_message": "You are an expert in AI agent architecture, AutoGen implementation, and multi-agent coordination systems."
     },
-    "gateway-convergio-guardian": {
-        "name": "Gateway Convergio Guardian",
-        "description": "Gateway configuration, service orchestration, and security",
-        "system_message": "You are an expert in API gateway configuration, Nginx, service orchestration, and security implementations."
-    },
+
     "luca-security-expert": {
         "name": "Security Expert",
         "description": "Cybersecurity, penetration testing, and security architecture",
@@ -396,7 +393,17 @@ async def start_streaming_conversation(request: StreamingConversationRequest):
             from src.agents.orchestrator import get_agent_orchestrator
             
             orchestrator = await get_agent_orchestrator()
-            # TODO: Implement debug streaming with orchestrator
+            
+            # Debug streaming: capture orchestrator interactions with detailed logging
+            logger.info(f"🐛 Debug streaming enabled for agent {agent_name}")
+            
+            # Process debug message with enhanced logging
+            debug_response = await orchestrator.process_agent_message(
+                agent_name=agent_name,
+                message=request.message,
+                conversation_id=conversation_id,
+                debug_mode=True
+            )
             
             return {
                 "conversation_id": conversation_id,
@@ -1353,3 +1360,180 @@ def format_agent_name(agent_id: str) -> str:
         role = ' '.join(word.capitalize() for word in parts[1:])
         return f"{name} - {role}"
     return agent_id.replace('-', ' ').title()
+
+
+# ================================
+# 🌊 STREAMING WEBSOCKET ENDPOINTS  
+# ================================
+
+@router.websocket("/ws/streaming/{user_id}/{agent_name}")
+async def streaming_agent_conversation(
+    websocket: WebSocket,
+    user_id: str,
+    agent_name: str
+):
+    """
+    🌊 Real-time streaming conversation with AI agents
+    
+    WebSocket endpoint for streaming agent responses in real-time
+    """
+    
+    streaming_orchestrator = get_streaming_orchestrator()
+    
+    try:
+        await websocket.accept()
+        logger.info("🌊 WebSocket connection established", 
+                   user_id=user_id, agent_name=agent_name)
+        
+        # Initialize streaming orchestrator if needed
+        if not hasattr(streaming_orchestrator, '_initialized'):
+            await streaming_orchestrator.initialize()
+        
+        # Create streaming session
+        session_id = await streaming_orchestrator.create_streaming_session(
+            websocket=websocket,
+            user_id=user_id,
+            agent_name=agent_name,
+            session_context={"connection_type": "websocket"}
+        )
+        
+        # Listen for messages from client
+        while True:
+            try:
+                # Receive message from client
+                data = await websocket.receive_json()
+                message = data.get("message", "")
+                context = data.get("context", {})
+                
+                if message:
+                    logger.info("🌊 Processing streaming message", 
+                               session_id=session_id, message_preview=message[:100])
+                    
+                    # Process message with streaming responses
+                    await streaming_orchestrator.process_streaming_message(
+                        session_id=session_id,
+                        message=message,
+                        message_context=context
+                    )
+                
+            except WebSocketDisconnect:
+                logger.info("🌊 WebSocket client disconnected", session_id=session_id)
+                break
+            except Exception as e:
+                logger.error("🌊 WebSocket message processing error", 
+                           error=str(e), session_id=session_id)
+                await websocket.send_json({
+                    "type": "error",
+                    "data": {"message": f"Processing error: {str(e)}"}
+                })
+        
+    except Exception as e:
+        logger.error("🌊 WebSocket connection error", error=str(e))
+    finally:
+        # Close streaming session
+        if 'session_id' in locals():
+            await streaming_orchestrator.close_session(session_id)
+
+
+@router.get("/streaming/health")
+async def streaming_health():
+    """
+    🌊 Streaming system health check
+    
+    Check if streaming orchestrator is properly initialized and healthy
+    """
+    
+    try:
+        streaming_orchestrator = get_streaming_orchestrator()
+        
+        # Check if streaming orchestrator is initialized
+        if hasattr(streaming_orchestrator, '_initialized') and streaming_orchestrator._initialized:
+            active_sessions = await streaming_orchestrator.get_active_sessions()
+            
+            return {
+                "status": "healthy",
+                "message": "Streaming orchestrator is operational",
+                "active_sessions": len(active_sessions),
+                "capabilities": [
+                    "real_time_streaming",
+                    "websocket_connections", 
+                    "memory_integration",
+                    "session_management"
+                ],
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        else:
+            return {
+                "status": "unhealthy", 
+                "error": "Streaming orchestrator not initialized",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+    except Exception as e:
+        logger.error("❌ Streaming health check failed", error=str(e))
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+
+@router.get("/streaming/sessions")
+async def get_streaming_sessions():
+    """
+    🌊 Get active streaming sessions
+    
+    List all active streaming WebSocket sessions
+    """
+    
+    try:
+        streaming_orchestrator = get_streaming_orchestrator()
+        
+        if not hasattr(streaming_orchestrator, '_initialized'):
+            await streaming_orchestrator.initialize()
+        
+        active_sessions = await streaming_orchestrator.get_active_sessions()
+        
+        return {
+            "active_sessions": active_sessions,
+            "total_sessions": len(active_sessions),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error("❌ Failed to get streaming sessions", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get streaming sessions: {str(e)}"
+        )
+
+
+@router.post("/streaming/cleanup")
+async def cleanup_streaming_sessions(max_idle_minutes: int = 30):
+    """
+    🌊 Clean up inactive streaming sessions
+    
+    Remove inactive WebSocket sessions that exceed the idle timeout
+    """
+    
+    try:
+        streaming_orchestrator = get_streaming_orchestrator()
+        
+        if not hasattr(streaming_orchestrator, '_initialized'):
+            await streaming_orchestrator.initialize()
+        
+        cleaned_count = await streaming_orchestrator.cleanup_inactive_sessions(max_idle_minutes)
+        
+        return {
+            "cleaned_sessions": cleaned_count,
+            "max_idle_minutes": max_idle_minutes,
+            "timestamp": datetime.utcnow().isoformat(),
+            "message": f"Cleaned up {cleaned_count} inactive streaming sessions"
+        }
+        
+    except Exception as e:
+        logger.error("❌ Failed to cleanup streaming sessions", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to cleanup streaming sessions: {str(e)}"
+        )

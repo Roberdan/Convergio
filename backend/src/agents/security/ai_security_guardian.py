@@ -81,13 +81,14 @@ class AISecurityGuardian:
             },
             {
                 "name": "Role Playing Attack", 
-                "pattern": r"(?i)(pretend|act|roleplay|imagine).*(you are|you're).*(not|no longer)",
+                "pattern": r"(?i)(pretend|act|roleplay|imagine).*(you are|you're)",
                 "severity": "high",
                 "description": "Attempts to change AI role or identity"
             },
             {
                 "name": "System Override",
-                "pattern": r"(?i)(system|admin|root|developer).*(mode|access|override|bypass)",
+                "pattern": r"(?i)((system|admin|root|developer).*(mode|access|override|bypass))|((mode|access|override|bypass).*(system|admin|root|developer))",
+
                 "severity": "critical",
                 "description": "Attempts to gain system-level access"
             },
@@ -108,6 +109,12 @@ class AISecurityGuardian:
                 "pattern": r"(?i)(generate|create|write).*(harmful|illegal|violent|offensive)",
                 "severity": "high",
                 "description": "Requests for harmful content generation"
+            },
+            {
+                "name": "Credential Leak",
+                "pattern": r"(?i)(credentials|password|secret|key|token).*:.*",
+                "severity": "critical",
+                "description": "Potential leak of sensitive credentials"
             }
         ]
     

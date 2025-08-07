@@ -1,5 +1,5 @@
 """
-📚 Convergio2030 - Document and Embedding Models (No Auth Version)
+📚 Convergio - Document and Embedding Models (No Auth Version)
 SQLAlchemy 2.0 models for vector search functionality - no user authentication required
 """
 
@@ -148,6 +148,26 @@ class Document(Base):
             "last_indexed": stats.last_indexed.isoformat() if stats.last_indexed else None
         }
     
+    @classmethod
+    async def count_by_user(cls, db: AsyncSession, user_id: int) -> int:
+        """Count documents for a specific user"""
+        result = await db.execute(
+            select(func.count(cls.id)).where(cls.user_id == user_id)
+        )
+        return result.scalar() or 0
+    
+    @classmethod
+    async def count_total(cls, db: AsyncSession) -> int:
+        """Count total documents in database"""
+        result = await db.execute(select(func.count(cls.id)))
+        return result.scalar() or 0
+    
+    @classmethod
+    async def get_first(cls, db: AsyncSession) -> Optional["Document"]:
+        """Get the first document for testing purposes"""
+        result = await db.execute(select(cls).limit(1))
+        return result.scalar_one_or_none()
+    
     def to_dict(self) -> Dict[str, Any]:
         """Convert document to dictionary"""
         return {
@@ -227,13 +247,26 @@ class DocumentEmbedding(Base):
             for key, value in filter_metadata.items():
                 query = query.where(cls.embed_metadata[key].astext == str(value))
         
-        # For now, get all and calculate similarity in Python
-        # TODO: Implement proper pgvector cosine similarity
-        query = query.limit(top_k * 3)  # Get more to filter later
+        # Use pgvector cosine similarity with proper SQL
+        from sqlalchemy import func, text
+        
+        # Convert query embedding to PostgreSQL array format
+        embedding_array = f"[{','.join(map(str, query_embedding))}]"
+        
+        # Use pgvector cosine distance operator (<=>)
+        # Note: cosine distance = 1 - cosine similarity
+        query = query.add_columns(
+            (1 - func.cast(cls.embedding, text("vector")) 
+             .op("<=>")(func.cast(text(f"'{embedding_array}'"), text("vector"))))
+             .label("similarity")
+        ).order_by(
+            func.cast(cls.embedding, text("vector"))
+            .op("<=>")(func.cast(text(f"'{embedding_array}'"), text("vector")))
+        ).limit(top_k)
         
         result = await db.execute(query)
         
-        # Calculate similarity scores in Python for now
+        # Process results with actual similarity scores
         results = []
         for embedding in result.scalars().all():
             try:

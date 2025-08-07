@@ -1,5 +1,5 @@
 """
-🔍 Convergio2030 - Vector Search API
+🔍 Convergio - Vector Search API
 Integrated vector embeddings and similarity search with pgvector
 """
 
@@ -318,6 +318,9 @@ async def list_documents(
             limit=limit
         )
         
+        # Get actual total count for proper pagination
+        total_count = await Document.count_by_user(db, user_id=current_user.id)
+        
         return {
             "documents": [
                 {
@@ -330,7 +333,7 @@ async def list_documents(
                 }
                 for doc in documents
             ],
-            "total": len(documents),  # TODO: Add actual count query
+            "total": total_count,
             "skip": skip,
             "limit": limit
         }

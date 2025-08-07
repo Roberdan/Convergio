@@ -4,19 +4,59 @@ Environment-based configuration with validation
 """
 
 import os
+import json
+import subprocess
 from functools import lru_cache
 from typing import List
+from pathlib import Path
 
 from pydantic_settings import BaseSettings
 from pydantic import Field, field_validator, model_validator
 
 
+def get_version_info():
+    """Get version information from VERSION file and git."""
+    try:
+        # Find the VERSION file in project root
+        current = Path(__file__).resolve()
+        while current != current.parent:
+            version_file = current / "VERSION"
+            if version_file.exists():
+                version = version_file.read_text().strip()
+                break
+            current = current.parent
+        else:
+            version = "1.0.0"
+        
+        # Get build number from git
+        try:
+            commit_count = subprocess.check_output(
+                ["git", "rev-list", "--count", "HEAD"],
+                stderr=subprocess.DEVNULL,
+                cwd=current
+            ).decode().strip()
+            
+            commit_hash = subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                stderr=subprocess.DEVNULL,
+                cwd=current
+            ).decode().strip()
+            
+            build_number = f"{commit_count}-{commit_hash}"
+        except:
+            build_number = "dev-build"
+            
+        return version, build_number
+    except:
+        return "1.0.0", "unknown"
+
+
 class Settings(BaseSettings):
     """Application settings with environment variable support."""
     
-    # Application
-    app_version: str = Field(default="0.8.0", env="APP_VERSION")
-    build_number: str = Field(default="unknown", env="BUILD_NUMBER")
+    # Application - now reads from VERSION file
+    app_version: str = Field(default_factory=lambda: get_version_info()[0])
+    build_number: str = Field(default_factory=lambda: get_version_info()[1])
     environment: str = Field(default="development", env="ENVIRONMENT")
     
     # Server - NO FALLBACK

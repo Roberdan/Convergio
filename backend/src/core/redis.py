@@ -1,5 +1,5 @@
 """
-🚀 Convergio2030 - Redis Cache Management
+🚀 Convergio - Redis Cache Management
 High-performance async Redis with connection pooling
 """
 
