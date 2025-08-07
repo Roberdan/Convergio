@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚀 Test Backend for Convergio2030 Frontend Testing
+🚀 Test Backend for Convergio Frontend Testing
 Quick backend to test both SvelteKit and Reflex frontends
 """
 
@@ -38,7 +38,7 @@ class HealthResponse(BaseModel):
 # ================================
 
 app = FastAPI(
-    title="Convergio2030 Test Backend",
+    title="Convergio Test Backend",
     description="Simple backend for frontend testing",
     version="2.0.0-test"
 )
@@ -72,7 +72,7 @@ async def login(request: LoginRequest):
             user={
                 "id": 1,
                 "username": "admin",
-                "email": "admin@convergio2030.io",
+                "email": "admin@convergio.io",
                 "full_name": "Admin User",
                 "is_admin": True
             }
@@ -101,7 +101,7 @@ async def get_user():
     return {
         "id": 1,
         "username": "admin",
-        "email": "admin@convergio2030.io",
+        "email": "admin@convergio.io",
         "full_name": "Admin User",
         "is_admin": True
     }
@@ -189,7 +189,7 @@ async def execute_agent(agent_type: str, request: Dict[str, Any]):
 # ================================
 
 if __name__ == "__main__":
-    print("🚀 CONVERGIO2030 TEST BACKEND")
+    print("🚀 CONVERGIO TEST BACKEND")
     print("=" * 50)
     print("🔗 Backend URL: http://localhost:9002")
     print("🔐 Login Accounts:")

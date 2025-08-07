@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/Roberdan/Convergio/discussions
+    about: Ask questions, share ideas, and discuss Convergio with the community
+  - name: 📧 Contact Maintainer
+    url: mailto:roberdan@fightthestroke.org
+    about: Direct contact for security issues, partnership inquiries, or sensitive matters
+  - name: 🌐 FightTheStroke Foundation
+    url: https://fightthestroke.org/
+    about: Learn more about the foundation that inspired this project
+  - name: 📚 Documentation
+    url: https://github.com/Roberdan/Convergio#readme
+    about: Read the complete documentation and getting started guide

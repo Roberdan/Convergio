@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚀 Convergio2030 - REAL Production Startup Script
+🚀 Convergio - REAL Production Startup Script
 Launch the unified backend with ZERO technical debt!
 """
 
@@ -22,7 +22,7 @@ def check_dependencies():
     
     # Check if we're in the right directory
     if not Path("backend/src/main.py").exists():
-        print("❌ Run this script from the Convergio2030 root directory!")
+        print("❌ Run this script from the Convergio root directory!")
         sys.exit(1)
     
     # Check if .env exists
@@ -185,7 +185,7 @@ def count_agents():
 def start_backend():
     """Start the FastAPI backend"""
     
-    print("🚀 Starting Convergio2030 Unified Backend...")
+    print("🚀 Starting Convergio Unified Backend...")
     print("=" * 60)
     print("🌐 Backend URL: http://localhost:9000")
     print("📚 API Docs: http://localhost:9000/docs")
@@ -212,7 +212,7 @@ def start_backend():
         ], check=True)
         
     except KeyboardInterrupt:
-        print("\n🛑 Shutting down Convergio2030...")
+        print("\n🛑 Shutting down Convergio...")
         sys.exit(0)
     except Exception as e:
         print(f"❌ Failed to start backend: {e}")
@@ -222,7 +222,7 @@ def start_backend():
 def main():
     """Main startup sequence"""
     
-    print("🚀 CONVERGIO2030 - UNIFIED BACKEND STARTUP")
+    print("🚀 CONVERGIO - UNIFIED BACKEND STARTUP")
     print("=" * 50)
     print("🎯 ZERO technical debt | ZERO mocks | ZERO fallbacks")
     print("🤖 REAL AI agents | REAL vector search | REAL everything")

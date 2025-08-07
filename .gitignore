@@ -1,5 +1,5 @@
 # ================================
-# 🚀 Convergio2030 - .gitignore
+# 🚀 Convergio - .gitignore
 # Full-stack AI application
 # ================================
 
@@ -252,7 +252,9 @@ web_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variable files
+# dotenv environment variables file
+frontend/.env
+backend/.env
 .env.development.local
 .env.test.local
 .env.production.local
@@ -459,6 +461,11 @@ datasets/
 *.csv.gz
 *.jsonl.gz
 
+# Runtime data and serialization
+data/
+data/serialization/
+data/agent_backups/
+
 # ================================
 # 📦 PACKAGE MANAGERS
 # ================================
@@ -556,6 +563,18 @@ vulnerability-reports/
 *.cpuprofile
 *.heapprofile
 
+# Performance test results
+performance_results.json
+performance_optimization_results.json
+logs/performance_results.json
+logs/performance_optimization_results.json
+
+# Startup logs
+startup.log
+startup_test.log
+logs/startup.log
+logs/startup_test.log
+
 # ================================
 # 🌍 INTERNATIONALIZATION
 # ================================
@@ -589,7 +608,7 @@ settings.local.*
 # ================================
 # 🎯 PROJECT SPECIFIC
 # ================================
-# Convergio2030 specific ignores
+# Convergio specific ignores
 test_*.py.bak
 debug-*.js
 *.debug.log
@@ -600,6 +619,13 @@ after-login.png
 # Temporary test files
 test_backend.py.tmp
 create_test_user.py.bak
+
+# Kiro IDE specific files and directories
+.kiro/
+.kiro/**/*
+
+# Legacy specific files (can be removed later)
 .kiro/specs/convergio-vision-implementation/design.md
 .kiro/specs/convergio-vision-implementation/requirements.md
 .kiro/specs/convergio-vision-implementation/tasks.md
+ExecutionPlan.md

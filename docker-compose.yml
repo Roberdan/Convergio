@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./backend/src:/app/src
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+      - redis
+    command: uvicorn src.main:app --host 0.0.0.0 --port 9000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    env_file:
+      - ./frontend/.env
+    command: npm run dev -- --port 4000 --host
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=convergio_db
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+
+volumes:
+  postgres_data:
+

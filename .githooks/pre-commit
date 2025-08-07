@@ -1,0 +1,57 @@
+#!/bin/bash
+# 🚀 Convergio Pre-commit Hook
+# Auto-updates build number on each commit
+
+set -e
+
+echo "🔄 Updating build version..."
+
+# Get current version info
+CURRENT_VERSION=$(cat VERSION | tr -d '\n')
+COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+NEXT_COMMIT_COUNT=$((COMMIT_COUNT + 1))
+
+# Extract major.minor from current version
+MAJOR_MINOR=$(echo "$CURRENT_VERSION" | cut -d'.' -f1-2)
+
+# Create new version with updated build number
+NEW_VERSION="${MAJOR_MINOR}.${NEXT_COMMIT_COUNT}"
+
+# Update VERSION file
+echo "$NEW_VERSION" > VERSION
+
+# Add VERSION file to the commit
+git add VERSION
+
+echo "✅ Version updated: $CURRENT_VERSION → $NEW_VERSION"
+
+# Optional: Update CHANGELOG.md with build info
+if [[ -f "CHANGELOG.md" ]]; then
+    # Get current date
+    CURRENT_DATE=$(date +"%Y-%m-%d")
+    
+    # Check if there's already an entry for today
+    if ! grep -q "## \[${NEW_VERSION}\] - ${CURRENT_DATE}" CHANGELOG.md; then
+        # Create a temporary file with the new entry
+        cat > /tmp/changelog_entry << EOF
+## [${NEW_VERSION}] - ${CURRENT_DATE}
+
+### 🔄 **Build Update**
+- Automatic build number increment
+- Commit: \$(git rev-parse --short HEAD)
+
+EOF
+        
+        # Insert the new entry after the first line (title)
+        sed -i.bak '1r /tmp/changelog_entry' CHANGELOG.md
+        rm /tmp/changelog_entry
+        rm CHANGELOG.md.bak 2>/dev/null || true
+        
+        # Add CHANGELOG.md to the commit
+        git add CHANGELOG.md
+        
+        echo "📝 CHANGELOG.md updated"
+    fi
+fi
+
+echo "🎉 Pre-commit hook completed successfully!"
