@@ -9,7 +9,7 @@ const config = {
 		adapter: adapter({
 			out: 'build',
 			precompress: false,
-			envPrefix: 'CONVERGIO2030_'
+			envPrefix: 'CONVERGIO_'
 		}),
 		
 		// Configure the development server

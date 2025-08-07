@@ -7,8 +7,11 @@
   
   // Simple navigation items
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', iconPath: '/convergio_icons/dashboard.svg' },
+    { href: '/ceo-dashboard', label: 'CEO Dashboard', iconPath: '/convergio_icons/dashboard.svg' },
     { href: '/agents', label: 'AI Team', iconPath: '/convergio_icons/users.svg' },
+    { href: '/agent-management', label: 'Agent Manager', iconPath: '/convergio_icons/settings.svg' },
+    { href: '/swarm-coordination', label: 'Swarm Intelligence', iconPath: '/convergio_icons/graphflow_engine.svg' },
+    { href: '/dashboard', label: 'Analytics', iconPath: '/convergio_icons/analytics.svg' },
     { href: '/settings', label: 'Settings', iconPath: '/convergio_icons/settings.svg' }
   ];
   
@@ -32,7 +35,7 @@
       }
     } catch (error) {
       // Use fallback version
-      healthStatus = { app_version: '0.3', build_number: '2' };
+      healthStatus = { version: '1.0.0', build: 'unknown' };
     }
   });
   
@@ -65,7 +68,7 @@
           </button>
           <div class="hidden md:block h-4 w-px bg-gray-300"></div>
           <div class="hidden md:block text-xs text-gray-500 tracking-wide">
-            v{healthStatus?.app_version || '0.3'}.{healthStatus?.build_number || '2'} • {currentPath.replace('/', '') || 'home'}
+            v{healthStatus?.version || '1.0.0'} • {currentPath.replace('/', '') || 'home'}
           </div>
         </div>
         

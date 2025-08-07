@@ -17,7 +17,7 @@
 		"declaration": false,
 		"declarationMap": false,
 		"noEmit": true,
-		"preserveValueImports": true,
+		"verbatimModuleSyntax": true,
 		"types": ["vite/client", "@testing-library/jest-dom"]
 	},
 	"include": [

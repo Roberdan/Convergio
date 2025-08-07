@@ -1,5 +1,5 @@
 /**
- * 🔐 Convergio2030 Server Hooks
+ * 🔐 Convergio Server Hooks
  * Server-side authentication and security handling
  */
 

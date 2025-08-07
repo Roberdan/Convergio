@@ -59,8 +59,8 @@
               <span class="text-gray-500">Starting...</span>
             {/if}
           </div>
-          <span class="text-xs text-gray-500 font-mono" title="Version: {healthStatus?.app_version || '0.3'}.{healthStatus?.build_number || '2'}">
-            v{healthStatus?.app_version || '0.3'}.{healthStatus?.build_number || '2'}
+          <span class="text-xs text-gray-500 font-mono" title="Version: {healthStatus?.version || '1.0.0'} Build: {healthStatus?.build || 'unknown'}">
+            v{healthStatus?.version || '1.0.0'}
           </span>
         </div>
       </div>
@@ -81,7 +81,7 @@
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <button
-          on:click={() => goto('/dashboard')}
+          on:click={() => goto('/ceo-dashboard')}
           class="flex items-center justify-center px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-all transform hover:scale-[1.02] shadow-lg"
         >
           <img src="/convergio_icons/dashboard.svg" alt="" class="mr-3 h-5 w-5" />

@@ -1,5 +1,5 @@
 /**
- * 🔐 Convergio2030 Client Hooks
+ * 🔐 Convergio Client Hooks
  * Client-side security and error handling
  */
 

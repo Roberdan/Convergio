@@ -1,6 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import AgentIcons from '$lib/components/AgentIcons.svelte';
+  import AgentStatus from '$lib/components/AgentStatus.svelte';
+  import ConversationManager from '$lib/components/ConversationManager.svelte';
+  import { conversationManager, currentAgentId } from '$lib/stores/conversationStore';
 
   interface Agent {
     id: number;
@@ -10,6 +13,7 @@
     specialty: string;
     personality: string;
     is_featured: boolean;
+    key?: string;  // Backend agent key
   }
 
   interface Message {
@@ -23,6 +27,9 @@
   // Search functionality
   let searchQuery = '';
   let selectedSkill = '';
+  
+  // Conversation management
+  let showConversationManager = false;
   
   // Complete AI agents list (40+)
   const allAgents: Agent[] = [
@@ -39,7 +46,8 @@
     {
       id: 2,
       name: "Amy",
-      role: "CFO",
+      key: "amy_cfo",
+      role: "CFO", 
       description: "Financial analysis and strategic planning",
       specialty: "Financial modeling, budgeting, investment analysis",
       personality: "Analytical, detail-oriented, fiscally responsible",
@@ -48,6 +56,7 @@
     {
       id: 3,
       name: "Baccio",
+      key: "baccio_tech_architect",
       role: "Tech Architect",
       description: "System architecture and technical strategy",
       specialty: "Cloud architecture, scalability, technical decision-making",
@@ -57,6 +66,7 @@
     {
       id: 4,
       name: "Sofia",
+      key: "sofia_marketing_strategist",
       role: "Marketing Strategist",
       description: "Marketing campaigns and growth strategies",
       specialty: "Brand positioning, digital marketing, customer acquisition",
@@ -66,6 +76,7 @@
     {
       id: 5,
       name: "Luca",
+      key: "luca_security_expert",
       role: "Security Expert",
       description: "Cybersecurity and risk management",
       specialty: "Security audits, risk assessment, compliance",
@@ -75,6 +86,7 @@
     {
       id: 6,
       name: "Giulia",
+      key: "giulia_hr_talent_acquisition",
       role: "HR Director",
       description: "Human resources and talent management",
       specialty: "Recruitment, team development, organizational culture",
@@ -85,6 +97,7 @@
     {
       id: 7,
       name: "Marco",
+      key: "marco_devops_engineer",
       role: "Operations Director",
       description: "Operational excellence and process optimization",
       specialty: "Operations management, process improvement, supply chain",
@@ -93,7 +106,8 @@
     },
     {
       id: 8,
-      name: "Francesco",
+      name: "Elena",
+      key: "elena_legal_compliance_expert",
       role: "Legal Advisor",
       description: "Legal compliance and risk management",
       specialty: "Corporate law, contracts, compliance, intellectual property",
@@ -104,6 +118,7 @@
     {
       id: 9,
       name: "Davide",
+      key: "davide_project_manager",
       role: "Project Manager",
       description: "Project coordination and delivery management",
       specialty: "Agile methodologies, team coordination, timeline management",
@@ -113,6 +128,7 @@
     {
       id: 10,
       name: "Omri",
+      key: "omri_data_scientist",
       role: "Data Scientist",
       description: "Data analysis and machine learning insights",
       specialty: "Predictive analytics, data mining, ML algorithms, statistical analysis",
@@ -121,7 +137,8 @@
     },
     {
       id: 11,
-      name: "Elena",
+      name: "Dan",
+      key: "dan_engineering_gm",
       role: "DevOps Engineer",
       description: "Infrastructure and deployment automation",
       specialty: "CI/CD, cloud infrastructure, monitoring, containerization",
@@ -132,6 +149,7 @@
     {
       id: 12,
       name: "Andrea",
+      key: "andrea_customer_success_manager",
       role: "Sales Director",
       description: "Revenue generation and customer acquisition",
       specialty: "B2B sales, customer relationship management, pipeline optimization",
@@ -140,7 +158,8 @@
     },
     {
       id: 13,
-      name: "Chiara",
+      name: "Sara",
+      key: "sara_ux_ui_designer",
       role: "UX Designer",
       description: "User experience and interface design",
       specialty: "User research, wireframing, prototyping, accessibility",
@@ -149,7 +168,8 @@
     },
     {
       id: 14,
-      name: "Valentina",
+      name: "Riccardo",
+      key: "riccardo_storyteller",
       role: "Content Creator",
       description: "Content strategy and brand storytelling",
       specialty: "Content marketing, copywriting, brand voice, SEO",
@@ -160,6 +180,7 @@
     {
       id: 15,
       name: "Matteo",
+      key: "matteo_strategic_business_architect",
       role: "Financial Analyst",
       description: "Advanced financial modeling and forecasting",
       specialty: "Financial planning, investment analysis, budget forecasting",
@@ -169,6 +190,7 @@
     {
       id: 16,
       name: "Serena",
+      key: "andrea_customer_success_manager",
       role: "Customer Success",
       description: "Customer satisfaction and retention specialist",
       specialty: "Customer onboarding, support, retention strategies",
@@ -179,6 +201,7 @@
     {
       id: 17,
       name: "Roberto",
+      key: "satya_board_of_directors",
       role: "CEO Advisor",
       description: "Executive strategy and business transformation",
       specialty: "Strategic planning, digital transformation, C-suite advisory",
@@ -187,7 +210,8 @@
     },
     {
       id: 18,
-      name: "Alice",
+      name: "Antonio",
+      key: "antonio_strategy_expert",
       role: "Innovation Manager",
       description: "Innovation strategies and emerging technologies",
       specialty: "Innovation management, emerging tech, R&D strategy",
@@ -206,6 +230,7 @@
     {
       id: 20,
       name: "Diana",
+      key: "diana_performance_dashboard",
       role: "Quality Assurance",
       description: "Quality management and process improvement",
       specialty: "QA processes, compliance, continuous improvement",
@@ -434,24 +459,57 @@
 
   function selectAgent(agent: Agent) {
     selectedAgent = agent;
-    messages = [{
-      id: Date.now(),
-      type: 'ai',
-      content: `Hello! I'm ${agent.name}, your ${agent.role}. ${agent.description}. How can I assist you with ${capitalizeSpecialty(agent.specialty).toLowerCase()} today?`,
-      timestamp: new Date()
-    }];
+    showConversationManager = true;
+    
+    // Switch conversation context
+    if (agent.key) {
+      conversationManager.switchToAgent(agent.key);
+      currentAgentId.set(agent.key);
+    }
+    
+    // Load existing conversation or create welcome message
+    const conversation = conversationManager.getConversation(agent.key || agent.name.toLowerCase());
+    if (conversation && conversation.messages.length > 0) {
+      // Convert conversation messages to local format
+      messages = conversation.messages.map(msg => ({
+        id: msg.id,
+        type: msg.role === 'user' ? 'user' : 'ai',
+        content: msg.content,
+        timestamp: new Date(msg.timestamp),
+        agents_used: msg.agents_used
+      }));
+    } else {
+      // Create welcome message
+      messages = [{
+        id: Date.now(),
+        type: 'ai',
+        content: `Hello! I'm ${agent.name}, your ${agent.role}. ${agent.description}. How can I assist you with ${capitalizeSpecialty(agent.specialty).toLowerCase()} today?`,
+        timestamp: new Date()
+      }];
+    }
   }
 
   async function sendMessage() {
     if (!currentMessage.trim()) return;
     
     // Add user message
-    messages = [...messages, {
+    const userMessage = {
       id: Date.now(),
       type: 'user',
       content: currentMessage.trim(),
       timestamp: new Date()
-    }];
+    };
+    messages = [...messages, userMessage];
+    
+    // Save user message to conversation store
+    if (selectedAgent.key) {
+      conversationManager.addMessage(selectedAgent.key, {
+        id: userMessage.id,
+        role: 'user',
+        content: userMessage.content,
+        timestamp: userMessage.timestamp.toISOString()
+      });
+    }
     
     const messageToSend = currentMessage.trim();
     currentMessage = '';
@@ -511,6 +569,20 @@
       }];
     } finally {
       isLoading = false;
+      
+      // Save conversation to store
+      if (selectedAgent.key && messages.length > 0) {
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.type === 'ai') {
+          conversationManager.addMessage(selectedAgent.key, {
+            id: lastMessage.id,
+            role: 'assistant',
+            content: lastMessage.content,
+            timestamp: lastMessage.timestamp.toISOString(),
+            agents_used: lastMessage.agents_used
+          });
+        }
+      }
     }
   }
 
@@ -612,6 +684,12 @@
   }
 
   onMount(() => {
+    // Initialize conversations for all agents
+    allAgents.forEach(agent => {
+      if (agent.key) {
+        conversationManager.initializeConversation(agent.key, agent.name);
+      }
+    });
     // Initialize with Ali's welcome message
     selectAgent(featuredAgents[0]);
   });
@@ -680,10 +758,13 @@
                     <div class="text-xs text-gray-500">{agent.role}</div>
                     <div class="text-xs text-gray-400 truncate mt-0.5">{capitalizeSpecialty(agent.specialty)}</div>
                   </div>
-                  {#if agent.is_featured}
-                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Featured</span>
-                  {:else if selectedAgent.id === agent.id}
-                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  {#if agent.key}
+                    <AgentStatus agentId={agent.key} agentName={agent.name} compact={true} />
+                  {:else}
+                    <div class="flex items-center space-x-1 px-2 py-1 bg-gray-100 rounded-full">
+                      <div class="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+                      <span class="text-xs text-gray-500 font-medium">Ready</span>
+                    </div>
                   {/if}
                 </div>
               </button>

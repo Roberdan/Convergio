@@ -13,13 +13,13 @@
     if (routeId?.includes('analytics')) return 'Analytics';
     if (routeId?.includes('costs')) return 'Cost Management';
     if (routeId === '/') return 'Home';
-    return 'Convergio2030';
+    return 'Convergio';
   }
 </script>
 
 <svelte:head>
-  <title>{pageTitle} - Convergio2030</title>
-  <meta name="description" content="Convergio2030 - Unified AI-Native Enterprise Platform (No Auth Required)" />
+  <title>{pageTitle} - Convergio</title>
+  <meta name="description" content="Convergio - Unified AI-Native Enterprise Platform (No Auth Required)" />
 </svelte:head>
 
 <!-- Root Layout - Super Clean, No Auth -->
