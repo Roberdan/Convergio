@@ -1,58 +1,58 @@
-# 🎨 Convergio2030 Frontend
+# 🎨 Convergio Frontend
 
-Modern SvelteKit frontend per la piattaforma Convergio2030 unificata.
+Modern SvelteKit frontend for the unified Convergio platform.
 
 ## 🚀 Quick Start
 
 ```bash
-# Installa dipendenze
+# Install dependencies
 npm install
 
-# Avvia dev server (porta 4000)
+# Start dev server (port 4000)
 npm run dev
 
-# Build per produzione
+# Build for production
 npm run build
 ```
 
-## 🏗️ Architettura
+## 🏗️ Architecture
 
 ```
 src/
 ├── routes/                 # SvelteKit routes
-│   ├── +layout.svelte     # Layout globale
+│   ├── +layout.svelte     # Global layout
 │   ├── +page.svelte       # Home page
-│   ├── login/             # Pagina login
-│   └── (app)/             # App protetta
-│       ├── +layout.svelte # Layout app autenticata
-│       ├── dashboard/     # Dashboard principale
-│       ├── agents/        # Chat AI agents
+│   ├── login/             # Login page
+│   └── (app)/             # Protected app
+│       ├── +layout.svelte # Authenticated app layout
+│       ├── dashboard/     # Main dashboard
+│       ├── agents/        # AI agents chat
 │       ├── vector/        # Vector search
 │       └── analytics/     # Analytics & costs
 ├── lib/
-│   ├── auth/              # Sistema autenticazione
-│   │   ├── auth.store.ts  # Svelte store per auth state
+│   ├── auth/              # Authentication system
+│   │   ├── auth.store.ts  # Svelte store for auth state
 │   │   ├── auth.types.ts  # Type definitions
-│   │   └── auth.utils.ts  # Utilities auth
-│   ├── components/        # Componenti riutilizzabili
-│   │   └── Navigation.svelte # Menu navigazione
-│   └── api-client.ts      # Client API unificato
+│   │   └── auth.utils.ts  # Auth utilities
+│   ├── components/        # Reusable components
+│   │   └── Navigation.svelte # Navigation menu
+│   └── api-client.ts      # Unified API client
 ├── app.css               # Tailwind + design system
-└── app.html              # Template HTML base
+└── app.html              # Base HTML template
 ```
 
-## 🔐 Autenticazione
+## 🔐 Authentication
 
-Sistema di autenticazione **completamente sicuro** integrato con il backend:
+**Completely secure** authentication system integrated with backend:
 
 ### Features
-- **JWT RS256** con refresh automatico
-- **Svelte stores** per gestione stato
-- **Route protection** automatica
+- **JWT RS256** with automatic refresh
+- **Svelte stores** for state management
+- **Route protection** automatic
 - **Token persistence** in localStorage
-- **Auto-redirect** su scadenza token
+- **Auto-redirect** on token expiration
 
-### Utilizzo
+### Usage
 ```typescript
 import { authStore, isAuthenticated, currentUser } from '$lib/auth/auth.store';
 
@@ -69,26 +69,26 @@ $currentUser     // User object
 
 ## 🤖 AI Agents Integration
 
-Chat interface per tutti i **50+ agenti reali**:
+Chat interface for all **41+ real agents**:
 
 ### Features
-- **Lista agenti dinamica** dal backend
-- **Chat interface moderna** con cronologia
-- **Execution tracking** in tempo reale
-- **Error handling** robusto
-- **Responsive design** mobile-friendly
+- **Dynamic agent list** from backend
+- **Modern chat interface** with history
+- **Real-time execution tracking**
+- **Robust error handling**
+- **Mobile-friendly responsive design**
 
-### Componenti
-- `routes/(app)/agents/+page.svelte` - Pagina principale agenti
-- Lista agenti dinamica con metadata
-- Chat interface con typing indicators
-- History management con localStorage
+### Components
+- `routes/(app)/agents/+page.svelte` - Main agents page
+- Dynamic agent list with metadata
+- Chat interface with typing indicators
+- History management with localStorage
 
 ## 🎨 Design System
 
-Design system basato su **Tailwind CSS** con tema custom:
+Design system based on **Tailwind CSS** with custom theme:
 
-### Colori
+### Colors
 ```css
 /* Convergio Brand Colors */
 primary: blue (0ea5e9 → 0c4a6e)
@@ -101,7 +101,7 @@ warning: yellow
 error: red
 ```
 
-### Componenti CSS
+### CSS Components
 ```css
 /* Buttons */
 .btn, .btn-primary, .btn-secondary, .btn-outline, .btn-ghost
@@ -114,14 +114,14 @@ error: red
 ```
 
 ### Dark Mode
-Supporto completo dark mode con:
-- Classi CSS custom properties
-- Toggle automatico tema sistema
-- Persistenza preferenze utente
+Complete dark mode support with:
+- Custom CSS properties classes
+- Automatic system theme toggle
+- User preference persistence
 
 ## 📱 Responsive Design
 
-Design **mobile-first** con breakpoints:
+**Mobile-first** design with breakpoints:
 
 ```css
 sm: 640px   # Smartphone landscape
@@ -131,31 +131,31 @@ xl: 1280px  # Large desktop
 ```
 
 ### Navigation
-- **Desktop**: Menu orizzontale con dropdown utente
-- **Mobile**: Hamburger menu con overlay
-- **Tablet**: Layout adattivo automatico
+- **Desktop**: Horizontal menu with user dropdown
+- **Mobile**: Hamburger menu with overlay
+- **Tablet**: Automatic adaptive layout
 
 ## 🔗 API Integration
 
-Client API unificato per comunicazione backend:
+Unified API client for backend communication:
 
 ### Features
-- **Automatic auth headers** con JWT
-- **Error handling** centralizzato  
+- **Automatic auth headers** with JWT
+- **Centralized error handling**
 - **Request/response interceptors**
 - **Timeout management**
-- **Retry logic** su fallimenti rete
+- **Retry logic** on network failures
 
-### Utilizzo
+### Usage
 ```typescript
 import { api } from '$lib/api-client';
 
-// Agenti
+// Agents
 const agents = await api.getAgents();
 const result = await api.executeAgent('ali-chief-of-staff', 'Hello');
 
 // Vector search
-const docs = await api.searchDocuments('query di ricerca');
+const docs = await api.searchDocuments('search query');
 
 // Analytics  
 const dashboard = await api.getDashboard('7d');
@@ -164,7 +164,7 @@ const metrics = await api.getMetrics();
 
 ## 🧪 Testing
 
-Setup completo per testing:
+Complete testing setup:
 
 ### Unit Tests
 ```bash
@@ -188,25 +188,25 @@ npm run build-storybook # Build stories
 
 ## 🔧 Development
 
-### Scripts Disponibili
+### Available Scripts
 ```bash
-npm run dev           # Dev server (porta 4000)
-npm run build         # Build produzione
+npm run dev           # Dev server (port 4000)
+npm run build         # Production build
 npm run preview       # Preview build
 npm run check         # Type checking
 npm run lint          # ESLint + Prettier
-npm run format        # Auto-format codice
+npm run format        # Auto-format code
 ```
 
 ### Environment Variables
 ```bash
 # .env.local
-CONVERGIO2030_API_URL=http://localhost:9000
-CONVERGIO2030_ENV=development
+VITE_API_URL=http://localhost:9000
+VITE_ENV=development
 ```
 
 ### Proxy Configuration
-Il dev server è configurato per proxy automatico delle API:
+Dev server configured for automatic API proxy:
 
 ```typescript
 // vite.config.ts
@@ -223,7 +223,7 @@ server: {
 ### Development
 ```bash
 npm run dev
-# Apri http://localhost:4000
+# Open http://localhost:4000
 ```
 
 ### Production Build
@@ -232,7 +232,7 @@ npm run build
 npm run preview
 ```
 
-### Docker (Opzionale)
+### Docker (Optional)
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -248,12 +248,12 @@ CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0"]
 
 ### Bundle Size
 - **Main bundle**: ~150KB gzipped
-- **Vendor chunks**: Separati automaticamente
-- **Code splitting**: Route-based automatico
-- **Tree shaking**: Ottimizzazione automatica
+- **Vendor chunks**: Automatically separated
+- **Code splitting**: Automatic route-based
+- **Tree shaking**: Automatic optimization
 
 ### Lighthouse Score
-Target produzione:
+Production targets:
 - **Performance**: 90+
 - **Accessibility**: 95+  
 - **Best Practices**: 90+
@@ -261,7 +261,7 @@ Target produzione:
 
 ## 🔒 Security
 
-### Headers Sicurezza
+### Security Headers
 ```typescript
 // hooks.server.ts
 response.headers.set('X-Frame-Options', 'DENY');
@@ -271,27 +271,27 @@ response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
 ### Content Security Policy
 ```html
-<!-- CSP automatica in produzione -->
+<!-- Automatic CSP in production -->
 script-src 'self'; 
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
 connect-src 'self' http://localhost:9000;
 ```
 
 ### Auth Security
-- **JWT validation** su ogni request
-- **Auto-logout** su token scaduto
-- **Secure storage** con TTL
+- **JWT validation** on every request
+- **Auto-logout** on token expiration
+- **Secure storage** with TTL
 - **CSRF protection** built-in SvelteKit
 
-## 🎯 Features Principali
+## 🎯 Main Features
 
-### ✅ Implementate
-- 🔐 **Autenticazione JWT completa**
-- 🏠 **Dashboard con metriche real-time**  
-- 🤖 **Chat con 50+ AI agents reali**
+### ✅ Implemented
+- 🔐 **Complete JWT authentication**
+- 🏠 **Dashboard with real-time metrics**  
+- 🤖 **Chat with 41+ real AI agents**
 - 🔍 **Vector search interface**
-- 📊 **Analytics e cost management**
-- 📱 **Design responsive**
+- 📊 **Analytics and cost management**
+- 📱 **Responsive design**
 - 🌙 **Dark mode support**
 - 🔒 **Security headers**
 
@@ -305,4 +305,4 @@ connect-src 'self' http://localhost:9000;
 
 ---
 
-**Frontend moderno, sicuro e performante per Convergio2030** 🚀
+**Modern, secure and performant frontend for Convergio** 🚀
