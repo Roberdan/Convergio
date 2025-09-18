@@ -8,15 +8,16 @@ CRUD operations, analytics, and workflow management.
 
 from datetime import datetime
 from typing import List, Optional, Any
+import fastapi
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func, insert, select as sa_select, update, text
 
-from ..core.database import get_db_session
-from ..models.engagement import Engagement
-from ..models.activity import Activity
+from src.core.database import get_db_session
+from src.models.engagement import Engagement
+from src.models.activity import Activity
 
 router = APIRouter(tags=["projects"])
 
@@ -398,8 +399,9 @@ async def get_projects_overview(
         }
         
     except Exception as e:
+        print("Error:",e)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve projects overview: {str(e)}"
         )
 

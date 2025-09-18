@@ -10,7 +10,7 @@ from typing import List, Optional
 from datetime import datetime
 from autogen_agentchat.agents import AssistantAgent
 from .per_turn_rag import RAGEnhancedGroupChat, PerTurnRAGInjector
-from agents.utils.config import get_settings
+from src.agents.utils.config import get_settings
 from .turn_by_turn_selector import TurnByTurnSelectorGroupChat, IntelligentSpeakerSelector
 from .selection_policy import IntelligentSpeakerSelector as PolicySelector
 

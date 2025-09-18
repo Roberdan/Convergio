@@ -106,18 +106,18 @@ class HealthMonitor:
             "status": "running" if self._running else "stopped",
             "check_interval": self.check_interval,
         }
-from agents.services.groupchat.intelligent_router import IntelligentAgentRouter
+from src.agents.services.groupchat.intelligent_router import IntelligentAgentRouter
 # RAG functionality is now dynamically imported in initialize() method when enabled
-from agents.services.groupchat.metrics import extract_agents_used, estimate_cost
-from services.unified_cost_tracker import unified_cost_tracker
-from agents.services.agent_intelligence import AgentIntelligence
-from agents.security.ai_security_guardian import AISecurityGuardian
-from agents.services.agent_loader import DynamicAgentLoader
-from agents.tools.web_search_tool import get_web_tools
-from agents.tools.database_tools import get_database_tools
-from agents.tools.vector_search_tool import get_vector_tools
-from core.ai_clients import get_autogen_client
-from core.config import get_settings
+from src.agents.services.groupchat.metrics import extract_agents_used, estimate_cost
+from src.services.unified_cost_tracker import unified_cost_tracker
+from src.agents.services.agent_intelligence import AgentIntelligence
+from src.agents.security.ai_security_guardian import AISecurityGuardian
+from src.agents.services.agent_loader import DynamicAgentLoader
+from src.agents.tools.web_search_tool import get_web_tools
+from src.agents.tools.database_tools import get_database_tools
+from src.agents.tools.vector_search_tool import get_vector_tools
+from src.core.ai_clients import get_autogen_client
+from src.core.config import get_settings
 
 logger = structlog.get_logger()
 

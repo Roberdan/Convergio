@@ -16,7 +16,7 @@ import redis.asyncio as redis
 from autogen_agentchat.messages import TextMessage
 
 from ..tools.vector_search_client import embed_text, search_similar
-from core.redis import get_redis_client
+from src.core.redis import get_redis_client
 
 logger = structlog.get_logger()
 

@@ -169,14 +169,17 @@ async def init_db() -> None:
         async_engine = engine
         
         # Create session factory for primary
-        async_session_factory = async_sessionmaker(
-            async_engine,
-            class_=CustomAsyncSession,
-            expire_on_commit=False,  # Keep objects usable after commit
-            autoflush=True,  # Auto-flush before queries
-            autocommit=False,  # Explicit transaction control
-        )
-        
+        try:
+            async_session_factory = async_sessionmaker(
+                async_engine,
+                class_=CustomAsyncSession,
+                expire_on_commit=False,  # Keep objects usable after commit
+                autoflush=True,  # Auto-flush before queries
+                autocommit=False,  # Explicit transaction control
+            )
+        except Exception as e:
+            logger.error("Unable to create async db session")
+
         # Create read replica engine and session factory if configured
         settings = get_settings()
         if hasattr(settings, 'DATABASE_READ_URL') and settings.DATABASE_READ_URL:
@@ -416,9 +419,14 @@ async def ensure_dev_schema() -> None:
                 if row and row[0] != 'vector':
                     # Try to alter column type to vector; cast from JSON/text via pgvector
                     # Note: assumes JSON array of floats stored as text; we recreate from text -> vector
-                    await conn.execute(text(
-                        "ALTER TABLE public.document_embeddings ALTER COLUMN embedding TYPE vector USING (to_vector(embedding::text))"
-                    ))
+                    
+                    alter_embedding = "ALTER TABLE public.document_embeddings ALTER COLUMN embedding TYPE vector(1536) USING (embedding::vector(1536))"
+
+#"ALTER TABLE public.document_embeddings ALTER COLUMN embedding TYPE vector USING (to_vector(embedding::text))"
+
+                    await conn.execute(text(alter_embedding))       
+
+                        
                     logger.info("🔄 Converted embedding column to vector type")
             except Exception as conv_e:
                 logger.warning("⚠️ Unable to convert embedding column to vector type", error=str(conv_e))

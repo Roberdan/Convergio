@@ -19,13 +19,13 @@ from dataclasses import dataclass
 import httpx
 import structlog
 # Use absolute imports so pytest with python_paths=backend/src can import correctly
-from agents.utils.config import get_settings
+from src.agents.utils.config import get_settings
 from sqlalchemy import and_, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from agents.services.redis_state_manager import RedisStateManager
-from core.database import get_async_session, get_async_read_session
-from models.cost_tracking import (
+from src.agents.services.redis_state_manager import RedisStateManager
+from src.core.database import get_async_session, get_async_read_session
+from src.models.cost_tracking import (
     CostAlert, CostSession, CostStatus, CostTracking,
     DailyCostSummary, Provider, ProviderPricing
 )
@@ -385,7 +385,10 @@ class UnifiedCostTracker:
         """Get REAL-time cost overview with DATABASE TOTALS + CURRENT SESSION DETAIL"""
         try:
             # Check if database is initialized
-            from core.database import async_read_session_factory
+            from core.database import get_async_read_session_factory
+            from core.database import init_db
+            await init_db()
+            async_read_session_factory = get_async_read_session_factory()
             if async_read_session_factory is None:
                 logger.warning("⚠️ Database not initialized yet, returning empty overview")
                 return {

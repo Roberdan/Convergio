@@ -24,7 +24,7 @@ router = APIRouter(tags=["Vector Search"])
 
 # Real OpenAI configuration
 settings = get_settings()
-OPENAI_API_URL = "https://api.openai.com/v1"
+OPENAI_API_URL = "https://vitaledopenaitest001.openai.azure.com/openai/v1/" #settings.OPENAI_API_BASE or os.getenv('OPENAI_APPI_BASE',"https://vitaledopenaitest001.openai.azure.com/openai/v1/")
 
 def _openai_headers(request: Request) -> dict:
     """Build OpenAI headers using user session key if present, otherwise fallback to settings."""
@@ -42,7 +42,7 @@ def _openai_headers(request: Request) -> dict:
 # Request/Response models
 class EmbeddingRequest(BaseModel):
     text: str
-    model: str = "text-embedding-ada-002"
+    model: str = "text-embedding-3-small"
 
 
 class EmbeddingResponse(BaseModel):
@@ -101,6 +101,9 @@ async def generate_embeddings(
     """
     
     try:
+
+        #https://vitaledopenaitest001.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15
+
         # Generate embeddings using real OpenAI API
         async with httpx.AsyncClient() as client:
             response = await client.post(

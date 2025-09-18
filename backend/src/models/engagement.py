@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from core.database import Base
+from src.core.database import Base
 # Ensure Activity mapper is registered so relationship string resolves during mapper setup
 from .activity import Activity  # noqa: F401
 
@@ -29,10 +29,10 @@ class Engagement(Base):
     __tablename__ = "engagements"
     
     # Primary key
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)#, index=True)
     
     # Engagement information
-    title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)#, index=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     
     # Status and progress tracking

@@ -12,7 +12,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 
-from core.database import Base
+from src.core.database import Base
 
 
 class Talent(Base):
@@ -21,14 +21,16 @@ class Talent(Base):
     __tablename__ = "talents"
     __table_args__ = {'extend_existing': True}
     
+    # id, first_name, last_name, email, phone, location, department, role,skills, experience_years, bio, is_active, rating, metadata, created_at, updated_at
+
     # Primary key
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)#, index=True)
     
     # Basic info - matching existing schema
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)#, index=True)
     first_name: Mapped[Optional[str]] = mapped_column(String(100))
     last_name: Mapped[Optional[str]] = mapped_column(String(100))
-    
+    department: Mapped[Optional[str]] = mapped_column(String(512))
     # Legacy fields - matching existing schema
     password_hash: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # Legacy field
     is_admin: Mapped[Optional[bool]] = mapped_column(Boolean, default=False)      # Legacy field
@@ -119,6 +121,13 @@ class Talent(Base):
         result = await db.execute(query)
         return result.scalar_one_or_none()
     
+    @classmethod
+    async def get_by_department(cls, db: AsyncSession, department: str) -> Optional["Talent"]:
+        """Get talent by department (using department name)"""
+        query = select(cls).where(cls.department==department)
+        result = await db.execute(query)
+        return result.scalar_one_or_none()
+
     @classmethod
     async def get_by_email(cls, db: AsyncSession, email: str) -> Optional["Talent"]:
         """Get talent by email"""

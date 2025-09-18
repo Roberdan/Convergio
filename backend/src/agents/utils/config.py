@@ -229,6 +229,8 @@ def load_env_from_root():
     # Find the .env file in project root
     current = Path.cwd()
     
+    print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEHHH "+str(current))
+
     while current != current.parent:
         env_file = current / ".env"
         if env_file.exists():
@@ -255,6 +257,7 @@ def load_env_from_root():
                     value = value[1:-1]
                 # Force overwrite environment variables from env file
                 os.environ[key] = value
+                print(key,value)
 
 @lru_cache()
 def get_settings() -> Settings:

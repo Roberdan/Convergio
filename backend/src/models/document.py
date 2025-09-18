@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
 
-from core.database import Base
+from src.core.database import Base
 
 
 class Document(Base):
@@ -22,10 +22,10 @@ class Document(Base):
     __table_args__ = {'extend_existing': True}
     
     # Primary key with auto-increment
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     
     # Document fields
-    title: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     doc_metadata: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON)
     
@@ -45,13 +45,14 @@ class Document(Base):
     )
     indexed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     
-    # Relationships
-    embeddings: Mapped[List["DocumentEmbedding"]] = relationship(
-        "DocumentEmbedding", 
-        back_populates="document",
-        cascade="all, delete-orphan"
-    )
+    # # Relationships
+    # embeddings: Mapped[List["DocumentEmbedding"]] = relationship(
+    #     "src.models.document.DocumentEmbedding", 
+    #     back_populates="document",
+    #     cascade="all, delete-orphan"
+    # )
     
+
     def __repr__(self) -> str:
         return f"<Document(id={self.id}, title='{self.title[:50]}...')>"
     
@@ -191,8 +192,9 @@ class DocumentEmbedding(Base):
     __tablename__ = "document_embeddings"
     __table_args__ = {'extend_existing': True}
     
-    # Primary key with auto-increment
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
+    from sqlalchemy import Identity
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, server_default=Identity(always=False)
+)
     
     # Foreign key to Document
     document_id: Mapped[int] = mapped_column(Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
@@ -215,7 +217,7 @@ class DocumentEmbedding(Base):
     )
     
     # Relationships
-    document: Mapped[Document] = relationship("Document", back_populates="embeddings")
+    #document: Mapped[Document] = relationship("src.models.document.Document", back_populates="embeddings")
     
     def __repr__(self) -> str:
         return f"<DocumentEmbedding(id={self.id}, document_id={self.document_id}, chunk_index={self.chunk_index})>"

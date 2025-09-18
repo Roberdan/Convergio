@@ -10,7 +10,7 @@ import logging
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 
 from ..agent_loader import DynamicAgentLoader, AgentMetadata
-from agents.utils.config import get_settings
+from src.agents.utils.config import get_settings
 
 
 logger = structlog.get_logger()

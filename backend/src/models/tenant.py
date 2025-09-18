@@ -15,7 +15,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
-from core.database import Base
+from src.core.database import Base
 
 
 class TenantStatus(str, Enum):
