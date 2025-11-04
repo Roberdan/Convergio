@@ -33,12 +33,21 @@ slowapi==0.1.9
 # ================================
 # 🤖 AI & AGENTS
 # ================================
-autogen-agentchat==0.7.3
-autogen-core==0.7.3
-autogen-ext==0.7.3
+# Microsoft Agent Framework (next-gen successor to AutoGen)
+agent-framework>=0.1.0
+agent-framework-core>=1.0.0b251016
+agent-framework-azure-ai>=0.1.0
+
+# AI Model Providers
 openai>=1.100.1
 anthropic==0.64.0
 tiktoken>=0.11.0
+
+# Legacy AutoGen (kept temporarily for compatibility layer during migration)
+# TODO: Remove after full migration is complete
+autogen-agentchat==0.7.3
+autogen-core==0.7.3
+autogen-ext==0.7.3
 
 # ================================
 # 🔍 VECTOR SEARCH
