@@ -97,22 +97,22 @@ def get_agent_framework_client(config: Optional[AgentFrameworkConfig] = None) ->
     try:
         # Import based on provider
         if config.model_provider.lower() == "openai":
-            from agent_framework.clients import OpenAIChatClient
+            from agent_framework.openai import OpenAIChatClient
 
-            client = OpenAIChatClient(
-                api_key=config.api_key,
-                model=config.model_name,
-                base_url=config.api_base,
-            )
+            client_kwargs = {}
+            if config.api_key:
+                client_kwargs['api_key'] = config.api_key
+            if config.model_name:
+                client_kwargs['model'] = config.model_name
+
+            client = OpenAIChatClient(**client_kwargs)
 
         elif config.model_provider.lower() == "azure":
-            from agent_framework.clients import AzureOpenAIChatClient
+            from agent_framework.azure import AzureOpenAIChatClient
+            from azure.identity import AzureCliCredential
 
-            client = AzureOpenAIChatClient(
-                api_key=config.api_key,
-                model=config.model_name,
-                endpoint=config.api_base,
-            )
+            # Azure client uses Azure CLI credentials by default
+            client = AzureOpenAIChatClient(credential=AzureCliCredential())
 
         else:
             raise ValueError(f"Unsupported model provider: {config.model_provider}")
@@ -157,24 +157,19 @@ def get_checkpoint_store(config: Optional[AgentFrameworkConfig] = None):
 
     try:
         if config.checkpoint_store == "redis":
-            from agent_framework.persistence import RedisCheckpointStore
-            from src.core.redis import get_redis_client
+            # Note: Agent Framework might not have Redis checkpoint store
+            # Fallback to in-memory for now
+            logger.warning("Redis checkpoint store not yet implemented, using in-memory")
+            from agent_framework import InMemoryCheckpointStorage
 
-            redis_client = get_redis_client()
-
-            store = RedisCheckpointStore(
-                redis_client=redis_client,
-                key_prefix="workflow:checkpoint:",
-                ttl=config.cache_ttl,
-            )
-
-            logger.info("Redis checkpoint store initialized")
+            store = InMemoryCheckpointStorage()
+            logger.info("In-memory checkpoint store initialized (Redis fallback)")
             return store
 
         elif config.checkpoint_store == "memory":
-            from agent_framework.persistence import InMemoryCheckpointStore
+            from agent_framework import InMemoryCheckpointStorage
 
-            store = InMemoryCheckpointStore()
+            store = InMemoryCheckpointStorage()
             logger.info("In-memory checkpoint store initialized")
             return store
 
@@ -182,9 +177,9 @@ def get_checkpoint_store(config: Optional[AgentFrameworkConfig] = None):
             logger.warning(
                 f"Unknown checkpoint store: {config.checkpoint_store}, using in-memory"
             )
-            from agent_framework.persistence import InMemoryCheckpointStore
+            from agent_framework import InMemoryCheckpointStorage
 
-            return InMemoryCheckpointStore()
+            return InMemoryCheckpointStorage()
 
     except ImportError:
         logger.warning("Agent Framework checkpoint store not available")

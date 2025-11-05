@@ -12,7 +12,7 @@ import structlog
 import httpx
 
 try:
-    from agent_framework.decorators import ai_function
+    from agent_framework import ai_function
     AGENT_FRAMEWORK_AVAILABLE = True
 except ImportError:
     # Fallback decorator for when AF is not installed

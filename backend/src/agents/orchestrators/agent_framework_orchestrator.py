@@ -9,15 +9,26 @@ from datetime import datetime
 import structlog
 
 try:
-    from agent_framework import Workflow, WorkflowExecutor, ChatAgent
-    from agent_framework.messages import ChatMessage
-    from agent_framework.decorators import ai_function
+    from agent_framework import (
+        ChatAgent,
+        Workflow,
+        WorkflowBuilder,
+        WorkflowContext,
+        executor,
+        Case,
+        Default,
+        AgentExecutor,
+        AgentExecutorRequest,
+        AgentExecutorResponse,
+        ChatMessage,
+        Role
+    )
     AGENT_FRAMEWORK_AVAILABLE = True
 except ImportError:
     AGENT_FRAMEWORK_AVAILABLE = False
     # Fallback to compatibility layer
     Workflow = None
-    WorkflowExecutor = None
+    WorkflowBuilder = None
     ChatAgent = None
 
 from .base import BaseGroupChatOrchestrator
@@ -61,11 +72,11 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
 
         # Workflow components
         self.workflow: Optional[Workflow] = None
-        self.executor: Optional[WorkflowExecutor] = None
         self.checkpoint_store = None
 
         # Agent registry
         self.agents: Dict[str, ChatAgent] = {}
+        self.agent_executors: Dict[str, AgentExecutor] = {}
         self.agent_metadata: Dict[str, Any] = {}
 
         # Configuration
@@ -74,6 +85,9 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
 
         # Safety
         self.safety_guardian = None
+
+        # Routing context for workflow
+        self.routing_context: Dict[str, Any] = {}
 
         logger.info("Agent Framework Orchestrator initialized", name=name)
 
@@ -100,19 +114,16 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
 
             logger.info(f"Initializing with {len(agents)} agents")
 
+            # Create AgentExecutor wrappers for all agents
+            for agent_name, agent in agents.items():
+                self.agent_executors[agent_name] = AgentExecutor(agent, id=agent_name)
+
             # Initialize checkpoint store if enabled
             if self.config.enable_checkpointing:
                 self.checkpoint_store = get_checkpoint_store(self.config)
 
             # Initialize workflow
-            self.workflow = await self._build_workflow()
-
-            # Create executor
-            self.executor = WorkflowExecutor(
-                workflow=self.workflow,
-                checkpoint_store=self.checkpoint_store,
-                max_iterations=self.max_workflow_iterations
-            )
+            self.workflow = self._build_workflow()
 
             # Initialize safety guardian if enabled
             if kwargs.get("enable_safety", True) and self.config.enable_safety_checks:
@@ -128,238 +139,123 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
             logger.error(f"Failed to initialize orchestrator: {e}")
             return False
 
-    async def _build_workflow(self) -> Workflow:
+    def _build_workflow(self) -> Workflow:
         """
-        Build the workflow graph with agents and routing logic.
+        Build the workflow graph with agents and routing logic using WorkflowBuilder.
 
         Returns:
             Configured Workflow instance
         """
-        workflow = Workflow()
+        builder = WorkflowBuilder()
 
-        # Add entry point
-        workflow.add_executor("start", self._start_handler)
+        # Create custom executors using the @executor decorator pattern
+        # We'll define them as instance methods that return executor functions
 
-        # Add routing node
-        workflow.add_executor("route", self._route_handler)
+        # Start executor
+        @executor(id="start")
+        async def start_executor(message: str, ctx: WorkflowContext[str]) -> None:
+            """Entry point - analyze and route the message"""
+            logger.info("Workflow started", message_length=len(message))
 
-        # Add all agents as executors
-        for agent_name, agent in self.agents.items():
-            workflow.add_executor(agent_name, self._create_agent_executor(agent))
+            # Store context
+            await ctx.set_shared_state("start_time", datetime.now().isoformat())
+            await ctx.set_shared_state("original_message", message)
+            await ctx.set_shared_state("agents_executed", [])
 
-        # Add aggregation node for multi-agent results
-        workflow.add_executor("aggregate", self._aggregate_handler)
+            # Determine routing
+            target_agent = self.routing_context.get("target_agent")
 
-        # Add completion node
-        workflow.add_executor("complete", self._complete_handler)
+            # Check for explicit Ali targeting
+            if target_agent:
+                ta = target_agent.lower().replace('-', '_')
+                if ta in ("ali_chief_of_staff", "ali", "ali-chief-of-staff"):
+                    await ctx.set_shared_state("routing_decision", "ali")
+                    # Send to Ali
+                    if "ali_chief_of_staff" in self.agent_executors:
+                        await ctx.send_message(
+                            AgentExecutorRequest(
+                                messages=[ChatMessage(Role.USER, text=message)],
+                                should_respond=True
+                            )
+                        )
+                    return
 
-        # Define edges
-        workflow.add_edge("start", "route")
+            # Use intelligent router
+            should_use_single = self.router.should_use_single_agent(message)
 
-        # Conditional routing from route node
-        workflow.add_conditional_edges(
-            "route",
-            self._routing_decision,
-            {
-                "single_agent": "execute_single",
-                "multi_agent": "execute_multi",
-                "ali_orchestration": "ali_chief_of_staff",
-                "complete": "complete"
-            }
-        )
+            if should_use_single:
+                # Select best agent
+                best_agent = self.router.select_best_agent(
+                    message,
+                    list(self.agents.values()),
+                    self.routing_context
+                )
 
-        # Connect single agent execution to completion
-        workflow.add_edge("execute_single", "complete")
+                if best_agent:
+                    await ctx.set_shared_state("routing_decision", "single")
+                    await ctx.set_shared_state("selected_agent", best_agent.name)
 
-        # Connect multi-agent to aggregation
-        workflow.add_edge("execute_multi", "aggregate")
-        workflow.add_edge("aggregate", "complete")
+                    # Send to the selected agent
+                    if best_agent.name in self.agent_executors:
+                        await ctx.send_message(
+                            AgentExecutorRequest(
+                                messages=[ChatMessage(Role.USER, text=message)],
+                                should_respond=True
+                            )
+                        )
+            else:
+                # Multi-agent mode - send to Ali for orchestration
+                await ctx.set_shared_state("routing_decision", "multi")
+                if "ali_chief_of_staff" in self.agent_executors:
+                    await ctx.send_message(
+                        AgentExecutorRequest(
+                            messages=[ChatMessage(Role.USER, text=message)],
+                            should_respond=True
+                        )
+                    )
 
-        logger.info(f"Workflow built with {len(self.agents)} agent executors")
+        # Completion executor
+        @executor(id="complete")
+        async def complete_executor(response: AgentExecutorResponse, ctx: WorkflowContext[None, str]) -> None:
+            """Finalize and output the result"""
+            # Extract response text
+            response_text = response.agent_run_response.text if hasattr(response.agent_run_response, 'text') else str(response)
+
+            # Get metadata
+            start_time_str: str = await ctx.get_shared_state("start_time") or datetime.now().isoformat()
+            agents_executed: list = await ctx.get_shared_state("agents_executed") or []
+
+            # Yield final output
+            await ctx.yield_output(response_text)
+
+            logger.info(
+                "Workflow completed",
+                agents_executed=len(agents_executed)
+            )
+
+        # Build workflow
+        builder.set_start_executor(start_executor)
+
+        # Add agent executors
+        for agent_name, agent_executor in self.agent_executors.items():
+            # Connect start to each agent (routing handled in start executor)
+            builder.add_edge(start_executor, agent_executor)
+            # Connect each agent to completion
+            builder.add_edge(agent_executor, complete_executor)
+
+        # Add checkpointing if enabled
+        if self.config.enable_checkpointing and self.checkpoint_store:
+            builder.with_checkpointing(self.checkpoint_store)
+
+        # Set max iterations
+        builder.set_max_iterations(self.max_workflow_iterations)
+
+        workflow = builder.build()
+
+        logger.info(f"Workflow built with {len(self.agent_executors)} agent executors")
 
         return workflow
 
-    def _create_agent_executor(self, agent: ChatAgent):
-        """
-        Create an async executor function for an agent.
-
-        Args:
-            agent: ChatAgent instance
-
-        Returns:
-            Async executor function
-        """
-        async def executor(context: Dict[str, Any]) -> Dict[str, Any]:
-            """Execute agent with context"""
-            message = context.get("message", "")
-
-            # Create ChatMessage
-            chat_message = ChatMessage(role="user", content=message)
-
-            # Run agent
-            result = await agent.run(task=chat_message)
-
-            # Extract response
-            response = ""
-            if hasattr(result, "messages"):
-                for msg in reversed(result.messages):
-                    if hasattr(msg, "role") and msg.role == "assistant":
-                        response = msg.content
-                        break
-            else:
-                response = str(result)
-
-            return {
-                "agent": agent.name,
-                "response": response,
-                "result": result
-            }
-
-        return executor
-
-    async def _start_handler(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Start handler - entry point for workflow.
-
-        Args:
-            context: Workflow context
-
-        Returns:
-            Updated context
-        """
-        logger.info("Workflow started", message_length=len(context.get("message", "")))
-
-        context["start_time"] = datetime.now()
-        context["agents_executed"] = []
-        context["responses"] = []
-
-        return context
-
-    async def _route_handler(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Route handler - determines execution strategy.
-
-        Args:
-            context: Workflow context
-
-        Returns:
-            Updated context with routing decision
-        """
-        message = context.get("message", "")
-        target_agent = context.get("target_agent")
-
-        # Check for explicit Ali targeting
-        if target_agent:
-            ta = target_agent.lower().replace('-', '_')
-            if ta in ("ali_chief_of_staff", "ali", "ali-chief-of-staff"):
-                context["routing_decision"] = "ali_orchestration"
-                return context
-
-        # Use intelligent router
-        should_use_single = self.router.should_use_single_agent(message)
-
-        if should_use_single:
-            context["routing_decision"] = "single_agent"
-
-            # Select best agent
-            best_agent = self.router.select_best_agent(
-                message,
-                list(self.agents.values()),
-                context
-            )
-
-            if best_agent:
-                context["selected_agent"] = best_agent.name
-                context["execution_mode"] = "single"
-        else:
-            context["routing_decision"] = "multi_agent"
-            context["execution_mode"] = "multi"
-
-        logger.info("Routing decision made", decision=context["routing_decision"])
-
-        return context
-
-    async def _routing_decision(self, context: Dict[str, Any]) -> str:
-        """
-        Make routing decision for conditional edges.
-
-        Args:
-            context: Workflow context
-
-        Returns:
-            Next node name
-        """
-        return context.get("routing_decision", "single_agent")
-
-    async def _aggregate_handler(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Aggregate results from multiple agents.
-
-        Args:
-            context: Workflow context
-
-        Returns:
-            Updated context with aggregated results
-        """
-        responses = context.get("responses", [])
-
-        # Combine responses intelligently
-        if not responses:
-            context["final_response"] = "No responses received from agents."
-        elif len(responses) == 1:
-            context["final_response"] = responses[0]
-        else:
-            # Use Ali or first agent to synthesize
-            synthesis_prompt = f"""
-            Multiple agents have provided responses. Please synthesize them into a coherent answer.
-
-            Responses:
-            {chr(10).join([f"- {r}" for r in responses])}
-
-            Provide a unified, comprehensive response.
-            """
-
-            # Try to use Ali for synthesis
-            ali_agent = self.agents.get("ali_chief_of_staff")
-            if ali_agent:
-                synthesis_msg = ChatMessage(role="user", content=synthesis_prompt)
-                result = await ali_agent.run(task=synthesis_msg)
-
-                if hasattr(result, "messages"):
-                    for msg in reversed(result.messages):
-                        if hasattr(msg, "role") and msg.role == "assistant":
-                            context["final_response"] = msg.content
-                            break
-            else:
-                # Fallback: concatenate responses
-                context["final_response"] = "\n\n".join(responses)
-
-        return context
-
-    async def _complete_handler(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Completion handler - finalize workflow execution.
-
-        Args:
-            context: Workflow context
-
-        Returns:
-            Final context
-        """
-        end_time = datetime.now()
-        start_time = context.get("start_time", end_time)
-        duration = (end_time - start_time).total_seconds()
-
-        context["end_time"] = end_time
-        context["duration_seconds"] = duration
-
-        logger.info(
-            "Workflow completed",
-            duration=duration,
-            agents_executed=len(context.get("agents_executed", []))
-        )
-
-        return context
 
     async def orchestrate(
         self,
@@ -399,21 +295,24 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
                         "blocked": True
                     }
 
-            # Prepare workflow context
-            workflow_context = {
-                "message": message,
+            # Store routing context for use in workflow
+            self.routing_context = {
+                "target_agent": context.get("target_agent") if context else None,
                 "user_id": user_id,
                 "conversation_id": conversation_id,
-                "original_context": context or {},
                 **(context or {})
             }
 
-            # Execute workflow
-            result = await self.executor.run(input_data=workflow_context)
+            # Execute workflow - workflow.run() returns WorkflowRunResult
+            events = await self.workflow.run(message)
 
-            # Extract final response
-            final_response = result.get("final_response", result.get("response", ""))
-            agents_used = result.get("agents_executed", [])
+            # Extract outputs from the workflow
+            outputs = events.get_outputs()
+            final_response = outputs[0] if outputs else "No response generated"
+
+            # Get workflow metadata
+            final_state = events.get_final_state()
+            agents_used = []  # TODO: Extract from workflow events
 
             # Calculate metrics
             duration = (datetime.now() - start_time).total_seconds()
@@ -423,8 +322,8 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
                 "agents_used": agents_used,
                 "turn_count": len(agents_used),
                 "duration_seconds": duration,
-                "execution_mode": result.get("execution_mode", "unknown"),
-                "workflow_result": result,
+                "execution_mode": "workflow",
+                "workflow_state": str(final_state),
                 "cost_breakdown": {}  # TODO: Implement cost tracking for Agent Framework
             }
 
@@ -473,22 +372,23 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
 
         logger.info(f"Streaming via {best_agent.name}")
 
-        # Stream agent response
-        chat_message = ChatMessage(role="user", content=message)
-
+        # Stream agent response using workflow
         try:
-            async for chunk in best_agent.run_stream(task=chat_message):
-                if hasattr(chunk, "content") and isinstance(chunk.content, str):
+            # Use workflow streaming if available
+            async for event in self.workflow.run_stream(message):
+                # Handle different event types
+                event_data = str(event)
+                if event_data:
                     await websocket.send_json({
                         "type": "chunk",
-                        "content": chunk.content,
-                        "agent": best_agent.name
+                        "content": event_data,
+                        "agent": best_agent.name if best_agent else "unknown"
                     })
-                    yield chunk.content
+                    yield event_data
 
             await websocket.send_json({
                 "type": "complete",
-                "agent": best_agent.name
+                "agent": best_agent.name if best_agent else "workflow"
             })
 
         except Exception as e:

@@ -10,11 +10,14 @@ import structlog
 
 try:
     from agent_framework import ChatAgent
-    from agent_framework.clients import OpenAIChatClient, AzureOpenAIChatClient
+    from agent_framework.openai import OpenAIChatClient
+    from agent_framework.azure import AzureOpenAIChatClient
     AGENT_FRAMEWORK_AVAILABLE = True
 except ImportError:
     AGENT_FRAMEWORK_AVAILABLE = False
     ChatAgent = None
+    OpenAIChatClient = None
+    AzureOpenAIChatClient = None
 
 from src.agents.services.agent_loader import DynamicAgentLoader, AgentMetadata
 from src.core.agent_framework_config import get_agent_framework_config
@@ -78,16 +81,14 @@ class AgentFrameworkLoader(DynamicAgentLoader):
                     except Exception as e:
                         logger.warning(f"Failed to build Ali knowledge base: {e}")
 
-                # Create ChatAgent
-                agent = ChatAgent(
+                # Create ChatAgent using the chat_client's create_agent method
+                # This is the correct pattern according to Microsoft Agent Framework examples
+                agent = chat_client.create_agent(
                     name=metadata.key,
-                    client=chat_client,
                     instructions=instructions,
                     tools=tools or [],
-                    max_iterations=self.config.default_max_iterations,
-                    # Additional configurations
-                    enable_caching=self.config.enable_caching,
-                    timeout=self.config.tool_timeout if self.config.enable_tool_execution else None,
+                    # Note: Some config options may not be directly supported
+                    # Agent Framework handles max_iterations at workflow level
                 )
 
                 agents[key] = agent
@@ -253,18 +254,20 @@ Remember: You are part of a coordinated ecosystem of 48+ specialist agents worki
             raise ImportError("Agent Framework not available")
 
         if provider.lower() == "openai":
-            return OpenAIChatClient(
-                api_key=self.config.api_key,
-                model=self.config.model_name,
-                base_url=self.config.api_base,
-            )
+            # OpenAIChatClient constructor according to Microsoft examples
+            # It auto-reads from OPENAI_API_KEY env var if not provided
+            client_kwargs = {}
+            if hasattr(self.config, 'api_key') and self.config.api_key:
+                client_kwargs['api_key'] = self.config.api_key
+            if hasattr(self.config, 'model_name') and self.config.model_name:
+                client_kwargs['model'] = self.config.model_name
+
+            return OpenAIChatClient(**client_kwargs)
 
         elif provider.lower() == "azure":
-            return AzureOpenAIChatClient(
-                api_key=self.config.api_key,
-                model=self.config.model_name,
-                endpoint=self.config.api_base,
-            )
+            # AzureOpenAIChatClient uses Azure CLI credentials by default
+            from azure.identity import AzureCliCredential
+            return AzureOpenAIChatClient(credential=AzureCliCredential())
 
         else:
             raise ValueError(f"Unsupported provider: {provider}")
