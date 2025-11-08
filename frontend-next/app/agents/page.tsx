@@ -87,12 +87,20 @@ export default function AgentsPage() {
 }
 
 function getMockAgents() {
+  const keywords = [
+    ['typescript', 'react', 'nextjs'],
+    ['python', 'fastapi', 'sqlalchemy'],
+    ['aws', 'docker', 'kubernetes'],
+    ['analytics', 'sql', 'visualization'],
+    ['design', 'figma', 'ui/ux'],
+  ]
+
   return Array.from({ length: 12 }, (_, i) => ({
     key: `agent_${i}`,
     name: `Agent ${i + 1}`,
     description: `Specialist agent for ${['development', 'design', 'analytics', 'operations'][i % 4]}`,
     tier: (i % 3) + 1,
-    expertise_keywords: ['typescript', 'react', 'nextjs', 'python', 'aws'][i % 5],
+    expertise_keywords: keywords[i % 5],
     status: i % 4 === 0 ? 'inactive' : 'active',
   }))
 }

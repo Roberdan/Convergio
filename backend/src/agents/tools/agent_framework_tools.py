@@ -21,8 +21,8 @@ except ImportError:
     AGENT_FRAMEWORK_AVAILABLE = False
 
 from sqlalchemy import text
-from core.database import get_async_session
-from models.talent import Talent
+from src.core.database import get_async_session
+from src.models.talent import Talent
 
 logger = structlog.get_logger()
 
