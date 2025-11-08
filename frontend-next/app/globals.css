@@ -188,7 +188,7 @@
 
   /* Pulse animation for status indicators */
   .pulse-success {
-    @apply bg-success;
+    background-color: hsl(var(--success));
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
