@@ -331,14 +331,15 @@ class UnifiedOrchestrator(BaseGroupChatOrchestrator):
                     # Continue with original message if RAG fails
             
             # Determine routing strategy
-            # If Ali is targeted explicitly or caller prefers multi-agent, use GroupChat
+            # If a specific agent is explicitly requested, always use single-agent mode
+            # Multi-agent GroupChat should only be used when explicitly requested via multi_agent_preferred
             multi_agent_preferred = bool((context or {}).get("multi_agent_preferred"))
-            ali_targeted = False
-            if target_agent:
-                ta = target_agent.lower().replace('-', '_')
-                ali_targeted = ta in ("ali_chief_of_staff", "ali", "ali-chief-of-staff")
 
-            if (ali_targeted or multi_agent_preferred) and getattr(self, 'group_chat', None):
+            if target_agent and not multi_agent_preferred:
+                # User explicitly selected an agent - respect that choice
+                should_use_single = True
+                logger.info(f"🎯 Using single-agent mode for explicitly requested agent: {target_agent}")
+            elif multi_agent_preferred and getattr(self, 'group_chat', None):
                 should_use_single = False
             else:
                 # Default behavior: single agent for efficiency, unless router signals multi-agent

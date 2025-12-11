@@ -32,8 +32,8 @@
   }
 </script>
 
-<div 
-  class="rounded-xl border-2 border-surface-600 dark:border-surface-400 bg-surface-950 dark:bg-surface-50 p-6 shadow-lg hover:shadow-xl hover:border-blue-500 transition-all duration-300 cursor-pointer {loading ? 'opacity-60' : ''}"
+<div
+  class="rounded-xl border-2 border-surface-200 bg-white p-6 shadow-lg hover:shadow-xl hover:border-blue-500 transition-all duration-300 cursor-pointer {loading ? 'opacity-60' : ''}"
   on:click={handleClick}
   on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? handleClick() : null}
   role="button"
@@ -46,15 +46,15 @@
         <img src={icon} alt="" class="h-6 w-6 text-blue-600" />
       </div>
       <div>
-        <p class="text-sm font-bold text-surface-300 dark:text-surface-700 mb-1">{title}</p>
-        <p class="text-2xl font-bold text-surface-100 dark:text-surface-900">
+        <p class="text-sm font-bold text-surface-600 mb-1">{title}</p>
+        <p class="text-2xl font-bold text-surface-900">
           {loading ? '...' : formatValue(value)}
         </p>
       </div>
     </div>
-    
+
     {#if showChange && !loading}
-      <div class="flex items-center space-x-2 bg-surface-800 dark:bg-surface-200 px-3 py-2 rounded-lg">
+      <div class="flex items-center space-x-2 bg-surface-100 px-3 py-2 rounded-lg">
         <img src={changeIcon} alt="" class="h-4 w-4" />
         <span class="text-sm font-bold {changeTextColor}">
           {change > 0 ? '+' : ''}{change}%

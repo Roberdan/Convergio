@@ -1,99 +1,42 @@
 /**
- * 🎨 Theme Store - Sistema di gestione temi dinamico
- * Gestisce light/dark mode con persistenza localStorage
+ * 🎨 Theme Store - Light theme only
+ * Dark theme removed per user request
  */
 
-import { writable, get } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-export type Theme = 'light' | 'dark' | 'system';
+export type Theme = 'light';
 
-// Store per il tema corrente
-export const theme = writable<Theme>('system');
+// Store per il tema corrente - sempre light
+export const theme = writable<Theme>('light');
 
-// Store per il tema effettivo applicato (resolved da 'system')
-export const resolvedTheme = writable<'light' | 'dark'>('light');
+// Store per il tema effettivo applicato - sempre light
+export const resolvedTheme = writable<'light'>('light');
 
 /**
- * Inizializza il sistema temi
+ * Inizializza il sistema temi - forza sempre light
  */
 export function initializeTheme() {
   if (!browser) return;
 
-  // Carica tema salvato o default a 'system'
-  const savedTheme = localStorage.getItem('theme') as Theme || 'system';
-  theme.set(savedTheme);
-  
-  // Applica tema iniziale
-  applyTheme(savedTheme);
-  
-  // Ascolta cambiamenti preferenze sistema
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  mediaQuery.addEventListener('change', handleSystemThemeChange);
-  
-  // Ascolta cambiamenti store tema
-  theme.subscribe(handleThemeChange);
-}
+  // Rimuovi classe dark se presente
+  document.documentElement.classList.remove('dark');
 
-/**
- * Applica il tema al DOM
- */
-function applyTheme(newTheme: Theme) {
-  if (!browser) return;
-  
-  const isDark = resolveTheme(newTheme);
-  const root = document.documentElement;
-  
-  if (isDark) {
-    root.classList.add('dark');
-    resolvedTheme.set('dark');
-  } else {
-    root.classList.remove('dark');
-    resolvedTheme.set('light');
-  }
-  
+  // Forza tema chiaro
+  localStorage.setItem('theme', 'light');
+
   // Aggiorna meta theme-color per mobile
-  updateMetaThemeColor(isDark);
-}
-
-/**
- * Risolve il tema effettivo da applicare
- */
-function resolveTheme(themeValue: Theme): boolean {
-  if (themeValue === 'system') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
-  return themeValue === 'dark';
-}
-
-/**
- * Gestisce cambiamenti nelle preferenze di sistema
- */
-function handleSystemThemeChange() {
-  theme.subscribe(currentTheme => {
-    if (currentTheme === 'system') {
-      applyTheme('system');
-    }
-  })();
-}
-
-/**
- * Gestisce cambiamenti nel store tema
- */
-function handleThemeChange(newTheme: Theme) {
-  if (!browser) return;
-  
-  localStorage.setItem('theme', newTheme);
-  applyTheme(newTheme);
+  updateMetaThemeColor();
 }
 
 /**
  * Aggiorna meta theme-color per dispositivi mobili
  */
-function updateMetaThemeColor(isDark: boolean) {
+function updateMetaThemeColor() {
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-  const color = isDark ? '#0f172a' : '#ffffff';
-  
+  const color = '#ffffff';
+
   if (metaThemeColor) {
     metaThemeColor.setAttribute('content', color);
   } else {
@@ -105,51 +48,23 @@ function updateMetaThemeColor(isDark: boolean) {
 }
 
 /**
- * Utility functions per l'uso nei componenti
+ * Utility functions - mantenute per retrocompatibilità ma non fanno nulla
  */
 export const themeUtils = {
-  /**
-   * Cambia tema
-   */
-  setTheme(newTheme: Theme) {
-    theme.set(newTheme);
+  setTheme(_newTheme: Theme) {
+    // No-op: sempre light
   },
-  
-  /**
-   * Toggle tra light e dark
-   */
+
   toggleTheme() {
-    theme.subscribe(current => {
-      if (current === 'system') {
-        const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        theme.set(systemIsDark ? 'light' : 'dark');
-      } else {
-        theme.set(current === 'light' ? 'dark' : 'light');
-      }
-    })();
+    // No-op: sempre light
   },
-  
-  /**
-   * Cicla tra tutti i temi
-   */
+
   cycleTheme() {
-    // Get current value without subscribing
-    const currentTheme = get(theme);
-    const themes: Theme[] = ['light', 'dark', 'system'];
-    const currentIndex = themes.indexOf(currentTheme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    this.setTheme(themes[nextIndex]);
+    // No-op: sempre light
   },
-  
-  /**
-   * Controlla se il tema corrente è dark
-   */
+
   isDark(): boolean {
-    let isDark = false;
-    resolvedTheme.subscribe(resolved => {
-      isDark = resolved === 'dark';
-    })();
-    return isDark;
+    return false; // Sempre false
   }
 };
 

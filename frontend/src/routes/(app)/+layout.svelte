@@ -5,7 +5,6 @@
   import AliAssistant from '$lib/components/AliAssistant.svelte';
   import CostDisplay from '$lib/components/CostDisplay.svelte';
   import ApiStatusDropdown from '$lib/components/ApiStatusDropdown.svelte';
-  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import '$lib/styles/unified-design-system.css';
   
   // MVP navigation items (simplified for initial release)
@@ -62,24 +61,24 @@
 </script>
 
 <!-- Clean Professional Layout -->
-<div class="min-h-screen bg-surface-50 dark:bg-surface-950 font-sans text-base">
+<div class="min-h-screen bg-surface-50 font-sans text-base">
   <!-- Clean Professional Top Navigation -->
-  <div class="bg-surface-50 dark:bg-surface-950 border-b-2 border-surface-300 dark:border-surface-700 shadow-sm">
+  <div class="bg-surface-50 border-b-2 border-surface-300 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo & Title -->
         <div class="flex items-center space-x-4">
           <button on:click={() => goto('/')} class="flex items-center space-x-3 hover:opacity-75 transition-all">
-            <div class="h-10 w-10 bg-blue-600 rounded-lg flex items-center justify-center text-surface-950 dark:text-surface-50 font-bold text-lg">
+            <div class="h-10 w-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
               C
             </div>
             <div class="flex flex-col">
-              <span class="text-lg font-bold text-surface-900 dark:text-surface-100 leading-tight">Convergio</span>
-              <span class="text-sm text-surface-600 dark:text-surface-400 leading-none">AI Agent Platform</span>
+              <span class="text-lg font-bold text-surface-900 leading-tight">Convergio</span>
+              <span class="text-sm text-surface-600 leading-none">AI Agent Platform</span>
             </div>
           </button>
         </div>
-        
+
         <!-- Clean Navigation -->
         <nav class="hidden md:flex items-center space-x-2">
           {#each navItems as item}
@@ -88,23 +87,20 @@
               data-sveltekit-prefetch
               aria-current={isActive(item.href) ? 'page' : null}
               class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 {isActive(item.href)
-                ? 'bg-blue-600 text-surface-950 dark:text-surface-50 shadow-md'
-                : 'text-surface-800 dark:text-surface-200 hover:text-blue-600 hover:bg-blue-50'}"
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-surface-800 hover:text-blue-600 hover:bg-blue-50'}"
             >
               <img src={item.iconPath} alt="" class="h-4 w-4" />
               <span>{item.label}</span>
             </a>
           {/each}
         </nav>
-        
+
         <!-- Status & Cost Indicators -->
         <div class="flex items-center space-x-3">
-          <!-- Theme Toggle -->
-          <ThemeToggle variant="minimal" />
-          
           <!-- Cost Display -->
           <CostDisplay />
-          
+
           <!-- API Status Dropdown -->
           <ApiStatusDropdown />
         </div>

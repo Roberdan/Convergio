@@ -26,24 +26,38 @@ logger = structlog.get_logger()
 
 
 def safe_run_async(coro):
-    """Safely run async coroutine from sync context"""
+    """Safely run async coroutine from sync context.
+
+    This handles the complex case where we're being called from within
+    an already-running event loop (common in FastAPI/AutoGen contexts).
+    """
     try:
-        # Try to get the current loop
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            # If loop is already running, we need to create a new thread
-            import concurrent.futures
-            import threading
-            
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(asyncio.run, coro)
-                return future.result(timeout=30)
-        else:
-            # Loop exists but not running, safe to run
-            return loop.run_until_complete(coro)
+        loop = asyncio.get_running_loop()
     except RuntimeError:
-        # No loop exists, safe to use asyncio.run
+        # No running loop - safe to create a new one
         return asyncio.run(coro)
+
+    # Loop is running - we need to handle this carefully
+    # Using nest_asyncio allows running nested event loops
+    try:
+        import nest_asyncio
+        nest_asyncio.apply()
+        return loop.run_until_complete(coro)
+    except ImportError:
+        # nest_asyncio not available - use thread pool with fresh loop
+        import concurrent.futures
+
+        def run_in_new_loop():
+            new_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(new_loop)
+            try:
+                return new_loop.run_until_complete(coro)
+            finally:
+                new_loop.close()
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(run_in_new_loop)
+            return future.result(timeout=30)
 
 
 class DatabaseTools:
