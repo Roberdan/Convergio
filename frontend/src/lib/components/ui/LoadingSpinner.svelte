@@ -26,7 +26,7 @@
 
 	// Variant classes
 	$: variantClasses = {
-		default: 'text-gray-500 dark:text-gray-400',
+		default: 'text-gray-500',
 		primary: 'text-primary-600',
 		white: 'text-white'
 	}[variant === 'dots' || variant === 'pulse' || variant === 'bars' ? 'default' : variant];
@@ -35,7 +35,7 @@
 	$: containerClasses = [
 		center ? 'flex items-center justify-center' : '',
 		fullscreen ? 'fixed inset-0 z-50' : '',
-		overlay ? 'absolute inset-0 bg-white dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75' : '',
+		overlay ? 'absolute inset-0 bg-white bg-opacity-75' : '',
 		text ? 'flex flex-col items-center gap-3' : ''
 	].filter(Boolean).join(' ');
 </script>

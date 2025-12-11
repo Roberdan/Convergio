@@ -300,17 +300,17 @@
 	}
 
 	.dropdown-menu {
-		@apply absolute top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 overflow-hidden;
+		@apply absolute top-full mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden;
 		box-shadow: var(--shadow-xl);
 		animation: fadeInDown 0.2s ease-out;
 	}
 
 	.dropdown-header {
-		@apply flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900;
+		@apply flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50;
 	}
 
 	.header-title {
-		@apply text-sm font-semibold text-gray-900 dark:text-white;
+		@apply text-sm font-semibold text-gray-900;
 		font-family: var(--font-primary);
 	}
 
@@ -344,7 +344,7 @@
 
 	.loading-state,
 	.empty-state {
-		@apply flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400;
+		@apply flex flex-col items-center justify-center py-8 text-gray-500;
 	}
 
 	.loading-text,
@@ -358,16 +358,16 @@
 	}
 
 	.notification-group {
-		@apply border-b border-gray-100 dark:border-gray-700 last:border-b-0;
+		@apply border-b border-gray-100 last:border-b-0;
 	}
 
 	.group-date {
-		@apply px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 sticky top-0 z-10;
+		@apply px-4 py-2 text-xs font-medium text-gray-500 bg-gray-50 sticky top-0 z-10;
 		font-family: var(--font-primary);
 	}
 
 	.notification-item {
-		@apply relative flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700;
+		@apply relative flex items-start gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors duration-200 focus:outline-none focus:bg-gray-50;
 	}
 
 	.notification-item.unread {
@@ -439,17 +439,17 @@
 	}
 
 	.notification-title {
-		@apply text-sm font-medium text-gray-900 dark:text-white truncate;
+		@apply text-sm font-medium text-gray-900 truncate;
 		font-family: var(--font-primary);
 	}
 
 	.notification-time {
-		@apply text-xs text-gray-500 dark:text-gray-400 flex-shrink-0;
+		@apply text-xs text-gray-500 flex-shrink-0;
 		font-family: var(--font-primary);
 	}
 
 	.notification-message {
-		@apply text-sm text-gray-600 dark:text-gray-300 line-clamp-2;
+		@apply text-sm text-gray-600 line-clamp-2;
 		font-family: var(--font-primary);
 	}
 
@@ -458,7 +458,7 @@
 	}
 
 	.action-btn {
-		@apply px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors duration-200;
+		@apply px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 rounded transition-colors duration-200;
 		font-family: var(--font-primary);
 	}
 
@@ -467,7 +467,7 @@
 	}
 
 	.dropdown-footer {
-		@apply px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900;
+		@apply px-4 py-3 border-t border-gray-200 bg-gray-50;
 	}
 
 	.view-all-link {

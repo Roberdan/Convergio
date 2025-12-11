@@ -113,7 +113,7 @@
       case 'healthy': return 'text-green-600';
       case 'unhealthy': return 'text-red-600';
       case 'error': return 'text-red-600';
-      default: return 'text-surface-400 dark:text-surface-600';
+      default: return 'text-surface-600';
     }
   }
   
@@ -131,26 +131,26 @@
   <title>Operational UX - Convergio</title>
 </svelte:head>
 
-<div class="operational-ux-page min-h-screen bg-surface-900 dark:bg-surface-100 dark:bg-gray-900 p-6">
+<div class="operational-ux-page min-h-screen bg-surface-50 p-6">
   <div class="max-w-7xl mx-auto space-y-6">
     
     <!-- Page Header -->
-    <div class="page-header bg-surface-950 dark:bg-surface-50 dark:bg-gray-800 rounded-lg shadow p-6">
-      <h1 class="page-title text-2xl font-bold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-4">
+    <div class="page-header bg-white rounded-lg shadow p-6">
+      <h1 class="page-title text-2xl font-bold text-surface-900 mb-4">
         Operational UX Dashboard
       </h1>
-      <p class="page-description text-surface-400 dark:text-surface-600 dark:text-gray-400">
+      <p class="page-description text-surface-600">
         Timeline and performance monitoring for AI agent conversations
       </p>
       
       <!-- Telemetry Status -->
-      <div class="telemetry-status mt-4 flex items-center justify-center gap-4 p-4 bg-surface-900 dark:bg-surface-100 dark:bg-gray-700 rounded-lg">
-        <span class="status-label text-surface-400 dark:text-surface-600 dark:text-gray-300 font-medium">Telemetry Status:</span>
+      <div class="telemetry-status mt-4 flex items-center justify-center gap-4 p-4 bg-surface-50 rounded-lg">
+        <span class="status-label text-surface-600 font-medium">Telemetry Status:</span>
         <span class="status-value font-semibold {getStatusColor(telemetryStatus)}">
           {getStatusIcon(telemetryStatus)} {telemetryStatus}
         </span>
         {#if lastHealthCheck}
-          <span class="last-check text-sm text-surface-500 dark:text-surface-500">
+          <span class="last-check text-sm text-surface-500">
             Last check: {lastHealthCheck.toLocaleTimeString()}
           </span>
         {/if}
@@ -165,16 +165,16 @@
     </div>
 
     <!-- Controls Section -->
-    <div class="controls-section bg-surface-950 dark:bg-surface-50 dark:bg-gray-800 rounded-lg shadow p-6">
+    <div class="controls-section bg-white rounded-lg shadow p-6">
       <div class="control-group flex items-center gap-4 mb-4">
-        <label for="conversation-select" class="control-label text-surface-300 dark:text-surface-700 dark:text-gray-300 font-medium">
+        <label for="conversation-select" class="control-label text-surface-600 font-medium">
           Test Conversation:
         </label>
         <select 
           id="conversation-select"
           bind:value={selectedConversation}
           on:change={handleConversationChange}
-          class="conversation-select border border-surface-600 dark:border-surface-400 dark:border-gray-600 rounded-md px-3 py-2 bg-surface-950 dark:bg-surface-50 dark:bg-gray-700 text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50"
+          class="conversation-select border border-surface-300 rounded-md px-3 py-2 bg-white text-surface-900"
         >
           <option value="conv_001">Conversation 001</option>
           <option value="conv_002">Conversation 002</option>
@@ -183,11 +183,11 @@
       </div>
       
       <div class="control-group flex items-center gap-4">
-        <label class="control-label text-surface-300 dark:text-surface-700 dark:text-gray-300 font-medium flex items-center gap-2">
+        <label class="control-label text-surface-600 font-medium flex items-center gap-2">
           <input 
             type="checkbox" 
             bind:checked={showAdvancedMetrics}
-            class="checkbox-input rounded border-surface-600 dark:border-surface-400 text-blue-600 focus:ring-blue-500"
+            class="checkbox-input rounded border-surface-300 text-blue-600 focus:ring-blue-500"
           />
           Show Advanced Metrics
         </label>
@@ -195,20 +195,20 @@
     </div>
 
     <!-- Timeline Component -->
-    <div class="bg-surface-950 dark:bg-surface-50 dark:bg-gray-800 rounded-lg shadow">
-      <div class="timeline-header p-6 border-b border-surface-700 dark:border-surface-300 dark:border-gray-700">
+    <div class="bg-white rounded-lg shadow">
+      <div class="timeline-header p-6 border-b border-surface-200">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50">
+            <h3 class="text-lg font-semibold text-surface-900">
               Conversation Timeline
             </h3>
-            <p class="text-surface-500 dark:text-surface-500 dark:text-gray-400 mt-1">
+            <p class="text-surface-500 mt-1">
               #{selectedConversation}
             </p>
           </div>
           <div class="flex items-center space-x-4">
             <button
-              class="btn-refresh btn-refresh-timeline inline-flex items-center px-4 py-2 border border-surface-600 dark:border-surface-400 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-surface-300 dark:text-surface-700 dark:text-gray-300 bg-surface-950 dark:bg-surface-50 dark:bg-gray-700 hover:bg-surface-900 dark:bg-surface-100 dark:hover:bg-gray-600"
+              class="btn-refresh btn-refresh-timeline inline-flex items-center px-4 py-2 border border-surface-300 rounded-md shadow-sm text-sm font-medium text-surface-600 bg-white hover:bg-surface-50"
               aria-label="Refresh timeline"
               on:click={refreshTimeline}
               disabled={refreshing}
@@ -226,10 +226,10 @@
         {#each timelineData.turns as turn}
           <div class="timeline-turn border-l-4 border-blue-500 pl-6 pb-6 last:pb-0">
             <div class="flex items-center justify-between mb-4">
-              <span class="turn-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              <span class="turn-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                 Turn {turn.turn_id}
               </span>
-              <div class="turn-stats flex space-x-4 text-sm text-surface-500 dark:text-surface-500 dark:text-gray-400">
+              <div class="turn-stats flex space-x-4 text-sm text-surface-500">
                 <div class="stat-item">
                   <span class="font-medium">${turn.cost}</span> cost
                 </div>
@@ -244,23 +244,23 @@
             
             <div class="space-y-3">
               {#each turn.events as event}
-                <div class="timeline-event bg-surface-900 dark:bg-surface-100 dark:bg-gray-700 rounded-lg p-4">
+                <div class="timeline-event bg-surface-50 rounded-lg p-4">
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
-                      <h4 class="font-medium text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50">
+                      <h4 class="font-medium text-surface-900">
                         {event.title}
                       </h4>
-                      <p class="text-sm text-surface-500 dark:text-surface-500 dark:text-gray-400 mt-1">
+                      <p class="text-sm text-surface-500 mt-1">
                         {new Date(event.timestamp).toLocaleTimeString()}
                       </p>
                     </div>
-                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-surface-700 dark:bg-surface-300 text-surface-200 dark:text-surface-800 dark:bg-gray-600 dark:text-gray-200">
+                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-surface-200 text-surface-800">
                       {event.type}
                     </span>
                   </div>
                   
                   {#if event.details}
-                    <div class="event-details mt-3 pt-3 border-t border-surface-700 dark:border-surface-300 dark:border-gray-600">
+                    <div class="event-details mt-3 pt-3 border-t border-surface-200">
                       {#if event.type === 'decision'}
                         <div class="decision-details space-y-2">
                           <div>
@@ -275,7 +275,7 @@
                       {:else if event.type === 'tool'}
                         <div class="tool-details">
                           <span class="font-medium">Tool:</span>
-                          <span class="ml-2 text-sm font-mono bg-surface-800 dark:bg-surface-200 dark:bg-gray-600 px-2 py-1 rounded">
+                          <span class="ml-2 text-sm font-mono bg-surface-100 px-2 py-1 rounded">
                             {event.details.tool}
                           </span>
                         </div>
@@ -291,14 +291,14 @@
     </div>
 
     <!-- RunPanel Component -->
-    <div class="bg-surface-950 dark:bg-surface-50 dark:bg-gray-800 rounded-lg shadow">
-      <div class="panel-header p-6 border-b border-surface-700 dark:border-surface-300 dark:border-gray-700">
+    <div class="bg-white rounded-lg shadow">
+      <div class="panel-header p-6 border-b border-surface-200">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50">
+            <h3 class="text-lg font-semibold text-surface-900">
               Run Panel
             </h3>
-            <p class="text-surface-500 dark:text-surface-500 dark:text-gray-400 mt-1">
+            <p class="text-surface-500 mt-1">
               #{selectedConversation}
             </p>
           </div>
@@ -307,12 +307,12 @@
               <input
                 type="checkbox"
                 bind:checked={showAdvancedMetrics}
-                class="rounded border-surface-600 dark:border-surface-400 text-blue-600 focus:ring-blue-500"
+                class="rounded border-surface-300 text-blue-600 focus:ring-blue-500"
               />
-              <span class="ml-2 text-sm text-surface-300 dark:text-surface-700 dark:text-gray-300">Advanced Metrics</span>
+              <span class="ml-2 text-sm text-surface-600">Advanced Metrics</span>
             </label>
             <button
-              class="btn-refresh btn-refresh-metrics inline-flex items-center px-4 py-2 border border-surface-600 dark:border-surface-400 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-surface-300 dark:text-surface-700 dark:text-gray-300 bg-surface-950 dark:bg-surface-50 dark:bg-gray-700 hover:bg-surface-900 dark:bg-surface-100 dark:hover:bg-gray-600"
+              class="btn-refresh btn-refresh-metrics inline-flex items-center px-4 py-2 border border-surface-300 rounded-md shadow-sm text-sm font-medium text-surface-600 bg-white hover:bg-surface-50"
               aria-label="Refresh metrics"
               on:click={refreshTimeline}
             >
@@ -327,12 +327,12 @@
       
       <div class="metrics-grid p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Budget Metrics -->
-        <div class="metric-card bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h4 class="font-medium text-blue-900 dark:text-blue-200 mb-2">Budget</h4>
-          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+        <div class="metric-card bg-blue-50 rounded-lg p-4">
+          <h4 class="font-medium text-blue-900 mb-2">Budget</h4>
+          <div class="text-2xl font-bold text-blue-600">
             ${metricsData.cost.total}
           </div>
-          <div class="text-sm text-blue-700 dark:text-blue-300 mt-1">
+          <div class="text-sm text-blue-700 mt-1">
             Total spend
           </div>
           {#if showAdvancedMetrics}
@@ -345,12 +345,12 @@
         </div>
 
         <!-- Token Metrics -->
-        <div class="metric-card bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <h4 class="font-medium text-green-900 dark:text-green-200 mb-2">Tokens</h4>
-          <div class="text-2xl font-bold text-green-600 dark:text-green-400">
+        <div class="metric-card bg-green-50 rounded-lg p-4">
+          <h4 class="font-medium text-green-900 mb-2">Tokens</h4>
+          <div class="text-2xl font-bold text-green-600">
             {metricsData.tokens.total.toLocaleString()}
           </div>
-          <div class="text-sm text-green-700 dark:text-green-300 mt-1">
+          <div class="text-sm text-green-700 mt-1">
             Total processed
           </div>
           {#if showAdvancedMetrics}
@@ -362,12 +362,12 @@
         </div>
 
         <!-- Performance Metrics -->
-        <div class="metric-card bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-          <h4 class="font-medium text-purple-900 dark:text-purple-200 mb-2">Performance</h4>
-          <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">
+        <div class="metric-card bg-purple-50 rounded-lg p-4">
+          <h4 class="font-medium text-purple-900 mb-2">Performance</h4>
+          <div class="text-2xl font-bold text-purple-600">
             {metricsData.performance.response_time}s
           </div>
-          <div class="text-sm text-purple-700 dark:text-purple-300 mt-1">
+          <div class="text-sm text-purple-700 mt-1">
             Avg response time
           </div>
           {#if showAdvancedMetrics}
@@ -379,12 +379,12 @@
         </div>
 
         <!-- Error Metrics -->
-        <div class="metric-card bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
-          <h4 class="font-medium text-red-900 dark:text-red-200 mb-2">Errors</h4>
-          <div class="text-2xl font-bold text-red-600 dark:text-red-400">
+        <div class="metric-card bg-red-50 rounded-lg p-4">
+          <h4 class="font-medium text-red-900 mb-2">Errors</h4>
+          <div class="text-2xl font-bold text-red-600">
             {metricsData.errors.total}
           </div>
-          <div class="text-sm text-red-700 dark:text-red-300 mt-1">
+          <div class="text-sm text-red-700 mt-1">
             Total errors
           </div>
           {#if showAdvancedMetrics}
@@ -397,13 +397,13 @@
 
         <!-- Agent Metrics (if advanced) -->
         {#if showAdvancedMetrics}
-          <div class="metric-card bg-surface-900 dark:bg-surface-100 dark:bg-gray-700 rounded-lg p-4 md:col-span-2 lg:col-span-4">
-            <h4 class="font-medium text-surface-100 dark:text-surface-900 dark:text-gray-200 mb-4">Agent Performance</h4>
+          <div class="metric-card bg-surface-50 rounded-lg p-4 md:col-span-2 lg:col-span-4">
+            <h4 class="font-medium text-surface-900 mb-4">Agent Performance</h4>
             <div class="grid grid-cols-3 gap-4 text-sm">
               {#each Object.entries(metricsData.agents) as [agent, stats]}
                 <div class="text-center">
-                  <div class="font-medium text-surface-100 dark:text-surface-900 dark:text-gray-200 capitalize">{agent}</div>
-                  <div class="text-surface-400 dark:text-surface-600 dark:text-gray-400">
+                  <div class="font-medium text-surface-900 capitalize">{agent}</div>
+                  <div class="text-surface-600">
                     {stats.success}/{stats.calls} calls
                   </div>
                 </div>
@@ -415,76 +415,76 @@
     </div>
 
     <!-- Feature Flags Section -->
-    <div class="feature-flags-section bg-surface-950 dark:bg-surface-50 dark:bg-gray-800 rounded-lg shadow p-6">
+    <div class="feature-flags-section bg-white rounded-lg shadow p-6">
       <div class="section-header mb-4">
-        <h2 class="section-title text-xl font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-2">
+        <h2 class="section-title text-xl font-semibold text-surface-900 mb-2">
           🚩 Feature Flags
         </h2>
-        <p class="section-description text-surface-400 dark:text-surface-600 dark:text-gray-400">
+        <p class="section-description text-surface-600">
           Configuration flags for operational UX features
         </p>
       </div>
       
       <div class="flags-grid grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="flag-item p-4 border border-surface-700 dark:border-surface-300 dark:border-gray-600 rounded-lg">
-          <span class="flag-name block font-mono text-sm font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-2">OPS_UI_ENABLED</span>
+        <div class="flag-item p-4 border border-surface-200 rounded-lg">
+          <span class="flag-name block font-mono text-sm font-semibold text-surface-900 mb-2">OPS_UI_ENABLED</span>
           <span class="flag-status enabled inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded mb-2">✅ Enabled</span>
-          <div class="flag-description text-sm text-surface-400 dark:text-surface-600 dark:text-gray-400">Enables operational UX interface</div>
+          <div class="flag-description text-sm text-surface-600">Enables operational UX interface</div>
         </div>
         
-        <div class="flag-item p-4 border border-surface-700 dark:border-surface-300 dark:border-gray-600 rounded-lg">
-          <span class="flag-name block font-mono text-sm font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-2">RAG_IN_LOOP_ENABLED</span>
+        <div class="flag-item p-4 border border-surface-200 rounded-lg">
+          <span class="flag-name block font-mono text-sm font-semibold text-surface-900 mb-2">RAG_IN_LOOP_ENABLED</span>
           <span class="flag-status enabled inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded mb-2">✅ Enabled</span>
-          <div class="flag-description text-sm text-surface-400 dark:text-surface-600 dark:text-gray-400">Enables per-turn RAG processing</div>
+          <div class="flag-description text-sm text-surface-600">Enables per-turn RAG processing</div>
         </div>
         
-        <div class="flag-item p-4 border border-surface-700 dark:border-surface-300 dark:border-gray-600 rounded-lg">
-          <span class="flag-name block font-mono text-sm font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-2">DECISION_ENGINE_ENABLED</span>
+        <div class="flag-item p-4 border border-surface-200 rounded-lg">
+          <span class="flag-name block font-mono text-sm font-semibold text-surface-900 mb-2">DECISION_ENGINE_ENABLED</span>
           <span class="flag-status enabled inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded mb-2">✅ Enabled</span>
-          <div class="flag-description text-sm text-surface-400 dark:text-surface-600 dark:text-gray-400">Enables decision engine functionality</div>
+          <div class="flag-description text-sm text-surface-600">Enables decision engine functionality</div>
         </div>
       </div>
     </div>
 
     <!-- Acceptance Criteria Section -->
-    <div class="acceptance-section bg-surface-950 dark:bg-surface-50 dark:bg-gray-800 rounded-lg shadow p-6">
+    <div class="acceptance-section bg-white rounded-lg shadow p-6">
       <div class="section-header mb-4">
-        <h2 class="section-title text-xl font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-2">
+        <h2 class="section-title text-xl font-semibold text-surface-900 mb-2">
           ✅ Acceptance Criteria
         </h2>
-        <p class="section-description text-surface-400 dark:text-surface-600 dark:text-gray-400">
+        <p class="section-description text-surface-600">
           Quality criteria for operational UX components
         </p>
       </div>
       
       <div class="criteria-grid grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="criterion-item flex items-start gap-4 p-4 border border-surface-700 dark:border-surface-300 dark:border-gray-600 rounded-lg">
+        <div class="criterion-item flex items-start gap-4 p-4 border border-surface-200 rounded-lg">
           <span class="criterion-icon text-2xl">📊</span>
           <div class="criterion-content flex-1">
-            <h4 class="criterion-title font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-2">95% eventi telemetria visibili</h4>
-            <p class="criterion-description text-sm text-surface-400 dark:text-surface-600 dark:text-gray-400 mb-2">
+            <h4 class="criterion-title font-semibold text-surface-900 mb-2">95% eventi telemetria visibili</h4>
+            <p class="criterion-description text-sm text-surface-600 mb-2">
               Tutti gli eventi di telemetria devono essere visibili nell'interfaccia
             </p>
             <span class="criterion-status inline-block px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">In Progress</span>
           </div>
         </div>
         
-        <div class="criterion-item flex items-start gap-4 p-4 border border-surface-700 dark:border-surface-300 dark:border-gray-600 rounded-lg">
+        <div class="criterion-item flex items-start gap-4 p-4 border border-surface-200 rounded-lg">
           <span class="criterion-icon text-2xl">⚖️</span>
           <div class="criterion-content flex-1">
-            <h4 class="criterion-title font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-2">Valori UI ~ backend ±5%</h4>
-            <p class="criterion-description text-sm text-surface-400 dark:text-surface-600 dark:text-gray-400 mb-2">
+            <h4 class="criterion-title font-semibold text-surface-900 mb-2">Valori UI ~ backend ±5%</h4>
+            <p class="criterion-description text-sm text-surface-600 mb-2">
               I valori mostrati nell'UI devono corrispondere al backend con tolleranza ±5%
             </p>
             <span class="criterion-status inline-block px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">In Progress</span>
           </div>
         </div>
         
-        <div class="criterion-item flex items-start gap-4 p-4 border border-surface-700 dark:border-surface-300 dark:border-gray-600 rounded-lg">
+        <div class="criterion-item flex items-start gap-4 p-4 border border-surface-200 rounded-lg">
           <span class="criterion-icon text-2xl">♿</span>
           <div class="criterion-content flex-1">
-            <h4 class="criterion-title font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-2">A11y ≥95</h4>
-            <p class="criterion-description text-sm text-surface-400 dark:text-surface-600 dark:text-gray-400 mb-2">
+            <h4 class="criterion-title font-semibold text-surface-900 mb-2">A11y ≥95</h4>
+            <p class="criterion-description text-sm text-surface-600 mb-2">
               Accessibilità deve essere ≥95% secondo gli standard WCAG
             </p>
             <span class="criterion-status inline-block px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">In Progress</span>
@@ -494,18 +494,18 @@
     </div>
 
     <!-- Testing Instructions Section -->
-    <div class="testing-section bg-surface-950 dark:bg-surface-50 dark:bg-gray-800 rounded-lg shadow p-6">
+    <div class="testing-section bg-white rounded-lg shadow p-6">
       <div class="section-header mb-4">
-        <h2 class="section-title text-xl font-semibold text-surface-100 dark:text-surface-900 dark:text-surface-950 dark:text-surface-50 mb-2">
+        <h2 class="section-title text-xl font-semibold text-surface-900 mb-2">
           🧪 Testing Instructions
         </h2>
-        <p class="section-description text-surface-400 dark:text-surface-600 dark:text-gray-400">
+        <p class="section-description text-surface-600">
           How to test operational UX components
         </p>
       </div>
       
       <div class="testing-steps">
-        <ol class="steps-list list-decimal list-inside space-y-2 text-surface-300 dark:text-surface-700 dark:text-gray-300">
+        <ol class="steps-list list-decimal list-inside space-y-2 text-surface-600">
           <li class="pl-2">
             <strong>Verifica Timeline:</strong> Cambia conversation ID e verifica che la timeline si aggiorni
           </li>

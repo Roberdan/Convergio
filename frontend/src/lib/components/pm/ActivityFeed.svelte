@@ -147,18 +147,18 @@
 	$: displayedEvents = compact ? activityFeed.slice(0, 5) : showAll ? activityFeed : activityFeed.slice(0, 10);
 </script>
 
-<div class="activity-feed bg-white dark:bg-surface-950 rounded-xl shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden">
+<div class="activity-feed bg-white rounded-xl shadow-sm border border-surface-200  overflow-hidden">
 	<!-- Header -->
-	<div class="p-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+	<div class="p-4 border-b border-surface-200  bg-surface-50 ">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center space-x-3">
-				<h3 class="font-semibold text-surface-900 dark:text-surface-100">
+				<h3 class="font-semibold text-surface-900 ">
 					{compact ? 'Recent Activity' : 'Real-time Activity Feed'}
 				</h3>
 				<!-- Connection Status -->
 				<div class="flex items-center space-x-2">
 					<div class="w-2 h-2 {connectionStatus === 'connected' ? 'bg-success-500' : connectionStatus === 'connecting' ? 'bg-warning-500' : 'bg-error-500'} rounded-full {connectionStatus === 'connecting' ? 'animate-pulse' : ''}"></div>
-					<span class="text-xs text-surface-500 dark:text-surface-400">
+					<span class="text-xs text-surface-500 ">
 						{connectionStatus === 'connected' ? 'Live' : 
 						 connectionStatus === 'connecting' ? 'Connecting...' : 
 						 connectionStatus === 'error' ? 'Error' : 'Offline'}
@@ -191,14 +191,14 @@
 		{#if displayedEvents.length === 0}
 			<div class="p-8 text-center">
 				<div class="text-4xl mb-2">📡</div>
-				<div class="text-surface-500 dark:text-surface-400">
+				<div class="text-surface-500 ">
 					{connectionStatus === 'connected' ? 'No activity yet' : 'Connecting to real-time updates...'}
 				</div>
 			</div>
 		{:else}
-			<div class="divide-y divide-surface-100 dark:divide-surface-800">
+			<div class="divide-y divide-surface-100">
 				{#each displayedEvents as event}
-					<div class="p-4 hover:bg-surface-50 dark:hover:bg-surface-900 transition-colors duration-200">
+					<div class="p-4 hover:bg-surface-50 transition-colors duration-200">
 						<div class="flex items-start space-x-3">
 							<!-- Event Icon -->
 							<div class="flex-shrink-0 w-8 h-8 rounded-full border {getEventColor(event)} flex items-center justify-center">
@@ -207,26 +207,26 @@
 							
 							<!-- Event Content -->
 							<div class="flex-1 min-w-0">
-								<div class="text-sm font-medium text-surface-900 dark:text-surface-100">
+								<div class="text-sm font-medium text-surface-900 ">
 									{formatEventMessage(event)}
 								</div>
 								{#if event.data?.description}
-									<div class="text-xs text-surface-600 dark:text-surface-400 mt-1 truncate">
+									<div class="text-xs text-surface-600  mt-1 truncate">
 										{event.data.description}
 									</div>
 								{/if}
 								<div class="flex items-center space-x-2 mt-2">
-									<span class="text-xs text-surface-500 dark:text-surface-400">
+									<span class="text-xs text-surface-500 ">
 										{getTimeAgo(event.timestamp)}
 									</span>
 									{#if 'userId' in event && event.userId}
-										<span class="text-xs text-surface-500 dark:text-surface-400">•</span>
-										<span class="text-xs text-surface-500 dark:text-surface-400">
+										<span class="text-xs text-surface-500 ">•</span>
+										<span class="text-xs text-surface-500 ">
 											by {event.userId}
 										</span>
 									{/if}
 									{#if 'priority' in event && event.priority}
-										<span class="text-xs text-surface-500 dark:text-surface-400">•</span>
+										<span class="text-xs text-surface-500 ">•</span>
 										<span class="text-xs {event.priority === 'critical' ? 'text-error-600' : event.priority === 'high' ? 'text-warning-600' : 'text-surface-500'}">
 											{event.priority}
 										</span>
@@ -241,8 +241,8 @@
 	</div>
 
 	{#if compact && activityFeed.length > 5}
-		<div class="p-3 border-t border-surface-100 dark:border-surface-800 bg-surface-50 dark:bg-surface-900">
-			<button class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
+		<div class="p-3 border-t border-surface-100 bg-surface-50 ">
+			<button class="text-sm text-primary-600 hover:text-primary-700">
 				View all activity ({activityFeed.length})
 			</button>
 		</div>

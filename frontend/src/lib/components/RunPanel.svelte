@@ -202,10 +202,10 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
 <div class="run-panel-container">
   <!-- Header -->
   <div class="panel-header">
-    <h3 class="text-lg font-semibold text-surface-100 dark:text-surface-900">
+    <h3 class="text-lg font-semibold text-surface-900">
       Run Panel
       {#if conversationId}
-        <span class="text-sm font-normal text-surface-500 dark:text-surface-500">#{conversationId}</span>
+        <span class="text-sm font-normal text-surface-500">#{conversationId}</span>
       {/if}
     </h3>
     
@@ -235,7 +235,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   {#if loading && Object.keys(metrics).length === 0}
     <div class="loading-state" transition:fade>
       <div class="loading-spinner"></div>
-      <p class="text-surface-500 dark:text-surface-500">Loading metrics...</p>
+      <p class="text-surface-500">Loading metrics...</p>
     </div>
   {/if}
   
@@ -434,7 +434,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .panel-header {
-    @apply flex justify-between items-center mb-6 p-4 bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border border-surface-700 dark:border-surface-300;
+    @apply flex justify-between items-center mb-6 p-4 bg-white rounded-lg shadow-sm border border-surface-200;
   }
   
   .panel-controls {
@@ -446,7 +446,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .last-update {
-    @apply text-sm text-surface-500 dark:text-surface-500 flex items-center gap-1;
+    @apply text-sm text-surface-500 flex items-center gap-1;
   }
   
   .loading-state, .error-state, .empty-state {
@@ -466,7 +466,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .btn-retry {
-    @apply px-4 py-2 bg-red-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-red-700 transition-colors;
+    @apply px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors;
   }
   
   .empty-icon {
@@ -474,11 +474,11 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .empty-message {
-    @apply text-lg font-medium text-surface-400 dark:text-surface-600 mb-2;
+    @apply text-lg font-medium text-surface-600 mb-2;
   }
   
   .empty-hint {
-    @apply text-sm text-surface-500 dark:text-surface-500;
+    @apply text-sm text-surface-500;
   }
   
   .metrics-grid {
@@ -486,7 +486,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .metric-card {
-    @apply bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border border-surface-700 dark:border-surface-300 p-6 hover:shadow-md transition-shadow;
+    @apply bg-white rounded-lg shadow-sm border border-surface-200 p-6 hover:shadow-md transition-shadow;
   }
   
   .card-header {
@@ -494,7 +494,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .card-title {
-    @apply text-lg font-semibold text-surface-100 dark:text-surface-900;
+    @apply text-lg font-semibold text-surface-900;
   }
   
   .card-icon {
@@ -507,7 +507,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .progress-bar {
-    @apply w-full h-3 bg-surface-700 dark:bg-surface-300 rounded-full overflow-hidden mb-2;
+    @apply w-full h-3 bg-surface-200 rounded-full overflow-hidden mb-2;
   }
   
   .progress-fill {
@@ -515,7 +515,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .progress-labels {
-    @apply flex justify-between text-sm text-surface-400 dark:text-surface-600;
+    @apply flex justify-between text-sm text-surface-600;
   }
   
   .budget-details {
@@ -527,7 +527,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .label {
-    @apply text-surface-400 dark:text-surface-600;
+    @apply text-surface-600;
   }
   
   .value {
@@ -540,11 +540,11 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   }
   
   .stat-label {
-    @apply text-surface-400 dark:text-surface-600;
+    @apply text-surface-600;
   }
   
   .stat-value {
-    @apply font-medium text-surface-100 dark:text-surface-900;
+    @apply font-medium text-surface-900;
   }
   
   /* Error Details */
@@ -600,7 +600,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
     .run-panel-container {
-      @apply bg-gray-900 text-surface-950 dark:text-surface-50;
+      @apply bg-gray-900 text-white;
     }
     
     .panel-header, .metric-card {
@@ -608,11 +608,11 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
     }
     
     .card-title {
-      @apply text-surface-950 dark:text-surface-50;
+      @apply text-white;
     }
     
     .stat-value {
-      @apply text-surface-950 dark:text-surface-50;
+      @apply text-white;
     }
     
     .progress-bar {

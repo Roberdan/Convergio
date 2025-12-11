@@ -222,8 +222,8 @@
 			case 'completed': return 'text-green-600';
 			case 'running': return 'text-blue-600';
 			case 'failed': return 'text-red-600';
-			case 'cancelled': return 'text-surface-400 dark:text-surface-600';
-			default: return 'text-surface-500 dark:text-surface-500';
+			case 'cancelled': return 'text-surface-600';
+			default: return 'text-surface-500';
 		}
 	}
 	
@@ -232,7 +232,7 @@
 			case 'low': return 'bg-green-100 text-green-800';
 			case 'medium': return 'bg-yellow-100 text-yellow-800';
 			case 'high': return 'bg-red-100 text-red-800';
-			default: return 'bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800';
+			default: return 'bg-surface-100 text-surface-800';
 		}
 	}
 </script>
@@ -240,40 +240,40 @@
 <div class="container mx-auto px-4 py-8">
 	<!-- Header -->
 	<div class="mb-8">
-		<h1 class="text-3xl font-bold text-surface-100 dark:text-surface-900 mb-2">
+		<h1 class="text-3xl font-bold text-surface-900 mb-2">
 			GraphFlow Workflow Management
 		</h1>
-		<p class="text-surface-400 dark:text-surface-600">
+		<p class="text-surface-600">
 			Generate, manage, and execute business workflows with AI-powered automation
 		</p>
 	</div>
 	
 	<!-- Stats Dashboard -->
 	<div class="grid grid-cols-4 gap-4 mb-8">
-		<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-6">
-			<div class="text-sm text-surface-500 dark:text-surface-500 mb-1">Total Workflows</div>
-			<div class="text-2xl font-bold text-surface-100 dark:text-surface-900">{stats.totalWorkflows}</div>
+		<div class="bg-white rounded-lg shadow p-6">
+			<div class="text-sm text-surface-500 mb-1">Total Workflows</div>
+			<div class="text-2xl font-bold text-surface-900">{stats.totalWorkflows}</div>
 		</div>
-		<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-6">
-			<div class="text-sm text-surface-500 dark:text-surface-500 mb-1">Active Executions</div>
+		<div class="bg-white rounded-lg shadow p-6">
+			<div class="text-sm text-surface-500 mb-1">Active Executions</div>
 			<div class="text-2xl font-bold text-blue-600">{stats.activeExecutions}</div>
 		</div>
-		<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-6">
-			<div class="text-sm text-surface-500 dark:text-surface-500 mb-1">Success Rate</div>
+		<div class="bg-white rounded-lg shadow p-6">
+			<div class="text-sm text-surface-500 mb-1">Success Rate</div>
 			<div class="text-2xl font-bold text-green-600">{(stats.successRate * 100).toFixed(1)}%</div>
 		</div>
-		<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-6">
-			<div class="text-sm text-surface-500 dark:text-surface-500 mb-1">Avg Duration</div>
-			<div class="text-2xl font-bold text-surface-100 dark:text-surface-900">{stats.avgDuration.toFixed(0)} min</div>
+		<div class="bg-white rounded-lg shadow p-6">
+			<div class="text-sm text-surface-500 mb-1">Avg Duration</div>
+			<div class="text-2xl font-bold text-surface-900">{stats.avgDuration.toFixed(0)} min</div>
 		</div>
 	</div>
 	
 	<!-- Actions Bar -->
-	<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow mb-6 p-4">
+	<div class="bg-white rounded-lg shadow mb-6 p-4">
 		<div class="flex items-center space-x-4">
 			<button
 				on:click={() => showGenerationPanel = !showGenerationPanel}
-				class="px-4 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-blue-700 transition-colors"
+				class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
 			>
 				<span class="flex items-center">
 					<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,12 +322,12 @@
 	
 	<!-- Generation Panel -->
 	{#if showGenerationPanel}
-		<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow mb-6 p-6" transition:slide>
+		<div class="bg-white rounded-lg shadow mb-6 p-6" transition:slide>
 			<h3 class="text-lg font-semibold mb-4">Generate New Workflow from Natural Language</h3>
 			
 			<div class="space-y-4">
 				<div>
-					<label for="workflow-description" class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+					<label for="workflow-description" class="block text-sm font-medium text-surface-600 mb-1">
 						Workflow Description
 					</label>
 					<textarea
@@ -348,7 +348,7 @@
 				
 				<div class="grid grid-cols-3 gap-4">
 					<div>
-						<label for="business-domain" class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+						<label for="business-domain" class="block text-sm font-medium text-surface-600 mb-1">
 							Business Domain
 						</label>
 						<select
@@ -366,7 +366,7 @@
 					</div>
 					
 					<div>
-						<label for="workflow-priority" class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+						<label for="workflow-priority" class="block text-sm font-medium text-surface-600 mb-1">
 							Priority
 						</label>
 						<select
@@ -382,7 +382,7 @@
 					</div>
 					
 					<div>
-						<label for="max-steps" class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+						<label for="max-steps" class="block text-sm font-medium text-surface-600 mb-1">
 							Max Steps
 						</label>
 						<input
@@ -399,14 +399,14 @@
 				<div class="flex justify-end space-x-2">
 					<button
 						on:click={() => showGenerationPanel = false}
-						class="px-4 py-2 border border-surface-600 dark:border-surface-400 rounded-lg hover:bg-surface-900 dark:bg-surface-100 transition-colors"
+						class="px-4 py-2 border border-surface-300 rounded-lg hover:bg-surface-50 transition-colors"
 					>
 						Cancel
 					</button>
 					<button
 						on:click={generateWorkflow}
 						disabled={!generationPrompt || isGenerating}
-						class="px-4 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						{isGenerating ? 'Generating...' : 'Generate Workflow'}
 					</button>
@@ -436,12 +436,12 @@
 	<!-- Workflows Grid -->
 	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
 		{#each workflows as workflow}
-			<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow hover:shadow-lg transition-shadow p-6">
+			<div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6">
 				<div class="mb-4">
-					<h3 class="text-lg font-semibold text-surface-100 dark:text-surface-900 mb-1">
+					<h3 class="text-lg font-semibold text-surface-900 mb-1">
 						{workflow.name}
 					</h3>
-					<p class="text-sm text-surface-400 dark:text-surface-600 line-clamp-2">
+					<p class="text-sm text-surface-600 line-clamp-2">
 						{workflow.description}
 					</p>
 				</div>
@@ -453,12 +453,12 @@
 					<span class="px-2 py-1 text-xs rounded-full {getComplexityColor(workflow.complexity)}">
 						{workflow.complexity}
 					</span>
-					<span class="px-2 py-1 text-xs rounded-full bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800">
+					<span class="px-2 py-1 text-xs rounded-full bg-surface-100 text-surface-800">
 						{workflow.steps_count} steps
 					</span>
 				</div>
 				
-				<div class="grid grid-cols-2 gap-2 text-sm text-surface-400 dark:text-surface-600 mb-4">
+				<div class="grid grid-cols-2 gap-2 text-sm text-surface-600 mb-4">
 					<div>Duration: {workflow.estimated_duration_minutes} min</div>
 					<div>Success: {(workflow.success_rate * 100).toFixed(0)}%</div>
 					<div>Used: {workflow.usage_count} times</div>
@@ -467,13 +467,13 @@
 				<div class="flex space-x-2">
 					<button
 						on:click={() => selectedWorkflow = workflow}
-						class="flex-1 px-3 py-1 border border-surface-600 dark:border-surface-400 rounded hover:bg-surface-900 dark:bg-surface-100 transition-colors text-sm"
+						class="flex-1 px-3 py-1 border border-surface-300 rounded hover:bg-surface-50 transition-colors text-sm"
 					>
 						View Details
 					</button>
 					<button
 						on:click={() => executeWorkflow(workflow.workflow_id)}
-						class="flex-1 px-3 py-1 bg-blue-600 text-surface-950 dark:text-surface-50 rounded hover:bg-blue-700 transition-colors text-sm"
+						class="flex-1 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
 					>
 						Execute
 					</button>
@@ -483,42 +483,42 @@
 	</div>
 	
 	<!-- Recent Executions -->
-	<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow">
+	<div class="bg-white rounded-lg shadow">
 		<div class="px-6 py-4 border-b">
-			<h2 class="text-lg font-semibold text-surface-100 dark:text-surface-900">Recent Executions</h2>
+			<h2 class="text-lg font-semibold text-surface-900">Recent Executions</h2>
 		</div>
 		
 		<div class="overflow-x-auto">
 			<table class="w-full">
-				<thead class="bg-surface-900 dark:bg-surface-100">
+				<thead class="bg-surface-50">
 					<tr>
-						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase tracking-wider">
+						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase tracking-wider">
 							Execution ID
 						</th>
-						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase tracking-wider">
+						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase tracking-wider">
 							Workflow
 						</th>
-						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase tracking-wider">
+						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase tracking-wider">
 							Status
 						</th>
-						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase tracking-wider">
+						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase tracking-wider">
 							Progress
 						</th>
-						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase tracking-wider">
+						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase tracking-wider">
 							Started
 						</th>
-						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase tracking-wider">
+						<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase tracking-wider">
 							Actions
 						</th>
 					</tr>
 				</thead>
-				<tbody class="bg-surface-950 dark:bg-surface-50 divide-y divide-gray-200">
+				<tbody class="bg-white divide-y divide-gray-200">
 					{#each executions as execution}
 						<tr>
-							<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-100 dark:text-surface-900">
+							<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-900">
 								{execution.execution_id.slice(0, 8)}...
 							</td>
-							<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-100 dark:text-surface-900">
+							<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-900">
 								{execution.workflow_id}
 							</td>
 							<td class="px-6 py-4 whitespace-nowrap">
@@ -527,14 +527,14 @@
 								</span>
 							</td>
 							<td class="px-6 py-4 whitespace-nowrap">
-								<div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-2.5">
+								<div class="w-full bg-surface-200 rounded-full h-2.5">
 									<div
 										class="bg-blue-600 h-2.5 rounded-full"
 										style="width: {execution.progress_percentage}%"
 									></div>
 								</div>
 							</td>
-							<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-500 dark:text-surface-500">
+							<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-500">
 								{new Date(execution.started_at).toLocaleString()}
 							</td>
 							<td class="px-6 py-4 whitespace-nowrap text-sm">

@@ -156,7 +156,7 @@
 			completed: 'bg-green-100 text-green-800',
 			failed: 'bg-red-100 text-red-800'
 		};
-		return colors[status] || 'bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800';
+		return colors[status] || 'bg-surface-100 text-surface-800';
 	}
 
 	function getRoleColor(role) {
@@ -167,7 +167,7 @@
 			monitor: 'bg-yellow-100 text-yellow-800',
 			communicator: 'bg-pink-100 text-pink-800'
 		};
-		return colors[role] || 'bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800';
+		return colors[role] || 'bg-surface-100 text-surface-800';
 	}
 
 	function getLoadBarColor(load) {
@@ -198,7 +198,7 @@
 			 class:text-blue-800={notification.type === 'info'}>
 			<div class="flex justify-between items-start">
 				<p class="text-sm font-medium">{notification.message}</p>
-				<button on:click={() => notification = null} class="ml-2 text-surface-400 dark:text-surface-600 hover:text-surface-300 dark:hover:text-surface-700" aria-label="Dismiss notification">
+				<button on:click={() => notification = null} class="ml-2 text-surface-600 hover:text-surface-300" aria-label="Dismiss notification">
 					<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
 						<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
 					</svg>
@@ -211,11 +211,11 @@
 <!-- Create Task Modal -->
 {#if showCreateTaskModal}
 	<div class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4">
-		<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-xl w-full max-w-2xl">
+		<div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
 			<div class="px-6 py-4 border-b">
 				<div class="flex justify-between items-center">
 					<h2 class="text-xl font-semibold">Create Swarm Task</h2>
-					<button on:click={() => showCreateTaskModal = false} class="text-surface-400 dark:text-surface-600 hover:text-surface-300 dark:hover:text-surface-700" aria-label="Close modal">
+					<button on:click={() => showCreateTaskModal = false} class="text-surface-600 hover:text-surface-300" aria-label="Close modal">
 						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
 						</svg>
@@ -224,35 +224,35 @@
 			</div>
 			<div class="px-6 py-4 space-y-4">
 				<div>
-					<label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1" for="swarm-task-description">Task Description</label>
+					<label class="block text-sm font-medium text-surface-600 mb-1" for="swarm-task-description">Task Description</label>
 					<textarea 
 						id="swarm-task-description"
 						bind:value={newTaskForm.description}
 						rows="4"
-						class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+						class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 						placeholder="Describe the task for swarm coordination..."
 					></textarea>
 				</div>
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1" for="swarm-priority">Priority (1-10)</label>
+						<label class="block text-sm font-medium text-surface-600 mb-1" for="swarm-priority">Priority (1-10)</label>
 						<input 
 							id="swarm-priority"
 							type="number"
 							bind:value={newTaskForm.priority}
 							min="1"
 							max="10"
-							class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+							class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
 					</div>
 					<div>
-						<label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1" for="swarm-duration">Duration (minutes)</label>
+						<label class="block text-sm font-medium text-surface-600 mb-1" for="swarm-duration">Duration (minutes)</label>
 						<input 
 							id="swarm-duration"
 							type="number"
 							bind:value={newTaskForm.estimated_duration}
 							min="1"
-							class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+							class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 							placeholder="Auto-estimated if empty"
 						/>
 					</div>
@@ -261,14 +261,14 @@
 			<div class="px-6 py-4 border-t flex justify-end space-x-3">
 				<button 
 					on:click={() => showCreateTaskModal = false}
-					class="px-4 py-2 border border-surface-600 dark:border-surface-400 text-surface-300 dark:text-surface-700 rounded-md hover:bg-surface-900 dark:bg-surface-100"
+					class="px-4 py-2 border border-surface-300 text-surface-600 rounded-md hover:bg-surface-50"
 				>
 					Cancel
 				</button>
 				<button 
 					on:click={createSwarmTask}
 					disabled={!newTaskForm.description.trim()}
-					class="px-4 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 rounded-md hover:bg-blue-700 disabled:bg-surface-400 dark:disabled:bg-surface-600 disabled:cursor-not-allowed"
+					class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-surface-400 disabled:cursor-not-allowed"
 				>
 					Create Task
 				</button>
@@ -277,19 +277,19 @@
 	</div>
 {/if}
 
-<div class="min-h-screen bg-surface-900 dark:bg-surface-100">
+<div class="min-h-screen bg-surface-50">
 	<!-- Header -->
-	<div class="bg-surface-950 dark:bg-surface-50 shadow-sm border-b">
+	<div class="bg-white shadow-sm border-b">
 		<div class="max-w-7xl mx-auto px-6 py-6">
 			<div class="flex justify-between items-start">
 				<div>
-					<h1 class="text-3xl font-bold text-surface-100 dark:text-surface-900 mb-2">🤖 Swarm Coordination</h1>
-					<p class="text-surface-400 dark:text-surface-600">Advanced agent coordination with swarm intelligence patterns</p>
+					<h1 class="text-3xl font-bold text-surface-900 mb-2">🤖 Swarm Coordination</h1>
+					<p class="text-surface-600">Advanced agent coordination with swarm intelligence patterns</p>
 				</div>
 				<div class="flex space-x-3">
 					<button
 						on:click={initializeSwarm}
-						class="px-4 py-2 bg-purple-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
+						class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center"
 					>
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -298,7 +298,7 @@
 					</button>
 					<button
 						on:click={() => showCreateTaskModal = true}
-						class="px-4 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+						class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
 					>
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -315,12 +315,12 @@
 		{#if isLoading}
 			<div class="flex items-center justify-center py-12">
 				<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-				<span class="ml-3 text-surface-400 dark:text-surface-600">Loading swarm coordination data...</span>
+				<span class="ml-3 text-surface-600">Loading swarm coordination data...</span>
 			</div>
 		{:else}
 			<!-- Overview Stats -->
 			<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<div class="flex items-center">
 						<div class="p-3 rounded-full bg-purple-100">
 							<svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,13 +328,13 @@
 							</svg>
 						</div>
 						<div class="ml-4">
-							<p class="text-sm font-medium text-surface-500 dark:text-surface-500">Total Agents</p>
-							<p class="text-2xl font-semibold text-surface-100 dark:text-surface-900">{totalAgents}</p>
+							<p class="text-sm font-medium text-surface-500">Total Agents</p>
+							<p class="text-2xl font-semibold text-surface-900">{totalAgents}</p>
 						</div>
 					</div>
 				</div>
 
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<div class="flex items-center">
 						<div class="p-3 rounded-full bg-blue-100">
 							<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,13 +342,13 @@
 							</svg>
 						</div>
 						<div class="ml-4">
-							<p class="text-sm font-medium text-surface-500 dark:text-surface-500">Available Agents</p>
-							<p class="text-2xl font-semibold text-surface-100 dark:text-surface-900">{availableAgents}</p>
+							<p class="text-sm font-medium text-surface-500">Available Agents</p>
+							<p class="text-2xl font-semibold text-surface-900">{availableAgents}</p>
 						</div>
 					</div>
 				</div>
 
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<div class="flex items-center">
 						<div class="p-3 rounded-full bg-yellow-100">
 							<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,13 +356,13 @@
 							</svg>
 						</div>
 						<div class="ml-4">
-							<p class="text-sm font-medium text-surface-500 dark:text-surface-500">Active Tasks</p>
-							<p class="text-2xl font-semibold text-surface-100 dark:text-surface-900">{activeTasks}</p>
+							<p class="text-sm font-medium text-surface-500">Active Tasks</p>
+							<p class="text-2xl font-semibold text-surface-900">{activeTasks}</p>
 						</div>
 					</div>
 				</div>
 
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<div class="flex items-center">
 						<div class="p-3 rounded-full bg-green-100">
 							<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -370,8 +370,8 @@
 							</svg>
 						</div>
 						<div class="ml-4">
-							<p class="text-sm font-medium text-surface-500 dark:text-surface-500">Completed</p>
-							<p class="text-2xl font-semibold text-surface-100 dark:text-surface-900">{completedTasks}</p>
+							<p class="text-sm font-medium text-surface-500">Completed</p>
+							<p class="text-2xl font-semibold text-surface-900">{completedTasks}</p>
 						</div>
 					</div>
 				</div>
@@ -379,7 +379,7 @@
 
 			<!-- Tabs -->
 			<div class="mb-6">
-				<nav class="flex space-x-8 border-b border-surface-700 dark:border-surface-300">
+				<nav class="flex space-x-8 border-b border-surface-200">
 					{#each ['overview', 'tasks', 'agents', 'patterns'] as tab}
 						<button
 							on:click={() => selectedTab = tab}
@@ -387,8 +387,8 @@
 							class:border-purple-500={selectedTab === tab}
 							class:text-purple-600={selectedTab === tab}
 							class:border-transparent={selectedTab !== tab}
-							class:text-surface-500 dark:text-surface-500={selectedTab !== tab}
-							class:hover:text-surface-300 dark:text-surface-700={selectedTab !== tab}
+							class:text-surface-500={selectedTab !== tab}
+							class:hover:text-surface-600={selectedTab !== tab}
 						>
 							{tab.replace('_', ' ')}
 						</button>
@@ -400,17 +400,17 @@
 			{#if selectedTab === 'overview'}
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<!-- System Status -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+					<div class="bg-white rounded-lg shadow-sm border p-6">
 						<h3 class="text-lg font-semibold mb-4">System Status</h3>
 						<div class="space-y-3">
 							<div class="flex justify-between items-center">
-								<span class="text-sm text-surface-400 dark:text-surface-600">System Status</span>
+								<span class="text-sm text-surface-600">System Status</span>
 								<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
 									{$swarmStatus.system_status || 'Operational'}
 								</span>
 							</div>
 							<div class="flex justify-between items-center">
-								<span class="text-sm text-surface-400 dark:text-surface-600">Coordination Ready</span>
+								<span class="text-sm text-surface-600">Coordination Ready</span>
 								<span class="px-2 py-1 rounded-full text-xs"
 									  class:bg-green-100={totalAgents >= 3}
 									  class:text-green-800={totalAgents >= 3}
@@ -420,33 +420,33 @@
 								</span>
 							</div>
 							<div class="flex justify-between items-center">
-								<span class="text-sm text-surface-400 dark:text-surface-600">Available Patterns</span>
+								<span class="text-sm text-surface-600">Available Patterns</span>
 								<span class="text-sm font-medium">{Object.keys($coordinationPatterns).length}</span>
 							</div>
 						</div>
 					</div>
 
 					<!-- Quick Actions -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+					<div class="bg-white rounded-lg shadow-sm border p-6">
 						<h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
 						<div class="space-y-3">
 							<button
 								on:click={loadSwarmData}
-								class="w-full px-4 py-2 border border-surface-600 dark:border-surface-400 text-surface-300 dark:text-surface-700 rounded-md hover:bg-surface-900 dark:bg-surface-100 transition-colors text-left"
+								class="w-full px-4 py-2 border border-surface-300 text-surface-600 rounded-md hover:bg-surface-50 transition-colors text-left"
 								aria-label="Refresh status"
 							>
 								🔄 Refresh Status
 							</button>
 							<button
 								on:click={() => showCreateTaskModal = true}
-								class="w-full px-4 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 rounded-md hover:bg-blue-700 transition-colors text-left"
+								class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-left"
 								aria-label="Create swarm task"
 							>
 								➕ Create Swarm Task
 							</button>
 							<button
 								on:click={initializeSwarm}
-								class="w-full px-4 py-2 bg-purple-600 text-surface-950 dark:text-surface-50 rounded-md hover:bg-purple-700 transition-colors text-left"
+								class="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-left"
 								aria-label="Re-initialize swarm"
 							>
 								⚡ Re-initialize Swarm
@@ -457,42 +457,42 @@
 
 			{:else if selectedTab === 'tasks'}
 				<!-- Tasks Tab -->
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border">
+				<div class="bg-white rounded-lg shadow-sm border">
 					<div class="px-6 py-4 border-b">
 						<h3 class="text-lg font-semibold">Swarm Tasks</h3>
 					</div>
 					<div class="overflow-x-auto">
 						<table class="min-w-full divide-y divide-gray-200">
-							<thead class="bg-surface-900 dark:bg-surface-100">
+							<thead class="bg-surface-50">
 								<tr>
-									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Task</th>
-									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Status</th>
-									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Complexity</th>
-									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Agents</th>
-									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Pattern</th>
-									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Priority</th>
-									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Actions</th>
+									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase">Task</th>
+									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase">Status</th>
+									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase">Complexity</th>
+									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase">Agents</th>
+									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase">Pattern</th>
+									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase">Priority</th>
+									<th class="px-6 py-3 text-left text-xs font-medium text-surface-500 uppercase">Actions</th>
 								</tr>
 							</thead>
-							<tbody class="bg-surface-950 dark:bg-surface-50 divide-y divide-gray-200">
+							<tbody class="bg-white divide-y divide-gray-200">
 								{#each $swarmTasks as task (task.task_id)}
 									<tr>
 										<td class="px-6 py-4 whitespace-nowrap">
-											<div class="text-sm font-medium text-surface-100 dark:text-surface-900">{task.task_id}</div>
-											<div class="text-sm text-surface-500 dark:text-surface-500">{task.description}</div>
+											<div class="text-sm font-medium text-surface-900">{task.task_id}</div>
+											<div class="text-sm text-surface-500">{task.description}</div>
 										</td>
 										<td class="px-6 py-4 whitespace-nowrap">
 											<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {getStatusColor(task.status)}">
 												{task.status}
 											</span>
 										</td>
-										<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-100 dark:text-surface-900">
+										<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-900">
 											{task.complexity}
 										</td>
-										<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-100 dark:text-surface-900">
+										<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-900">
 											{task.assigned_agents_count || 0}
 										</td>
-										<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-500 dark:text-surface-500">
+										<td class="px-6 py-4 whitespace-nowrap text-sm text-surface-500">
 											{task.coordination_pattern || 'Not assigned'}
 										</td>
 										<td class="px-6 py-4 whitespace-nowrap">
@@ -522,11 +522,11 @@
 						</table>
 						{#if $swarmTasks.length === 0}
 							<div class="text-center py-12">
-								<svg class="mx-auto h-12 w-12 text-surface-400 dark:text-surface-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<svg class="mx-auto h-12 w-12 text-surface-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
 								</svg>
-								<h3 class="text-lg font-medium text-surface-100 dark:text-surface-900 mb-2">No swarm tasks</h3>
-								<p class="text-surface-500 dark:text-surface-500">Create your first swarm coordination task to get started.</p>
+								<h3 class="text-lg font-medium text-surface-900 mb-2">No swarm tasks</h3>
+								<p class="text-surface-500">Create your first swarm coordination task to get started.</p>
 							</div>
 						{/if}
 					</div>
@@ -536,14 +536,14 @@
 				<!-- Agents Tab -->
 				<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
 					{#each $swarmAgents as agent (agent.key)}
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+						<div class="bg-white rounded-lg shadow-sm border p-6">
 							<div class="flex items-center justify-between mb-4">
 								<div class="flex items-center space-x-3">
-									<div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-surface-950 dark:text-surface-50 font-bold text-sm">
+									<div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
 										{agent.name.slice(0, 2).toUpperCase()}
 									</div>
 									<div>
-										<h3 class="font-medium text-surface-100 dark:text-surface-900">{agent.name.replace(/_/g, ' ')}</h3>
+										<h3 class="font-medium text-surface-900">{agent.name.replace(/_/g, ' ')}</h3>
 										<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {getRoleColor(agent.role)}">
 											{agent.role}
 										</span>
@@ -558,11 +558,11 @@
 							<div class="space-y-3">
 								<!-- Load Bar -->
 								<div>
-									<div class="flex justify-between items-center text-xs text-surface-500 dark:text-surface-500 mb-1">
+									<div class="flex justify-between items-center text-xs text-surface-500 mb-1">
 										<span>Current Load</span>
 										<span>{Math.round(agent.current_load * 100)}%</span>
 									</div>
-									<div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-2">
+									<div class="w-full bg-surface-200 rounded-full h-2">
 										<div 
 											class="h-2 rounded-full transition-all duration-300 {getLoadBarColor(agent.current_load)}"
 											style="width: {agent.current_load * 100}%"
@@ -572,34 +572,34 @@
 
 								<!-- Success Rate -->
 								<div class="flex justify-between text-sm">
-									<span class="text-surface-500 dark:text-surface-500">Success Rate</span>
+									<span class="text-surface-500">Success Rate</span>
 									<span class="font-medium">{Math.round(agent.success_rate * 100)}%</span>
 								</div>
 
 								<!-- Tools Count -->
 								<div class="flex justify-between text-sm">
-									<span class="text-surface-500 dark:text-surface-500">Tools</span>
+									<span class="text-surface-500">Tools</span>
 									<span class="font-medium">{agent.tools_count}</span>
 								</div>
 
 								<!-- Coordination Score -->
 								<div class="flex justify-between text-sm">
-									<span class="text-surface-500 dark:text-surface-500">Coordination</span>
+									<span class="text-surface-500">Coordination</span>
 									<span class="font-medium">{Math.round(agent.coordination_score * 100)}/100</span>
 								</div>
 
 								<!-- Expertise Areas -->
 								{#if agent.expertise_areas && agent.expertise_areas.length > 0}
 									<div class="pt-2 border-t">
-										<p class="text-xs text-surface-500 dark:text-surface-500 mb-2">Expertise Areas</p>
+										<p class="text-xs text-surface-500 mb-2">Expertise Areas</p>
 										<div class="flex flex-wrap gap-1">
 											{#each agent.expertise_areas.slice(0, 3) as area}
-												<span class="inline-flex px-2 py-1 bg-surface-800 dark:bg-surface-200 text-surface-300 dark:text-surface-700 text-xs rounded">
+												<span class="inline-flex px-2 py-1 bg-surface-100 text-surface-600 text-xs rounded">
 													{area}
 												</span>
 											{/each}
 											{#if agent.expertise_areas.length > 3}
-												<span class="text-xs text-surface-500 dark:text-surface-500">+{agent.expertise_areas.length - 3} more</span>
+												<span class="text-xs text-surface-500">+{agent.expertise_areas.length - 3} more</span>
 											{/if}
 										</div>
 									</div>
@@ -613,7 +613,7 @@
 				<!-- Patterns Tab -->
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 					{#each Object.entries($coordinationPatterns) as [patternName, pattern] (patternName)}
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+						<div class="bg-white rounded-lg shadow-sm border p-6">
 							<div class="flex items-center justify-between mb-4">
 								<h3 class="text-lg font-semibold capitalize">{patternName.replace('_', ' ')}</h3>
 								<span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
@@ -621,11 +621,11 @@
 								</span>
 							</div>
 
-							<p class="text-surface-400 dark:text-surface-600 mb-4">{pattern.description}</p>
+							<p class="text-surface-600 mb-4">{pattern.description}</p>
 
 							<div class="space-y-3">
 								<div>
-									<p class="text-sm font-medium text-surface-300 dark:text-surface-700 mb-2">Best For:</p>
+									<p class="text-sm font-medium text-surface-600 mb-2">Best For:</p>
 									<div class="flex flex-wrap gap-2">
 										{#each pattern.best_for as useCase}
 											<span class="inline-flex px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
@@ -637,7 +637,7 @@
 
 								<div class="pt-3 border-t">
 									<div class="flex justify-between text-sm">
-										<span class="text-surface-500 dark:text-surface-500">Coordination Overhead</span>
+										<span class="text-surface-500">Coordination Overhead</span>
 										<span class="font-medium">{Math.round(pattern.coordination_overhead * 100)}%</span>
 									</div>
 								</div>

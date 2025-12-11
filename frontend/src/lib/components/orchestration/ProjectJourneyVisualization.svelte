@@ -151,10 +151,10 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h3 class="text-lg font-semibold text-surface-900 dark:text-surface-100">
+        <h3 class="text-lg font-semibold text-surface-900 ">
           🛤️ Project Journey
         </h3>
-        <p class="text-sm text-surface-600 dark:text-surface-400 mt-1">
+        <p class="text-sm text-surface-600  mt-1">
           CRM-style project progression with AI insights
         </p>
       </div>
@@ -185,7 +185,7 @@
     <!-- Journey Timeline -->
     <div class="relative">
       <!-- Progress Line -->
-      <div class="absolute top-12 left-8 right-8 h-0.5 bg-gray-200 dark:bg-gray-700"></div>
+      <div class="absolute top-12 left-8 right-8 h-0.5 bg-gray-200"></div>
       
       <!-- Journey Stages -->
       <div class="flex justify-between relative">
@@ -195,7 +195,7 @@
             <button
               on:click={() => selectedStage = selectedStage === stage.name ? null : stage.name}
               class="w-16 h-16 rounded-full border-4 {getStageColorClasses(stage, 'border')} 
-                     bg-surface-50 dark:bg-surface-900 hover:scale-110 transition-all duration-200 
+                     bg-surface-50  hover:scale-110 transition-all duration-200 
                      flex items-center justify-center text-2xl shadow-lg hover:shadow-xl"
               class:ring-4={stage.isActive}
               class:ring-blue-200={stage.isActive}
@@ -205,13 +205,13 @@
             
             <!-- Stage Name and Status -->
             <div class="mt-2 text-center min-w-[120px]">
-              <div class="font-medium text-sm text-surface-900 dark:text-surface-100">
+              <div class="font-medium text-sm text-surface-900 ">
                 {stage.title}
               </div>
               
               <!-- Progress Bar -->
               {#if !detailed}
-                <div class="mt-1 w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                <div class="mt-1 w-full bg-gray-200 rounded-full h-1.5">
                   <div 
                     class="h-1.5 rounded-full transition-all duration-500 {getStageColorClasses(stage, 'bg')}"
                     style="width: {getStageProgress(stage)}%"
@@ -248,8 +248,8 @@
             <!-- Stage Details (Expanded) -->
             {#if selectedStage === stage.name}
               <div 
-                class="absolute top-20 left-1/2 transform -translate-x-1/2 mt-4 bg-surface-50 dark:bg-surface-800 
-                       border border-surface-200 dark:border-surface-700 rounded-lg p-4 shadow-lg min-w-[280px] z-20"
+                class="absolute top-20 left-1/2 transform -translate-x-1/2 mt-4 bg-surface-50  
+                       border border-surface-200  rounded-lg p-4 shadow-lg min-w-[280px] z-20"
                 transition:scale={{ duration: 200 }}
               >
                 <!-- Close Button -->
@@ -265,10 +265,10 @@
                   <div class="flex items-center space-x-2">
                     <span class="text-2xl">{stage.icon}</span>
                     <div>
-                      <h4 class="font-semibold text-surface-900 dark:text-surface-100">
+                      <h4 class="font-semibold text-surface-900 ">
                         {stage.title}
                       </h4>
-                      <p class="text-xs text-surface-600 dark:text-surface-400">
+                      <p class="text-xs text-surface-600 ">
                         {stage.description}
                       </p>
                     </div>
@@ -307,7 +307,7 @@
                       </div>
                     </div>
                   {:else}
-                    <div class="text-sm text-surface-600 dark:text-surface-400">
+                    <div class="text-sm text-surface-600 ">
                       <p class="mb-2">Expected Duration: <span class="font-medium">{stage.expectedDuration}</span></p>
                       <p class="text-xs">{stage.description}</p>
                     </div>
@@ -348,49 +348,49 @@
     
     <!-- Overall Journey Metrics (Detailed View) -->
     {#if detailed}
-      <div class="mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
-        <h4 class="font-medium text-surface-900 dark:text-surface-100 mb-4">Journey Analytics</h4>
+      <div class="mt-8 pt-6 border-t border-surface-200 ">
+        <h4 class="font-medium text-surface-900  mb-4">Journey Analytics</h4>
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Overall Progress -->
-          <div class="bg-blue-50 dark:bg-blue-950 rounded-lg p-3">
-            <div class="text-sm text-blue-600 dark:text-blue-400 font-medium">Overall Progress</div>
-            <div class="text-2xl font-bold text-blue-700 dark:text-blue-300">
+          <div class="bg-blue-50 rounded-lg p-3">
+            <div class="text-sm text-blue-600 font-medium">Overall Progress</div>
+            <div class="text-2xl font-bold text-blue-700">
               {Math.round((stageTimeline.filter(s => s.isCompleted).length / stageTimeline.length) * 100)}%
             </div>
-            <div class="text-xs text-blue-600 dark:text-blue-400">
+            <div class="text-xs text-blue-600">
               {stageTimeline.filter(s => s.isCompleted).length} of {stageTimeline.length} stages complete
             </div>
           </div>
           
           <!-- Average Satisfaction -->
-          <div class="bg-purple-50 dark:bg-purple-950 rounded-lg p-3">
-            <div class="text-sm text-purple-600 dark:text-purple-400 font-medium">Avg Satisfaction</div>
-            <div class="text-2xl font-bold text-purple-700 dark:text-purple-300">
+          <div class="bg-purple-50 rounded-lg p-3">
+            <div class="text-sm text-purple-600 font-medium">Avg Satisfaction</div>
+            <div class="text-2xl font-bold text-purple-700">
               {Math.round((journeyStages.reduce((sum, stage) => sum + (stage.satisfaction_score || 0), 0) / 
                          Math.max(journeyStages.length, 1)) * 100)}%
             </div>
-            <div class="text-xs text-purple-600 dark:text-purple-400">
+            <div class="text-xs text-purple-600">
               Across completed stages
             </div>
           </div>
           
           <!-- Active Stage Progress -->
-          <div class="bg-green-50 dark:bg-green-950 rounded-lg p-3">
-            <div class="text-sm text-green-600 dark:text-green-400 font-medium">Current Stage</div>
-            <div class="text-lg font-bold text-green-700 dark:text-green-300">
+          <div class="bg-green-50 rounded-lg p-3">
+            <div class="text-sm text-green-600 font-medium">Current Stage</div>
+            <div class="text-lg font-bold text-green-700">
               {currentStage.charAt(0).toUpperCase() + currentStage.slice(1)}
             </div>
-            <div class="text-xs text-green-600 dark:text-green-400">
+            <div class="text-xs text-green-600">
               {getStageProgress(stageTimeline.find(s => s.isActive))}% complete
             </div>
           </div>
           
           <!-- Journey Velocity -->
-          <div class="bg-yellow-50 dark:bg-yellow-950 rounded-lg p-3">
-            <div class="text-sm text-yellow-600 dark:text-yellow-400 font-medium">Velocity</div>
-            <div class="text-2xl font-bold text-yellow-700 dark:text-yellow-300">Normal</div>
-            <div class="text-xs text-yellow-600 dark:text-yellow-400">
+          <div class="bg-yellow-50 rounded-lg p-3">
+            <div class="text-sm text-yellow-600 font-medium">Velocity</div>
+            <div class="text-2xl font-bold text-yellow-700">Normal</div>
+            <div class="text-xs text-yellow-600">
               On track for delivery
             </div>
           </div>

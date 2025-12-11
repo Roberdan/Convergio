@@ -272,11 +272,11 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h3 class="text-lg font-semibold text-surface-900 dark:text-surface-100">
+        <h3 class="text-lg font-semibold text-surface-900 ">
           📞 Touchpoint Timeline
         </h3>
         {#if !compact}
-          <p class="text-sm text-surface-600 dark:text-surface-400 mt-1">
+          <p class="text-sm text-surface-600  mt-1">
             CRM-style interaction history and collaboration analytics
           </p>
         {/if}
@@ -287,8 +287,8 @@
           <!-- Filter and Sort Controls -->
           <select 
             bind:value={filterType}
-            class="text-sm border border-surface-300 dark:border-surface-600 rounded-md px-2 py-1 
-                   bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+            class="text-sm border border-surface-300  rounded-md px-2 py-1 
+                   bg-surface-50  text-surface-900 "
           >
             {#each touchpointTypes as type}
               <option value={type.id}>{type.icon} {type.label}</option>
@@ -297,8 +297,8 @@
           
           <select 
             bind:value={sortBy}
-            class="text-sm border border-surface-300 dark:border-surface-600 rounded-md px-2 py-1 
-                   bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+            class="text-sm border border-surface-300  rounded-md px-2 py-1 
+                   bg-surface-50  text-surface-900 "
           >
             <option value="date">Sort by Date</option>
             <option value="satisfaction">Sort by Satisfaction</option>
@@ -314,19 +314,19 @@
     
     <!-- Create Touchpoint Form -->
     {#if showCreateForm}
-      <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4 mb-4" transition:slide>
+      <div class="bg-surface-50  rounded-lg p-4 mb-4" transition:slide>
         <div class="flex items-center justify-between mb-3">
-          <h4 class="font-medium text-surface-900 dark:text-surface-100">Create New Touchpoint</h4>
+          <h4 class="font-medium text-surface-900 ">Create New Touchpoint</h4>
           <button on:click={() => showCreateForm = false} class="text-surface-400 hover:text-surface-600">✕</button>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">Type</label>
+            <label class="block text-sm font-medium text-surface-700  mb-1">Type</label>
             <select 
               bind:value={newTouchpoint.touchpoint_type}
-              class="w-full border border-surface-300 dark:border-surface-600 rounded-md px-3 py-2 
-                     bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+              class="w-full border border-surface-300  rounded-md px-3 py-2 
+                     bg-surface-50  text-surface-900 "
             >
               {#each touchpointTypes.slice(1) as type}
                 <option value={type.id}>{type.icon} {type.label}</option>
@@ -335,34 +335,34 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">Duration (minutes)</label>
+            <label class="block text-sm font-medium text-surface-700  mb-1">Duration (minutes)</label>
             <input 
               type="number" 
               bind:value={newTouchpoint.duration_minutes}
-              class="w-full border border-surface-300 dark:border-surface-600 rounded-md px-3 py-2 
-                     bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+              class="w-full border border-surface-300  rounded-md px-3 py-2 
+                     bg-surface-50  text-surface-900 "
             />
           </div>
           
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">Title</label>
+            <label class="block text-sm font-medium text-surface-700  mb-1">Title</label>
             <input 
               type="text" 
               bind:value={newTouchpoint.title}
               placeholder="Touchpoint title..."
-              class="w-full border border-surface-300 dark:border-surface-600 rounded-md px-3 py-2 
-                     bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+              class="w-full border border-surface-300  rounded-md px-3 py-2 
+                     bg-surface-50  text-surface-900 "
             />
           </div>
           
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">Summary</label>
+            <label class="block text-sm font-medium text-surface-700  mb-1">Summary</label>
             <textarea 
               bind:value={newTouchpoint.summary}
               placeholder="Brief summary of the interaction..."
               rows="2"
-              class="w-full border border-surface-300 dark:border-surface-600 rounded-md px-3 py-2 
-                     bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+              class="w-full border border-surface-300  rounded-md px-3 py-2 
+                     bg-surface-50  text-surface-900 "
             ></textarea>
           </div>
         </div>
@@ -381,31 +381,31 @@
     <!-- Summary Stats -->
     {#if !compact && filteredAndSortedTouchpoints.length > 0}
       <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-        <div class="bg-blue-50 dark:bg-blue-950 rounded-lg p-3">
-          <div class="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Touchpoints</div>
-          <div class="text-xl font-bold text-blue-700 dark:text-blue-300">
+        <div class="bg-blue-50 rounded-lg p-3">
+          <div class="text-sm text-blue-600 font-medium">Total Touchpoints</div>
+          <div class="text-xl font-bold text-blue-700">
             {filteredAndSortedTouchpoints.length}
           </div>
         </div>
         
-        <div class="bg-green-50 dark:bg-green-950 rounded-lg p-3">
-          <div class="text-sm text-green-600 dark:text-green-400 font-medium">Avg Satisfaction</div>
-          <div class="text-xl font-bold text-green-700 dark:text-green-300">
+        <div class="bg-green-50 rounded-lg p-3">
+          <div class="text-sm text-green-600 font-medium">Avg Satisfaction</div>
+          <div class="text-xl font-bold text-green-700">
             {Math.round((filteredAndSortedTouchpoints.reduce((sum, tp) => sum + (tp.satisfaction_score || 0), 0) / 
                        Math.max(filteredAndSortedTouchpoints.length, 1)) * 100)}%
           </div>
         </div>
         
-        <div class="bg-purple-50 dark:bg-purple-950 rounded-lg p-3">
-          <div class="text-sm text-purple-600 dark:text-purple-400 font-medium">Total Duration</div>
-          <div class="text-xl font-bold text-purple-700 dark:text-purple-300">
+        <div class="bg-purple-50 rounded-lg p-3">
+          <div class="text-sm text-purple-600 font-medium">Total Duration</div>
+          <div class="text-xl font-bold text-purple-700">
             {Math.round(filteredAndSortedTouchpoints.reduce((sum, tp) => sum + (tp.duration_minutes || 0), 0) / 60)}h
           </div>
         </div>
         
-        <div class="bg-yellow-50 dark:bg-yellow-950 rounded-lg p-3">
-          <div class="text-sm text-yellow-600 dark:text-yellow-400 font-medium">High Impact</div>
-          <div class="text-xl font-bold text-yellow-700 dark:text-yellow-300">
+        <div class="bg-yellow-50 rounded-lg p-3">
+          <div class="text-sm text-yellow-600 font-medium">High Impact</div>
+          <div class="text-xl font-bold text-yellow-700">
             {filteredAndSortedTouchpoints.filter(tp => tp.impact_level === 'high' || tp.impact_level === 'critical').length}
           </div>
         </div>
@@ -417,27 +417,27 @@
       {#if loading}
         <div class="text-center py-8">
           <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-          <p class="text-sm text-surface-600 dark:text-surface-400 mt-2">Loading touchpoints...</p>
+          <p class="text-sm text-surface-600  mt-2">Loading touchpoints...</p>
         </div>
       {:else if filteredAndSortedTouchpoints.length === 0}
-        <div class="text-center py-8 text-surface-500 dark:text-surface-400">
+        <div class="text-center py-8 text-surface-500 ">
           <div class="text-4xl mb-2">📞</div>
           <p>No touchpoints yet. Start tracking interactions to build the timeline.</p>
         </div>
       {:else}
         {#each filteredAndSortedTouchpoints as touchpoint (touchpoint.id)}
-          <div class="relative pl-6 border-l-2 border-surface-200 dark:border-surface-700 pb-4 last:pb-0">
+          <div class="relative pl-6 border-l-2 border-surface-200  pb-4 last:pb-0">
             <!-- Timeline dot -->
-            <div class="absolute -left-2 top-1 w-4 h-4 rounded-full bg-{getTouchpointConfig(touchpoint.touchpoint_type).color}-500 border-2 border-white dark:border-surface-900"></div>
+            <div class="absolute -left-2 top-1 w-4 h-4 rounded-full bg-{getTouchpointConfig(touchpoint.touchpoint_type).color}-500 border-2 border-white"></div>
             
             <!-- Touchpoint card -->
-            <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3 hover:shadow-md transition-shadow">
+            <div class="bg-surface-50  rounded-lg p-3 hover:shadow-md transition-shadow">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <!-- Header -->
                   <div class="flex items-center space-x-2 mb-2">
                     <span class="text-lg">{getTouchpointConfig(touchpoint.touchpoint_type).icon}</span>
-                    <h4 class="font-medium text-surface-900 dark:text-surface-100">
+                    <h4 class="font-medium text-surface-900 ">
                       {touchpoint.title}
                     </h4>
                     <Badge class="{getImpactColor(touchpoint.impact_level)}">
@@ -447,7 +447,7 @@
                   
                   <!-- Summary -->
                   {#if touchpoint.summary && !compact}
-                    <p class="text-sm text-surface-700 dark:text-surface-300 mb-2">
+                    <p class="text-sm text-surface-700  mb-2">
                       {touchpoint.summary}
                     </p>
                   {/if}
@@ -457,9 +457,9 @@
                     <span class="text-xs text-surface-500">Participants:</span>
                     <div class="flex space-x-1">
                       {#each touchpoint.participants as participant}
-                        <div class="flex items-center space-x-1 bg-surface-100 dark:bg-surface-700 rounded px-2 py-1">
+                        <div class="flex items-center space-x-1 bg-surface-100  rounded px-2 py-1">
                           <span class="text-sm">{getAgentProfile(participant).avatar}</span>
-                          <span class="text-xs font-medium text-surface-700 dark:text-surface-300">
+                          <span class="text-xs font-medium text-surface-700 ">
                             {participant}
                           </span>
                         </div>
@@ -468,7 +468,7 @@
                   </div>
                   
                   <!-- Metrics -->
-                  <div class="flex items-center space-x-4 text-xs text-surface-600 dark:text-surface-400">
+                  <div class="flex items-center space-x-4 text-xs text-surface-600 ">
                     <span>{getRelativeTime(touchpoint.interaction_date)}</span>
                     {#if touchpoint.duration_minutes}
                       <span>{touchpoint.duration_minutes} min</span>
@@ -497,16 +497,16 @@
               
               <!-- Expanded details -->
               {#if selectedTouchpoint === touchpoint.id}
-                <div class="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700" transition:slide>
+                <div class="mt-3 pt-3 border-t border-surface-200 " transition:slide>
                   <!-- Key Decisions -->
                   {#if touchpoint.key_decisions && touchpoint.key_decisions.length > 0}
                     <div class="mb-3">
-                      <h5 class="text-sm font-medium text-surface-900 dark:text-surface-100 mb-1">
+                      <h5 class="text-sm font-medium text-surface-900  mb-1">
                         🎯 Key Decisions
                       </h5>
                       <ul class="space-y-1">
                         {#each touchpoint.key_decisions as decision}
-                          <li class="text-sm text-surface-700 dark:text-surface-300 flex items-start">
+                          <li class="text-sm text-surface-700  flex items-start">
                             <span class="text-green-500 mr-2">•</span>
                             {decision}
                           </li>
@@ -518,12 +518,12 @@
                   <!-- Action Items -->
                   {#if touchpoint.action_items && touchpoint.action_items.length > 0}
                     <div class="mb-3">
-                      <h5 class="text-sm font-medium text-surface-900 dark:text-surface-100 mb-1">
+                      <h5 class="text-sm font-medium text-surface-900  mb-1">
                         ✅ Action Items
                       </h5>
                       <ul class="space-y-1">
                         {#each touchpoint.action_items as action}
-                          <li class="text-sm text-surface-700 dark:text-surface-300 flex items-start">
+                          <li class="text-sm text-surface-700  flex items-start">
                             <span class="text-blue-500 mr-2">→</span>
                             {action}
                           </li>
@@ -544,7 +544,7 @@
                       {#if touchpoint.related_stage}
                         <div>
                           <span class="text-surface-500">Related Stage:</span>
-                          <span class="font-medium text-surface-700 dark:text-surface-300 capitalize">
+                          <span class="font-medium text-surface-700  capitalize">
                             {touchpoint.related_stage}
                           </span>
                         </div>

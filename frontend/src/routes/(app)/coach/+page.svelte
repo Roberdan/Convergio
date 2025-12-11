@@ -172,7 +172,7 @@
 			case 'warning': return 'text-yellow-600 bg-yellow-100';
 			case 'info': return 'text-blue-600 bg-blue-100';
 			case 'success': return 'text-green-600 bg-green-100';
-			default: return 'text-surface-400 dark:text-surface-600 bg-surface-800 dark:bg-surface-200';
+			default: return 'text-surface-600 bg-surface-100';
 		}
 	}
 	
@@ -192,7 +192,7 @@
 			case 'executing': return 'text-blue-600';
 			case 'failed': return 'text-red-600';
 			case 'pending': return 'text-yellow-600';
-			default: return 'text-surface-400 dark:text-surface-600';
+			default: return 'text-surface-600';
 		}
 	}
 	
@@ -222,7 +222,7 @@
 	<div class="panel-header">
 		<div class="header-content">
 			<h1 class="text-2xl font-bold">🤖 Ali's Coach Panel</h1>
-			<p class="text-surface-400 dark:text-surface-600">Proactive System Intelligence & Insights</p>
+			<p class="text-surface-600">Proactive System Intelligence & Insights</p>
 		</div>
 		
 		<div class="header-actions">

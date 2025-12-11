@@ -129,7 +129,7 @@
 
 <style>
 	.page-header {
-		@apply pb-6 border-b border-gray-200 dark:border-gray-700;
+		@apply pb-6 border-b border-gray-200;
 	}
 
 	.breadcrumbs {
@@ -145,7 +145,7 @@
 	}
 
 	.breadcrumb-link {
-		@apply text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded;
+		@apply text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded;
 		font-family: var(--font-primary);
 	}
 
@@ -154,12 +154,12 @@
 	}
 
 	.breadcrumb-current {
-		@apply text-sm font-medium text-gray-900 dark:text-gray-100;
+		@apply text-sm font-medium text-gray-900;
 		font-family: var(--font-primary);
 	}
 
 	.breadcrumb-separator {
-		@apply mx-2 text-gray-400 dark:text-gray-600;
+		@apply mx-2 text-gray-400;
 	}
 
 	.header-content {
@@ -171,7 +171,7 @@
 	}
 
 	.back-button {
-		@apply flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 mt-1;
+		@apply flex items-center justify-center w-10 h-10 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 mt-1;
 	}
 
 	.dark .back-button:focus {
@@ -187,7 +187,7 @@
 	}
 
 	.page-title {
-		@apply text-2xl font-bold text-gray-900 dark:text-white truncate;
+		@apply text-2xl font-bold text-gray-900 truncate;
 		font-family: var(--font-primary);
 	}
 
@@ -196,7 +196,7 @@
 	}
 
 	.page-subtitle {
-		@apply mt-2 text-base text-gray-600 dark:text-gray-400;
+		@apply mt-2 text-base text-gray-600;
 		font-family: var(--font-primary);
 	}
 
@@ -205,7 +205,7 @@
 	}
 
 	.header-additional {
-		@apply mt-6 pt-6 border-t border-gray-200 dark:border-gray-700;
+		@apply mt-6 pt-6 border-t border-gray-200;
 	}
 
 	/* Icon styles */

@@ -109,7 +109,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
       'conflict_resolved': 'bg-emerald-100 border-emerald-300',
       'error.occurred': 'bg-red-100 border-red-300'
     };
-    return colors[eventType] || 'bg-surface-800 dark:bg-surface-200 border-surface-600 dark:border-surface-400';
+    return colors[eventType] || 'bg-surface-100 border-surface-300';
   }
   
   function getEventTitle(eventType: string): string {
@@ -153,10 +153,10 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
 <div class="timeline-container">
   <!-- Header -->
   <div class="timeline-header">
-    <h3 class="text-lg font-semibold text-surface-100 dark:text-surface-900">
+    <h3 class="text-lg font-semibold text-surface-900">
       Conversation Timeline
       {#if conversationId}
-        <span class="text-sm font-normal text-surface-500 dark:text-surface-500">#{conversationId}</span>
+        <span class="text-sm font-normal text-surface-500">#{conversationId}</span>
       {/if}
     </h3>
     
@@ -180,7 +180,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   {#if loading && timeline.length === 0}
     <div class="loading-state" transition:fade>
       <div class="loading-spinner"></div>
-      <p class="text-surface-500 dark:text-surface-500">Loading timeline...</p>
+      <p class="text-surface-500">Loading timeline...</p>
     </div>
   {/if}
   
@@ -306,7 +306,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   }
   
   .timeline-header {
-    @apply flex justify-between items-center mb-6 p-4 bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border border-surface-700 dark:border-surface-300;
+    @apply flex justify-between items-center mb-6 p-4 bg-white rounded-lg shadow-sm border border-surface-200;
   }
   
   .timeline-controls {
@@ -334,7 +334,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   }
   
   .btn-retry {
-    @apply px-4 py-2 bg-red-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-red-700 transition-colors;
+    @apply px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors;
   }
   
   .empty-icon {
@@ -342,11 +342,11 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   }
   
   .empty-message {
-    @apply text-lg font-medium text-surface-400 dark:text-surface-600 mb-2;
+    @apply text-lg font-medium text-surface-600 mb-2;
   }
   
   .empty-hint {
-    @apply text-sm text-surface-500 dark:text-surface-500;
+    @apply text-sm text-surface-500;
   }
   
   .timeline-content {
@@ -354,11 +354,11 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   }
   
   .timeline-turn {
-    @apply bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border border-surface-700 dark:border-surface-300 overflow-hidden;
+    @apply bg-white rounded-lg shadow-sm border border-surface-200 overflow-hidden;
   }
   
   .turn-header {
-    @apply flex justify-between items-center p-4 bg-surface-900 dark:bg-surface-100 border-b border-surface-700 dark:border-surface-300;
+    @apply flex justify-between items-center p-4 bg-surface-50 border-b border-surface-200;
   }
   
   .turn-number {
@@ -366,11 +366,11 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   }
   
   .turn-badge {
-    @apply px-3 py-1 bg-blue-600 text-surface-950 dark:text-surface-50 text-sm font-medium rounded-full;
+    @apply px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-full;
   }
   
   .turn-time {
-    @apply text-sm text-surface-400 dark:text-surface-600;
+    @apply text-sm text-surface-600;
   }
   
   .turn-stats {
@@ -378,7 +378,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   }
   
   .stat-item {
-    @apply text-sm text-surface-400 dark:text-surface-600 flex items-center gap-1;
+    @apply text-sm text-surface-600 flex items-center gap-1;
   }
   
   .turn-events {
@@ -398,19 +398,19 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   }
   
   .event-title {
-    @apply font-medium text-surface-100 dark:text-surface-900;
+    @apply font-medium text-surface-900;
   }
   
   .event-agent {
-    @apply text-sm text-surface-400 dark:text-surface-600 bg-surface-800 dark:bg-surface-200 px-2 py-1 rounded;
+    @apply text-sm text-surface-600 bg-surface-100 px-2 py-1 rounded;
   }
   
   .event-time {
-    @apply text-sm text-surface-500 dark:text-surface-500 ml-auto;
+    @apply text-sm text-surface-500 ml-auto;
   }
   
   .event-details {
-    @apply mt-3 pt-3 border-t border-surface-700 dark:border-surface-300;
+    @apply mt-3 pt-3 border-t border-surface-200;
   }
   
   .decision-details, .tool-details, .budget-details, .rag-details, .conflict-details {
@@ -422,7 +422,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   }
   
   .generic-details pre {
-    @apply bg-surface-800 dark:bg-surface-200 p-2 rounded text-surface-300 dark:text-surface-700;
+    @apply bg-surface-100 p-2 rounded text-surface-600;
   }
   
   /* Responsive Design */
@@ -460,7 +460,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
     .timeline-container {
-      @apply bg-gray-900 text-surface-950 dark:text-surface-50;
+      @apply bg-gray-900 text-white;
     }
     
     .timeline-header, .timeline-turn {
@@ -472,7 +472,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
     }
     
     .event-title {
-      @apply text-surface-950 dark:text-surface-50;
+      @apply text-white;
     }
     
     .timeline-event {

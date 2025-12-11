@@ -26,10 +26,10 @@
 	}
 	
 	let columns: Column[] = [
-		{ id: 'pending', title: 'To Do', color: 'bg-surface-800 dark:bg-surface-200', tasks: [] },
-		{ id: 'in_progress', title: 'In Progress', color: 'bg-blue-500 dark:bg-blue-600', tasks: [] },
-		{ id: 'in_review', title: 'In Review', color: 'bg-yellow-500 dark:bg-yellow-600', tasks: [] },
-		{ id: 'completed', title: 'Done', color: 'bg-green-500 dark:bg-green-600', tasks: [] }
+		{ id: 'pending', title: 'To Do', color: 'bg-surface-100', tasks: [] },
+		{ id: 'in_progress', title: 'In Progress', color: 'bg-blue-500', tasks: [] },
+		{ id: 'in_review', title: 'In Review', color: 'bg-yellow-500', tasks: [] },
+		{ id: 'completed', title: 'Done', color: 'bg-green-500', tasks: [] }
 	];
 	
 	let selectedTask: Task | null = null;
@@ -141,7 +141,7 @@
 			case 'high': return 'bg-orange-500';
 			case 'medium': return 'bg-yellow-500';
 			case 'low': return 'bg-green-500';
-			default: return 'bg-surface-900 dark:bg-surface-1000';
+			default: return 'bg-surface-500';
 		}
 	}
 	
@@ -157,7 +157,7 @@
 			<div class="kanban-column {column.color} rounded-lg p-4">
 				<div class="column-header mb-4">
 					<h3 class="font-semibold text-lg">{column.title}</h3>
-					<span class="text-sm text-surface-400 dark:text-surface-600">{column.tasks.length} items</span>
+					<span class="text-sm text-surface-600">{column.tasks.length} items</span>
 				</div>
 				
 				<div
@@ -172,7 +172,7 @@
 				>
 					{#each column.tasks as task (task.id)}
 						<div
-							class="task-card bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-4 mb-3 cursor-move hover:shadow-lg transition-shadow"
+							class="task-card bg-white rounded-lg shadow p-4 mb-3 cursor-move hover:shadow-lg transition-shadow"
 							animate:flip={{ duration: 300 }}
 						>
 							<div class="flex items-start justify-between mb-2">
@@ -181,12 +181,12 @@
 							</div>
 							
 							{#if task.description}
-								<p class="text-xs text-surface-400 dark:text-surface-600 mb-2 line-clamp-2">{task.description}</p>
+								<p class="text-xs text-surface-600 mb-2 line-clamp-2">{task.description}</p>
 							{/if}
 							
 							<div class="task-meta space-y-2">
 								{#if task.dueDate}
-									<div class="flex items-center text-xs text-surface-500 dark:text-surface-500">
+									<div class="flex items-center text-xs text-surface-500">
 										<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 										</svg>
@@ -196,17 +196,17 @@
 								
 								<div class="flex items-center justify-between">
 									{#if task.assignedAgent}
-										<span class="text-xs bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+										<span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
 											🤖 {task.assignedAgent === 'ali_chief_of_staff' ? 'Ali (Chief of Staff)' : task.assignedAgent}
 										</span>
 									{:else if task.assignee}
-										<span class="text-xs bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
+										<span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
 											👤 {task.assignee}
 										</span>
 									{:else}
 										<button
 											on:click={() => attachAgent(defaultAgent)}
-											class="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 font-medium"
+											class="text-xs text-primary-600 hover:text-primary-800 font-medium"
 										>
 											🤖 Assign to Ali
 										</button>
@@ -214,7 +214,7 @@
 								</div>
 								
 								{#if task.progress > 0}
-									<div class="progress-bar bg-surface-700 dark:bg-surface-300 rounded-full h-1.5">
+									<div class="progress-bar bg-surface-200 rounded-full h-1.5">
 										<div
 											class="bg-blue-600 h-1.5 rounded-full transition-all"
 											style="width: {task.progress}%"
@@ -225,7 +225,7 @@
 								{#if task.tags.length > 0}
 									<div class="flex flex-wrap gap-1">
 										{#each task.tags as tag}
-											<span class="text-xs bg-surface-800 dark:bg-surface-200 text-surface-400 dark:text-surface-600 px-2 py-0.5 rounded">
+											<span class="text-xs bg-surface-100 text-surface-600 px-2 py-0.5 rounded">
 												{tag}
 											</span>
 										{/each}
@@ -243,11 +243,11 @@
 <!-- Agent Attachment Dialog -->
 {#if showAgentDialog}
 	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-		<div class="bg-surface-950 dark:bg-surface-50 rounded-lg p-6 max-w-md w-full">
+		<div class="bg-white rounded-lg p-6 max-w-md w-full">
 			<h3 class="text-lg font-semibold mb-4">Attach AI Agent to Task</h3>
 			
 			{#if selectedTask}
-				<p class="text-sm text-surface-400 dark:text-surface-600 mb-4">
+				<p class="text-sm text-surface-600 mb-4">
 					Task: <strong>{selectedTask.title}</strong>
 				</p>
 			{/if}
@@ -259,7 +259,7 @@
 						class="w-full text-left p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors"
 					>
 						<div class="font-medium">{agent}</div>
-						<div class="text-xs text-surface-500 dark:text-surface-500">
+						<div class="text-xs text-surface-500">
 							{#if agent === 'ali_chief_of_staff'}
 								Master orchestrator and coordinator
 							{:else if agent === 'davide_project_manager'}
@@ -280,7 +280,7 @@
 			
 			<button
 				on:click={() => showAgentDialog = false}
-				class="w-full px-4 py-2 border border-surface-600 dark:border-surface-400 rounded-lg hover:bg-surface-900 dark:bg-surface-100"
+				class="w-full px-4 py-2 border border-surface-300 rounded-lg hover:bg-surface-50"
 			>
 				Cancel
 			</button>

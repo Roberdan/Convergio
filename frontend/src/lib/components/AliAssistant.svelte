@@ -197,9 +197,9 @@
 <div class="fixed bottom-4 right-4 z-50 font-mono">
   {#if isOpen}
     <!-- Chat Window -->
-    <div class="bg-surface-950 dark:bg-surface-50 border border-surface-700 dark:border-surface-300 rounded-lg shadow-xl w-80 h-96 flex flex-col mb-4" role="dialog" aria-labelledby="ali-chat-title" aria-describedby="ali-chat-description">
+    <div class="bg-white border border-surface-200 rounded-lg shadow-xl w-80 h-96 flex flex-col mb-4" role="dialog" aria-labelledby="ali-chat-title" aria-describedby="ali-chat-description">
       <!-- Header -->
-      <div class="px-4 py-3 border-b border-surface-700 dark:border-surface-300 flex items-center justify-between bg-surface-900 dark:bg-surface-100 rounded-t-lg">
+      <div class="px-4 py-3 border-b border-surface-200 flex items-center justify-between bg-surface-50 rounded-t-lg">
         <div class="flex items-center space-x-2">
           <!-- Ali Enso Icon (Buddhist breathing) - Zen Style -->
           <div class="relative w-6 h-6 animate-zen-glow" role="img" aria-label="Ali assistant status indicator">
@@ -255,28 +255,28 @@
             </svg>
           </div>
           <div>
-            <h3 id="ali-chat-title" class="text-sm font-medium text-surface-100 dark:text-surface-900">Ali - Chief of Staff</h3>
-            <p id="ali-chat-description" class="text-xs text-surface-500 dark:text-surface-500">AI Strategic Coordinator</p>
+            <h3 id="ali-chat-title" class="text-sm font-medium text-surface-900">Ali - Chief of Staff</h3>
+            <p id="ali-chat-description" class="text-xs text-surface-500">AI Strategic Coordinator</p>
           </div>
         </div>
         <div class="flex items-center space-x-1">
           <button 
             on:click={minimize}
-            class="p-1 hover:bg-surface-700 dark:bg-surface-300 rounded text-surface-500 dark:text-surface-500"
+            class="p-1 hover:bg-surface-200 rounded text-surface-500"
             aria-label="Minimize Ali chat window"
           >
             <img src="/convergio_icons/minimize.svg" alt="" class="h-3 w-3" />
           </button>
           <button 
             on:click={openFullChat}
-            class="p-1 hover:bg-surface-700 dark:bg-surface-300 rounded text-surface-500 dark:text-surface-500"
+            class="p-1 hover:bg-surface-200 rounded text-surface-500"
             aria-label="Open full chat interface"
           >
             <img src="/convergio_icons/expand.svg" alt="" class="h-3 w-3" />
           </button>
           <button 
             on:click={toggleOpen}
-            class="p-1 hover:bg-surface-700 dark:bg-surface-300 rounded text-surface-500 dark:text-surface-500"
+            class="p-1 hover:bg-surface-200 rounded text-surface-500"
             aria-label="Close Ali chat window"
           >
             <img src="/convergio_icons/close.svg" alt="" class="h-3 w-3" />
@@ -290,23 +290,23 @@
           <div class="flex {message.type === 'user' ? 'justify-end' : 'justify-start'}">
             <div class="max-w-xs">
               {#if message.type === 'user'}
-                <div class="bg-gray-900 text-surface-950 dark:text-surface-50 p-2 rounded-lg rounded-br-sm text-xs" role="group" aria-label="Your message">
+                <div class="bg-gray-900 text-white p-2 rounded-lg rounded-br-sm text-xs" role="group" aria-label="Your message">
                   <div class="font-medium text-xs mb-1 opacity-75" aria-hidden="true">You (CEO)</div>
                   <MarkdownRenderer content={message.content} />
                 </div>
               {:else}
-                <div class="bg-surface-800 dark:bg-surface-200 p-2 rounded-lg rounded-bl-sm text-xs" role="group" aria-label="Ali's response">
+                <div class="bg-surface-100 p-2 rounded-lg rounded-bl-sm text-xs" role="group" aria-label="Ali's response">
                   <div class="flex items-center space-x-1 mb-1">
                     <svg class="w-3 h-3 animate-breathing" viewBox="0 0 24 24" aria-hidden="true">
                       <circle cx="12" cy="12" r="8" fill="none" stroke="#1e3a8a" stroke-width="3" stroke-linecap="round" stroke-dasharray="45 5" style="transform: rotate(-10deg);" />
                     </svg>
-                    <span class="font-medium text-xs text-surface-100 dark:text-surface-900">Ali</span>
-                    <span class="text-xs text-surface-500 dark:text-surface-500">• Chief of Staff</span>
+                    <span class="font-medium text-xs text-surface-900">Ali</span>
+                    <span class="text-xs text-surface-500">• Chief of Staff</span>
                   </div>
-                  <div class="text-surface-100 dark:text-surface-900"><MarkdownRenderer content={message.content} /></div>
+                  <div class="text-surface-900"><MarkdownRenderer content={message.content} /></div>
                 </div>
               {/if}
-              <div class="text-xs text-surface-500 dark:text-surface-500 mt-1 {message.type === 'user' ? 'text-right' : 'text-left'}" aria-label="Message sent at {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}">
+              <div class="text-xs text-surface-500 mt-1 {message.type === 'user' ? 'text-right' : 'text-left'}" aria-label="Message sent at {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}">
                 <time datetime="{message.timestamp.toISOString()}">{message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</time>
               </div>
             </div>
@@ -315,12 +315,12 @@
         
         {#if isTyping}
           <div class="flex justify-start">
-            <div class="bg-surface-800 dark:bg-surface-200 p-2 rounded-lg rounded-bl-sm max-w-xs" role="status" aria-live="polite" aria-label="Ali is typing">
+            <div class="bg-surface-100 p-2 rounded-lg rounded-bl-sm max-w-xs" role="status" aria-live="polite" aria-label="Ali is typing">
               <div class="flex items-center space-x-1 mb-1">
                 <svg class="w-3 h-3 ali-proactive" viewBox="0 0 24 24" aria-hidden="true">
                   <circle cx="12" cy="12" r="8" fill="none" stroke="#1e3a8a" stroke-width="3" stroke-linecap="round" stroke-dasharray="45 5" style="transform: rotate(-10deg);" />
                 </svg>
-                <span class="font-medium text-xs text-surface-100 dark:text-surface-900">Ali is analyzing...</span>
+                <span class="font-medium text-xs text-surface-900">Ali is analyzing...</span>
               </div>
               <div class="flex space-x-1" aria-hidden="true">
                 <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
@@ -333,7 +333,7 @@
       </div>
 
       <!-- Input -->
-      <div class="p-3 border-t border-surface-700 dark:border-surface-300">
+      <div class="p-3 border-t border-surface-200">
         <form on:submit|preventDefault={sendMessage}>
           <label for="ali-message-input" class="sr-only">Message for Ali</label>
           <div class="flex space-x-2">
@@ -342,7 +342,7 @@
               bind:value={newMessage}
               on:keydown={handleKeyPress}
               placeholder="Ask Ali for strategic insights..."
-              class="flex-1 p-2 text-xs border border-surface-600 dark:border-surface-400 rounded resize-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              class="flex-1 p-2 text-xs border border-surface-300 rounded resize-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
               rows="1"
               aria-describedby="ali-input-help"
             ></textarea>
@@ -350,10 +350,10 @@
               type="submit"
               on:click={sendMessage}
               disabled={!newMessage.trim() || isTyping}
-              class="px-2 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-surface-600 dark:bg-surface-400 text-surface-950 dark:text-surface-50 rounded transition-colors disabled:cursor-not-allowed"
+              class="px-2 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-surface-600 text-white rounded transition-colors disabled:cursor-not-allowed"
               aria-label="Send message to Ali"
             >
-              <img src="/convergio_icons/forward.svg" alt="" class="h-3 w-3 text-surface-950 dark:text-surface-50" />
+              <img src="/convergio_icons/forward.svg" alt="" class="h-3 w-3 text-white" />
             </button>
           </div>
           <div id="ali-input-help" class="sr-only">Press Enter to send message, Shift+Enter for new line</div>
@@ -366,7 +366,7 @@
     <!-- Minimized State -->
     <button
       on:click={toggleOpen}
-      class="bg-gray-900 hover:bg-gray-800 text-surface-950 dark:text-surface-50 rounded-full w-12 h-12 flex items-center justify-center shadow-lg mb-4 transition-colors"
+      class="bg-gray-900 hover:bg-gray-800 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg mb-4 transition-colors"
       aria-label="Expand Ali chat - Your AI Chief of Staff"
     >
       <svg class="w-6 h-6 {isProactive ? 'ali-proactive' : 'ali-reactive'} animate-enso-glow" viewBox="0 0 24 24" aria-hidden="true">
@@ -387,7 +387,7 @@
     <!-- Ali Toggle Button -->
     <button
       on:click={toggleOpen}
-      class="bg-gradient-to-r from-blue-600 to-blue-700 text-surface-950 dark:text-surface-50 rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-105"
+      class="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-105"
       aria-label="Open Ali chat - Your AI Chief of Staff"
     >
       <svg class="w-8 h-8 {isProactive ? 'ali-proactive' : 'ali-reactive'} animate-enso-glow" viewBox="0 0 24 24" aria-hidden="true">

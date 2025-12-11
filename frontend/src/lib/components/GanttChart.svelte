@@ -417,7 +417,7 @@
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-		@apply bg-surface-950 dark:bg-surface-50 border border-surface-700 dark:border-surface-300;
+		@apply bg-white border border-surface-200;
 		border-radius: 8px;
 		padding: 1rem;
 		transition: background-color 0.3s, border-color 0.3s;
@@ -429,7 +429,7 @@
 		align-items: center;
 		margin-bottom: 1rem;
 		padding-bottom: 1rem;
-		@apply border-b border-surface-700 dark:border-surface-300;
+		@apply border-b border-surface-200;
 	}
 	
 	.gantt-controls {
@@ -443,12 +443,12 @@
 	}
 	
 	.view-mode-selector button {
-		@apply bg-surface-900 dark:bg-surface-100 text-surface-500 dark:text-surface-500;
+		@apply bg-surface-50 text-surface-500;
 		transition: all 0.2s;
 	}
 	
 	.view-mode-selector button.active {
-		@apply bg-primary-600 text-surface-950 dark:text-surface-50;
+		@apply bg-primary-600 text-white;
 	}
 	
 	.gantt-chart {
@@ -462,7 +462,7 @@
 		right: 20px;
 		top: 50%;
 		transform: translateY(-50%);
-		@apply bg-surface-950 dark:bg-surface-50 border border-surface-700 dark:border-surface-300;
+		@apply bg-white border border-surface-200;
 		border-radius: 8px;
 		padding: 1rem;
 		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -476,7 +476,7 @@
 		align-items: center;
 		margin-bottom: 1rem;
 		padding-bottom: 0.5rem;
-		@apply border-b border-surface-700 dark:border-surface-300;
+		@apply border-b border-surface-200;
 	}
 	
 	.close-btn {
@@ -484,28 +484,28 @@
 		border: none;
 		font-size: 24px;
 		cursor: pointer;
-		@apply text-surface-500 dark:text-surface-500 hover:text-surface-800 dark:hover:text-surface-200;
+		@apply text-surface-500 hover:text-surface-800;
 		transition: color 0.2s;
 	}
 	
 	.panel-content p {
 		margin: 0.5rem 0;
 		font-size: 14px;
-		@apply text-surface-300 dark:text-surface-700;
+		@apply text-surface-600;
 	}
 	
 	label {
 		cursor: pointer;
 		user-select: none;
-		@apply text-surface-300 dark:text-surface-700;
+		@apply text-surface-600;
 	}
 	
 	/* SVG elements dynamic colors */
 	:global(.gantt-chart svg text) {
-		@apply fill-surface-300 dark:fill-surface-700;
+		@apply fill-surface-300;
 	}
 	
 	:global(.gantt-chart svg line) {
-		@apply stroke-surface-600 dark:stroke-surface-400;
+		@apply stroke-surface-600;
 	}
 </style>

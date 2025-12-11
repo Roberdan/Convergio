@@ -698,20 +698,20 @@
 </svelte:head>
 
 <!-- AI Agents Page -->
-<div class="min-h-screen bg-surface-100 dark:bg-surface-900 space-y-8">
+<div class="min-h-screen bg-surface-100  space-y-8">
 
   <div class="px-6 pb-8">
     <div class="max-w-7xl mx-auto">
       <div class="grid lg:grid-cols-5 gap-8">
         <!-- Enhanced Agents List with integrated search -->
         <div class="lg:col-span-2">
-          <div class="bg-surface-50 dark:bg-surface-950 border border-surface-300 dark:border-surface-700 rounded-2xl overflow-hidden shadow-lg">
+          <div class="bg-surface-50 border border-surface-300  rounded-2xl overflow-hidden shadow-lg">
             <!-- Search in header -->
-            <div class="p-6 border-b border-surface-300 dark:border-surface-700 bg-surface-100 dark:bg-surface-900">
+            <div class="p-6 border-b border-surface-300  bg-surface-100 ">
               <div class="flex items-center justify-between mb-6">
                 <div>
-                  <h3 class="text-xl font-bold text-surface-900 dark:text-surface-100 mb-1">AI Team</h3>
-                  <p class="text-sm text-surface-600 dark:text-surface-400">Manage your specialized AI agents</p>
+                  <h3 class="text-xl font-bold text-surface-900  mb-1">AI Team</h3>
+                  <p class="text-sm text-surface-600 ">Manage your specialized AI agents</p>
                 </div>
                 <!-- Hire New Agent Button -->
                 <button
@@ -741,7 +741,7 @@
                     type="text"
                     bind:value={searchQuery}
                     placeholder="Search agents by name, role, or skills..."
-                    class="w-full pl-10 pr-4 py-3 border border-surface-400 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface-50 dark:bg-surface-950 shadow-sm"
+                    class="w-full pl-10 pr-4 py-3 border border-surface-400  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface-50 shadow-sm"
                     aria-label="Search agents by name, role, or skills"
                     role="searchbox"
                   />
@@ -749,12 +749,12 @@
                 
                 <!-- Specialty Filter with Better Styling -->
                 <div class="relative">
-                  <label for="specialty-filter" class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Filter by Tier & Specialty</label>
+                  <label for="specialty-filter" class="block text-sm font-medium text-surface-700  mb-2">Filter by Tier & Specialty</label>
                   <div class="relative">
                     <select
                       id="specialty-filter"
                       bind:value={selectedSkill}
-                      class="w-full px-4 py-3 border border-surface-400 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface-50 dark:bg-surface-950 shadow-sm appearance-none cursor-pointer"
+                      class="w-full px-4 py-3 border border-surface-400  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface-50 shadow-sm appearance-none cursor-pointer"
                       aria-label="Filter agents by tier/specialty"
                       role="combobox"
                     >
@@ -773,11 +773,11 @@
               </div>
               
               <!-- Enhanced Status Bar -->
-              <div class="flex items-center justify-between text-sm mt-6 pt-4 border-t border-surface-300 dark:border-surface-700">
+              <div class="flex items-center justify-between text-sm mt-6 pt-4 border-t border-surface-300 ">
                 <div class="flex items-center space-x-4">
                   <div class="flex items-center space-x-2">
                     <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span class="text-surface-700 dark:text-surface-300 font-medium">{filteredAgents.length} of {allAgents.length} agents available</span>
+                    <span class="text-surface-700  font-medium">{filteredAgents.length} of {allAgents.length} agents available</span>
                   </div>
                   {#if isLoadingAgents}
                     <div class="flex items-center space-x-2 text-blue-600">
@@ -797,7 +797,7 @@
                   <button
                     on:click={() => { searchQuery = ''; selectedSkill = ''; }}
                     on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), searchQuery = '', selectedSkill = '') : null}
-                    class="text-sm text-surface-500 dark:text-surface-500 hover:text-surface-700 dark:text-surface-300 underline transition-colors duration-200"
+                    class="text-sm text-surface-500 hover:text-surface-700  underline transition-colors duration-200"
                     aria-label="Clear search filters"
                     tabindex="0"
                   >
@@ -826,7 +826,7 @@
                   >
                     <div class="flex items-start space-x-4">
                       <!-- Agent Avatar with Enhanced Styling -->
-                      <div class="w-12 h-12 rounded-xl flex items-center justify-center border-2 border-surface-300 dark:border-surface-700 bg-gradient-to-br from-gray-50 to-gray-100 group-hover:border-blue-400 group-hover:from-blue-50 group-hover:to-indigo-50 transition-all duration-200 shadow-sm">
+                      <div class="w-12 h-12 rounded-xl flex items-center justify-center border-2 border-surface-300  bg-gradient-to-br from-gray-50 to-gray-100 group-hover:border-blue-400 group-hover:from-blue-50 group-hover:to-indigo-50 transition-all duration-200 shadow-sm">
                         <AgentIcons agentName={agent.name} size="w-6 h-6" />
                       </div>
                       
@@ -834,7 +834,7 @@
                       <div class="flex-1 min-w-0 space-y-2">
                         <div class="flex items-start justify-between">
                           <div class="flex-1 min-w-0">
-                            <div class="text-lg font-semibold text-surface-900 dark:text-surface-100 group-hover:text-blue-900 transition-colors duration-200">{agent.name}</div>
+                            <div class="text-lg font-semibold text-surface-900  group-hover:text-blue-900 transition-colors duration-200">{agent.name}</div>
                             <div class="text-sm font-medium text-blue-600 group-hover:text-blue-700 transition-colors duration-200">{agent.role}</div>
                           </div>
                           
@@ -851,7 +851,7 @@
                         
                         <!-- Description and Specialty -->
                         <div class="space-y-1">
-                          <p class="text-sm text-surface-600 dark:text-surface-400 line-clamp-2 leading-relaxed">{agent.description}</p>
+                          <p class="text-sm text-surface-600  line-clamp-2 leading-relaxed">{agent.description}</p>
                           {#if agent.specialty}
                             <div class="flex items-center space-x-2">
                               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
@@ -867,18 +867,18 @@
                 
                 <!-- Enhanced Empty State -->
                 {#if filteredAgents.length === 0}
-                  <div class="text-center py-12 text-surface-500 dark:text-surface-500">
-                    <div class="w-16 h-16 mx-auto mb-4 bg-surface-200 dark:bg-surface-800 rounded-full flex items-center justify-center">
+                  <div class="text-center py-12 text-surface-500">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-surface-200  rounded-full flex items-center justify-center">
                       <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                       </svg>
                     </div>
-                    <div class="text-lg font-medium text-surface-900 dark:text-surface-100 mb-2">No agents found</div>
-                    <p class="text-sm text-surface-600 dark:text-surface-400 mb-4">Try adjusting your search or filter criteria</p>
+                    <div class="text-lg font-medium text-surface-900  mb-2">No agents found</div>
+                    <p class="text-sm text-surface-600  mb-4">Try adjusting your search or filter criteria</p>
                     <button 
                       on:click={() => { searchQuery = ''; selectedSkill = ''; }}
                       on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), searchQuery = '', selectedSkill = '') : null}
-                      class="inline-flex items-center px-4 py-2 border border-surface-400 dark:border-surface-600 rounded-lg text-sm font-medium text-surface-700 dark:text-surface-300 bg-surface-50 dark:bg-surface-950 hover:bg-surface-100 dark:bg-surface-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                      class="inline-flex items-center px-4 py-2 border border-surface-400  rounded-lg text-sm font-medium text-surface-700  bg-surface-50 hover:bg-surface-100  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
                       aria-label="Clear search filters"
                       tabindex="0"
                     >
@@ -896,29 +896,29 @@
 
         <!-- Enlarged Chat Interface -->
         <div class="lg:col-span-3">
-          <div class="bg-surface-50 dark:bg-surface-950 border border-surface-300 dark:border-surface-700 rounded-2xl h-[700px] flex flex-col shadow-lg">
+          <div class="bg-surface-50 border border-surface-300  rounded-2xl h-[700px] flex flex-col shadow-lg">
             <!-- Enhanced Chat Header -->
-            <div class="px-6 py-5 border-b border-surface-300 dark:border-surface-700 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div class="px-6 py-5 border-b border-surface-300  bg-gradient-to-r from-blue-50 to-indigo-50">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
-                  <div class="w-12 h-12 rounded-xl flex items-center justify-center border-2 border-blue-300 bg-surface-50 dark:bg-surface-950 shadow-sm">
+                  <div class="w-12 h-12 rounded-xl flex items-center justify-center border-2 border-blue-300 bg-surface-50 shadow-sm">
                     <AgentIcons agentName={selectedAgent?.name || ''} size="w-6 h-6" />
                   </div>
                   <div class="flex-1">
-                    <div class="text-lg font-semibold text-surface-900 dark:text-surface-100">{selectedAgent?.name || 'Loading...'}</div>
+                    <div class="text-lg font-semibold text-surface-900 ">{selectedAgent?.name || 'Loading...'}</div>
                     <div class="text-sm font-medium text-blue-600">{selectedAgent?.role || ''}</div>
-                    <div class="text-xs text-surface-600 dark:text-surface-400 mt-1 max-w-md truncate">{selectedAgent?.description || ''}</div>
+                    <div class="text-xs text-surface-600  mt-1 max-w-md truncate">{selectedAgent?.description || ''}</div>
                   </div>
                 </div>
                 
                 <!-- Executive/Oversight Mode Toggle (only for Ali) -->
                 {#if selectedAgent?.name === 'Ali'}
-                  <div class="flex items-center space-x-2 bg-surface-50 dark:bg-surface-950 border border-surface-300 dark:border-surface-700 rounded-xl px-4 py-2 shadow-sm">
-                    <span class="text-xs font-medium text-surface-600 dark:text-surface-400">View Mode:</span>
+                  <div class="flex items-center space-x-2 bg-surface-50 border border-surface-300  rounded-xl px-4 py-2 shadow-sm">
+                    <span class="text-xs font-medium text-surface-600 ">View Mode:</span>
                     <button
                       on:click={() => isOversightMode = false}
                       on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), isOversightMode = false) : null}
-                      class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 {!isOversightMode ? 'bg-blue-500 text-surface-950 dark:text-surface-50 shadow-sm' : 'text-surface-600 dark:text-surface-400 hover:text-blue-600 hover:bg-blue-50'}"
+                      class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 {!isOversightMode ? 'bg-blue-500 text-white shadow-sm' : 'text-surface-600  hover:text-blue-600 hover:bg-blue-50'}"
                       aria-label="Switch to Executive view mode"
                       aria-pressed="{!isOversightMode}"
                       tabindex="0"
@@ -928,7 +928,7 @@
                     <button
                       on:click={() => isOversightMode = true}
                       on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), isOversightMode = true) : null}
-                      class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 {isOversightMode ? 'bg-purple-500 text-surface-950 dark:text-surface-50 shadow-sm' : 'text-surface-600 dark:text-surface-400 hover:text-purple-600 hover:bg-purple-50'}"
+                      class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 {isOversightMode ? 'bg-purple-500 text-white shadow-sm' : 'text-surface-600  hover:text-purple-600 hover:bg-purple-50'}"
                       aria-label="Switch to Oversight view mode"
                       aria-pressed="{isOversightMode}"
                       tabindex="0"
@@ -949,7 +949,7 @@
                   <div class="flex {message.type === 'user' ? 'justify-end' : 'justify-start'}">
                     <div class="max-w-2xl">
                       {#if message.type === 'user'}
-                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-surface-950 dark:text-surface-50 p-4 rounded-2xl rounded-br-md shadow-sm">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-2xl rounded-br-md shadow-sm">
                           <div class="font-medium mb-2 opacity-90 text-sm flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -963,15 +963,15 @@
                       {:else}
                         <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-5 rounded-2xl rounded-bl-md border border-gray-100 shadow-sm">
                           <div class="flex items-center space-x-3 mb-3">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center border-2 border-blue-200 bg-surface-50 dark:bg-surface-950">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center border-2 border-blue-200 bg-surface-50">
                               <AgentIcons agentName={selectedAgent?.name || ''} size="w-4 h-4" />
                             </div>
                             <div class="flex items-center space-x-2">
-                              <span class="font-semibold text-surface-900 dark:text-surface-100 text-sm">{selectedAgent?.name || ''}</span>
+                              <span class="font-semibold text-surface-900  text-sm">{selectedAgent?.name || ''}</span>
                               <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">{selectedAgent?.role || ''}</span>
                             </div>
                           </div>
-                          <div class="text-surface-800 dark:text-surface-200 text-sm leading-relaxed">
+                          <div class="text-surface-800  text-sm leading-relaxed">
                             <MarkdownRenderer content={message.content} />
                           </div>
                         </div>
@@ -984,10 +984,10 @@
                   <div class="flex justify-start">
                     <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-5 rounded-2xl border border-gray-100 max-w-2xl shadow-sm">
                       <div class="flex items-center space-x-3 mb-3">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center border-2 border-blue-200 bg-surface-50 dark:bg-surface-950">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center border-2 border-blue-200 bg-surface-50">
                           <AgentIcons agentName={selectedAgent?.name || ''} size="w-4 h-4" />
                         </div>
-                        <span class="text-sm text-surface-600 dark:text-surface-400 font-medium">{selectedAgent?.name || 'Agent'} is thinking...</span>
+                        <span class="text-sm text-surface-600  font-medium">{selectedAgent?.name || 'Agent'} is thinking...</span>
                       </div>
                       <div class="flex space-x-2">
                         <div class="w-3 h-3 bg-blue-400 rounded-full animate-bounce"></div>
@@ -1000,7 +1000,7 @@
               {:else}
                 <!-- Oversight Mode: Timeline with Agent Iterations -->
                 <div class="oversight-timeline">
-                  <h3 class="text-lg font-semibold text-surface-800 dark:text-surface-200 mb-6 flex items-center">
+                  <h3 class="text-lg font-semibold text-surface-800  mb-6 flex items-center">
                     <div class="w-3 h-3 bg-purple-600 rounded-full mr-3 animate-pulse"></div>
                     Oversight Mode: Team Coordination Timeline
                   </h3>
@@ -1010,7 +1010,7 @@
                     <div class="timeline-item mb-8">
                       <div class="flex items-start space-x-4">
                         <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
-                          <span class="text-surface-950 dark:text-surface-50 text-sm font-bold">You</span>
+                          <span class="text-white text-sm font-bold">You</span>
                         </div>
                         <div class="flex-1 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-5 rounded-r-2xl shadow-sm">
                           <div class="font-semibold text-blue-900 text-sm mb-2">Your Request</div>
@@ -1027,7 +1027,7 @@
                     <div class="timeline-item mb-6 relative">
                       <!-- Timeline connector -->
                       {#if i < oversightIterations.length - 1}
-                        <div class="absolute left-5 top-14 w-0.5 h-12 bg-surface-700 dark:bg-surface-300"></div>
+                        <div class="absolute left-5 top-14 w-0.5 h-12 bg-surface-200"></div>
                       {/if}
                       
                       <div class="flex items-start space-x-4">
@@ -1039,15 +1039,15 @@
                           
                           <!-- Status Indicator -->
                           {#if iteration.status === 'thinking'}
-                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-pulse border-2 border-surface-950 dark:border-surface-50"></div>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-pulse border-2 border-surface-950"></div>
                           {:else if iteration.status === 'completed'}
-                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-surface-950 dark:border-surface-50">
-                              <svg class="w-2.5 h-2.5 text-surface-950 dark:text-surface-50 absolute top-0.5 left-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-surface-950">
+                              <svg class="w-2.5 h-2.5 text-white absolute top-0.5 left-0.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                               </svg>
                             </div>
                           {:else if iteration.status === 'active'}
-                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full border-2 border-surface-950 dark:border-surface-50 animate-bounce"></div>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full border-2 border-surface-950 animate-bounce"></div>
                           {/if}
                         </div>
                         
@@ -1055,16 +1055,16 @@
                         <div class="flex-1 border-l-4 p-4 rounded-r-2xl shadow-sm" style="background-color: {iteration.color}05; border-left-color: {iteration.color}">
                           <div class="flex items-center space-x-3 mb-3">
                             <span class="font-semibold text-sm" style="color: {iteration.color}">{iteration.agent_name}</span>
-                            <span class="text-xs text-surface-500 dark:text-surface-500 bg-surface-200 dark:bg-surface-800 px-2 py-1 rounded-full">{iteration.agent_role}</span>
+                            <span class="text-xs text-surface-500 bg-surface-200  px-2 py-1 rounded-full">{iteration.agent_role}</span>
                             <div class="text-xs px-3 py-1 rounded-full font-medium" style="background-color: {iteration.color}20; color: {iteration.color}">
                               Turn {iteration.turn}
                             </div>
                           </div>
                           
                           {#if iteration.status === 'thinking'}
-                            <div class="text-sm text-surface-600 dark:text-surface-400 italic">{iteration.message || `${iteration.agent_name} is analyzing your request...`}</div>
+                            <div class="text-sm text-surface-600  italic">{iteration.message || `${iteration.agent_name} is analyzing your request...`}</div>
                           {:else}
-                            <div class="text-sm text-surface-800 dark:text-surface-200 leading-relaxed">{iteration.content}</div>
+                            <div class="text-sm text-surface-800  leading-relaxed">{iteration.content}</div>
                           {/if}
                           
                           <div class="text-xs text-gray-400 mt-3 flex items-center">
@@ -1082,11 +1082,11 @@
                   {#if isLoading}
                     <div class="timeline-item mb-6">
                       <div class="flex items-start space-x-4">
-                        <div class="w-10 h-10 bg-surface-700 dark:bg-surface-300 rounded-full flex items-center justify-center animate-pulse">
+                        <div class="w-10 h-10 bg-surface-200 rounded-full flex items-center justify-center animate-pulse">
                           <AgentIcons agentName="Ali" size="w-5 h-5" />
                         </div>
-                        <div class="flex-1 bg-surface-100 dark:bg-surface-900 border-l-4 border-surface-300 dark:border-surface-700 p-4 rounded-r-2xl">
-                          <div class="text-sm text-surface-600 dark:text-surface-400 font-medium">Ali is coordinating the team response...</div>
+                        <div class="flex-1 bg-surface-100  border-l-4 border-surface-300  p-4 rounded-r-2xl">
+                          <div class="text-sm text-surface-600  font-medium">Ali is coordinating the team response...</div>
                           <div class="flex space-x-2 mt-3">
                             <div class="w-3 h-3 bg-purple-400 rounded-full animate-bounce"></div>
                             <div class="w-3 h-3 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
@@ -1101,13 +1101,13 @@
             </div>
             
             <!-- Enhanced Input Section -->
-            <div class="p-6 border-t border-surface-300 dark:border-surface-700 bg-gradient-to-r from-gray-50 to-blue-50">
+            <div class="p-6 border-t border-surface-300  bg-gradient-to-r from-gray-50 to-blue-50">
               <div class="flex space-x-4">
                 <textarea
                   bind:value={currentMessage}
                   on:keydown={handleKeyPress}
                   placeholder="Ask {selectedAgent?.name || 'the agent'} about strategy, analysis, or anything in their expertise area..."
-                  class="flex-1 resize-none border border-surface-400 dark:border-surface-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface-50 dark:bg-surface-950 shadow-sm"
+                  class="flex-1 resize-none border border-surface-400  rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface-50 shadow-sm"
                   rows="3"
                   disabled={isLoading}
                   aria-label="Type your message to {selectedAgent?.name || 'the agent'}"
@@ -1116,7 +1116,7 @@
                   on:click={sendMessage}
                   on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && !(!currentMessage.trim() || isLoading) ? (e.preventDefault(), sendMessage()) : null}
                   disabled={!currentMessage.trim() || isLoading}
-                  class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-surface-950 dark:text-surface-50 font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
+                  class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
                   aria-label="Send message to {selectedAgent?.name || 'agent'}"
                 >
                   <div class="flex items-center space-x-2">
@@ -1127,7 +1127,7 @@
                   </div>
                 </button>
               </div>
-              <div class="text-xs text-surface-500 dark:text-surface-500 mt-3 flex items-center justify-center">
+              <div class="text-xs text-surface-500 mt-3 flex items-center justify-center">
                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -1146,11 +1146,11 @@
           <!-- Modal Header -->
           <div class="modal-header">
             <div class="flex items-center justify-between">
-              <h2 id="modal-title" class="text-lg font-medium text-surface-900 dark:text-surface-100">Hire New Agent</h2>
+              <h2 id="modal-title" class="text-lg font-medium text-surface-900 ">Hire New Agent</h2>
               <button
                 on:click={() => showHireForm = false}
                 on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), showHireForm = false) : null}
-                class="text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:text-surface-100 transition-colors"
+                class="text-surface-600  hover:text-surface-900  transition-colors"
                 aria-label="Close modal"
                 tabindex="0"
               >
@@ -1267,7 +1267,7 @@
                       >
                     {#if isGeneratingAgent}
                       <div class="flex items-center justify-center space-x-2">
-                        <div class="w-4 h-4 border-2 border-surface-950 dark:border-surface-50 border-t-transparent rounded-full animate-spin"></div>
+                        <div class="w-4 h-4 border-2 border-surface-950 border-t-transparent rounded-full animate-spin"></div>
                         <span>AI Creating...</span>
                       </div>
                     {:else}
@@ -1293,43 +1293,43 @@
                 
                 {#if generatedAgent}
                   <!-- Agent Preview Card -->
-                  <div class="border border-surface-300 dark:border-surface-700 rounded-lg p-4 bg-surface-100 dark:bg-surface-900">
+                  <div class="border border-surface-300  rounded-lg p-4 bg-surface-100 ">
                     <div class="flex items-center space-x-3 mb-3">
-                      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-surface-950 dark:text-surface-50 font-bold text-lg" 
+                      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-lg" 
                            style="background-color: {generatedAgent.color || '#6366f1'}">
                         {generatedAgent.name?.charAt(0) || 'A'}
                       </div>
                       <div>
-                        <h3 class="font-semibold text-surface-900 dark:text-surface-100">{generatedAgent.name}</h3>
+                        <h3 class="font-semibold text-surface-900 ">{generatedAgent.name}</h3>
                         <p class="text-sm text-blue-600">{generatedAgent.role}</p>
                       </div>
                     </div>
                     
                     <div class="space-y-3 text-sm">
                       <div>
-                        <span class="font-medium text-surface-700 dark:text-surface-300">Description:</span>
-                        <p class="text-surface-600 dark:text-surface-400 mt-1">{generatedAgent.description}</p>
+                        <span class="font-medium text-surface-700 ">Description:</span>
+                        <p class="text-surface-600  mt-1">{generatedAgent.description}</p>
                       </div>
                       
                       <div>
-                        <span class="font-medium text-surface-700 dark:text-surface-300">Specialty:</span>
-                        <p class="text-surface-600 dark:text-surface-400 mt-1">{generatedAgent.specialty}</p>
+                        <span class="font-medium text-surface-700 ">Specialty:</span>
+                        <p class="text-surface-600  mt-1">{generatedAgent.specialty}</p>
                       </div>
                       
                       <div>
-                        <span class="font-medium text-surface-700 dark:text-surface-300">Personality:</span>
-                        <p class="text-surface-600 dark:text-surface-400 mt-1">{generatedAgent.personality}</p>
+                        <span class="font-medium text-surface-700 ">Personality:</span>
+                        <p class="text-surface-600  mt-1">{generatedAgent.personality}</p>
                       </div>
                       
                       {#if generatedAgent.tools && generatedAgent.tools.length > 0}
                         <div>
-                          <span class="font-medium text-surface-700 dark:text-surface-300">Tools:</span>
+                          <span class="font-medium text-surface-700 ">Tools:</span>
                           <div class="flex flex-wrap gap-1 mt-1">
                             {#each generatedAgent.tools.slice(0, 3) as tool}
                               <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">{tool}</span>
                             {/each}
                             {#if generatedAgent.tools.length > 3}
-                              <span class="px-2 py-1 bg-surface-200 dark:bg-surface-800 text-surface-600 dark:text-surface-400 text-xs rounded-full">+{generatedAgent.tools.length - 3} more</span>
+                              <span class="px-2 py-1 bg-surface-200  text-surface-600  text-xs rounded-full">+{generatedAgent.tools.length - 3} more</span>
                             {/if}
                           </div>
                         </div>
@@ -1374,7 +1374,7 @@
                       >
                   {#if isCreatingAgent}
                     <div class="flex items-center justify-center space-x-2">
-                      <div class="w-4 h-4 border-2 border-surface-950 dark:border-surface-50 border-t-transparent rounded-full animate-spin"></div>
+                      <div class="w-4 h-4 border-2 border-surface-950 border-t-transparent rounded-full animate-spin"></div>
                       <span>Creating...</span>
                     </div>
                   {:else}

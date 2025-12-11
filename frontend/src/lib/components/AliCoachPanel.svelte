@@ -278,7 +278,7 @@
       case 'warning': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'insight': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'action': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800 border-surface-700 dark:border-surface-300';
+      default: return 'bg-surface-100 text-surface-800 border-surface-200';
     }
   }
   
@@ -287,7 +287,7 @@
       case 'high': return 'bg-red-500';
       case 'medium': return 'bg-yellow-500';
       case 'low': return 'bg-green-500';
-      default: return 'bg-surface-900 dark:bg-surface-1000';
+      default: return 'bg-surface-500';
     }
   }
   
@@ -316,13 +316,13 @@
         <div class="flex items-center gap-2">
           <span class="text-2xl">🤖</span>
           <div>
-            <h3 class="font-semibold text-surface-100 dark:text-surface-900">Ali Coach</h3>
-            <p class="text-xs text-surface-400 dark:text-surface-600">AI-Powered Insights</p>
+            <h3 class="font-semibold text-surface-900">Ali Coach</h3>
+            <p class="text-xs text-surface-600">AI-Powered Insights</p>
           </div>
         </div>
         <button
           on:click={() => expanded = !expanded}
-          class="p-1 hover:bg-surface-800 dark:bg-surface-200 rounded"
+          class="p-1 hover:bg-surface-100 rounded"
           aria-label={expanded ? 'Collapse panel' : 'Expand panel'}
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,8 +339,8 @@
         <!-- Metrics Summary -->
         <div class="grid grid-cols-2 gap-2 mt-3">
           {#each $metrics.slice(0, 2) as metric}
-            <div class="bg-surface-900 dark:bg-surface-100 rounded p-2">
-              <div class="text-xs text-surface-400 dark:text-surface-600">{metric.name}</div>
+            <div class="bg-surface-50 rounded p-2">
+              <div class="text-xs text-surface-600">{metric.name}</div>
               <div class="flex items-center gap-1">
                 <span class="font-semibold text-sm">
                   {metric.name.includes('Cost') ? '$' : ''}{metric.value.toLocaleString()}
@@ -383,12 +383,12 @@
       <!-- Suggestions List -->
       <div class="suggestions-container">
         {#if loading}
-          <div class="text-center py-8 text-surface-500 dark:text-surface-500">
+          <div class="text-center py-8 text-surface-500">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
             <p class="mt-2 text-sm">Loading insights...</p>
           </div>
         {:else if filteredSuggestions.length === 0}
-          <div class="text-center py-8 text-surface-500 dark:text-surface-500">
+          <div class="text-center py-8 text-surface-500">
             <p class="text-sm">No suggestions at this time</p>
             <p class="text-xs mt-1">Ali is analyzing your data...</p>
           </div>
@@ -407,16 +407,16 @@
                       <h4 class="font-semibold text-sm">{suggestion.title}</h4>
                       <span class="w-2 h-2 rounded-full {getPriorityColor(suggestion.priority)}"></span>
                     </div>
-                    <p class="text-xs text-surface-400 dark:text-surface-600 mt-1">{suggestion.description}</p>
+                    <p class="text-xs text-surface-600 mt-1">{suggestion.description}</p>
                   </div>
                 </div>
                 
                 <!-- Explanation (collapsible) -->
                 <details class="mb-2">
-                  <summary class="cursor-pointer text-xs text-surface-300 dark:text-surface-700 hover:text-surface-100 dark:text-surface-900">
+                  <summary class="cursor-pointer text-xs text-surface-600 hover:text-surface-900">
                     Why this matters →
                   </summary>
-                  <div class="mt-2 p-2 bg-surface-950 dark:bg-surface-50 bg-opacity-50 rounded text-xs">
+                  <div class="mt-2 p-2 bg-white bg-opacity-50 rounded text-xs">
                     <p class="mb-1">{suggestion.explanation}</p>
                     <p class="font-semibold">Impact: {suggestion.impact}</p>
                   </div>
@@ -428,9 +428,9 @@
                     <button
                       on:click={action.handler}
                       class="px-3 py-1 text-xs rounded transition-colors
-                             {action.type === 'primary' ? 'bg-blue-600 text-surface-950 dark:text-surface-50 hover:bg-blue-700' :
-                              action.type === 'danger' ? 'bg-red-600 text-surface-950 dark:text-surface-50 hover:bg-red-700' :
-                              'bg-surface-700 dark:bg-surface-300 text-surface-300 dark:text-surface-700 hover:bg-surface-600 dark:bg-surface-400'}"
+                             {action.type === 'primary' ? 'bg-blue-600 text-white hover:bg-blue-700' :
+                              action.type === 'danger' ? 'bg-red-600 text-white hover:bg-red-700' :
+                              'bg-surface-200 text-surface-600 hover:bg-surface-600'}"
                     >
                       {action.label}
                     </button>
@@ -438,7 +438,7 @@
                 </div>
                 
                 <!-- Timestamp -->
-                <div class="text-xs text-surface-500 dark:text-surface-500 mt-2">
+                <div class="text-xs text-surface-500 mt-2">
                   {formatTimeAgo(suggestion.timestamp)}
                 </div>
               </div>
@@ -449,7 +449,7 @@
       
       <!-- Footer -->
       <div class="panel-footer">
-        <div class="flex items-center justify-between text-xs text-surface-400 dark:text-surface-600">
+        <div class="flex items-center justify-between text-xs text-surface-600">
           <span>{activeSuggestions.length} active suggestions</span>
           <button
             on:click={loadSuggestions}
@@ -467,12 +467,12 @@
             <div class="relative">
               <span class="text-2xl">🤖</span>
               {#if activeSuggestions.length > 0}
-                <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-surface-950 dark:text-surface-50 rounded-full text-xs flex items-center justify-center">
+                <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
                   {activeSuggestions.length}
                 </span>
               {/if}
             </div>
-            <p class="text-xs text-surface-400 dark:text-surface-600 mt-1">Ali</p>
+            <p class="text-xs text-surface-600 mt-1">Ali</p>
           </div>
         </div>
       </div>

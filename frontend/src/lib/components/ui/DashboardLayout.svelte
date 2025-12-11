@@ -95,12 +95,12 @@
 
 <style>
 	.dashboard-layout {
-		@apply min-h-screen bg-gray-50 dark:bg-gray-900 flex;
+		@apply min-h-screen bg-gray-50 flex;
 	}
 
 	/* Sidebar */
 	.dashboard-sidebar {
-		@apply fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out;
+		@apply fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out;
 		box-shadow: var(--shadow-lg);
 	}
 
@@ -133,7 +133,7 @@
 
 	/* Header */
 	.dashboard-header {
-		@apply bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 z-30;
+		@apply bg-white border-b border-gray-200 px-6 py-4 z-30;
 		box-shadow: var(--shadow-sm);
 	}
 
@@ -148,7 +148,7 @@
 
 	/* Footer */
 	.dashboard-footer {
-		@apply bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4 mt-auto;
+		@apply bg-white border-t border-gray-200 px-6 py-4 mt-auto;
 	}
 
 	/* Responsive adjustments */

@@ -97,21 +97,21 @@
 </script>
 
 <!-- Cost Dashboard Component -->
-<div class="bg-surface-950 dark:bg-surface-50 border border-surface-700 dark:border-surface-300 rounded-lg shadow-sm">
+<div class="bg-white border border-surface-200 rounded-lg shadow-sm">
   <!-- Header -->
-  <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-surface-950 dark:text-surface-50 px-6 py-4 rounded-t-lg">
+  <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-t-lg">
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <span class="text-xl">{getStatusIcon($costData.status)}</span>
         <h3 class="text-lg font-bold">💰 Cost Overview</h3>
       </div>
       <div class="flex items-center space-x-2">
-        <span class="text-sm px-3 py-1 rounded-full bg-surface-950 dark:bg-surface-50/20 font-bold">
+        <span class="text-sm px-3 py-1 rounded-full bg-white/20 font-bold">
           {$costData.status}
         </span>
         <button 
           on:click={fetchCostData}
-          class="px-3 py-1 bg-surface-950 dark:bg-surface-50/20 hover:bg-surface-950 dark:bg-surface-50/30 text-surface-950 dark:text-surface-50 font-bold rounded transition-colors"
+          class="px-3 py-1 bg-white/20 hover:bg-white/30 text-white font-bold rounded transition-colors"
         >
           Refresh
         </button>
@@ -123,8 +123,8 @@
     <!-- Cost Metrics -->
     <div class="grid grid-cols-2 gap-4">
       <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border">
-        <div class="text-sm font-bold text-surface-300 dark:text-surface-700 mb-1">Total Cost</div>
-        <div class="text-2xl font-bold text-surface-100 dark:text-surface-900">
+        <div class="text-sm font-bold text-surface-600 mb-1">Total Cost</div>
+        <div class="text-2xl font-bold text-surface-900">
           {formatCost($costData.total_cost_usd)}
         </div>
       </div>
@@ -141,10 +141,10 @@
     {#if $costData.budget_utilization > 0}
       <div class="space-y-3 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border">
         <div class="flex justify-between items-center">
-          <h4 class="text-sm font-bold text-surface-200 dark:text-surface-800">Budget Utilization</h4>
-          <span class="text-lg font-bold text-surface-100 dark:text-surface-900">{$costData.budget_utilization.toFixed(1)}%</span>
+          <h4 class="text-sm font-bold text-surface-800">Budget Utilization</h4>
+          <span class="text-lg font-bold text-surface-900">{$costData.budget_utilization.toFixed(1)}%</span>
         </div>
-        <div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-4">
+        <div class="w-full bg-surface-200 rounded-full h-4">
           <div class="h-4 rounded-full transition-all duration-300 {$costData.budget_utilization > 80 ? 'bg-gradient-to-r from-red-500 to-red-600' : $costData.budget_utilization > 50 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-gradient-to-r from-green-500 to-green-600'}" 
                style="width: {Math.min($costData.budget_utilization, 100)}%"></div>
         </div>
@@ -154,7 +154,7 @@
     <!-- Service Breakdown (DETAILED) -->
     {#if $costData.service_details && Object.keys($costData.service_details).length > 0}
       <div class="space-y-3">
-        <h4 class="text-lg font-bold text-surface-100 dark:text-surface-900 flex items-center space-x-2">
+        <h4 class="text-lg font-bold text-surface-900 flex items-center space-x-2">
           <span>🔥</span>
           <span>Service Details (Today)</span>
         </h4>
@@ -163,24 +163,24 @@
             <div class="flex justify-between items-center">
               <div class="flex items-center space-x-3">
                 <div class="w-5 h-5 rounded-full {provider === 'openai' ? 'bg-gradient-to-r from-green-500 to-green-600' : provider === 'anthropic' ? 'bg-gradient-to-r from-purple-500 to-purple-600' : provider === 'perplexity' ? 'bg-gradient-to-r from-blue-500 to-blue-600' : 'bg-gradient-to-r from-gray-500 to-gray-600'}"></div>
-                <span class="text-lg font-bold text-surface-100 dark:text-surface-900 capitalize">{provider}</span>
+                <span class="text-lg font-bold text-surface-900 capitalize">{provider}</span>
               </div>
-              <span class="text-xl font-mono font-bold text-surface-100 dark:text-surface-900">{formatCost(details.cost_usd)}</span>
+              <span class="text-xl font-mono font-bold text-surface-900">{formatCost(details.cost_usd)}</span>
             </div>
             
             <!-- Service Detail Stats -->
             <div class="grid grid-cols-3 gap-4 text-sm">
-              <div class="bg-surface-950 dark:bg-surface-50 p-3 rounded-lg border text-center">
-                <div class="text-surface-400 dark:text-surface-600 font-bold mb-1">Calls</div>
-                <div class="text-lg font-bold text-surface-100 dark:text-surface-900">{details.calls}</div>
+              <div class="bg-white p-3 rounded-lg border text-center">
+                <div class="text-surface-600 font-bold mb-1">Calls</div>
+                <div class="text-lg font-bold text-surface-900">{details.calls}</div>
               </div>
-              <div class="bg-surface-950 dark:bg-surface-50 p-3 rounded-lg border text-center">
-                <div class="text-surface-400 dark:text-surface-600 font-bold mb-1">Tokens</div>
-                <div class="text-lg font-bold text-surface-100 dark:text-surface-900">{details.tokens.toLocaleString()}</div>
+              <div class="bg-white p-3 rounded-lg border text-center">
+                <div class="text-surface-600 font-bold mb-1">Tokens</div>
+                <div class="text-lg font-bold text-surface-900">{details.tokens.toLocaleString()}</div>
               </div>
-              <div class="bg-surface-950 dark:bg-surface-50 p-3 rounded-lg border text-center">
-                <div class="text-surface-400 dark:text-surface-600 font-bold mb-1">Avg/Call</div>
-                <div class="text-lg font-bold text-surface-100 dark:text-surface-900">{formatCost(details.avg_cost_per_call)}</div>
+              <div class="bg-white p-3 rounded-lg border text-center">
+                <div class="text-surface-600 font-bold mb-1">Avg/Call</div>
+                <div class="text-lg font-bold text-surface-900">{formatCost(details.avg_cost_per_call)}</div>
               </div>
             </div>
           </div>
@@ -191,12 +191,12 @@
     <!-- Top Models -->
     {#if Object.keys($costData.model_breakdown).length > 0}
       <div class="space-y-3">
-        <h4 class="text-lg font-bold text-surface-100 dark:text-surface-900">📊 Top Models (Today)</h4>
+        <h4 class="text-lg font-bold text-surface-900">📊 Top Models (Today)</h4>
         <div class="space-y-2">
           {#each Object.entries($costData.model_breakdown).slice(0, 5) as [model, cost]}
             <div class="flex justify-between items-center py-3 px-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border">
-              <span class="text-sm font-bold text-surface-200 dark:text-surface-800 truncate">{model}</span>
-              <span class="text-lg font-mono font-bold text-surface-100 dark:text-surface-900">{formatCost(cost)}</span>
+              <span class="text-sm font-bold text-surface-800 truncate">{model}</span>
+              <span class="text-lg font-mono font-bold text-surface-900">{formatCost(cost)}</span>
             </div>
           {/each}
         </div>
@@ -211,15 +211,15 @@
           <span>Current Session</span>
         </h4>
         <div class="grid grid-cols-3 gap-4 text-sm">
-          <div class="bg-surface-950 dark:bg-surface-50 p-3 rounded-lg border text-center">
+          <div class="bg-white p-3 rounded-lg border text-center">
             <div class="text-blue-700 font-bold mb-1">Cost</div>
             <div class="text-lg font-bold text-blue-900">{formatCost($costData.session_summary.total_cost_usd)}</div>
           </div>
-          <div class="bg-surface-950 dark:bg-surface-50 p-3 rounded-lg border text-center">
+          <div class="bg-white p-3 rounded-lg border text-center">
             <div class="text-blue-700 font-bold mb-1">Calls</div>
             <div class="text-lg font-bold text-blue-900">{$costData.session_summary.total_calls}</div>
           </div>
-          <div class="bg-surface-950 dark:bg-surface-50 p-3 rounded-lg border text-center">
+          <div class="bg-white p-3 rounded-lg border text-center">
             <div class="text-blue-700 font-bold mb-1">Tokens</div>
             <div class="text-lg font-bold text-blue-900">{$costData.session_summary.total_tokens.toLocaleString()}</div>
           </div>
@@ -230,9 +230,9 @@
           <div class="space-y-2">
             <div class="text-sm font-bold text-blue-800">Session Providers:</div>
             {#each Object.entries($costData.session_summary.by_provider) as [provider, stats]}
-              <div class="flex justify-between text-sm bg-surface-950 dark:bg-surface-50 p-3 rounded-lg border">
-                <span class="capitalize font-bold text-surface-300 dark:text-surface-700">{provider}</span>
-                <span class="font-mono font-bold text-surface-100 dark:text-surface-900">{formatCost(stats.cost)} ({stats.calls} calls)</span>
+              <div class="flex justify-between text-sm bg-white p-3 rounded-lg border">
+                <span class="capitalize font-bold text-surface-600">{provider}</span>
+                <span class="font-mono font-bold text-surface-900">{formatCost(stats.cost)} ({stats.calls} calls)</span>
               </div>
             {/each}
           </div>
@@ -242,20 +242,20 @@
 
     <!-- Usage Metrics -->
     {#if $costData.total_interactions > 0}
-      <div class="pt-4 border-t border-surface-700 dark:border-surface-300 space-y-4">
-        <h4 class="text-lg font-bold text-surface-100 dark:text-surface-900 flex items-center space-x-2">
+      <div class="pt-4 border-t border-surface-200 space-y-4">
+        <h4 class="text-lg font-bold text-surface-900 flex items-center space-x-2">
           <span>📈</span>
           <span>Overall Statistics</span>
         </h4>
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border">
-            <div class="text-surface-300 dark:text-surface-700 font-bold mb-1">Total Interactions</div>
-            <div class="text-xl font-bold text-surface-100 dark:text-surface-900">{$costData.total_interactions.toLocaleString()}</div>
+            <div class="text-surface-600 font-bold mb-1">Total Interactions</div>
+            <div class="text-xl font-bold text-surface-900">{$costData.total_interactions.toLocaleString()}</div>
           </div>
           
           <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border">
-            <div class="text-surface-300 dark:text-surface-700 font-bold mb-1">Total Tokens</div>
-            <div class="text-xl font-bold text-surface-100 dark:text-surface-900">{$costData.total_tokens.toLocaleString()}</div>
+            <div class="text-surface-600 font-bold mb-1">Total Tokens</div>
+            <div class="text-xl font-bold text-surface-900">{$costData.total_tokens.toLocaleString()}</div>
           </div>
 
           {#if $costData.today_interactions}
@@ -278,7 +278,7 @@
 
   <!-- Footer -->
   <div class="bg-gradient-to-r from-gray-100 to-gray-200 px-6 py-4 rounded-b-lg flex justify-between items-center text-sm border-t">
-    <span class="text-surface-300 dark:text-surface-700 font-medium">
+    <span class="text-surface-600 font-medium">
       Updated: {$costData.last_updated ? new Date($costData.last_updated + (($costData.last_updated.includes('Z') || $costData.last_updated.includes('+')) ? '' : 'Z')).toLocaleTimeString() : 'N/A'}
     </span>
   </div>

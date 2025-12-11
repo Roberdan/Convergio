@@ -185,13 +185,13 @@
 		});
 </script>
 
-<div class="resource-management bg-white dark:bg-surface-950 rounded-xl shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden">
+<div class="resource-management bg-white rounded-xl shadow-sm border border-surface-200  overflow-hidden">
 	<!-- Header -->
-	<div class="p-6 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+	<div class="p-6 border-b border-surface-200  bg-surface-50 ">
 		<div class="flex items-center justify-between">
 			<div>
-				<h3 class="text-lg font-semibold text-surface-900 dark:text-surface-100">Resource Management</h3>
-				<p class="text-sm text-surface-600 dark:text-surface-400">Team allocation, utilization, and performance tracking</p>
+				<h3 class="text-lg font-semibold text-surface-900 ">Resource Management</h3>
+				<p class="text-sm text-surface-600 ">Team allocation, utilization, and performance tracking</p>
 			</div>
 			<div class="flex items-center space-x-3">
 				<!-- Filter by Type -->
@@ -230,7 +230,7 @@
 		<div class="p-6">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
 				{#each filteredResources as resource}
-					<div class="resource-card border border-surface-200 dark:border-surface-700 rounded-lg p-4 hover:shadow-md transition-shadow duration-200 cursor-pointer" on:click={() => selectedResource = resource}>
+					<div class="resource-card border border-surface-200  rounded-lg p-4 hover:shadow-md transition-shadow duration-200 cursor-pointer" on:click={() => selectedResource = resource}>
 						<div class="flex items-start justify-between mb-3">
 							<div class="flex items-center space-x-3">
 								<div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
@@ -239,8 +239,8 @@
 									</span>
 								</div>
 								<div>
-									<h4 class="font-medium text-surface-900 dark:text-surface-100">{resource.name}</h4>
-									<p class="text-sm text-surface-600 dark:text-surface-400">{resource.role}</p>
+									<h4 class="font-medium text-surface-900 ">{resource.name}</h4>
+									<p class="text-sm text-surface-600 ">{resource.role}</p>
 								</div>
 							</div>
 							<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border {getTypeColor(resource.type)}">
@@ -251,10 +251,10 @@
 						<!-- Utilization -->
 						<div class="mb-3">
 							<div class="flex items-center justify-between mb-1">
-								<span class="text-sm text-surface-600 dark:text-surface-400">Utilization</span>
+								<span class="text-sm text-surface-600 ">Utilization</span>
 								<span class="text-sm font-medium {getUtilizationColor(resource.utilization)}">{resource.utilization}%</span>
 							</div>
-							<div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
+							<div class="w-full bg-surface-200  rounded-full h-2">
 								<div class="bg-primary-500 h-2 rounded-full transition-all duration-500" style="width: {resource.utilization}%"></div>
 							</div>
 						</div>
@@ -263,26 +263,26 @@
 						<div class="grid grid-cols-3 gap-2 text-center">
 							<div>
 								<div class="text-xs text-surface-500">Tasks</div>
-								<div class="font-medium text-surface-900 dark:text-surface-100">{resource.performance.tasksCompleted}</div>
+								<div class="font-medium text-surface-900 ">{resource.performance.tasksCompleted}</div>
 							</div>
 							<div>
 								<div class="text-xs text-surface-500">Rating</div>
-								<div class="font-medium text-surface-900 dark:text-surface-100">{resource.performance.averageRating.toFixed(1)}</div>
+								<div class="font-medium text-surface-900 ">{resource.performance.averageRating.toFixed(1)}</div>
 							</div>
 							<div>
 								<div class="text-xs text-surface-500">Efficiency</div>
-								<div class="font-medium text-surface-900 dark:text-surface-100">{resource.performance.efficiency}%</div>
+								<div class="font-medium text-surface-900 ">{resource.performance.efficiency}%</div>
 							</div>
 						</div>
 
 						<!-- Current Tasks -->
-						<div class="mt-3 pt-3 border-t border-surface-100 dark:border-surface-800">
+						<div class="mt-3 pt-3 border-t border-surface-100">
 							<div class="text-xs text-surface-500 mb-2">Current Tasks ({resource.currentTasks.length})</div>
 							<div class="space-y-1">
 								{#each resource.currentTasks.slice(0, 2) as task}
 									<div class="flex items-center space-x-2">
 										<div class="w-2 h-2 rounded-full {getPriorityColor(task.priority)}"></div>
-										<span class="text-xs text-surface-600 dark:text-surface-400 truncate">{task.title}</span>
+										<span class="text-xs text-surface-600  truncate">{task.title}</span>
 									</div>
 								{/each}
 								{#if resource.currentTasks.length > 2}
@@ -300,7 +300,7 @@
 <!-- Resource Detail Modal -->
 {#if selectedResource}
 	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" on:click={() => selectedResource = null}>
-		<div class="bg-white dark:bg-surface-950 rounded-xl shadow-xl max-w-2xl w-full mx-4 p-6 max-h-[90vh] overflow-y-auto" on:click|stopPropagation>
+		<div class="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 p-6 max-h-[90vh] overflow-y-auto" on:click|stopPropagation>
 			<div class="flex items-center justify-between mb-6">
 				<div class="flex items-center space-x-4">
 					<div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
@@ -309,11 +309,11 @@
 						</span>
 					</div>
 					<div>
-						<h4 class="text-xl font-semibold text-surface-900 dark:text-surface-100">{selectedResource.name}</h4>
-						<p class="text-surface-600 dark:text-surface-400">{selectedResource.role}</p>
+						<h4 class="text-xl font-semibold text-surface-900 ">{selectedResource.name}</h4>
+						<p class="text-surface-600 ">{selectedResource.role}</p>
 					</div>
 				</div>
-				<button on:click={() => selectedResource = null} class="text-surface-500 hover:text-surface-700 dark:hover:text-surface-300">
+				<button on:click={() => selectedResource = null} class="text-surface-500 hover:text-surface-700">
 					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 					</svg>
@@ -324,27 +324,27 @@
 				<!-- Resource Info -->
 				<div class="space-y-4">
 					<div>
-						<h5 class="font-medium text-surface-900 dark:text-surface-100 mb-2">Resource Details</h5>
+						<h5 class="font-medium text-surface-900  mb-2">Resource Details</h5>
 						<div class="space-y-2">
 							<div class="flex justify-between">
-								<span class="text-sm text-surface-600 dark:text-surface-400">Type</span>
+								<span class="text-sm text-surface-600 ">Type</span>
 								<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border {getTypeColor(selectedResource.type)}">
 									{selectedResource.type.replace('_', ' ')}
 								</span>
 							</div>
 							<div class="flex justify-between">
-								<span class="text-sm text-surface-600 dark:text-surface-400">Availability</span>
-								<span class="text-sm font-medium text-surface-900 dark:text-surface-100">{selectedResource.availability}%</span>
+								<span class="text-sm text-surface-600 ">Availability</span>
+								<span class="text-sm font-medium text-surface-900 ">{selectedResource.availability}%</span>
 							</div>
 							<div class="flex justify-between">
-								<span class="text-sm text-surface-600 dark:text-surface-400">Cost per Hour</span>
-								<span class="text-sm font-medium text-surface-900 dark:text-surface-100">${selectedResource.costPerHour}</span>
+								<span class="text-sm text-surface-600 ">Cost per Hour</span>
+								<span class="text-sm font-medium text-surface-900 ">${selectedResource.costPerHour}</span>
 							</div>
 						</div>
 					</div>
 
 					<div>
-						<h5 class="font-medium text-surface-900 dark:text-surface-100 mb-2">Skills</h5>
+						<h5 class="font-medium text-surface-900  mb-2">Skills</h5>
 						<div class="flex flex-wrap gap-2">
 							{#each selectedResource.skills as skill}
 								<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-700 border border-primary-200">
@@ -358,42 +358,42 @@
 				<!-- Performance & Tasks -->
 				<div class="space-y-4">
 					<div>
-						<h5 class="font-medium text-surface-900 dark:text-surface-100 mb-2">Performance Metrics</h5>
+						<h5 class="font-medium text-surface-900  mb-2">Performance Metrics</h5>
 						<div class="space-y-3">
 							<div>
 								<div class="flex items-center justify-between mb-1">
-									<span class="text-sm text-surface-600 dark:text-surface-400">Utilization</span>
+									<span class="text-sm text-surface-600 ">Utilization</span>
 									<span class="text-sm font-medium {getUtilizationColor(selectedResource.utilization)}">{selectedResource.utilization}%</span>
 								</div>
-								<div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
+								<div class="w-full bg-surface-200  rounded-full h-2">
 									<div class="bg-primary-500 h-2 rounded-full transition-all duration-500" style="width: {selectedResource.utilization}%"></div>
 								</div>
 							</div>
 							<div class="grid grid-cols-3 gap-4 text-center">
 								<div>
 									<div class="text-xs text-surface-500 mb-1">Tasks Completed</div>
-									<div class="text-lg font-semibold text-surface-900 dark:text-surface-100">{selectedResource.performance.tasksCompleted}</div>
+									<div class="text-lg font-semibold text-surface-900 ">{selectedResource.performance.tasksCompleted}</div>
 								</div>
 								<div>
 									<div class="text-xs text-surface-500 mb-1">Average Rating</div>
-									<div class="text-lg font-semibold text-surface-900 dark:text-surface-100">{selectedResource.performance.averageRating.toFixed(1)}</div>
+									<div class="text-lg font-semibold text-surface-900 ">{selectedResource.performance.averageRating.toFixed(1)}</div>
 								</div>
 								<div>
 									<div class="text-xs text-surface-500 mb-1">Efficiency</div>
-									<div class="text-lg font-semibold text-surface-900 dark:text-surface-100">{selectedResource.performance.efficiency}%</div>
+									<div class="text-lg font-semibold text-surface-900 ">{selectedResource.performance.efficiency}%</div>
 								</div>
 							</div>
 						</div>
 					</div>
 
 					<div>
-						<h5 class="font-medium text-surface-900 dark:text-surface-100 mb-2">Current Tasks</h5>
+						<h5 class="font-medium text-surface-900  mb-2">Current Tasks</h5>
 						<div class="space-y-2 max-h-40 overflow-y-auto">
 							{#each selectedResource.currentTasks as task}
-								<div class="flex items-center justify-between p-2 bg-surface-50 dark:bg-surface-900 rounded">
+								<div class="flex items-center justify-between p-2 bg-surface-50  rounded">
 									<div class="flex items-center space-x-2">
 										<div class="w-3 h-3 rounded-full {getPriorityColor(task.priority)}"></div>
-										<span class="text-sm font-medium text-surface-900 dark:text-surface-100">{task.title}</span>
+										<span class="text-sm font-medium text-surface-900 ">{task.title}</span>
 									</div>
 									<div class="text-xs text-surface-500">
 										{task.estimatedHours}h

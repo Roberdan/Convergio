@@ -366,10 +366,10 @@
     <div class="p-4">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-lg font-semibold text-surface-900 dark:text-surface-100">
+          <h3 class="text-lg font-semibold text-surface-900 ">
             📡 Real-time Monitoring
           </h3>
-          <p class="text-sm text-surface-600 dark:text-surface-400 mt-1">
+          <p class="text-sm text-surface-600  mt-1">
             Live updates, agent conversations, and system status
           </p>
         </div>
@@ -384,12 +384,12 @@
           </div>
           
           {#if $systemStatus.connected}
-            <div class="text-xs text-surface-600 dark:text-surface-400">
+            <div class="text-xs text-surface-600 ">
               Latency: {Math.round($systemStatus.latency)}ms
             </div>
           {/if}
           
-          <div class="text-xs text-surface-600 dark:text-surface-400">
+          <div class="text-xs text-surface-600 ">
             {$systemStatus.messages_received} messages
           </div>
         </div>
@@ -432,19 +432,19 @@
   {#if $agentActivities.length > 0}
     <Card>
       <div class="p-4">
-        <h4 class="font-medium text-surface-900 dark:text-surface-100 mb-3">
+        <h4 class="font-medium text-surface-900  mb-3">
           🤖 Live Agent Activity
         </h4>
         
         <div class="space-y-2">
           {#each $agentActivities as activity}
-            <div class="flex items-center justify-between py-2 border-b border-surface-200 dark:border-surface-700 last:border-b-0">
+            <div class="flex items-center justify-between py-2 border-b border-surface-200  last:border-b-0">
               <div class="flex items-center space-x-3">
                 <div class="w-3 h-3 rounded-full {activity.status === 'online' ? 'bg-green-500' : 'bg-gray-400'}"></div>
-                <span class="font-medium text-surface-900 dark:text-surface-100">
+                <span class="font-medium text-surface-900 ">
                   {activity.agent_name}
                 </span>
-                <span class="text-sm text-surface-600 dark:text-surface-400">
+                <span class="text-sm text-surface-600 ">
                   {activity.current_task}
                 </span>
               </div>
@@ -466,11 +466,11 @@
     <div class="p-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
-          <span class="text-sm font-medium text-surface-900 dark:text-surface-100">Filter:</span>
+          <span class="text-sm font-medium text-surface-900 ">Filter:</span>
           <select 
             bind:value={selectedFilter}
-            class="text-sm border border-surface-300 dark:border-surface-600 rounded-md px-3 py-1 
-                   bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+            class="text-sm border border-surface-300  rounded-md px-3 py-1 
+                   bg-surface-50  text-surface-900 "
           >
             {#each updateTypes as type}
               <option value={type.id}>{type.icon} {type.label}</option>
@@ -485,7 +485,7 @@
         <div class="flex items-center space-x-2">
           <label class="flex items-center space-x-1 text-sm">
             <input type="checkbox" bind:checked={autoScroll} class="rounded" />
-            <span class="text-surface-700 dark:text-surface-300">Auto-scroll</span>
+            <span class="text-surface-700 ">Auto-scroll</span>
           </label>
           
           <Button variant="outline" size="sm" on:click={clearUpdates}>
@@ -503,7 +503,7 @@
   <!-- Updates Stream -->
   <Card>
     <div class="p-4">
-      <h4 class="font-medium text-surface-900 dark:text-surface-100 mb-4">
+      <h4 class="font-medium text-surface-900  mb-4">
         📨 Live Updates Stream
       </h4>
       
@@ -512,7 +512,7 @@
         class="max-h-96 overflow-y-auto space-y-2"
       >
         {#if filteredUpdates.length === 0}
-          <div class="text-center py-8 text-surface-500 dark:text-surface-400">
+          <div class="text-center py-8 text-surface-500 ">
             <div class="text-4xl mb-2">📡</div>
             <p>No updates yet. Waiting for real-time data...</p>
           </div>
@@ -526,7 +526,7 @@
                 <div class="flex-1">
                   <div class="flex items-center space-x-2 mb-1">
                     <span class="text-lg">{getUpdateIcon(update.type)}</span>
-                    <span class="text-sm font-medium text-surface-900 dark:text-surface-100 capitalize">
+                    <span class="text-sm font-medium text-surface-900  capitalize">
                       {update.type.replace(/_/g, ' ')}
                     </span>
                     {#if update.agent}
@@ -539,7 +539,7 @@
                     </Badge>
                   </div>
                   
-                  <p class="text-sm text-surface-700 dark:text-surface-300">
+                  <p class="text-sm text-surface-700 ">
                     {formatUpdateData(update.data, update.type)}
                   </p>
                 </div>

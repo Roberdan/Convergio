@@ -12,14 +12,14 @@
     'in-progress': 'bg-blue-100 text-blue-800',
     'review': 'bg-purple-100 text-purple-800',
     'completed': 'bg-green-100 text-green-800'
-  }[project.status] || 'bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800';
+  }[project.status] || 'bg-surface-100 text-surface-800';
 
   $: priorityColor = {
-    'low': 'bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800',
+    'low': 'bg-surface-100 text-surface-800',
     'medium': 'bg-blue-100 text-blue-800',
     'high': 'bg-orange-100 text-orange-800',
     'critical': 'bg-red-100 text-red-800'
-  }[project.priority] || 'bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800';
+  }[project.priority] || 'bg-surface-100 text-surface-800';
 
   $: progressColor = project.progress >= 80 ? 'bg-green-500' : 
                      project.progress >= 60 ? 'bg-blue-500' : 
@@ -49,7 +49,7 @@
 </script>
 
 <div 
-  class="rounded-xl border border-surface-700 dark:border-surface-300 bg-surface-950 dark:bg-surface-50 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer {loading ? 'opacity-60' : ''}"
+  class="rounded-xl border border-surface-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer {loading ? 'opacity-60' : ''}"
   on:click={handleClick}
   role="button"
   tabindex="0"
@@ -58,10 +58,10 @@
 >
   <div class="flex items-start justify-between mb-4">
     <div class="flex-1">
-      <h3 class="text-lg font-semibold text-surface-100 dark:text-surface-900 mb-2">
+      <h3 class="text-lg font-semibold text-surface-900 mb-2">
         {loading ? '...' : (project.project_name || project.name)}
       </h3>
-      <p class="text-sm text-surface-400 dark:text-surface-600 mb-3">
+      <p class="text-sm text-surface-600 mb-3">
         {loading ? '...' : project.description}
       </p>
       
@@ -72,15 +72,15 @@
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {priorityColor}">
           {loading ? '...' : project.priority}
         </span>
-        <span class="text-xs text-surface-500 dark:text-surface-500">
+        <span class="text-xs text-surface-500">
           {loading ? '...' : (project.project_type || project.type)}
         </span>
       </div>
     </div>
     
     <div class="text-right">
-      <p class="text-sm text-surface-400 dark:text-surface-600">Due</p>
-      <p class="text-sm font-medium text-surface-100 dark:text-surface-900">
+      <p class="text-sm text-surface-600">Due</p>
+      <p class="text-sm font-medium text-surface-900">
         {loading ? '...' : formatDate(project.dueDate)}
       </p>
     </div>
@@ -90,10 +90,10 @@
     <!-- Progress Bar -->
     <div>
       <div class="flex items-center justify-between text-sm mb-1">
-        <span class="text-surface-400 dark:text-surface-600">Progress</span>
-        <span class="font-medium text-surface-100 dark:text-surface-900">{loading ? '...' : project.progress}%</span>
+        <span class="text-surface-600">Progress</span>
+        <span class="font-medium text-surface-900">{loading ? '...' : project.progress}%</span>
       </div>
-      <div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-2">
+      <div class="w-full bg-surface-200 rounded-full h-2">
         <div 
           class="h-2 rounded-full transition-all duration-300 {progressColor}"
           style="width: {loading ? '0%' : project.progress + '%'}"
@@ -104,14 +104,14 @@
     <!-- Budget and Revenue -->
     <div class="flex items-center justify-between text-sm">
       <div>
-        <span class="text-surface-400 dark:text-surface-600">Budget:</span>
-        <span class="font-medium text-surface-100 dark:text-surface-900 ml-1">
+        <span class="text-surface-600">Budget:</span>
+        <span class="font-medium text-surface-900 ml-1">
           {loading ? '...' : formatCurrency(project.budget)}
         </span>
       </div>
       <div>
-        <span class="text-surface-400 dark:text-surface-600">Target:</span>
-        <span class="font-medium text-surface-100 dark:text-surface-900 ml-1">
+        <span class="text-surface-600">Target:</span>
+        <span class="font-medium text-surface-900 ml-1">
           {loading ? '...' : formatCurrency(project.revenue_target)}
         </span>
       </div>
@@ -120,15 +120,15 @@
     <!-- Assigned Agents -->
     {#if project.assigned_agents && project.assigned_agents.length > 0}
       <div class="flex items-center space-x-2">
-        <span class="text-xs text-surface-400 dark:text-surface-600">Agents:</span>
+        <span class="text-xs text-surface-600">Agents:</span>
         <div class="flex -space-x-1">
           {#each project.assigned_agents.slice(0, 3) as agent}
-            <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs text-surface-950 dark:text-surface-50 font-medium">
+            <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs text-white font-medium">
               {agent.charAt(0).toUpperCase()}
             </div>
           {/each}
           {#if project.assigned_agents.length > 3}
-            <div class="w-6 h-6 rounded-full bg-surface-600 dark:bg-surface-400 flex items-center justify-center text-xs text-surface-400 dark:text-surface-600 font-medium">
+            <div class="w-6 h-6 rounded-full bg-surface-600 flex items-center justify-center text-xs text-surface-600 font-medium">
               +{project.assigned_agents.length - 3}
             </div>
           {/if}

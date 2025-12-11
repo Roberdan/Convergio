@@ -389,7 +389,7 @@
           
           <div class="kpi-meta">
             <div class="change-info">
-              <span class="body-sm font-bold {metric.change > 0 ? 'text-green-700' : metric.change < 0 ? 'text-red-700' : 'text-surface-300 dark:text-surface-700'}">
+              <span class="body-sm font-bold {metric.change > 0 ? 'text-green-700' : metric.change < 0 ? 'text-red-700' : 'text-surface-600'}">
                 {metric.change > 0 ? '+' : ''}{formatMetricValue(Math.abs(metric.change), 
                   key === 'revenue' ? 'currency' : 
                   key.includes('Rate') || key.includes('Margin') || key.includes('Efficiency') ? 'percentage' : 'number')}

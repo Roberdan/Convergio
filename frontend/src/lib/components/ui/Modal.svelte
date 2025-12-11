@@ -219,18 +219,18 @@
 	}
 
 	.modal-container {
-		@apply relative w-full bg-white dark:bg-gray-800 rounded-xl shadow-xl max-h-[90vh] flex flex-col;
+		@apply relative w-full bg-white rounded-xl shadow-xl max-h-[90vh] flex flex-col;
 		box-shadow: var(--shadow-xl);
 		animation: modalSlideIn 0.3s ease-out;
 	}
 
 	.modal-loading {
-		@apply absolute inset-0 bg-white dark:bg-gray-800 bg-opacity-75 flex items-center justify-center z-10 rounded-xl;
+		@apply absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-xl;
 		backdrop-filter: blur(2px);
 	}
 
 	.modal-header {
-		@apply flex items-start justify-between p-6 border-b border-gray-200 dark:border-gray-700;
+		@apply flex items-start justify-between p-6 border-b border-gray-200;
 	}
 
 	.header-content {
@@ -238,17 +238,17 @@
 	}
 
 	.modal-title {
-		@apply text-lg font-semibold text-gray-900 dark:text-white;
+		@apply text-lg font-semibold text-gray-900;
 		font-family: var(--font-primary);
 	}
 
 	.modal-description {
-		@apply mt-1 text-sm text-gray-600 dark:text-gray-400;
+		@apply mt-1 text-sm text-gray-600;
 		font-family: var(--font-primary);
 	}
 
 	.close-button {
-		@apply flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+		@apply flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
 	}
 
 	.dark .close-button:focus {
@@ -260,7 +260,7 @@
 	}
 
 	.modal-footer {
-		@apply px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-b-xl;
+		@apply px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl;
 	}
 
 	.footer-actions {

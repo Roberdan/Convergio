@@ -132,13 +132,13 @@
 	}
 </script>
 
-<div class="analytics-dashboard bg-white dark:bg-surface-950 rounded-xl shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden">
+<div class="analytics-dashboard bg-white rounded-xl shadow-sm border border-surface-200  overflow-hidden">
 	<!-- Header -->
-	<div class="p-6 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+	<div class="p-6 border-b border-surface-200  bg-surface-50 ">
 		<div class="flex items-center justify-between">
 			<div>
-				<h3 class="text-lg font-semibold text-surface-900 dark:text-surface-100">Project Analytics</h3>
-				<p class="text-sm text-surface-600 dark:text-surface-400">Performance metrics, insights, and predictive analytics</p>
+				<h3 class="text-lg font-semibold text-surface-900 ">Project Analytics</h3>
+				<p class="text-sm text-surface-600 ">Performance metrics, insights, and predictive analytics</p>
 			</div>
 			<div class="flex items-center space-x-3">
 				<select bind:value={selectedMetric} class="input input-sm">
@@ -167,32 +167,32 @@
 			{#if selectedMetric === 'overview'}
 				<!-- Overview Metrics -->
 				<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-					<div class="metric-card p-4 border border-surface-200 dark:border-surface-700 rounded-lg">
+					<div class="metric-card p-4 border border-surface-200  rounded-lg">
 						<div class="text-xs text-surface-500 mb-1">Velocity</div>
 						<div class="text-2xl font-bold {getMetricColor(metrics.velocity, true)}">{metrics.velocity}</div>
 						<div class="text-xs text-surface-400">story points/sprint</div>
 					</div>
-					<div class="metric-card p-4 border border-surface-200 dark:border-surface-700 rounded-lg">
+					<div class="metric-card p-4 border border-surface-200  rounded-lg">
 						<div class="text-xs text-surface-500 mb-1">Burn Rate</div>
-						<div class="text-2xl font-bold text-surface-900 dark:text-surface-100">{formatCurrency(metrics.burnRate)}</div>
+						<div class="text-2xl font-bold text-surface-900 ">{formatCurrency(metrics.burnRate)}</div>
 						<div class="text-xs text-surface-400">per sprint</div>
 					</div>
-					<div class="metric-card p-4 border border-surface-200 dark:border-surface-700 rounded-lg">
+					<div class="metric-card p-4 border border-surface-200  rounded-lg">
 						<div class="text-xs text-surface-500 mb-1">Cycle Time</div>
 						<div class="text-2xl font-bold {getMetricColor(100 - metrics.cycleTime * 10, true)}">{metrics.cycleTime}</div>
 						<div class="text-xs text-surface-400">days</div>
 					</div>
-					<div class="metric-card p-4 border border-surface-200 dark:border-surface-700 rounded-lg">
+					<div class="metric-card p-4 border border-surface-200  rounded-lg">
 						<div class="text-xs text-surface-500 mb-1">Lead Time</div>
 						<div class="text-2xl font-bold {getMetricColor(100 - metrics.leadTime * 10, true)}">{metrics.leadTime}</div>
 						<div class="text-xs text-surface-400">days</div>
 					</div>
-					<div class="metric-card p-4 border border-surface-200 dark:border-surface-700 rounded-lg">
+					<div class="metric-card p-4 border border-surface-200  rounded-lg">
 						<div class="text-xs text-surface-500 mb-1">Team Utilization</div>
 						<div class="text-2xl font-bold {getMetricColor(metrics.teamUtilization, true)}">{metrics.teamUtilization}%</div>
 						<div class="text-xs text-surface-400">capacity used</div>
 					</div>
-					<div class="metric-card p-4 border border-surface-200 dark:border-surface-700 rounded-lg">
+					<div class="metric-card p-4 border border-surface-200  rounded-lg">
 						<div class="text-xs text-surface-500 mb-1">ROI</div>
 						<div class="text-2xl font-bold {getMetricColor(metrics.roi, true)}">{metrics.roi}%</div>
 						<div class="text-xs text-surface-400">return on investment</div>
@@ -207,11 +207,11 @@
 						</div>
 						<div class="card-content space-y-3">
 							<div class="flex items-center justify-between">
-								<span class="text-sm text-surface-600 dark:text-surface-400">Defect Rate</span>
+								<span class="text-sm text-surface-600 ">Defect Rate</span>
 								<span class="text-sm font-medium {getMetricColor(100 - metrics.defectRate * 10, false)}">{metrics.defectRate}%</span>
 							</div>
 							<div class="flex items-center justify-between">
-								<span class="text-sm text-surface-600 dark:text-surface-400">Rework</span>
+								<span class="text-sm text-surface-600 ">Rework</span>
 								<span class="text-sm font-medium {getMetricColor(100 - metrics.reworkPercentage * 2, false)}">{metrics.reworkPercentage}%</span>
 							</div>
 						</div>
@@ -223,10 +223,10 @@
 						</div>
 						<div class="card-content space-y-3">
 							<div class="flex items-center justify-between">
-								<span class="text-sm text-surface-600 dark:text-surface-400">AI Utilization</span>
+								<span class="text-sm text-surface-600 ">AI Utilization</span>
 								<span class="text-sm font-medium {getMetricColor(metrics.aiUtilization, true)}">{metrics.aiUtilization}%</span>
 							</div>
-							<div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
+							<div class="w-full bg-surface-200  rounded-full h-2">
 								<div class="bg-purple-500 h-2 rounded-full transition-all duration-500" style="width: {metrics.aiUtilization}%"></div>
 							</div>
 						</div>
@@ -238,7 +238,7 @@
 						</div>
 						<div class="card-content">
 							<div class="flex items-center justify-between mb-2">
-								<span class="text-sm text-surface-600 dark:text-surface-400">Risk Score</span>
+								<span class="text-sm text-surface-600 ">Risk Score</span>
 								<span class="px-2 py-1 rounded-full text-xs font-medium border {getRiskColor(metrics.riskScore)}">
 									{metrics.riskScore}
 								</span>
@@ -257,7 +257,7 @@
 							<h4 class="font-semibold">Velocity Trend</h4>
 						</div>
 						<div class="card-content">
-							<div class="chart-container h-32 bg-surface-50 dark:bg-surface-900 rounded-lg flex items-center justify-center">
+							<div class="chart-container h-32 bg-surface-50  rounded-lg flex items-center justify-center">
 								<div class="text-surface-500 text-sm">📈 Velocity trending upward (+12% this sprint)</div>
 							</div>
 						</div>
@@ -268,7 +268,7 @@
 							<h4 class="font-semibold">Burndown Progress</h4>
 						</div>
 						<div class="card-content">
-							<div class="chart-container h-32 bg-surface-50 dark:bg-surface-900 rounded-lg flex items-center justify-center">
+							<div class="chart-container h-32 bg-surface-50  rounded-lg flex items-center justify-center">
 								<div class="text-surface-500 text-sm">📉 On track (3% ahead of schedule)</div>
 							</div>
 						</div>
@@ -281,16 +281,16 @@
 					<div class="card">
 						<div class="card-header">
 							<h4 class="font-semibold">Sprint Velocity Analysis</h4>
-							<p class="text-sm text-surface-600 dark:text-surface-400">Story points completed per sprint</p>
+							<p class="text-sm text-surface-600 ">Story points completed per sprint</p>
 						</div>
 						<div class="card-content">
-							<div class="chart-container h-64 bg-surface-50 dark:bg-surface-900 rounded-lg p-4">
+							<div class="chart-container h-64 bg-surface-50  rounded-lg p-4">
 								<div class="grid grid-cols-6 gap-4 h-full">
 									{#each velocityData as data, i}
 										<div class="flex flex-col items-center justify-end space-y-2">
 											<div class="text-xs text-surface-500">{data.value}</div>
 											<div class="w-full bg-primary-500 rounded-t" style="height: {(data.value / 40) * 100}%"></div>
-											<div class="w-full h-1 bg-surface-300 dark:bg-surface-600 rounded" style="height: {((data.target || 0) / 40) * 100}%"></div>
+											<div class="w-full h-1 bg-surface-300 rounded" style="height: {((data.target || 0) / 40) * 100}%"></div>
 											<div class="text-xs text-surface-400 transform rotate-45 origin-left">{data.date.slice(5)}</div>
 										</div>
 									{/each}
@@ -310,7 +310,7 @@
 						<div class="card-content">
 							<div class="space-y-4">
 								{#each teamPerformance as member}
-									<div class="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-900 rounded-lg">
+									<div class="flex items-center justify-between p-4 bg-surface-50  rounded-lg">
 										<div class="flex items-center space-x-3">
 											<div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
 												<span class="text-white font-semibold text-sm">
@@ -318,14 +318,14 @@
 												</span>
 											</div>
 											<div>
-												<div class="font-medium text-surface-900 dark:text-surface-100">{member.name}</div>
-												<div class="text-sm text-surface-600 dark:text-surface-400">{member.hoursLogged}h logged</div>
+												<div class="font-medium text-surface-900 ">{member.name}</div>
+												<div class="text-sm text-surface-600 ">{member.hoursLogged}h logged</div>
 											</div>
 										</div>
 										<div class="grid grid-cols-2 gap-6 text-center">
 											<div>
 												<div class="text-sm text-surface-500">Tasks</div>
-												<div class="font-semibold text-surface-900 dark:text-surface-100">{member.tasksCompleted}</div>
+												<div class="font-semibold text-surface-900 ">{member.tasksCompleted}</div>
 											</div>
 											<div>
 												<div class="text-sm text-surface-500">Efficiency</div>
@@ -349,15 +349,15 @@
 							</div>
 							<div class="card-content space-y-4">
 								<div class="flex items-center justify-between">
-									<span class="text-sm text-surface-600 dark:text-surface-400">Defect Rate</span>
+									<span class="text-sm text-surface-600 ">Defect Rate</span>
 									<span class="text-lg font-semibold {getMetricColor(100 - metrics.defectRate * 10, false)}">{metrics.defectRate}%</span>
 								</div>
 								<div class="flex items-center justify-between">
-									<span class="text-sm text-surface-600 dark:text-surface-400">Rework Percentage</span>
+									<span class="text-sm text-surface-600 ">Rework Percentage</span>
 									<span class="text-lg font-semibold {getMetricColor(100 - metrics.reworkPercentage * 2, false)}">{metrics.reworkPercentage}%</span>
 								</div>
 								<div class="flex items-center justify-between">
-									<span class="text-sm text-surface-600 dark:text-surface-400">Code Coverage</span>
+									<span class="text-sm text-surface-600 ">Code Coverage</span>
 									<span class="text-lg font-semibold text-success-600">87%</span>
 								</div>
 							</div>
@@ -369,15 +369,15 @@
 							</div>
 							<div class="card-content space-y-4">
 								<div class="flex items-center justify-between">
-									<span class="text-sm text-surface-600 dark:text-surface-400">Cycle Time</span>
+									<span class="text-sm text-surface-600 ">Cycle Time</span>
 									<span class="text-lg font-semibold {getMetricColor(100 - metrics.cycleTime * 10, true)}">{metrics.cycleTime} days</span>
 								</div>
 								<div class="flex items-center justify-between">
-									<span class="text-sm text-surface-600 dark:text-surface-400">Lead Time</span>
+									<span class="text-sm text-surface-600 ">Lead Time</span>
 									<span class="text-lg font-semibold {getMetricColor(100 - metrics.leadTime * 10, true)}">{metrics.leadTime} days</span>
 								</div>
 								<div class="flex items-center justify-between">
-									<span class="text-sm text-surface-600 dark:text-surface-400">Deployment Frequency</span>
+									<span class="text-sm text-surface-600 ">Deployment Frequency</span>
 									<span class="text-lg font-semibold text-success-600">2.3/week</span>
 								</div>
 							</div>

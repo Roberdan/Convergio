@@ -106,8 +106,8 @@
       case 'healthy': return 'text-green-500';
       case 'degraded': return 'text-yellow-500';
       case 'unhealthy': return 'text-red-500';
-      case 'checking': return 'text-surface-500 dark:text-surface-500';
-      default: return 'text-surface-500 dark:text-surface-500';
+      case 'checking': return 'text-surface-500';
+      default: return 'text-surface-500';
     }
   }
 
@@ -138,24 +138,24 @@
   </div>
 
   {#if showDetails}
-    <div class="health-details mt-2 p-2 bg-surface-900 dark:bg-surface-100 dark:bg-gray-800 rounded text-xs">
+    <div class="health-details mt-2 p-2 bg-surface-50 rounded text-xs">
       <div class="grid grid-cols-3 gap-2">
         <div class="tool-status">
-          <span class="block text-surface-400 dark:text-surface-600 dark:text-gray-400">Web Search</span>
+          <span class="block text-surface-600">Web Search</span>
           <span class="{$health.tools.web_search ? 'text-green-500' : 'text-red-500'}">
             {$health.tools.web_search ? '✓' : '✗'}
           </span>
         </div>
         
         <div class="tool-status">
-          <span class="block text-surface-400 dark:text-surface-600 dark:text-gray-400">Vector DB</span>
+          <span class="block text-surface-600">Vector DB</span>
           <span class="{$health.tools.vector_search ? 'text-green-500' : 'text-red-500'}">
             {$health.tools.vector_search ? '✓' : '✗'}
           </span>
         </div>
         
         <div class="tool-status">
-          <span class="block text-surface-400 dark:text-surface-600 dark:text-gray-400">Database</span>
+          <span class="block text-surface-600">Database</span>
           <span class="{$health.tools.database ? 'text-green-500' : 'text-red-500'}">
             {$health.tools.database ? '✓' : '✗'}
           </span>
@@ -163,12 +163,12 @@
       </div>
       
       {#if $health.message}
-        <div class="mt-2 text-surface-400 dark:text-surface-600 dark:text-gray-400">
+        <div class="mt-2 text-surface-600">
           {$health.message}
         </div>
       {/if}
       
-      <div class="mt-1 text-surface-500 dark:text-surface-500 dark:text-surface-500 dark:text-surface-500">
+      <div class="mt-1 text-surface-500">
         Last check: {$health.lastCheck.toLocaleTimeString()}
       </div>
     </div>

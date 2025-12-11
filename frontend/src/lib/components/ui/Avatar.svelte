@@ -44,8 +44,8 @@
 		sizeClasses[size],
 		status ? statusClasses[status] : '',
 		squared ? 'rounded-lg' : '', // Override rounded-full from base avatar
-		bordered ? 'ring-4 ring-white dark:ring-gray-800' : '',
-		'relative overflow-hidden bg-gray-100 dark:bg-gray-800'
+		bordered ? 'ring-4 ring-white' : '',
+		'relative overflow-hidden bg-gray-100'
 	].filter(Boolean).join(' ');
 
 	// Generate initials from fallback text
@@ -80,7 +80,7 @@
 		/>
 	{:else if initials}
 		<div class="avatar-fallback w-full h-full flex items-center justify-center">
-			<span class="avatar-initials text-gray-600 dark:text-gray-300 font-medium select-none">
+			<span class="avatar-initials text-gray-600 font-medium select-none">
 				{initials}
 			</span>
 		</div>

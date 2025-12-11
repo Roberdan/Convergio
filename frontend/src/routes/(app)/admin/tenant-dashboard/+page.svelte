@@ -206,8 +206,8 @@
       case 'active': return 'text-green-600 bg-green-50';
       case 'trial': return 'text-blue-600 bg-blue-50';
       case 'suspended': return 'text-red-600 bg-red-50';
-      case 'cancelled': return 'text-surface-400 dark:text-surface-600 bg-surface-900 dark:bg-surface-100';
-      default: return 'text-surface-400 dark:text-surface-600 bg-surface-900 dark:bg-surface-100';
+      case 'cancelled': return 'text-surface-600 bg-surface-50';
+      default: return 'text-surface-600 bg-surface-50';
     }
   }
   
@@ -215,8 +215,8 @@
     switch (plan) {
       case 'enterprise': return 'text-purple-600 bg-purple-50';
       case 'professional': return 'text-indigo-600 bg-indigo-50';
-      case 'free': return 'text-surface-400 dark:text-surface-600 bg-surface-900 dark:bg-surface-100';
-      default: return 'text-surface-400 dark:text-surface-600 bg-surface-900 dark:bg-surface-100';
+      case 'free': return 'text-surface-600 bg-surface-50';
+      default: return 'text-surface-600 bg-surface-50';
     }
   }
   
@@ -245,35 +245,35 @@
 <div class="p-6">
   <!-- Header -->
   <div class="mb-6">
-    <h1 class="text-2xl font-bold text-surface-100 dark:text-surface-900">Tenant Dashboard</h1>
-    <p class="text-surface-400 dark:text-surface-600">Manage multi-tenant subscriptions and usage</p>
+    <h1 class="text-2xl font-bold text-surface-900">Tenant Dashboard</h1>
+    <p class="text-surface-600">Manage multi-tenant subscriptions and usage</p>
   </div>
   
   <!-- Summary Cards -->
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-4">
-      <div class="text-sm text-surface-400 dark:text-surface-600">Total Tenants</div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-sm text-surface-600">Total Tenants</div>
       <div class="text-2xl font-bold">{$tenants.length}</div>
     </div>
     
-    <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-4">
-      <div class="text-sm text-surface-400 dark:text-surface-600">Active Tenants</div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-sm text-surface-600">Active Tenants</div>
       <div class="text-2xl font-bold text-green-600">{activeTenantsCount}</div>
     </div>
     
-    <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-4">
-      <div class="text-sm text-surface-400 dark:text-surface-600">Trial Tenants</div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-sm text-surface-600">Trial Tenants</div>
       <div class="text-2xl font-bold text-blue-600">{trialTenantsCount}</div>
     </div>
     
-    <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-4">
-      <div class="text-sm text-surface-400 dark:text-surface-600">Monthly Revenue</div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="text-sm text-surface-600">Monthly Revenue</div>
       <div class="text-2xl font-bold text-purple-600">${totalRevenue.toFixed(2)}</div>
     </div>
   </div>
   
   <!-- Filters and Actions -->
-  <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-4 mb-6">
+  <div class="bg-white rounded-lg shadow p-4 mb-6">
     <div class="flex flex-wrap gap-4 items-center">
       <input
         type="text"
@@ -305,7 +305,7 @@
       
       <button
         on:click={() => showCreateModal = true}
-        class="px-4 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-blue-700"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
       >
         Create Tenant
       </button>
@@ -313,30 +313,30 @@
   </div>
   
   <!-- Tenants Table -->
-  <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow overflow-hidden">
+  <div class="bg-white rounded-lg shadow overflow-hidden">
     {#if loading}
-      <div class="p-8 text-center text-surface-500 dark:text-surface-500">Loading tenants...</div>
+      <div class="p-8 text-center text-surface-500">Loading tenants...</div>
     {:else if filteredTenants.length === 0}
-      <div class="p-8 text-center text-surface-500 dark:text-surface-500">No tenants found</div>
+      <div class="p-8 text-center text-surface-500">No tenants found</div>
     {:else}
       <table class="w-full">
-        <thead class="bg-surface-900 dark:bg-surface-100">
+        <thead class="bg-surface-50">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Tenant</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Status</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Plan</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Usage</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Cost</th>
-            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 dark:text-surface-500 uppercase">Actions</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 uppercase">Tenant</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 uppercase">Status</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 uppercase">Plan</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 uppercase">Usage</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 uppercase">Cost</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-surface-500 uppercase">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           {#each filteredTenants as tenant}
-            <tr class="hover:bg-surface-900 dark:bg-surface-100 cursor-pointer" on:click={() => selectTenant(tenant)}>
+            <tr class="hover:bg-surface-50 cursor-pointer" on:click={() => selectTenant(tenant)}>
               <td class="px-4 py-3">
                 <div>
-                  <div class="font-medium text-surface-100 dark:text-surface-900">{tenant.name}</div>
-                  <div class="text-sm text-surface-500 dark:text-surface-500">ID: {tenant.id}</div>
+                  <div class="font-medium text-surface-900">{tenant.name}</div>
+                  <div class="text-sm text-surface-500">ID: {tenant.id}</div>
                 </div>
               </td>
               
@@ -355,8 +355,8 @@
               <td class="px-4 py-3">
                 <div class="space-y-1">
                   <div class="flex items-center gap-2">
-                    <span class="text-xs text-surface-500 dark:text-surface-500">Users:</span>
-                    <div class="flex-1 bg-surface-700 dark:bg-surface-300 rounded-full h-2 max-w-[100px]">
+                    <span class="text-xs text-surface-500">Users:</span>
+                    <div class="flex-1 bg-surface-200 rounded-full h-2 max-w-[100px]">
                       <div 
                         class="h-2 rounded-full {getUsageColor(getUsagePercentage(tenant.current_users, tenant.max_users))}"
                         style="width: {getUsagePercentage(tenant.current_users, tenant.max_users)}%"
@@ -366,8 +366,8 @@
                   </div>
                   
                   <div class="flex items-center gap-2">
-                    <span class="text-xs text-surface-500 dark:text-surface-500">API:</span>
-                    <div class="flex-1 bg-surface-700 dark:bg-surface-300 rounded-full h-2 max-w-[100px]">
+                    <span class="text-xs text-surface-500">API:</span>
+                    <div class="flex-1 bg-surface-200 rounded-full h-2 max-w-[100px]">
                       <div 
                         class="h-2 rounded-full {getUsageColor(getUsagePercentage(tenant.current_api_calls, tenant.max_api_calls))}"
                         style="width: {getUsagePercentage(tenant.current_api_calls, tenant.max_api_calls)}%"
@@ -381,7 +381,7 @@
               <td class="px-4 py-3">
                 <div>
                   <div class="font-medium">${tenant.total_cost.toFixed(2)}</div>
-                  <div class="text-xs text-surface-500 dark:text-surface-500">{tenant.billing_period}</div>
+                  <div class="text-xs text-surface-500">{tenant.billing_period}</div>
                 </div>
               </td>
               
@@ -421,7 +421,7 @@
                   
                   <button
                     on:click|stopPropagation={() => exportTenantData(tenant.id, 'csv')}
-                    class="text-surface-400 dark:text-surface-600 hover:text-surface-200 dark:text-surface-800"
+                    class="text-surface-600 hover:text-surface-800"
                     aria-label="Export CSV"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -439,20 +439,20 @@
   
   <!-- Selected Tenant Details -->
   {#if $selectedTenant}
-    <div class="mt-6 bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-6">
+    <div class="mt-6 bg-white rounded-lg shadow p-6">
       <h2 class="text-lg font-semibold mb-4">Tenant Details: {$selectedTenant.name}</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Usage Metrics -->
         <div>
-          <h3 class="text-sm font-medium text-surface-300 dark:text-surface-700 mb-3">Usage Metrics</h3>
+          <h3 class="text-sm font-medium text-surface-600 mb-3">Usage Metrics</h3>
           <div class="space-y-3">
             <div>
               <div class="flex justify-between text-sm mb-1">
                 <span>Users</span>
                 <span>{$selectedTenant.current_users} / {$selectedTenant.max_users}</span>
               </div>
-              <div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-2">
+              <div class="w-full bg-surface-200 rounded-full h-2">
                 <div 
                   class="h-2 rounded-full {getUsageColor(getUsagePercentage($selectedTenant.current_users, $selectedTenant.max_users))}"
                   style="width: {getUsagePercentage($selectedTenant.current_users, $selectedTenant.max_users)}%"
@@ -465,7 +465,7 @@
                 <span>Projects</span>
                 <span>{$selectedTenant.current_projects} / {$selectedTenant.max_projects}</span>
               </div>
-              <div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-2">
+              <div class="w-full bg-surface-200 rounded-full h-2">
                 <div 
                   class="h-2 rounded-full {getUsageColor(getUsagePercentage($selectedTenant.current_projects, $selectedTenant.max_projects))}"
                   style="width: {getUsagePercentage($selectedTenant.current_projects, $selectedTenant.max_projects)}%"
@@ -478,7 +478,7 @@
                 <span>AI Tokens</span>
                 <span>{$selectedTenant.current_ai_tokens.toLocaleString()} / {$selectedTenant.max_ai_tokens.toLocaleString()}</span>
               </div>
-              <div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-2">
+              <div class="w-full bg-surface-200 rounded-full h-2">
                 <div 
                   class="h-2 rounded-full {getUsageColor(getUsagePercentage($selectedTenant.current_ai_tokens, $selectedTenant.max_ai_tokens))}"
                   style="width: {getUsagePercentage($selectedTenant.current_ai_tokens, $selectedTenant.max_ai_tokens)}%"
@@ -490,18 +490,18 @@
         
         <!-- Billing Information -->
         <div>
-          <h3 class="text-sm font-medium text-surface-300 dark:text-surface-700 mb-3">Billing Information</h3>
+          <h3 class="text-sm font-medium text-surface-600 mb-3">Billing Information</h3>
           <div class="space-y-2">
             <div class="flex justify-between text-sm">
-              <span class="text-surface-400 dark:text-surface-600">Monthly Base Cost:</span>
+              <span class="text-surface-600">Monthly Base Cost:</span>
               <span class="font-medium">${$selectedTenant.monthly_cost.toFixed(2)}</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-surface-400 dark:text-surface-600">Usage Charges:</span>
+              <span class="text-surface-600">Usage Charges:</span>
               <span class="font-medium">${$selectedTenant.usage_charges.toFixed(2)}</span>
             </div>
             <div class="flex justify-between text-sm pt-2 border-t">
-              <span class="text-surface-100 dark:text-surface-900 font-medium">Total Cost:</span>
+              <span class="text-surface-900 font-medium">Total Cost:</span>
               <span class="font-bold text-lg">${$selectedTenant.total_cost.toFixed(2)}</span>
             </div>
           </div>
@@ -523,16 +523,16 @@
       <!-- Usage History Chart -->
       {#if $usageMetrics.length > 0}
         <div class="mt-6">
-          <h3 class="text-sm font-medium text-surface-300 dark:text-surface-700 mb-3">Usage History (Last 30 Days)</h3>
+          <h3 class="text-sm font-medium text-surface-600 mb-3">Usage History (Last 30 Days)</h3>
           <div class="border rounded-lg p-4">
             <!-- Simple usage chart visualization -->
             <div class="space-y-2">
               {#each $usageMetrics.slice(-7) as metric}
                 <div class="flex items-center gap-4 text-sm">
-                  <span class="w-24 text-surface-400 dark:text-surface-600">{new Date(metric.date).toLocaleDateString()}</span>
+                  <span class="w-24 text-surface-600">{new Date(metric.date).toLocaleDateString()}</span>
                   <div class="flex-1 flex items-center gap-2">
                     <span class="text-xs">API:</span>
-                    <div class="flex-1 bg-surface-700 dark:bg-surface-300 rounded h-4 relative">
+                    <div class="flex-1 bg-surface-200 rounded h-4 relative">
                       <div 
                         class="absolute inset-y-0 left-0 bg-blue-500 rounded"
                         style="width: {Math.min(100, (metric.api_calls / $selectedTenant.max_api_calls) * 100)}%"
@@ -542,7 +542,7 @@
                       </span>
                     </div>
                   </div>
-                  <span class="text-surface-300 dark:text-surface-700 font-medium">${metric.cost.toFixed(2)}</span>
+                  <span class="text-surface-600 font-medium">${metric.cost.toFixed(2)}</span>
                 </div>
               {/each}
             </div>
@@ -555,14 +555,14 @@
   <!-- Create/Edit Modal -->
   {#if showCreateModal || showEditModal}
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-surface-950 dark:bg-surface-50 rounded-lg p-6 max-w-md w-full">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full">
         <h2 class="text-lg font-semibold mb-4">
           {showCreateModal ? 'Create New Tenant' : 'Edit Tenant'}
         </h2>
         
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+            <label class="block text-sm font-medium text-surface-600 mb-1">
               Tenant Name
             </label>
             <input
@@ -574,7 +574,7 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+            <label class="block text-sm font-medium text-surface-600 mb-1">
               Status
             </label>
             <select bind:value={formData.status} class="w-full px-3 py-2 border rounded-lg">
@@ -586,7 +586,7 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+            <label class="block text-sm font-medium text-surface-600 mb-1">
               Subscription Plan
             </label>
             <select bind:value={formData.subscription_plan} class="w-full px-3 py-2 border rounded-lg">
@@ -597,7 +597,7 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+            <label class="block text-sm font-medium text-surface-600 mb-1">
               Billing Period
             </label>
             <select bind:value={formData.billing_period} class="w-full px-3 py-2 border rounded-lg">
@@ -608,7 +608,7 @@
           
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+              <label class="block text-sm font-medium text-surface-600 mb-1">
                 Max Users
               </label>
               <input
@@ -619,7 +619,7 @@
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+              <label class="block text-sm font-medium text-surface-600 mb-1">
                 Max Projects
               </label>
               <input
@@ -632,7 +632,7 @@
           
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+              <label class="block text-sm font-medium text-surface-600 mb-1">
                 Max API Calls
               </label>
               <input
@@ -643,7 +643,7 @@
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+              <label class="block text-sm font-medium text-surface-600 mb-1">
                 Max AI Tokens
               </label>
               <input
@@ -662,14 +662,14 @@
               showEditModal = false;
               resetForm();
             }}
-            class="px-4 py-2 text-surface-300 dark:text-surface-700 border rounded-lg hover:bg-surface-900 dark:bg-surface-100"
+            class="px-4 py-2 text-surface-600 border rounded-lg hover:bg-surface-50"
           >
             Cancel
           </button>
           
           <button
             on:click={showCreateModal ? createTenant : updateTenant}
-            class="px-4 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-blue-700"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             {showCreateModal ? 'Create' : 'Update'}
           </button>

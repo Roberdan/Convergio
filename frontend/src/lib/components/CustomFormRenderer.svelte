@@ -228,7 +228,7 @@
     {#each sortedFields as field (field.name)}
       <div class="{getFieldWidth(field)} form-field">
         {#if showLabels}
-          <label for={field.name} class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+          <label for={field.name} class="block text-sm font-medium text-surface-600 mb-1">
             {field.label}
             {#if field.required}
               <span class="text-red-500">*</span>
@@ -247,11 +247,11 @@
             placeholder={field.placeholder}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           />
           {#if field.uiConfig?.showCharCount && field.validation?.maxLength}
-            <div class="text-xs text-surface-500 dark:text-surface-500 mt-1">
+            <div class="text-xs text-surface-500 mt-1">
               {formData[field.name]?.length || 0} / {field.validation.maxLength}
             </div>
           {/if}
@@ -269,14 +269,14 @@
             placeholder={field.placeholder}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           />
         
         <!-- Currency Input -->
         {:else if field.type === 'currency'}
           <div class="relative">
-            <span class="absolute left-3 top-2 text-surface-500 dark:text-surface-500">
+            <span class="absolute left-3 top-2 text-surface-500">
               {field.uiConfig?.currencySymbol || '$'}
             </span>
             <input
@@ -291,8 +291,8 @@
               placeholder={field.placeholder}
               disabled={readonly}
               class="w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                     {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                     {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                     {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                     {readonly ? 'bg-surface-100' : ''}"
             />
           </div>
         
@@ -310,10 +310,10 @@
               placeholder={field.placeholder}
               disabled={readonly}
               class="w-full pr-8 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                     {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                     {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                     {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                     {readonly ? 'bg-surface-100' : ''}"
             />
-            <span class="absolute right-3 top-2 text-surface-500 dark:text-surface-500">%</span>
+            <span class="absolute right-3 top-2 text-surface-500">%</span>
           </div>
         
         <!-- Date Input -->
@@ -326,8 +326,8 @@
             on:blur={() => handleBlur(field.name)}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           />
         
         <!-- DateTime Input -->
@@ -340,8 +340,8 @@
             on:blur={() => handleBlur(field.name)}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           />
         
         <!-- Select Dropdown -->
@@ -353,8 +353,8 @@
             on:blur={() => handleBlur(field.name)}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           >
             <option value="">Select {field.label}</option>
             {#each field.options || [] as option}
@@ -366,7 +366,7 @@
         
         <!-- Multi-Select -->
         {:else if field.type === 'multiselect'}
-          <div class="border rounded-lg p-2 {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}">
+          <div class="border rounded-lg p-2 {errors[field.name] ? 'border-red-500' : 'border-surface-300'}">
             {#each field.options || [] as option}
               <label class="flex items-center gap-2 py-1">
                 <input
@@ -397,9 +397,9 @@
               checked={formData[field.name] || false}
               on:change={(e) => handleChange(field.name, (e.target as HTMLInputElement).checked)}
               disabled={readonly}
-              class="w-4 h-4 text-blue-600 border-surface-600 dark:border-surface-400 rounded focus:ring-blue-500"
+              class="w-4 h-4 text-blue-600 border-surface-300 rounded focus:ring-blue-500"
             />
-            <span class="text-sm text-surface-300 dark:text-surface-700">{field.placeholder || field.label}</span>
+            <span class="text-sm text-surface-600">{field.placeholder || field.label}</span>
           </label>
         
         <!-- Email Input -->
@@ -413,8 +413,8 @@
             placeholder={field.placeholder || 'email@example.com'}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           />
         
         <!-- Phone Input -->
@@ -428,8 +428,8 @@
             placeholder={field.placeholder || '+1 (555) 000-0000'}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           />
         
         <!-- URL Input -->
@@ -443,8 +443,8 @@
             placeholder={field.placeholder || 'https://example.com'}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           />
         
         <!-- Textarea -->
@@ -458,11 +458,11 @@
             placeholder={field.placeholder}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           ></textarea>
           {#if field.uiConfig?.showCharCount && field.validation?.maxLength}
-            <div class="text-xs text-surface-500 dark:text-surface-500 mt-1">
+            <div class="text-xs text-surface-500 mt-1">
               {formData[field.name]?.length || 0} / {field.validation.maxLength}
             </div>
           {/if}
@@ -475,14 +475,14 @@
             on:change={(e) => handleChange(field.name, (e.target as HTMLInputElement).files?.[0])}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
-                   {errors[field.name] ? 'border-red-500' : 'border-surface-600 dark:border-surface-400'}
-                   {readonly ? 'bg-surface-800 dark:bg-surface-200' : ''}"
+                   {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
+                   {readonly ? 'bg-surface-100' : ''}"
           />
         {/if}
         
         <!-- Help Text -->
         {#if field.helpText}
-          <p class="text-xs text-surface-500 dark:text-surface-500 mt-1">{field.helpText}</p>
+          <p class="text-xs text-surface-500 mt-1">{field.helpText}</p>
         {/if}
         
         <!-- Error Message -->

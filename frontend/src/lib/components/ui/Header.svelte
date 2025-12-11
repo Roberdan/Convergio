@@ -178,7 +178,7 @@
 
 					<div class="menu-divider" role="none"></div>
 
-					<button type="button" class="menu-item text-error-600 dark:text-error-400" role="menuitem">
+					<button type="button" class="menu-item text-error-600" role="menuitem">
 						<span class="icon-logout" aria-hidden="true"></span>
 						Sign Out
 					</button>
@@ -211,7 +211,7 @@
 	}
 
 	.header-title {
-		@apply text-xl font-semibold text-gray-900 dark:text-gray-100 truncate;
+		@apply text-xl font-semibold text-gray-900 truncate;
 		font-family: var(--font-primary);
 	}
 
@@ -232,7 +232,7 @@
 	}
 
 	.user-menu-trigger {
-		@apply flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+		@apply flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
 	}
 
 	.dark .user-menu-trigger:focus {
@@ -248,7 +248,7 @@
 	}
 
 	.user-menu-dropdown {
-		@apply absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 py-2;
+		@apply absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-50 py-2;
 		box-shadow: var(--shadow-xl);
 		animation: fadeInDown 0.2s ease-out;
 	}
@@ -262,21 +262,21 @@
 	}
 
 	.user-name {
-		@apply text-sm font-medium text-gray-900 dark:text-gray-100;
+		@apply text-sm font-medium text-gray-900;
 		font-family: var(--font-primary);
 	}
 
 	.user-email {
-		@apply text-xs text-gray-500 dark:text-gray-400;
+		@apply text-xs text-gray-500;
 		font-family: var(--font-primary);
 	}
 
 	.menu-divider {
-		@apply border-t border-gray-200 dark:border-gray-700 my-1;
+		@apply border-t border-gray-200 my-1;
 	}
 
 	.menu-item {
-		@apply w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700;
+		@apply w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:bg-gray-100;
 		font-family: var(--font-primary);
 	}
 

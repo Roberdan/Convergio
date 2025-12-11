@@ -223,30 +223,30 @@
   }
 </script>
 
-<div class="fixed inset-0 bg-surface-900 dark:bg-surface-100 bg-opacity-50 z-50 flex">
+<div class="fixed inset-0 bg-surface-50 bg-opacity-50 z-50 flex">
   <!-- Editor Container -->
-  <div class="flex-1 bg-surface-950 dark:bg-surface-50 flex flex-col">
+  <div class="flex-1 bg-white flex flex-col">
     <!-- Header -->
-    <div class="bg-surface-800 dark:bg-surface-200 text-surface-950 dark:text-surface-50 px-6 py-4 flex items-center justify-between">
+    <div class="bg-surface-100 text-white px-6 py-4 flex items-center justify-between">
       <div class="flex items-center space-x-4">
         <h2 class="text-lg font-medium">AutoGen GraphFlow Editor</h2>
         <input 
           type="text" 
           bind:value={workflow.name}
-          class="px-3 py-1 bg-surface-700 dark:bg-surface-300 text-surface-950 dark:text-surface-50 rounded text-sm"
+          class="px-3 py-1 bg-surface-200 text-white rounded text-sm"
           placeholder="Workflow name"
         />
       </div>
       <div class="flex items-center space-x-3">
         <button 
           on:click={saveWorkflow}
-          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-surface-950 dark:text-surface-50 rounded text-sm"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
         >
           Save Workflow
         </button>
         <button 
           on:click={onClose}
-          class="px-4 py-2 bg-surface-600 dark:bg-surface-400 hover:bg-surface-700 dark:bg-surface-300 text-surface-950 dark:text-surface-50 rounded text-sm"
+          class="px-4 py-2 bg-surface-600 hover:bg-surface-200 text-white rounded text-sm"
         >
           Close
         </button>
@@ -256,13 +256,13 @@
     <!-- Main Editor Area -->
     <div class="flex-1 flex">
       <!-- Agent Palette -->
-      <div class="w-64 bg-surface-800 dark:bg-surface-200 p-4 overflow-y-auto">
-        <h3 class="text-sm font-medium text-surface-100 dark:text-surface-900 mb-3">Available Agents</h3>
+      <div class="w-64 bg-surface-100 p-4 overflow-y-auto">
+        <h3 class="text-sm font-medium text-surface-900 mb-3">Available Agents</h3>
         <div class="space-y-2">
           {#each availableAgents as agent}
             <button 
               on:click={() => addNode(agent)}
-              class="w-full text-left px-3 py-2 bg-surface-950 dark:bg-surface-50 hover:bg-surface-900 dark:bg-surface-100 rounded border border-surface-700 dark:border-surface-300 text-xs"
+              class="w-full text-left px-3 py-2 bg-white hover:bg-surface-50 rounded border border-surface-200 text-xs"
               style="border-left: 4px solid {agent.color}"
             >
               {agent.name}
@@ -270,8 +270,8 @@
           {/each}
         </div>
         
-        <h3 class="text-sm font-medium text-surface-100 dark:text-surface-900 mt-6 mb-3">Instructions</h3>
-        <div class="text-xs text-surface-400 dark:text-surface-600 space-y-2">
+        <h3 class="text-sm font-medium text-surface-900 mt-6 mb-3">Instructions</h3>
+        <div class="text-xs text-surface-600 space-y-2">
           <p>• Click an agent to add it to the workflow</p>
           <p>• Drag nodes to reposition them</p>
           <p>• Click "Connect" then click another node to create a dependency</p>
@@ -283,7 +283,7 @@
       <!-- Canvas -->
       <div 
         bind:this={canvas}
-        class="flex-1 relative bg-surface-900 dark:bg-surface-100 overflow-auto"
+        class="flex-1 relative bg-surface-50 overflow-auto"
         style="background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px); background-size: 20px 20px;"
       >
         <!-- SVG for edges -->
@@ -337,7 +337,7 @@
         <!-- Nodes -->
         {#each workflow.steps as node}
           <div 
-            class="absolute bg-surface-950 dark:bg-surface-50 rounded-lg shadow-lg border-2 p-3 cursor-move select-none"
+            class="absolute bg-white rounded-lg shadow-lg border-2 p-3 cursor-move select-none"
             style="left: {node.x}px; top: {node.y}px; width: 200px; border-color: {node.agent_color || '#6B7280'}"
             on:mousedown={(e) => startNodeDrag(node, e)}
             on:contextmenu|preventDefault={() => deleteNode(node)}
@@ -347,7 +347,7 @@
             on:keydown={(e) => (e.key === 'Delete' || e.key === 'Backspace') && deleteNode(node)}
           >
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-medium text-surface-300 dark:text-surface-700">{node.agent_display || node.agent_name}</span>
+              <span class="text-xs font-medium text-surface-600">{node.agent_display || node.agent_name}</span>
               <select 
                 bind:value={node.step_type}
                 class="text-xs px-1 py-0.5 border rounded"
@@ -391,15 +391,15 @@
       
       <!-- Properties Panel -->
       {#if selectedNode}
-        <div class="w-80 bg-surface-950 dark:bg-surface-50 border-l border-surface-700 dark:border-surface-300 p-4">
-          <h3 class="text-sm font-medium text-surface-100 dark:text-surface-900 mb-4">Node Properties</h3>
+        <div class="w-80 bg-white border-l border-surface-200 p-4">
+          <h3 class="text-sm font-medium text-surface-900 mb-4">Node Properties</h3>
           <div class="space-y-3">
             <div>
-              <label class="text-xs text-surface-400 dark:text-surface-600" for="agent-name">Agent</label>
+              <label class="text-xs text-surface-600" for="agent-name">Agent</label>
               <input id="agent-name" type="text" value={selectedNode.agent_name} class="w-full px-2 py-1 border rounded text-sm" readonly />
             </div>
             <div>
-              <label class="text-xs text-surface-400 dark:text-surface-600" for="node-description">Description</label>
+              <label class="text-xs text-surface-600" for="node-description">Description</label>
               <textarea 
                 id="node-description"
                 bind:value={selectedNode.description}
@@ -408,7 +408,7 @@
               ></textarea>
             </div>
             <div>
-              <label class="text-xs text-surface-400 dark:text-surface-600" for="duration-minutes">Duration (minutes)</label>
+              <label class="text-xs text-surface-600" for="duration-minutes">Duration (minutes)</label>
               <input 
                 id="duration-minutes"
                 type="number"
@@ -417,7 +417,7 @@
               />
             </div>
             <div>
-              <label class="text-xs text-surface-400 dark:text-surface-600" for="node-inputs">Inputs (comma-separated)</label>
+              <label class="text-xs text-surface-600" for="node-inputs">Inputs (comma-separated)</label>
               <input 
                 id="node-inputs"
                 type="text"
@@ -427,7 +427,7 @@
               />
             </div>
             <div>
-              <label class="text-xs text-surface-400 dark:text-surface-600" for="node-outputs">Outputs (comma-separated)</label>
+              <label class="text-xs text-surface-600" for="node-outputs">Outputs (comma-separated)</label>
               <input 
                 id="node-outputs"
                 type="text"
@@ -442,7 +442,7 @@
     </div>
     
     <!-- Status Bar -->
-    <div class="bg-surface-800 dark:bg-surface-200 text-surface-950 dark:text-surface-50 px-6 py-2 text-xs flex items-center justify-between">
+    <div class="bg-surface-100 text-white px-6 py-2 text-xs flex items-center justify-between">
       <span>Nodes: {workflow.steps.length} | Edges: {workflow.edges.length}</span>
       <span>AutoGen GraphFlow - DiGraphBuilder Compatible</span>
     </div>

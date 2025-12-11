@@ -25,39 +25,54 @@ from models.document import Document, DocumentEmbedding
 logger = structlog.get_logger()
 
 
-def safe_run_async(coro):
-    """Safely run async coroutine from sync context.
+def create_sync_db_session():
+    """Create a synchronous database session for use in tools.
 
-    This handles the complex case where we're being called from within
-    an already-running event loop (common in FastAPI/AutoGen contexts).
+    This bypasses the async session factory to avoid event loop conflicts.
+    Uses a synchronous engine and session for simple database queries.
     """
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from core.config import get_settings
+
+    settings = get_settings()
+    sync_db_url = settings.DATABASE_URL_SYNC
+
+    engine = create_engine(sync_db_url)
+    Session = sessionmaker(bind=engine)
+    return Session(), engine
+
+
+def safe_run_sync_query(query_func):
+    """Execute a synchronous database query function.
+
+    Args:
+        query_func: A function that takes (session, connection) and returns a result
+
+    Returns:
+        The result from query_func
+    """
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from core.config import get_settings
+
+    settings = get_settings()
+    sync_db_url = settings.DATABASE_URL_SYNC
+
+    engine = create_engine(sync_db_url)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
     try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        # No running loop - safe to create a new one
-        return asyncio.run(coro)
-
-    # Loop is running - we need to handle this carefully
-    # Using nest_asyncio allows running nested event loops
-    try:
-        import nest_asyncio
-        nest_asyncio.apply()
-        return loop.run_until_complete(coro)
-    except ImportError:
-        # nest_asyncio not available - use thread pool with fresh loop
-        import concurrent.futures
-
-        def run_in_new_loop():
-            new_loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(new_loop)
-            try:
-                return new_loop.run_until_complete(coro)
-            finally:
-                new_loop.close()
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(run_in_new_loop)
-            return future.result(timeout=30)
+        result = query_func(session, engine.connect())
+        session.commit()
+        return result
+    except Exception as e:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+        engine.dispose()
 
 
 class DatabaseTools:
@@ -404,21 +419,35 @@ class DatabaseTools:
             }
 
 
-# Tool functions for agent use
+# Tool functions for agent use - using synchronous queries
 def query_talents_count() -> str:
     """Get the total number of talents and basic statistics"""
     try:
-        result = safe_run_async(DatabaseTools.get_talents_summary())
-        
-        if result["status"] == "success":
-            return f"""✅ TALENT OVERVIEW FROM DATABASE:
-• Total Talents in Database: {result['total_talents']}
-• Active Talents: {result['active_talents']}
-• Admins: {result['admin_count']}
-• Latest Addition: {result['latest_talent'] or 'None'}"""
-        else:
-            return f"❌ Error: {result.get('error', 'Unknown error')}"
-            
+        from sqlalchemy import create_engine, text
+        from core.config import get_settings
+
+        settings = get_settings()
+        engine = create_engine(settings.DATABASE_URL_SYNC)
+
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT COUNT(*) FROM talents WHERE deleted_at IS NULL"))
+            total = result.scalar() or 0
+
+            result = conn.execute(text("SELECT COUNT(*) FROM talents WHERE is_admin = true"))
+            admin_count = result.scalar() or 0
+
+            result = conn.execute(text("SELECT email FROM talents ORDER BY created_at DESC LIMIT 1"))
+            row = result.fetchone()
+            latest = row[0] if row else None
+
+        engine.dispose()
+
+        return f"""✅ TALENT OVERVIEW FROM DATABASE:
+• Total Talents in Database: {total}
+• Active Talents: {total}
+• Admins: {admin_count}
+• Latest Addition: {latest or 'None'}"""
+
     except Exception as e:
         return f"❌ Query failed: {str(e)}"
 
@@ -426,26 +455,43 @@ def query_talents_count() -> str:
 def query_talent_details(username: str) -> str:
     """Get detailed information about a specific talent"""
     try:
-        result = safe_run_async(DatabaseTools.get_talent_by_username(username))
-        
-        if result["status"] == "success":
-            talent = result["talent"]
-            hierarchy = result["hierarchy"]
-            
-            managers = hierarchy.get("managers", [])
-            subordinates = hierarchy.get("subordinates", [])
-            
-            return f"""✅ TALENT PROFILE: {talent['full_name']}
+        from sqlalchemy import create_engine, text
+        from core.config import get_settings
+
+        settings = get_settings()
+        engine = create_engine(settings.DATABASE_URL_SYNC)
+
+        with engine.connect() as conn:
+            result = conn.execute(
+                text("SELECT id, username, full_name, email, position, department, is_active, created_at FROM talents WHERE username = :username"),
+                {"username": username}
+            )
+            row = result.fetchone()
+
+            if not row:
+                engine.dispose()
+                return f"❌ Talent '{username}' not found"
+
+            talent = {
+                "id": row[0],
+                "username": row[1],
+                "full_name": row[2],
+                "email": row[3],
+                "position": row[4],
+                "department": row[5],
+                "is_active": row[6],
+                "created_at": row[7]
+            }
+
+        engine.dispose()
+
+        return f"""✅ TALENT PROFILE: {talent['full_name']}
 • Username: {talent['username']}
 • Position: {talent['position'] or 'Not specified'}
 • Department: {talent['department'] or 'Not assigned'}
 • Email: {talent['email'] or 'Not provided'}
-• Reports to: {managers[0]['full_name'] if managers else 'No manager'}
-• Team Size: {len(subordinates)} direct reports
 • Status: {'Active' if talent['is_active'] else 'Inactive'}"""
-        else:
-            return f"❌ {result.get('error', 'Talent not found')}"
-            
+
     except Exception as e:
         return f"❌ Query failed: {str(e)}"
 
@@ -453,25 +499,47 @@ def query_talent_details(username: str) -> str:
 def query_department_structure(department: str = None) -> str:
     """Get department overview and team structure"""
     try:
-        result = safe_run_async(DatabaseTools.get_department_overview(department))
-        
-        if result["status"] == "success":
-            structure = result["team_structure"]
-            managers = [person for person in structure if person["subordinates_count"] > 0]
-            
-            summary = f"""✅ {result['title'].upper()}:
-• Total People: {result['total_people']}
-• Team Leaders: {len(managers)}"""
-            
-            if managers:
-                summary += "\n\nMANAGERS & TEAMS:"
-                for manager in managers[:5]:  # Show top 5 managers
-                    summary += f"\n• {manager['name']} ({manager['position']}): {manager['subordinates_count']} reports"
-                    
-            return summary
-        else:
-            return f"❌ {result.get('error', 'Department query failed')}"
-            
+        from sqlalchemy import create_engine, text
+        from core.config import get_settings
+
+        settings = get_settings()
+        engine = create_engine(settings.DATABASE_URL_SYNC)
+
+        with engine.connect() as conn:
+            if department:
+                result = conn.execute(
+                    text("SELECT COUNT(*) FROM talents WHERE department = :dept AND deleted_at IS NULL"),
+                    {"dept": department}
+                )
+                total = result.scalar() or 0
+                title = f"Department: {department}"
+            else:
+                result = conn.execute(text("SELECT COUNT(*) FROM talents WHERE deleted_at IS NULL"))
+                total = result.scalar() or 0
+                title = "All Departments Overview"
+
+            result = conn.execute(text("""
+                SELECT department, COUNT(*) as cnt
+                FROM talents
+                WHERE deleted_at IS NULL AND department IS NOT NULL
+                GROUP BY department
+                ORDER BY cnt DESC
+                LIMIT 5
+            """))
+            dept_counts = result.fetchall()
+
+        engine.dispose()
+
+        summary = f"""✅ {title.upper()}:
+• Total People: {total}"""
+
+        if dept_counts:
+            summary += "\n\nDEPARTMENTS:"
+            for row in dept_counts:
+                summary += f"\n• {row[0]}: {row[1]} people"
+
+        return summary
+
     except Exception as e:
         return f"❌ Query failed: {str(e)}"
 
@@ -479,25 +547,37 @@ def query_department_structure(department: str = None) -> str:
 def query_knowledge_base() -> str:
     """Get knowledge base and documents overview"""
     try:
-        result = safe_run_async(DatabaseTools.get_documents_summary())
-        
-        if result["status"] == "success":
-            docs = result["documents"]
-            embeddings = result["embeddings"]
-            recent = result["recent_documents"]
-            
-            return f"""✅ KNOWLEDGE BASE STATUS:
-• Total Documents: {docs['total_documents']}
-• Total Content: {docs['total_content_length']:,} characters
-• Vector Embeddings: {embeddings['total_embeddings']:,}
-• Average Chunk Size: {embeddings['average_chunk_size']} chars
-• Last Update: {docs['last_indexed'] or 'Never'}
+        from sqlalchemy import create_engine, text
+        from core.config import get_settings
+
+        settings = get_settings()
+        engine = create_engine(settings.DATABASE_URL_SYNC)
+
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT COUNT(*) FROM documents"))
+            total_docs = result.scalar() or 0
+
+            result = conn.execute(text("SELECT COALESCE(SUM(LENGTH(content)), 0) FROM documents"))
+            total_content = result.scalar() or 0
+
+            result = conn.execute(text("SELECT COUNT(*) FROM document_embeddings"))
+            total_embeddings = result.scalar() or 0
+
+            result = conn.execute(text("SELECT title, created_at FROM documents ORDER BY created_at DESC LIMIT 3"))
+            recent_docs = result.fetchall()
+
+        engine.dispose()
+
+        recent_list = "\n".join([f'• {row[0]} ({str(row[1])[:10]})' for row in recent_docs]) if recent_docs else "No documents found"
+
+        return f"""✅ KNOWLEDGE BASE STATUS:
+• Total Documents: {total_docs}
+• Total Content: {total_content:,} characters
+• Vector Embeddings: {total_embeddings:,}
 
 RECENT DOCUMENTS:
-{chr(10).join([f'• {doc["title"]} ({doc["created_at"][:10]})' for doc in recent[:3]])}"""
-        else:
-            return f"❌ Error: {result.get('error', 'Knowledge base query failed')}"
-            
+{recent_list}"""
+
     except Exception as e:
         return f"❌ Query failed: {str(e)}"
 
@@ -645,21 +725,37 @@ def query_projects() -> str:
 def query_system_status() -> str:
     """Get comprehensive system health status"""
     try:
-        result = safe_run_async(DatabaseTools.get_system_health())
-        
-        if result["status"] == "healthy":
-            db = result["database"]
-            tables = db["tables"]
-            
-            return f"""✅ SYSTEM STATUS: HEALTHY
+        from sqlalchemy import create_engine, text
+        from core.config import get_settings
+        from datetime import datetime
+
+        settings = get_settings()
+        engine = create_engine(settings.DATABASE_URL_SYNC)
+
+        with engine.connect() as conn:
+            # Test connectivity
+            result = conn.execute(text("SELECT NOW()"))
+            db_time = result.scalar()
+
+            # Get table counts
+            result = conn.execute(text("SELECT COUNT(*) FROM talents"))
+            talent_count = result.scalar() or 0
+
+            result = conn.execute(text("SELECT COUNT(*) FROM documents"))
+            doc_count = result.scalar() or 0
+
+            result = conn.execute(text("SELECT COUNT(*) FROM document_embeddings"))
+            embedding_count = result.scalar() or 0
+
+        engine.dispose()
+
+        return f"""✅ SYSTEM STATUS: HEALTHY
 • Database: Connected ✅
 • Data Tables:
-  - Talents: {tables['talents']}
-  - Documents: {tables['documents']}
-  - Embeddings: {tables['embeddings']}
-• Last Check: {result['system_timestamp'][:19]}"""
-        else:
-            return f"❌ SYSTEM STATUS: UNHEALTHY\n{result['database'].get('error', 'Unknown issue')}"
-            
+  - Talents: {talent_count}
+  - Documents: {doc_count}
+  - Embeddings: {embedding_count}
+• Last Check: {datetime.utcnow().isoformat()[:19]}"""
+
     except Exception as e:
-        return f"❌ System check failed: {str(e)}"
+        return f"❌ SYSTEM STATUS: UNHEALTHY\nError: {str(e)}"

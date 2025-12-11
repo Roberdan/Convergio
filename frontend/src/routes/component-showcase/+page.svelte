@@ -183,14 +183,14 @@
 					<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 						<Card variant="default">
 							<h4 class="font-semibold mb-2">Default Card</h4>
-							<p class="text-sm text-gray-600 dark:text-gray-400">
+							<p class="text-sm text-gray-600">
 								This is a default card with basic styling and subtle shadow.
 							</p>
 						</Card>
 						
 						<Card variant="elevated">
 							<h4 class="font-semibold mb-2">Elevated Card</h4>
-							<p class="text-sm text-gray-600 dark:text-gray-400">
+							<p class="text-sm text-gray-600">
 								This card has enhanced shadow for more prominence.
 							</p>
 						</Card>
@@ -199,7 +199,7 @@
 							<svelte:fragment slot="header">
 								<h4 class="font-semibold">Structured Card</h4>
 							</svelte:fragment>
-							<p class="text-sm text-gray-600 dark:text-gray-400">
+							<p class="text-sm text-gray-600">
 								Cards can have structured headers and footers.
 							</p>
 							<svelte:fragment slot="footer">
@@ -306,8 +306,8 @@
 						subtitle="Monthly revenue trends for the past 6 months"
 					>
 						<svelte:fragment slot="default">
-							<div class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-								<p class="text-gray-500 dark:text-gray-400">Chart component placeholder</p>
+							<div class="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+								<p class="text-gray-500">Chart component placeholder</p>
 							</div>
 						</svelte:fragment>
 						<svelte:fragment slot="legend">
@@ -420,7 +420,7 @@
 			This is an example modal showcasing the modal component with proper focus management,
 			backdrop click handling, and keyboard navigation.
 		</p>
-		<p class="text-sm text-gray-600 dark:text-gray-400">
+		<p class="text-sm text-gray-600">
 			You can press Escape to close this modal or click the backdrop.
 		</p>
 		
@@ -449,21 +449,21 @@
 	}
 
 	.section-title {
-		@apply text-2xl font-bold text-gray-900 dark:text-white mb-6;
+		@apply text-2xl font-bold text-gray-900 mb-6;
 		font-family: var(--font-primary);
 	}
 
 	.component-demo {
-		@apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6;
+		@apply bg-white border border-gray-200 rounded-xl p-6;
 	}
 
 	.demo-title {
-		@apply text-lg font-semibold text-gray-900 dark:text-white mb-4;
+		@apply text-lg font-semibold text-gray-900 mb-4;
 		font-family: var(--font-primary);
 	}
 
 	.demo-subtitle {
-		@apply text-sm font-medium text-gray-700 dark:text-gray-300 mb-3;
+		@apply text-sm font-medium text-gray-700 mb-3;
 		font-family: var(--font-primary);
 	}
 

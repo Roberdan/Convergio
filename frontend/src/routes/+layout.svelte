@@ -30,7 +30,7 @@
 </svelte:head>
 
 <!-- Root Layout - Super Clean, No Auth -->
-<div class="min-h-screen bg-surface-900 dark:bg-surface-0 text-surface-900 dark:text-surface-100 transition-colors duration-300">
+<div class="min-h-screen bg-surface-900 text-surface-900  transition-colors duration-300">
   <slot />
 </div>
 

@@ -251,7 +251,7 @@
     <Card>
       <div class="flex items-center justify-center py-12">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span class="ml-3 text-surface-600 dark:text-surface-400">Loading metrics...</span>
+        <span class="ml-3 text-surface-600 ">Loading metrics...</span>
       </div>
     </Card>
   {:else if metricsData}
@@ -260,10 +260,10 @@
       <div class="p-4">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-surface-900 dark:text-surface-100">
+            <h3 class="text-lg font-semibold text-surface-900 ">
               📊 Orchestration Metrics
             </h3>
-            <p class="text-sm text-surface-600 dark:text-surface-400 mt-1">
+            <p class="text-sm text-surface-600  mt-1">
               AI-powered performance analytics and optimization insights
             </p>
           </div>
@@ -273,8 +273,8 @@
             <select 
               bind:value={timeRange}
               on:change={loadMetricsData}
-              class="text-sm border border-surface-300 dark:border-surface-600 rounded-md px-3 py-1 
-                     bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+              class="text-sm border border-surface-300  rounded-md px-3 py-1 
+                     bg-surface-50  text-surface-900 "
             >
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
@@ -290,13 +290,13 @@
     </Card>
     
     <!-- Category Navigation -->
-    <div class="flex space-x-1 bg-surface-200 dark:bg-surface-800 rounded-lg p-1">
+    <div class="flex space-x-1 bg-surface-200  rounded-lg p-1">
       {#each metricCategories as category}
         <button
           on:click={() => selectedMetricCategory = category.id}
           class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedMetricCategory === category.id 
-            ? 'bg-surface-50 dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-            : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+            ? 'bg-surface-50 text-surface-900  shadow-sm' 
+            : 'text-surface-600  hover:text-surface-900'}"
         >
           {category.label}
         </button>
@@ -312,7 +312,7 @@
           <div class="p-4">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-surface-600 dark:text-surface-400">Overall Efficiency</p>
+                <p class="text-sm text-surface-600 ">Overall Efficiency</p>
                 <p class="text-2xl font-bold {getMetricColor(metricsData.efficiency_metrics.overall_efficiency.value, metricsData.efficiency_metrics.overall_efficiency.target || 0)}">
                   {formatMetricValue(metricsData.efficiency_metrics.overall_efficiency.value, 'percentage')}
                 </p>
@@ -335,7 +335,7 @@
           <div class="p-4">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-surface-600 dark:text-surface-400">Team Synergy</p>
+                <p class="text-sm text-surface-600 ">Team Synergy</p>
                 <p class="text-2xl font-bold {getMetricColor(metricsData.collaboration_metrics.team_synergy.value, metricsData.collaboration_metrics.team_synergy.target || 0)}">
                   {formatMetricValue(metricsData.collaboration_metrics.team_synergy.value, 'percentage')}
                 </p>
@@ -358,7 +358,7 @@
           <div class="p-4">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-surface-600 dark:text-surface-400">Total Cost</p>
+                <p class="text-sm text-surface-600 ">Total Cost</p>
                 <p class="text-2xl font-bold {getMetricColor(metricsData.cost_metrics.total_cost.value, metricsData.cost_metrics.budget || 0, true)}">
                   {formatMetricValue(metricsData.cost_metrics.total_cost.value, 'currency')}
                 </p>
@@ -381,7 +381,7 @@
           <div class="p-4">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-surface-600 dark:text-surface-400">Client Satisfaction</p>
+                <p class="text-sm text-surface-600 ">Client Satisfaction</p>
                 <p class="text-2xl font-bold {getMetricColor(metricsData.quality_metrics.client_satisfaction.value, metricsData.quality_metrics.client_satisfaction.target || 0)}">
                   {formatMetricValue(metricsData.quality_metrics.client_satisfaction.value, 'rating')}
                 </p>
@@ -408,7 +408,7 @@
             <div class="p-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-surface-600 dark:text-surface-400 capitalize">
+                  <p class="text-sm text-surface-600  capitalize">
                     {key.replace(/_/g, ' ')}
                   </p>
                   <p class="text-xl font-bold {getMetricColor(typedMetric.value, typedMetric.target || typedMetric.budget || 0, key.includes('cost') || key.includes('time') || key.includes('defect'))}">
@@ -450,7 +450,7 @@
         <Card>
           <div class="p-6">
           <div class="flex items-center justify-between mb-4">
-            <h4 class="font-semibold text-surface-900 dark:text-surface-100">
+            <h4 class="font-semibold text-surface-900 ">
               🧠 AI Insights & Recommendations
             </h4>
             <Badge class="bg-blue-100 text-blue-800">
@@ -460,12 +460,12 @@
           
           <div class="space-y-3">
             {#each metricsData.ai_insights as insight}
-              <div class="border border-surface-200 dark:border-surface-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div class="border border-surface-200  rounded-lg p-4 hover:shadow-md transition-shadow">
                 <div class="flex items-start justify-between">
                   <div class="flex-1">
                     <div class="flex items-center space-x-2 mb-2">
                       <span class="text-lg">{getInsightIcon(insight.type)}</span>
-                      <h5 class="font-medium text-surface-900 dark:text-surface-100">
+                      <h5 class="font-medium text-surface-900 ">
                         {insight.title}
                       </h5>
                       <Badge class="{getPriorityColor(insight.priority)}">
@@ -473,11 +473,11 @@
                       </Badge>
                     </div>
                     
-                    <p class="text-sm text-surface-700 dark:text-surface-300 mb-2">
+                    <p class="text-sm text-surface-700  mb-2">
                       {insight.message}
                     </p>
                     
-                    <div class="flex items-center space-x-4 text-xs text-surface-600 dark:text-surface-400">
+                    <div class="flex items-center space-x-4 text-xs text-surface-600 ">
                       <span>Confidence: <strong>{Math.round(insight.confidence * 100)}%</strong></span>
                       <span>Impact: <strong class="text-green-600">{insight.impact}</strong></span>
                       <span>By: <strong>{insight.agent}</strong></span>

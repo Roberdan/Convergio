@@ -112,34 +112,34 @@
 					{
 						id: 'backlog',
 						title: 'Backlog',
-						color: 'bg-surface-100 dark:bg-surface-800',
+						color: 'bg-surface-100 ',
 						tasks: tasksByStatus.backlog
 					},
 					{
 						id: 'todo',
 						title: 'To Do',
-						color: 'bg-info-100 dark:bg-info-900',
+						color: 'bg-info-100',
 						limit: 5,
 						tasks: tasksByStatus.planning
 					},
 					{
 						id: 'in-progress',
 						title: 'In Progress',
-						color: 'bg-warning-100 dark:bg-warning-900',
+						color: 'bg-warning-100',
 						limit: 3,
 						tasks: tasksByStatus['in-progress']
 					},
 					{
 						id: 'review',
 						title: 'Code Review',
-						color: 'bg-primary-100 dark:bg-primary-900',
+						color: 'bg-primary-100',
 						limit: 2,
 						tasks: tasksByStatus.review
 					},
 					{
 						id: 'done',
 						title: 'Done',
-						color: 'bg-success-100 dark:bg-success-900',
+						color: 'bg-success-100',
 						tasks: tasksByStatus.completed
 					}
 				];
@@ -149,34 +149,34 @@
 					{
 						id: 'backlog',
 						title: 'Backlog',
-						color: 'bg-surface-100 dark:bg-surface-800',
+						color: 'bg-surface-100 ',
 						tasks: []
 					},
 					{
 						id: 'todo',
 						title: 'To Do',
-						color: 'bg-info-100 dark:bg-info-900',
+						color: 'bg-info-100',
 						limit: 5,
 						tasks: []
 					},
 					{
 						id: 'in-progress',
 						title: 'In Progress',
-						color: 'bg-warning-100 dark:bg-warning-900',
+						color: 'bg-warning-100',
 						limit: 3,
 						tasks: []
 					},
 					{
 						id: 'review',
 						title: 'Code Review',
-						color: 'bg-primary-100 dark:bg-primary-900',
+						color: 'bg-primary-100',
 						limit: 2,
 						tasks: []
 					},
 					{
 						id: 'done',
 						title: 'Done',
-						color: 'bg-success-100 dark:bg-success-900',
+						color: 'bg-success-100',
 						tasks: []
 					}
 				];
@@ -188,34 +188,34 @@
 				{
 					id: 'backlog',
 					title: 'Backlog',
-					color: 'bg-surface-100 dark:bg-surface-800',
+					color: 'bg-surface-100 ',
 					tasks: []
 				},
 				{
 					id: 'todo',
 					title: 'To Do',
-					color: 'bg-info-100 dark:bg-info-900',
+					color: 'bg-info-100',
 					limit: 5,
 					tasks: []
 				},
 				{
 					id: 'in-progress',
 					title: 'In Progress',
-					color: 'bg-warning-100 dark:bg-warning-900',
+					color: 'bg-warning-100',
 					limit: 3,
 					tasks: []
 				},
 				{
 					id: 'review',
 					title: 'Code Review',
-					color: 'bg-primary-100 dark:bg-primary-900',
+					color: 'bg-primary-100',
 					limit: 2,
 					tasks: []
 				},
 				{
 					id: 'done',
 					title: 'Done',
-					color: 'bg-success-100 dark:bg-success-900',
+					color: 'bg-success-100',
 					tasks: []
 				}
 			];
@@ -226,11 +226,11 @@
 
 	function getPriorityColor(priority: string) {
 		switch (priority) {
-			case 'critical': return 'border-l-error-500 bg-error-50 dark:bg-error-950';
-			case 'high': return 'border-l-warning-500 bg-warning-50 dark:bg-warning-950';
-			case 'medium': return 'border-l-info-500 bg-info-50 dark:bg-info-950';
-			case 'low': return 'border-l-surface-400 bg-surface-50 dark:bg-surface-950';
-			default: return 'border-l-surface-400 bg-surface-50 dark:bg-surface-950';
+			case 'critical': return 'border-l-error-500 bg-error-50';
+			case 'high': return 'border-l-warning-500 bg-warning-50';
+			case 'medium': return 'border-l-info-500 bg-info-50';
+			case 'low': return 'border-l-surface-400 bg-surface-50';
+			default: return 'border-l-surface-400 bg-surface-50';
 		}
 	}
 
@@ -322,24 +322,24 @@
 	}
 </script>
 
-<div class="kanban-board bg-white dark:bg-surface-950 rounded-xl shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden">
+<div class="kanban-board bg-white rounded-xl shadow-sm border border-surface-200  overflow-hidden">
 	<!-- Header -->
-	<div class="p-6 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+	<div class="p-6 border-b border-surface-200  bg-surface-50 ">
 		<div class="flex items-center justify-between">
 			<div>
-				<h3 class="text-lg font-semibold text-surface-900 dark:text-surface-100">Kanban Board</h3>
-				<p class="text-sm text-surface-600 dark:text-surface-400">Drag and drop task management</p>
+				<h3 class="text-lg font-semibold text-surface-900 ">Kanban Board</h3>
+				<p class="text-sm text-surface-600 ">Drag and drop task management</p>
 			</div>
 			<div class="flex items-center space-x-4">
 				<!-- Stats -->
 				<div class="flex items-center space-x-4 text-sm">
 					<div class="flex items-center space-x-2">
 						<div class="w-2 h-2 rounded-full bg-primary-500"></div>
-						<span class="text-surface-600 dark:text-surface-400">{getTotalTasks()} Total</span>
+						<span class="text-surface-600 ">{getTotalTasks()} Total</span>
 					</div>
 					<div class="flex items-center space-x-2">
 						<div class="w-2 h-2 rounded-full bg-success-500"></div>
-						<span class="text-surface-600 dark:text-surface-400">{getCompletedTasks()} Done</span>
+						<span class="text-surface-600 ">{getCompletedTasks()} Done</span>
 					</div>
 				</div>
 				
@@ -369,16 +369,16 @@
 						on:drop={event => handleDrop(event, column.id)}
 					>
 						<!-- Column Header -->
-						<div class="column-header p-4 rounded-t-lg {column.color} border-b border-surface-200 dark:border-surface-700">
+						<div class="column-header p-4 rounded-t-lg {column.color} border-b border-surface-200 ">
 							<div class="flex items-center justify-between">
 								<div class="flex items-center space-x-3">
-									<h4 class="font-semibold text-surface-900 dark:text-surface-100">{column.title}</h4>
-									<span class="badge badge-sm bg-white dark:bg-surface-800 text-surface-700 dark:text-surface-300">
+									<h4 class="font-semibold text-surface-900 ">{column.title}</h4>
+									<span class="badge badge-sm bg-white  text-surface-700 ">
 										{column.tasks.length}
 									</span>
 								</div>
 								{#if column.limit}
-									<div class="text-xs text-surface-500 dark:text-surface-400">
+									<div class="text-xs text-surface-500 ">
 										Limit: {column.limit}
 									</div>
 								{/if}
@@ -386,7 +386,7 @@
 						</div>
 
 						<!-- Tasks -->
-						<div class="tasks-container min-h-[400px] max-h-[600px] overflow-y-auto p-2 space-y-3 bg-surface-50 dark:bg-surface-900 rounded-b-lg">
+						<div class="tasks-container min-h-[400px] max-h-[600px] overflow-y-auto p-2 space-y-3 bg-surface-50  rounded-b-lg">
 							{#each column.tasks as task}
 								<div 
 									class="task-card card p-4 cursor-move border-l-4 {getPriorityColor(task.priority)} hover:shadow-md transition-all duration-200"
@@ -396,8 +396,8 @@
 									<!-- Task Header -->
 									<div class="flex items-start justify-between mb-3">
 										<div class="flex-1">
-											<h5 class="font-medium text-surface-900 dark:text-surface-100 mb-1 line-clamp-2">{task.title}</h5>
-											<p class="text-sm text-surface-600 dark:text-surface-400 line-clamp-2">{task.description}</p>
+											<h5 class="font-medium text-surface-900  mb-1 line-clamp-2">{task.title}</h5>
+											<p class="text-sm text-surface-600  line-clamp-2">{task.description}</p>
 										</div>
 										<div class="ml-2">
 											<span class="text-sm">{getPriorityIcon(task.priority)}</span>
@@ -416,11 +416,11 @@
 									<!-- Progress -->
 									{#if task.subtasks > 0}
 										<div class="mb-3">
-											<div class="flex items-center justify-between text-xs text-surface-600 dark:text-surface-400 mb-1">
+											<div class="flex items-center justify-between text-xs text-surface-600  mb-1">
 												<span>Subtasks</span>
 												<span>{task.completedSubtasks}/{task.subtasks}</span>
 											</div>
-											<div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-1.5">
+											<div class="w-full bg-surface-200  rounded-full h-1.5">
 												<div 
 													class="bg-primary-500 h-1.5 rounded-full transition-all duration-500" 
 													style="width: {(task.completedSubtasks / task.subtasks) * 100}%"
@@ -430,15 +430,15 @@
 									{/if}
 
 									<!-- Footer -->
-									<div class="flex items-center justify-between pt-3 border-t border-surface-200 dark:border-surface-700">
+									<div class="flex items-center justify-between pt-3 border-t border-surface-200 ">
 										<!-- Assignee -->
 										<div class="flex items-center space-x-2">
 											<div class="avatar avatar-xs">
-												<div class="w-full h-full bg-primary-200 dark:bg-primary-800 rounded-full flex items-center justify-center text-xs font-semibold text-primary-700 dark:text-primary-300">
+												<div class="w-full h-full bg-primary-200 rounded-full flex items-center justify-center text-xs font-semibold text-primary-700">
 													{task.assignee.name.charAt(0)}
 												</div>
 											</div>
-											<span class="text-xs text-surface-600 dark:text-surface-400">{task.assignee.name}</span>
+											<span class="text-xs text-surface-600 ">{task.assignee.name}</span>
 										</div>
 
 										<!-- Due Date -->
@@ -449,7 +449,7 @@
 
 									<!-- Time Tracking -->
 									{#if task.actualHours > 0 || task.estimatedHours > 0}
-										<div class="flex items-center justify-between text-xs text-surface-500 dark:text-surface-400 mt-2">
+										<div class="flex items-center justify-between text-xs text-surface-500  mt-2">
 											<span>⏱️ {task.actualHours}h / {task.estimatedHours}h</span>
 											{#if task.estimatedHours > 0}
 												<span class="font-medium {task.actualHours > task.estimatedHours ? 'text-error-600' : 'text-success-600'}">
@@ -464,7 +464,7 @@
 							<!-- Add Task Button for Column -->
 							<button 
 								on:click={openTaskModal}
-								class="w-full p-3 border-2 border-dashed border-surface-300 dark:border-surface-600 rounded-lg text-surface-500 dark:text-surface-400 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+								class="w-full p-3 border-2 border-dashed border-surface-300  rounded-lg text-surface-500  hover:border-primary-500 hover:text-primary-600 transition-colors duration-200"
 							>
 								<svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -482,10 +482,10 @@
 <!-- Task Creation Modal -->
 {#if showTaskModal}
 	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" on:click={() => showTaskModal = false}>
-		<div class="bg-white dark:bg-surface-950 rounded-xl shadow-xl max-w-lg w-full mx-4 p-6" on:click|stopPropagation>
+		<div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 p-6" on:click|stopPropagation>
 			<div class="flex items-center justify-between mb-6">
-				<h4 class="text-lg font-semibold text-surface-900 dark:text-surface-100">Create New Task</h4>
-				<button on:click={() => showTaskModal = false} class="text-surface-500 hover:text-surface-700 dark:hover:text-surface-300">
+				<h4 class="text-lg font-semibold text-surface-900 ">Create New Task</h4>
+				<button on:click={() => showTaskModal = false} class="text-surface-500 hover:text-surface-700">
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 					</svg>
@@ -494,18 +494,18 @@
 			
 			<form class="space-y-4">
 				<div>
-					<label class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Task Title</label>
+					<label class="block text-sm font-medium text-surface-700  mb-2">Task Title</label>
 					<input type="text" bind:value={newTask.title} class="input" placeholder="Enter task title...">
 				</div>
 				
 				<div>
-					<label class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Description</label>
+					<label class="block text-sm font-medium text-surface-700  mb-2">Description</label>
 					<textarea bind:value={newTask.description} class="input" rows="3" placeholder="Describe the task..."></textarea>
 				</div>
 				
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Priority</label>
+						<label class="block text-sm font-medium text-surface-700  mb-2">Priority</label>
 						<select bind:value={newTask.priority} class="input">
 							<option value="low">Low</option>
 							<option value="medium">Medium</option>
@@ -514,13 +514,13 @@
 						</select>
 					</div>
 					<div>
-						<label class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Due Date</label>
+						<label class="block text-sm font-medium text-surface-700  mb-2">Due Date</label>
 						<input type="date" bind:value={newTask.dueDate} class="input">
 					</div>
 				</div>
 				
 				<div>
-					<label class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Estimated Hours</label>
+					<label class="block text-sm font-medium text-surface-700  mb-2">Estimated Hours</label>
 					<input type="number" bind:value={newTask.estimatedHours} class="input" min="0" placeholder="0">
 				</div>
 				

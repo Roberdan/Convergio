@@ -208,7 +208,7 @@
 
 <style>
 	.chart-card {
-		@apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden;
+		@apply bg-white border border-gray-200 rounded-xl overflow-hidden;
 		box-shadow: var(--shadow-sm);
 		transition: all 0.3s ease;
 	}
@@ -237,17 +237,17 @@
 	}
 
 	.chart-title {
-		@apply text-lg font-semibold text-gray-900 dark:text-white;
+		@apply text-lg font-semibold text-gray-900;
 		font-family: var(--font-primary);
 	}
 
 	.chart-subtitle {
-		@apply mt-1 text-sm text-gray-600 dark:text-gray-400;
+		@apply mt-1 text-sm text-gray-600;
 		font-family: var(--font-primary);
 	}
 
 	.last-updated {
-		@apply mt-2 text-xs text-gray-500 dark:text-gray-500;
+		@apply mt-2 text-xs text-gray-500;
 		font-family: var(--font-primary);
 	}
 
@@ -276,7 +276,7 @@
 	}
 
 	.chart-loading {
-		@apply h-full flex flex-col items-center justify-center gap-4 text-gray-500 dark:text-gray-400;
+		@apply h-full flex flex-col items-center justify-center gap-4 text-gray-500;
 	}
 
 	.loading-text {
@@ -293,12 +293,12 @@
 	}
 
 	.error-title {
-		@apply text-lg font-medium text-gray-900 dark:text-white;
+		@apply text-lg font-medium text-gray-900;
 		font-family: var(--font-primary);
 	}
 
 	.error-message {
-		@apply text-sm text-gray-600 dark:text-gray-400 max-w-sm;
+		@apply text-sm text-gray-600 max-w-sm;
 		font-family: var(--font-primary);
 	}
 

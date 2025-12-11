@@ -238,11 +238,11 @@
 </script>
 
 <!-- Modern Kanban Board -->
-<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border border-surface-700 dark:border-surface-300 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-lg border border-surface-200 overflow-hidden">
   <!-- Loading State -->
   {#if loading}
     <div class="flex items-center justify-center p-8">
-      <div class="text-surface-500 dark:text-surface-500">Loading project data...</div>
+      <div class="text-surface-500">Loading project data...</div>
     </div>
   {:else if error}
     <div class="bg-red-50 border border-red-200 rounded-xl p-4">
@@ -253,9 +253,9 @@
     <div class="space-y-6">
       <!-- Board Header -->
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-surface-100 dark:text-surface-900">Project Tasks</h3>
+        <h3 class="text-lg font-semibold text-surface-900">Project Tasks</h3>
         <div class="flex items-center space-x-4">
-          <div class="text-sm text-surface-500 dark:text-surface-500">
+          <div class="text-sm text-surface-500">
             {tasks.length} total tasks
           </div>
           <button
@@ -273,10 +273,10 @@
       <!-- Columns Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {#each columns as column}
-          <div class="bg-surface-900 dark:bg-surface-100 rounded-xl p-4">
+          <div class="bg-surface-50 rounded-xl p-4">
             <div class="flex items-center justify-between mb-4">
-              <h4 class="font-medium text-surface-100 dark:text-surface-900">{column.title}</h4>
-              <span class="text-sm text-surface-500 dark:text-surface-500 bg-surface-950 dark:bg-surface-50 px-2 py-1 rounded-full">
+              <h4 class="font-medium text-surface-900">{column.title}</h4>
+              <span class="text-sm text-surface-500 bg-white px-2 py-1 rounded-full">
                 {column.tasks.length}
               </span>
             </div>
@@ -291,16 +291,16 @@
               {#each column.tasks as task (task.id)}
                 <button 
                   type="button"
-                  class="w-full text-left bg-surface-950 dark:bg-surface-50 p-3 rounded-lg border border-surface-700 dark:border-surface-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                  class="w-full text-left bg-white p-3 rounded-lg border border-surface-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   on:click={() => selectTask(task)}
                 >
-                  <div class="font-medium text-surface-100 dark:text-surface-900 text-sm mb-1">{task.title || 'Untitled Task'}</div>
+                  <div class="font-medium text-surface-900 text-sm mb-1">{task.title || 'Untitled Task'}</div>
                   {#if task.description}
-                    <div class="text-surface-400 dark:text-surface-600 text-xs mb-2 line-clamp-2">{task.description}</div>
+                    <div class="text-surface-600 text-xs mb-2 line-clamp-2">{task.description}</div>
                   {/if}
                   
                   <!-- Task Metadata -->
-                  <div class="flex items-center justify-between text-xs text-surface-500 dark:text-surface-500">
+                  <div class="flex items-center justify-between text-xs text-surface-500">
                     {#if task.assigned_agent}
                       <span>👤 {task.assigned_agent}</span>
                     {/if}
@@ -321,13 +321,13 @@
 <!-- New Task Form Modal -->
 {#if showNewTaskForm}
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-      <div class="px-6 py-5 border-b border-surface-700 dark:border-surface-300">
+    <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="px-6 py-5 border-b border-surface-200">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-surface-100 dark:text-surface-900">Create New Task</h3>
+          <h3 class="text-lg font-semibold text-surface-900">Create New Task</h3>
           <button
             on:click={() => showNewTaskForm = false}
-            class="text-gray-400 hover:text-surface-400 dark:text-surface-600 transition-colors"
+            class="text-gray-400 hover:text-surface-600 transition-colors"
             aria-label="Close new task form"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,34 +339,34 @@
       
       <div class="px-6 py-4 space-y-4">
         <div>
-          <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-2" for="mkb-title">Task Title *</label>
+          <label class="block text-sm font-medium text-surface-600 mb-2" for="mkb-title">Task Title *</label>
           <input
             id="mkb-title"
             type="text"
             bind:value={newTaskData.title}
-            class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter task title"
           />
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-2" for="mkb-desc">Description</label>
+          <label class="block text-sm font-medium text-surface-600 mb-2" for="mkb-desc">Description</label>
           <textarea
             id="mkb-desc"
             bind:value={newTaskData.description}
             rows="3"
-            class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter task description"
           ></textarea>
         </div>
         
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-2" for="mkb-priority">Priority</label>
+            <label class="block text-sm font-medium text-surface-600 mb-2" for="mkb-priority">Priority</label>
             <select
               id="mkb-priority"
               bind:value={newTaskData.priority}
-              class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
@@ -375,18 +375,18 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-2" for="mkb-due">Due Date</label>
+            <label class="block text-sm font-medium text-surface-600 mb-2" for="mkb-due">Due Date</label>
             <input
               id="mkb-due"
               type="date"
               bind:value={newTaskData.dueDate}
-              class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
         
         <fieldset>
-          <legend class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-2">Tags</legend>
+          <legend class="block text-sm font-medium text-surface-600 mb-2">Tags</legend>
           <div class="flex flex-wrap gap-2" role="group" aria-label="Task tags">
             {#each availableTags as tag}
               <button
@@ -394,7 +394,7 @@
                 on:click={() => toggleTag(tag)}
                 class="px-3 py-1 rounded-full text-sm font-medium border transition-colors {newTaskData.tags.includes(tag) 
                   ? 'bg-blue-100 text-blue-800 border-blue-200' 
-                  : 'bg-surface-800 dark:bg-surface-200 text-surface-400 dark:text-surface-600 border-surface-700 dark:border-surface-300 hover:bg-surface-700 dark:bg-surface-300'}"
+                  : 'bg-surface-100 text-surface-600 border-surface-200 hover:bg-surface-200'}"
               >
                 {tag}
               </button>
@@ -404,33 +404,33 @@
         
         {#if availableAgents.length > 0}
           <div>
-            <label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-2" for="mkb-agent-select">Manual Agent Assignment (Optional)</label>
+            <label class="block text-sm font-medium text-surface-600 mb-2" for="mkb-agent-select">Manual Agent Assignment (Optional)</label>
             <select
               id="mkb-agent-select"
               bind:value={newTaskData.assignedAgent}
-              class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">AI will recommend best agent</option>
               {#each availableAgents as agent}
                 <option value={agent.id}>{agent.name || agent.title} - {agent.tier || agent.specialty}</option>
               {/each}
             </select>
-            <p class="text-xs text-surface-500 dark:text-surface-500 mt-1">Leave empty for AI-powered agent recommendation based on task requirements</p>
+            <p class="text-xs text-surface-500 mt-1">Leave empty for AI-powered agent recommendation based on task requirements</p>
           </div>
         {/if}
       </div>
       
-      <div class="px-6 py-4 border-t border-surface-700 dark:border-surface-300 flex justify-end space-x-3">
+      <div class="px-6 py-4 border-t border-surface-200 flex justify-end space-x-3">
         <button
           on:click={() => showNewTaskForm = false}
-          class="px-4 py-2 text-surface-300 dark:text-surface-700 bg-surface-800 dark:bg-surface-200 rounded-lg hover:bg-surface-700 dark:bg-surface-300 transition-colors"
+          class="px-4 py-2 text-surface-600 bg-surface-100 rounded-lg hover:bg-surface-200 transition-colors"
         >
           Cancel
         </button>
         <button
           on:click={createNewTask}
           disabled={!newTaskData.title.trim()}
-          class="px-4 py-2 bg-green-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Create Task
         </button>

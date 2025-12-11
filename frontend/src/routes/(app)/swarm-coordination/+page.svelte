@@ -21,16 +21,16 @@ Dependencies: Advanced orchestrator engine, agent communication protocols
 <div class="p-8 bg-gradient-to-br from-purple-50 to-pink-100 min-h-screen">
 	<div class="max-w-4xl mx-auto">
 		<div class="text-center">
-			<h1 class="text-4xl font-bold text-surface-200 dark:text-surface-800 mb-4">
+			<h1 class="text-4xl font-bold text-surface-800 mb-4">
 				🤖 Swarm Coordination
 			</h1>
-			<p class="text-xl text-surface-400 dark:text-surface-600 mb-8">
+			<p class="text-xl text-surface-600 mb-8">
 				Advanced multi-agent orchestration dashboard coming soon
 			</p>
 			
-			<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-lg p-8 text-left">
-				<h2 class="text-2xl font-semibold mb-4 text-surface-200 dark:text-surface-800">🎯 Planned Features</h2>
-				<ul class="space-y-3 text-surface-300 dark:text-surface-700">
+			<div class="bg-white rounded-lg shadow-lg p-8 text-left">
+				<h2 class="text-2xl font-semibold mb-4 text-surface-800">🎯 Planned Features</h2>
+				<ul class="space-y-3 text-surface-600">
 					<li class="flex items-start">
 						<span class="text-purple-500 mr-3">🕸️</span>
 						<span>Visual agent network topology and relationships</span>

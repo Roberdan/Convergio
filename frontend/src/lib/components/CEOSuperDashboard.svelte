@@ -494,7 +494,7 @@
 			error: 'text-red-600',
 			scheduled: 'text-purple-600'
 		};
-		return colors[status] || 'text-surface-400 dark:text-surface-600';
+		return colors[status] || 'text-surface-600';
 	}
 
 	function getStatusIcon(status) {
@@ -519,7 +519,7 @@
 			medium: 'bg-yellow-100 text-yellow-800', 
 			low: 'bg-green-100 text-green-800'
 		};
-		return badges[impact] || 'bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800';
+		return badges[impact] || 'bg-surface-100 text-surface-800';
 	}
 
 	function toggleDarkMode() {
@@ -559,7 +559,7 @@
 <!-- ===== 🚨 ADVANCED NOTIFICATIONS ===== -->
 {#if notification}
 	<div class="fixed top-4 right-4 z-50 max-w-md animate-slide-in">
-		<div class="rounded-xl shadow-2xl border-l-4 p-4 bg-surface-950 dark:bg-surface-50"
+		<div class="rounded-xl shadow-2xl border-l-4 p-4 bg-white"
 			 class:bg-green-50={notification.type === 'success'}
 			 class:border-green-500={notification.type === 'success'}
 			 class:text-green-800={notification.type === 'success'}
@@ -571,7 +571,7 @@
 			 class:text-blue-800={notification.type === 'info'}>
 			<div class="flex justify-between items-start">
 				<p class="text-sm font-medium leading-relaxed">{notification.message}</p>
-				<button on:click={() => notification = null} class="ml-3 text-gray-400 hover:text-surface-400 dark:text-surface-600 transition-colors" aria-label="Close notification">
+				<button on:click={() => notification = null} class="ml-3 text-gray-400 hover:text-surface-600 transition-colors" aria-label="Close notification">
 					<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
 						<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
 					</svg>
@@ -582,10 +582,10 @@
 {/if}
 
 <!-- ===== 🏆 CEO DASHBOARD SUPREME MAIN CONTAINER ===== -->
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 transition-all duration-300" class:dark:from-gray-900={isDarkMode} class:dark:to-gray-800={isDarkMode}>
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 transition-all duration-300" class:={isDarkMode} class:={isDarkMode}>
 	
 	<!-- ===== 🎯 SUPREME HEADER ===== -->
-	<div class="bg-surface-950 dark:bg-surface-50 shadow-lg border-b border-surface-700 dark:border-surface-300" class:dark:bg-gray-900={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+	<div class="bg-white shadow-lg border-b border-surface-200" class:={isDarkMode} class:={isDarkMode}>
 		<div class="max-w-7xl mx-auto px-6 py-6">
 			<div class="flex justify-between items-center">
 				<div>
@@ -593,7 +593,7 @@
 						👑 CEO Dashboard Supreme
 					</h1>
 					<div class="flex items-center space-x-4">
-						<p class="text-surface-400 dark:text-surface-600" class:dark:text-gray-400={isDarkMode}>Convergio AI Platform - Strategic Command Center</p>
+						<p class="text-surface-600" class:={isDarkMode}>Convergio AI Platform - Strategic Command Center</p>
 						{#if aiAssistantActive}
 							<div class="flex items-center space-x-2 px-3 py-1 bg-blue-100 rounded-full animate-pulse">
 								<div class="w-2 h-2 bg-blue-600 rounded-full"></div>
@@ -608,7 +608,7 @@
 					<!-- View Selector -->
 					<select 
 						bind:value={selectedView}
-						class="px-4 py-2 border border-surface-600 dark:border-surface-400 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-surface-950 dark:bg-surface-50" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-600={isDarkMode}>
+						class="px-4 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" class:={isDarkMode} class:={isDarkMode}>
 						<option value="overview">Executive Overview</option>
 						<option value="predictive">Predictive Analytics</option>
 						<option value="intelligence">Business Intelligence</option>
@@ -618,7 +618,7 @@
 					<!-- Time Range Selector -->
 					<select 
 						bind:value={selectedTimeRange}
-						class="px-4 py-2 border border-surface-600 dark:border-surface-400 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-surface-950 dark:bg-surface-50" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-600={isDarkMode}>
+						class="px-4 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" class:={isDarkMode} class:={isDarkMode}>
 						<option value="1h">Last Hour</option>
 						<option value="24h">Last 24 Hours</option>
 						<option value="7d">Last 7 Days</option>
@@ -629,24 +629,24 @@
 					<!-- Dark Mode Toggle -->
 					<button
 						on:click={toggleDarkMode}
-						class="p-2 rounded-lg border border-surface-600 dark:border-surface-400 hover:bg-surface-900 dark:bg-surface-100 transition-colors" class:dark:border-gray-600={isDarkMode} class:dark:hover:bg-gray-800={isDarkMode}>
+						class="p-2 rounded-lg border border-surface-300 hover:bg-surface-50 transition-colors" class:={isDarkMode} class:={isDarkMode}>
 						{isDarkMode ? '☀️' : '🌙'}
 					</button>
 					
 					<!-- Auto Refresh Toggle -->
-					<label class="flex items-center space-x-2 px-3 py-2 bg-surface-900 dark:bg-surface-100 rounded-lg" class:dark:bg-gray-800={isDarkMode}>
+					<label class="flex items-center space-x-2 px-3 py-2 bg-surface-50 rounded-lg" class:={isDarkMode}>
 						<input 
 							type="checkbox" 
 							bind:checked={autoRefresh}
 							class="rounded text-blue-600 focus:ring-blue-500"
 						/>
-						<span class="text-sm text-surface-400 dark:text-surface-600 font-medium" class:dark:text-gray-400={isDarkMode}>Auto Refresh</span>
+						<span class="text-sm text-surface-600 font-medium" class:={isDarkMode}>Auto Refresh</span>
 					</label>
 					
 					<!-- Manual Refresh Button -->
 					<button
 						on:click={loadSupremeDashboardData}
-						class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-surface-950 dark:text-surface-50 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center shadow-lg">
+						class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center shadow-lg">
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
 						</svg>
@@ -656,7 +656,7 @@
 					<!-- Generate Report Button -->
 					<button
 						on:click={generateExecutiveReport}
-						class="px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-surface-950 dark:text-surface-50 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 flex items-center shadow-lg">
+						class="px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 flex items-center shadow-lg">
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
 						</svg>
@@ -675,16 +675,16 @@
 					<div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
 					<div class="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-t-2 border-purple-600"></div>
 				</div>
-				<span class="mt-6 text-2xl text-surface-400 dark:text-surface-600 font-medium" class:dark:text-gray-400={isDarkMode}>Loading Supreme Dashboard...</span>
-				<div class="mt-4 flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full" class:dark:bg-blue-900={isDarkMode}>
+				<span class="mt-6 text-2xl text-surface-600 font-medium" class:={isDarkMode}>Loading Supreme Dashboard...</span>
+				<div class="mt-4 flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full" class:={isDarkMode}>
 					<div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-					<span class="text-sm text-blue-800 font-medium" class:dark:text-blue-300={isDarkMode}>AI Analytics Engine Initializing</span>
+					<span class="text-sm text-blue-800 font-medium" class:={isDarkMode}>AI Analytics Engine Initializing</span>
 				</div>
 			</div>
 		{:else}
 			
 			<!-- ===== 📊 PREDICTIVE ANALYTICS BANNER ===== -->
-			<div class="mb-8 bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 rounded-2xl shadow-2xl p-8 text-surface-950 dark:text-surface-50 relative overflow-hidden">
+			<div class="mb-8 bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 rounded-2xl shadow-2xl p-8 text-white relative overflow-hidden">
 				<div class="absolute inset-0 bg-black opacity-10"></div>
 				<div class="relative z-10">
 					<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -716,12 +716,12 @@
 				<!-- ===== 🎯 EXECUTIVE KPIS ROW ===== -->
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
 					<!-- System Health -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 dark:text-surface-500 uppercase tracking-wider" class:dark:text-gray-400={isDarkMode}>System Health</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>System Health</p>
 								<p class="text-3xl font-bold text-green-600 mt-2">{formatPercentage(systemUptime)}</p>
-								<p class="text-xs text-surface-500 dark:text-surface-500 mt-1 flex items-center" class:dark:text-gray-400={isDarkMode}>
+								<p class="text-xs text-surface-500 mt-1 flex items-center" class:={isDarkMode}>
 									<span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
 									Operational
 								</p>
@@ -735,10 +735,10 @@
 					</div>
 
 					<!-- AI Agents Status -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 dark:text-surface-500 uppercase tracking-wider" class:dark:text-gray-400={isDarkMode}>AI Agents</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>AI Agents</p>
 								<p class="text-3xl font-bold text-blue-600 mt-2">{availableAgents}/{totalAgents}</p>
 								<p class="text-xs text-green-600 mt-1 font-semibold">+{formatPercentage($agentMetrics.efficiency_score)} Efficiency</p>
 							</div>
@@ -751,10 +751,10 @@
 					</div>
 
 					<!-- Swarm Intelligence -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 dark:text-surface-500 uppercase tracking-wider" class:dark:text-gray-400={isDarkMode}>Swarm Tasks</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>Swarm Tasks</p>
 								<p class="text-3xl font-bold text-purple-600 mt-2">{swarmTasks}</p>
 								<p class="text-xs text-purple-600 mt-1 font-semibold">Coordination: {formatPercentage($agentMetrics.coordination_factor * 100)}</p>
 							</div>
@@ -767,10 +767,10 @@
 					</div>
 
 					<!-- Cost Intelligence -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 dark:text-surface-500 uppercase tracking-wider" class:dark:text-gray-400={isDarkMode}>Smart Costs</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>Smart Costs</p>
 								<p class="text-3xl font-bold text-green-600 mt-2">{formatCurrency(totalCosts)}</p>
 								<p class="text-xs text-green-600 mt-1 font-semibold">-{formatPercentage($costMetrics.optimization_potential)}% Optimized</p>
 							</div>
@@ -783,10 +783,10 @@
 					</div>
 
 					<!-- Task Success Rate -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 dark:text-surface-500 uppercase tracking-wider" class:dark:text-gray-400={isDarkMode}>Success Rate</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>Success Rate</p>
 								<p class="text-3xl font-bold text-indigo-600 mt-2">{formatPercentage($taskMetrics.success_rate)}</p>
 								<p class="text-xs text-indigo-600 mt-1 font-semibold">User Satisfaction: {$taskMetrics.user_satisfaction_score}/5</p>
 							</div>
@@ -799,10 +799,10 @@
 					</div>
 
 					<!-- ROI Intelligence -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 dark:text-surface-500 uppercase tracking-wider" class:dark:text-gray-400={isDarkMode}>ROI on AI</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>ROI on AI</p>
 								<p class="text-3xl font-bold text-yellow-600 mt-2">{formatPercentage($advancedKPIs.financial_kpis?.roi_on_ai || 342.7)}</p>
 								<p class="text-xs text-yellow-600 mt-1 font-semibold">Revenue Impact: +{formatPercentage($advancedKPIs.financial_kpis?.revenue_impact || 156.2)}</p>
 							</div>
@@ -820,8 +820,8 @@
 					<!-- Left Column: Advanced Analytics -->
 					<div class="space-y-8">
 						<!-- Performance Trend Chart -->
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-100 dark:text-surface-900 mb-6 flex items-center" class:dark:text-gray-100={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6 flex items-center" class:={isDarkMode}>
 								📈 Performance Trends
 								<div class="ml-auto flex items-center space-x-2">
 									<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -834,23 +834,23 @@
 						</div>
 
 						<!-- Advanced Task Analytics -->
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-100 dark:text-surface-900 mb-6" class:dark:text-gray-100={isDarkMode}>🎯 Task Intelligence</h3>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6" class:={isDarkMode}>🎯 Task Intelligence</h3>
 							<div class="space-y-4">
 								<div class="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl">
-									<span class="text-sm font-semibold text-surface-300 dark:text-surface-700">Completed Today</span>
+									<span class="text-sm font-semibold text-surface-600">Completed Today</span>
 									<span class="text-2xl font-bold text-green-600">{$taskMetrics.completed_today}</span>
 								</div>
 								<div class="flex justify-between items-center p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl">
-									<span class="text-sm font-semibold text-surface-300 dark:text-surface-700">Complex Tasks Ratio</span>
+									<span class="text-sm font-semibold text-surface-600">Complex Tasks Ratio</span>
 									<span class="text-2xl font-bold text-yellow-600">{formatPercentage($taskMetrics.complex_tasks_ratio * 100)}</span>
 								</div>
 								<div class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-									<span class="text-sm font-semibold text-surface-300 dark:text-surface-700">Collaboration Index</span>
+									<span class="text-sm font-semibold text-surface-600">Collaboration Index</span>
 									<span class="text-2xl font-bold text-blue-600">{formatPercentage($taskMetrics.agent_collaboration_index * 100)}</span>
 								</div>
 								<div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
-									<span class="text-sm font-semibold text-surface-300 dark:text-surface-700">Avg Completion</span>
+									<span class="text-sm font-semibold text-surface-600">Avg Completion</span>
 									<span class="text-2xl font-bold text-purple-600">{$taskMetrics.avg_completion_time}min</span>
 								</div>
 							</div>
@@ -860,9 +860,9 @@
 					<!-- Center Column: ML Insights & Activities -->
 					<div class="space-y-8">
 						<!-- AI-Powered Insights -->
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
 							<div class="flex justify-between items-center mb-6">
-								<h3 class="text-xl font-bold text-surface-100 dark:text-surface-900 flex items-center" class:dark:text-gray-100={isDarkMode}>
+								<h3 class="text-xl font-bold text-surface-900 flex items-center" class:={isDarkMode}>
 									🧠 AI Insights
 								</h3>
 								<div class="flex items-center space-x-2 px-3 py-1 bg-blue-100 rounded-full">
@@ -872,19 +872,19 @@
 							</div>
 							<div class="space-y-4">
 								{#each $mlInsights.recommendations || [] as recommendation}
-									<div class="p-4 border border-surface-700 dark:border-surface-300 rounded-xl hover:bg-surface-900 dark:bg-surface-100 transition-colors" class:dark:border-gray-600={isDarkMode} class:dark:hover:bg-gray-700={isDarkMode}>
+									<div class="p-4 border border-surface-200 rounded-xl hover:bg-surface-50 transition-colors" class:={isDarkMode} class:={isDarkMode}>
 										<div class="flex items-start justify-between mb-2">
-											<span class="text-sm font-bold text-surface-100 dark:text-surface-900 capitalize" class:dark:text-gray-100={isDarkMode}>
+											<span class="text-sm font-bold text-surface-900 capitalize" class:={isDarkMode}>
 												{recommendation.type?.replace('_', ' ')}
 											</span>
 											<span class="text-xs font-semibold px-2 py-1 rounded-full {getImpactBadge(recommendation.priority)}">
 												{recommendation.priority} Priority
 											</span>
 										</div>
-										<p class="text-sm text-surface-400 dark:text-surface-600 mb-3" class:dark:text-gray-400={isDarkMode}>{recommendation.description}</p>
+										<p class="text-sm text-surface-600 mb-3" class:={isDarkMode}>{recommendation.description}</p>
 										<div class="flex justify-between items-center">
 											<span class="text-xs text-green-600 font-semibold">Impact: +{recommendation.impact}%</span>
-											<button class="text-xs bg-blue-600 text-surface-950 dark:text-surface-50 px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors">
+											<button class="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors">
 												Apply
 											</button>
 										</div>
@@ -894,22 +894,22 @@
 						</div>
 
 						<!-- Real-Time Activities -->
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
 							<div class="flex justify-between items-center mb-6">
-								<h3 class="text-xl font-bold text-surface-100 dark:text-surface-900" class:dark:text-gray-100={isDarkMode}>🔥 Live Intelligence</h3>
+								<h3 class="text-xl font-bold text-surface-900" class:={isDarkMode}>🔥 Live Intelligence</h3>
 								<span class="text-sm text-blue-600 font-semibold animate-pulse">Real-Time Updates</span>
 							</div>
 							<div class="space-y-3 max-h-80 overflow-y-auto">
 								{#each $recentActivities as activity (activity.id)}
-									<div class="flex items-start space-x-3 p-4 rounded-xl hover:bg-surface-900 dark:bg-surface-100 border border-gray-100 transition-all duration-200" class:dark:border-gray-600={isDarkMode} class:dark:hover:bg-gray-700={isDarkMode}>
+									<div class="flex items-start space-x-3 p-4 rounded-xl hover:bg-surface-50 border border-gray-100 transition-all duration-200" class:={isDarkMode} class:={isDarkMode}>
 										<div class="flex-shrink-0">
 											<span class="text-xl">{getStatusIcon(activity.type)}</span>
 										</div>
 										<div class="flex-1 min-w-0">
-											<p class="text-sm font-semibold text-surface-100 dark:text-surface-900 mb-1" class:dark:text-gray-100={isDarkMode}>
+											<p class="text-sm font-semibold text-surface-900 mb-1" class:={isDarkMode}>
 												{activity.description}
 											</p>
-											<p class="text-xs text-surface-500 dark:text-surface-500 mb-2" class:dark:text-gray-400={isDarkMode}>
+											<p class="text-xs text-surface-500 mb-2" class:={isDarkMode}>
 												{activity.agent} • {activity.time}
 											</p>
 											{#if activity.confidence}
@@ -932,8 +932,8 @@
 					<!-- Right Column: Strategic Intelligence -->
 					<div class="space-y-8">
 						<!-- Cost Optimization Chart -->
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-100 dark:text-surface-900 mb-6 flex items-center" class:dark:text-gray-100={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6 flex items-center" class:={isDarkMode}>
 								💰 Cost Intelligence
 								<div class="ml-auto text-sm text-green-600 font-semibold">
 									-${($costMetrics.optimization_potential * totalCosts / 100).toFixed(2)} Saved
@@ -945,41 +945,41 @@
 							<div class="mt-4 grid grid-cols-2 gap-4">
 								<div class="text-center p-3 bg-green-50 rounded-xl">
 									<p class="text-2xl font-bold text-green-600">{formatCurrency($costMetrics.cost_per_task || 0.12)}</p>
-									<p class="text-xs text-surface-400 dark:text-surface-600 font-semibold">Per Task</p>
+									<p class="text-xs text-surface-600 font-semibold">Per Task</p>
 								</div>
 								<div class="text-center p-3 bg-blue-50 rounded-xl">
 									<p class="text-2xl font-bold text-blue-600">{formatCurrency($costMetrics.monthly_projection || 0)}</p>
-									<p class="text-xs text-surface-400 dark:text-surface-600 font-semibold">Monthly Proj.</p>
+									<p class="text-xs text-surface-600 font-semibold">Monthly Proj.</p>
 								</div>
 							</div>
 						</div>
 
 						<!-- Business Intelligence KPIs -->
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-100 dark:text-surface-900 mb-6" class:dark:text-gray-100={isDarkMode}>📊 Business Intelligence</h3>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6" class:={isDarkMode}>📊 Business Intelligence</h3>
 							<div class="space-y-4">
 								<div class="flex justify-between items-center">
-									<span class="text-sm font-semibold text-surface-300 dark:text-surface-700" class:dark:text-gray-300={isDarkMode}>Digital Transformation</span>
+									<span class="text-sm font-semibold text-surface-600" class:={isDarkMode}>Digital Transformation</span>
 									<span class="text-lg font-bold text-blue-600">{formatPercentage($advancedKPIs.strategic_kpis?.digital_transformation_index || 94.2)}</span>
 								</div>
 								<div class="flex justify-between items-center">
-									<span class="text-sm font-semibold text-surface-300 dark:text-surface-700" class:dark:text-gray-300={isDarkMode}>Process Automation</span>
+									<span class="text-sm font-semibold text-surface-600" class:={isDarkMode}>Process Automation</span>
 									<span class="text-lg font-bold text-green-600">{formatPercentage($advancedKPIs.operational_kpis?.process_automation || 89.3)}</span>
 								</div>
 								<div class="flex justify-between items-center">
-									<span class="text-sm font-semibold text-surface-300 dark:text-surface-700" class:dark:text-gray-300={isDarkMode}>Innovation Pipeline</span>
+									<span class="text-sm font-semibold text-surface-600" class:={isDarkMode}>Innovation Pipeline</span>
 									<span class="text-lg font-bold text-purple-600">{formatPercentage($advancedKPIs.strategic_kpis?.innovation_pipeline || 85.4)}</span>
 								</div>
 								<div class="flex justify-between items-center">
-									<span class="text-sm font-semibold text-surface-300 dark:text-surface-700" class:dark:text-gray-300={isDarkMode}>Competitive Advantage</span>
+									<span class="text-sm font-semibold text-surface-600" class:={isDarkMode}>Competitive Advantage</span>
 									<span class="text-lg font-bold text-yellow-600">{formatPercentage($advancedKPIs.strategic_kpis?.competitive_advantage || 91.7)}</span>
 								</div>
 							</div>
 						</div>
 
 						<!-- Quick Actions Enhanced -->
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-100 dark:text-surface-900 mb-6" class:dark:text-gray-100={isDarkMode}>⚡ Strategic Actions</h3>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6" class:={isDarkMode}>⚡ Strategic Actions</h3>
 							<div class="grid grid-cols-2 gap-3">
 								<button 
 									class="p-4 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 text-sm font-bold text-center transform hover:scale-105"
@@ -1015,8 +1015,8 @@
 				<!-- ===== 🔮 PREDICTIVE ANALYTICS VIEW ===== -->
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<!-- Predictive Performance Chart -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-8" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
-						<h3 class="text-2xl font-bold text-surface-100 dark:text-surface-900 mb-6 flex items-center" class:dark:text-gray-100={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-8" class:={isDarkMode} class:={isDarkMode}>
+						<h3 class="text-2xl font-bold text-surface-900 mb-6 flex items-center" class:={isDarkMode}>
 							🔮 Predictive Performance
 							<div class="ml-auto text-sm font-semibold px-3 py-1 bg-purple-100 text-purple-800 rounded-full">
 								{formatPercentage(aiConfidence)} Accuracy
@@ -1028,8 +1028,8 @@
 					</div>
 
 					<!-- Executive Forecast -->
-					<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-8" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
-						<h3 class="text-2xl font-bold text-surface-100 dark:text-surface-900 mb-6" class:dark:text-gray-100={isDarkMode}>📈 Executive Forecast</h3>
+					<div class="bg-white rounded-2xl shadow-lg border p-8" class:={isDarkMode} class:={isDarkMode}>
+						<h3 class="text-2xl font-bold text-surface-900 mb-6" class:={isDarkMode}>📈 Executive Forecast</h3>
 						<div class="space-y-6">
 							<div class="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
 								<h4 class="font-bold text-blue-900 mb-3">Next Quarter Projection</h4>
@@ -1046,24 +1046,24 @@
 							</div>
 
 							<div>
-								<h4 class="font-bold text-surface-100 dark:text-surface-900 mb-4" class:dark:text-gray-100={isDarkMode}>🚀 Strategic Opportunities</h4>
+								<h4 class="font-bold text-surface-900 mb-4" class:={isDarkMode}>🚀 Strategic Opportunities</h4>
 								<div class="space-y-2">
 									{#each $executiveForecast.strategic_opportunities || [] as opportunity}
 										<div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
 											<span class="text-green-600">✅</span>
-											<span class="text-sm font-medium text-surface-200 dark:text-surface-800">{opportunity}</span>
+											<span class="text-sm font-medium text-surface-800">{opportunity}</span>
 										</div>
 									{/each}
 								</div>
 							</div>
 
 							<div>
-								<h4 class="font-bold text-surface-100 dark:text-surface-900 mb-4" class:dark:text-gray-100={isDarkMode}>⚠️ Risk Mitigation</h4>
+								<h4 class="font-bold text-surface-900 mb-4" class:={isDarkMode}>⚠️ Risk Mitigation</h4>
 								<div class="space-y-2">
 									{#each $executiveForecast.risk_mitigation || [] as risk}
 										<div class="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
 											<span class="text-yellow-600">⚠️</span>
-											<span class="text-sm font-medium text-surface-200 dark:text-surface-800">{risk}</span>
+											<span class="text-sm font-medium text-surface-800">{risk}</span>
 										</div>
 									{/each}
 								</div>
@@ -1077,14 +1077,14 @@
 				<!-- ===== 📊 BUSINESS INTELLIGENCE VIEW ===== -->
 				<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 					{#each $businessIntelligence.executive_insights || [] as insight}
-						<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-8 hover:shadow-xl transition-all duration-300" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-8 hover:shadow-xl transition-all duration-300" class:={isDarkMode} class:={isDarkMode}>
 							<div class="flex items-center justify-between mb-4">
-								<h4 class="font-bold text-lg text-surface-100 dark:text-surface-900" class:dark:text-gray-100={isDarkMode}>{insight.category}</h4>
+								<h4 class="font-bold text-lg text-surface-900" class:={isDarkMode}>{insight.category}</h4>
 								<span class="text-xs font-semibold px-3 py-1 rounded-full {getImpactBadge(insight.impact)}">
 									{insight.impact} Impact
 								</span>
 							</div>
-							<p class="text-surface-400 dark:text-surface-600 mb-4 leading-relaxed" class:dark:text-gray-400={isDarkMode}>{insight.insight}</p>
+							<p class="text-surface-600 mb-4 leading-relaxed" class:={isDarkMode}>{insight.insight}</p>
 							<div class="flex items-center space-x-2">
 								<span class="text-2xl">{insight.trend === 'positive' ? '📈' : '📉'}</span>
 								<span class="text-sm font-semibold text-green-600">{insight.trend === 'positive' ? 'Trending Up' : 'Needs Attention'}</span>
@@ -1099,30 +1099,30 @@
 				<div class="space-y-8">
 					<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 						{#each $automatedReports as report}
-							<div class="bg-surface-950 dark:bg-surface-50 rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300" class:dark:bg-gray-800={isDarkMode} class:dark:border-gray-700={isDarkMode}>
+							<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300" class:={isDarkMode} class:={isDarkMode}>
 								<div class="flex items-center justify-between mb-4">
-									<h4 class="font-bold text-lg text-surface-100 dark:text-surface-900" class:dark:text-gray-100={isDarkMode}>{report.title}</h4>
+									<h4 class="font-bold text-lg text-surface-900" class:={isDarkMode}>{report.title}</h4>
 									<span class="text-xs font-semibold px-3 py-1 rounded-full {getStatusColor(report.status)} bg-opacity-20">
 										{report.status}
 									</span>
 								</div>
-								<p class="text-sm text-surface-400 dark:text-surface-600 mb-4" class:dark:text-gray-400={isDarkMode}>{report.type}</p>
+								<p class="text-sm text-surface-600 mb-4" class:={isDarkMode}>{report.type}</p>
 								<div class="grid grid-cols-3 gap-4 mb-4">
 									<div class="text-center">
 										<p class="text-xl font-bold text-blue-600">{report.insights}</p>
-										<p class="text-xs text-surface-500 dark:text-surface-500">Insights</p>
+										<p class="text-xs text-surface-500">Insights</p>
 									</div>
 									<div class="text-center">
 										<p class="text-xl font-bold text-green-600">{report.recommendations}</p>
-										<p class="text-xs text-surface-500 dark:text-surface-500">Actions</p>
+										<p class="text-xs text-surface-500">Actions</p>
 									</div>
 									<div class="text-center">
 										<p class="text-xl font-bold text-purple-600">{formatPercentage(report.confidenceScore)}</p>
-										<p class="text-xs text-surface-500 dark:text-surface-500">Confidence</p>
+										<p class="text-xs text-surface-500">Confidence</p>
 									</div>
 								</div>
-								<p class="text-xs text-surface-500 dark:text-surface-500 mb-4" class:dark:text-gray-400={isDarkMode}>{report.generated}</p>
-								<button class="w-full py-2 bg-blue-600 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+								<p class="text-xs text-surface-500 mb-4" class:={isDarkMode}>{report.generated}</p>
+								<button class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
 									View Report
 								</button>
 							</div>
@@ -1132,7 +1132,7 @@
 			{/if}
 
 			<!-- ===== 🚀 STRATEGIC OVERVIEW FOOTER ===== -->
-			<div class="mt-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 text-surface-950 dark:text-surface-50 relative overflow-hidden">
+			<div class="mt-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 text-white relative overflow-hidden">
 				<div class="absolute inset-0 bg-black opacity-20"></div>
 				<div class="relative z-10">
 					<div class="grid grid-cols-1 md:grid-cols-5 gap-6 text-center">

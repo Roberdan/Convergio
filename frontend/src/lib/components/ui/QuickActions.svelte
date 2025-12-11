@@ -236,7 +236,7 @@
 	}
 
 	.action-btn {
-		@apply relative bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+		@apply relative bg-white text-gray-700 border border-gray-200 rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
 		animation: quickActionFadeIn 0.3s ease-out forwards;
 		opacity: 0;
 		transform: translateY(10px);
@@ -247,7 +247,7 @@
 	}
 
 	.action-btn:hover {
-		@apply bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600;
+		@apply bg-gray-50 border-gray-300;
 		transform: translateY(0) scale(1.05);
 	}
 
@@ -273,7 +273,7 @@
 	}
 
 	.more-btn {
-		@apply bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400;
+		@apply bg-gray-100 text-gray-500;
 	}
 
 	.action-badge {
@@ -309,12 +309,12 @@
 	}
 
 	.action-label {
-		@apply bg-gray-900 dark:bg-gray-700 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap flex items-center gap-2;
+		@apply bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap flex items-center gap-2;
 		font-family: var(--font-primary);
 	}
 
 	.keyboard-shortcut {
-		@apply bg-gray-700 dark:bg-gray-600 px-1 py-0.5 rounded text-2xs font-mono;
+		@apply bg-gray-700 px-1 py-0.5 rounded text-2xs font-mono;
 	}
 
 	/* Icon styles */

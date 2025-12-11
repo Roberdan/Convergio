@@ -338,10 +338,10 @@
 <div class="agent-editor max-w-4xl mx-auto p-6">
 	<!-- Header -->
 	<div class="mb-8">
-		<h1 class="text-3xl font-bold text-surface-100 dark:text-surface-900 mb-2">
+		<h1 class="text-3xl font-bold text-surface-900 mb-2">
 			{isNewAgent ? 'Create New Agent' : `Edit ${agentKey}`}
 		</h1>
-		<p class="text-surface-400 dark:text-surface-600">
+		<p class="text-surface-600">
 			{isNewAgent ? 'Design a new AI agent with specialized expertise' : 'Modify agent capabilities and behavior'}
 		</p>
 	</div>
@@ -349,14 +349,14 @@
 	{#if isLoading}
 		<div class="flex items-center justify-center py-12">
 			<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-			<span class="ml-3 text-surface-400 dark:text-surface-600">Loading agent data...</span>
+			<span class="ml-3 text-surface-600">Loading agent data...</span>
 		</div>
 	{:else}
 		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 			<!-- Main Form -->
 			<div class="lg:col-span-2 space-y-6">
 				<!-- Basic Metadata -->
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<h2 class="text-xl font-semibold mb-4 flex items-center">
 						<span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
 						Basic Information
@@ -364,13 +364,13 @@
 					
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div>
-							<label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+							<label class="block text-sm font-medium text-surface-600 mb-1">
 								Agent Name *
 							</label>
 							<input
 								type="text"
 								bind:value={$formData.metadata.name}
-								class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+								class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 								class:border-red-300={validationErrors.name}
 								placeholder="e.g., expert-data-analyst"
 							/>
@@ -380,20 +380,20 @@
 						</div>
 						
 						<div>
-							<label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+							<label class="block text-sm font-medium text-surface-600 mb-1">
 								Color Theme
 							</label>
 							<div class="flex items-center space-x-2">
 								<input
 									type="color"
 									bind:value={$formData.metadata.color}
-									class="w-12 h-10 border border-surface-600 dark:border-surface-400 rounded cursor-pointer"
+									class="w-12 h-10 border border-surface-300 rounded cursor-pointer"
 								/>
 								<div class="flex space-x-1">
 									{#each colorPresets as color}
 										<button
 											type="button"
-											class="w-6 h-6 rounded border border-surface-700 dark:border-surface-300 hover:border-gray-400 transition-colors"
+											class="w-6 h-6 rounded border border-surface-200 hover:border-gray-400 transition-colors"
 											style="background-color: {color}"
 											on:click={() => formData.update(data => ({ ...data, metadata: { ...data.metadata, color } }))}
 										></button>
@@ -404,13 +404,13 @@
 					</div>
 					
 					<div class="mt-4">
-						<label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+						<label class="block text-sm font-medium text-surface-600 mb-1">
 							Description *
 						</label>
 						<textarea
 							bind:value={$formData.metadata.description}
 							rows="3"
-							class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+							class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 							class:border-red-300={validationErrors.description}
 							placeholder="Brief description of the agent's role and capabilities..."
 						></textarea>
@@ -421,34 +421,34 @@
 				</div>
 				
 				<!-- Persona & Identity -->
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<h2 class="text-xl font-semibold mb-4 flex items-center">
 						<span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
 						Persona & Identity
 					</h2>
 					
 					<div>
-						<label class="block text-sm font-medium text-surface-300 dark:text-surface-700 mb-1">
+						<label class="block text-sm font-medium text-surface-600 mb-1">
 							Agent Persona *
 						</label>
 						<textarea
 							bind:value={$formData.content.persona}
 							rows="6"
-							class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+							class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
 							class:border-red-300={validationErrors.persona}
 							placeholder="You are an expert in... Your personality is... You approach problems by..."
 						></textarea>
 						{#if validationErrors.persona}
 							<p class="text-red-500 text-xs mt-1">{validationErrors.persona}</p>
 						{/if}
-						<p class="text-surface-500 dark:text-surface-500 text-xs mt-1">
+						<p class="text-surface-500 text-xs mt-1">
 							Define the agent's personality, approach, and core identity.
 						</p>
 					</div>
 				</div>
 				
 				<!-- Expertise Areas -->
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<div class="flex justify-between items-center mb-4">
 						<h2 class="text-xl font-semibold flex items-center">
 							<span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
@@ -457,7 +457,7 @@
 						<button
 							type="button"
 							on:click={addExpertiseArea}
-							class="px-3 py-1 bg-blue-600 text-surface-950 dark:text-surface-50 text-sm rounded hover:bg-blue-700 transition-colors"
+							class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
 						>
 							+ Add Area
 						</button>
@@ -468,7 +468,7 @@
 							<input
 								type="text"
 								bind:value={$formData.content.expertise_areas[index]}
-								class="flex-1 px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+								class="flex-1 px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 								placeholder="e.g., data visualization, predictive modeling"
 							/>
 							<button
@@ -487,7 +487,7 @@
 				</div>
 				
 				<!-- Available Tools -->
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<h2 class="text-xl font-semibold mb-4 flex items-center">
 						<span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
 						Available Tools
@@ -495,37 +495,37 @@
 					
 					<div class="grid grid-cols-2 md:grid-cols-3 gap-2">
 						{#each availableTools as tool}
-							<label class="flex items-center space-x-2 p-2 rounded hover:bg-surface-900 dark:bg-surface-100 cursor-pointer">
+							<label class="flex items-center space-x-2 p-2 rounded hover:bg-surface-50 cursor-pointer">
 								<input
 									type="checkbox"
 									checked={$formData.metadata.tools.includes(tool)}
 									on:change={() => toggleTool(tool)}
 									class="rounded text-blue-600 focus:ring-blue-500"
 								/>
-								<span class="text-sm font-mono text-surface-300 dark:text-surface-700">{tool}</span>
+								<span class="text-sm font-mono text-surface-600">{tool}</span>
 							</label>
 						{/each}
 					</div>
 					
-					<p class="text-surface-500 dark:text-surface-500 text-xs mt-2">
+					<p class="text-surface-500 text-xs mt-2">
 						Selected: {$formData.metadata.tools.length} tools
 					</p>
 				</div>
 				
 				<!-- Additional Content -->
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<h2 class="text-xl font-semibold mb-4 flex items-center">
-						<span class="w-2 h-2 bg-surface-900 dark:bg-surface-1000 rounded-full mr-3"></span>
+						<span class="w-2 h-2 bg-surface-500 rounded-full mr-3"></span>
 						Additional Content
 					</h2>
 					
 					<textarea
 						bind:value={$formData.content.additional_content}
 						rows="8"
-						class="w-full px-3 py-2 border border-surface-600 dark:border-surface-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+						class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
 						placeholder="Additional markdown content, special instructions, examples..."
 					></textarea>
-					<p class="text-surface-500 dark:text-surface-500 text-xs mt-1">
+					<p class="text-surface-500 text-xs mt-1">
 						Add any additional markdown content for the agent definition.
 					</p>
 				</div>
@@ -534,7 +534,7 @@
 			<!-- Sidebar -->
 			<div class="space-y-6">
 				<!-- Actions -->
-				<div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow-sm border p-6">
+				<div class="bg-white rounded-lg shadow-sm border p-6">
 					<h3 class="text-lg font-semibold mb-4">Actions</h3>
 					
 					<div class="space-y-3">
@@ -542,10 +542,10 @@
 							type="button"
 							on:click={saveAgent}
 							disabled={!isFormValid || isSaving}
-							class="w-full px-4 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 rounded hover:bg-blue-700 disabled:bg-surface-600 dark:bg-surface-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+							class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-surface-600 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
 						>
 							{#if isSaving}
-								<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-surface-950 dark:border-surface-50 mr-2"></div>
+								<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-surface-950 mr-2"></div>
 							{/if}
 							{isSaving ? 'Saving...' : (isNewAgent ? 'Create Agent' : 'Update Agent')}
 						</button>
@@ -553,7 +553,7 @@
 						<button
 							type="button"
 							on:click={previewAgent}
-							class="w-full px-4 py-2 border border-surface-600 dark:border-surface-400 text-surface-300 dark:text-surface-700 rounded hover:bg-surface-900 dark:bg-surface-100 transition-colors"
+							class="w-full px-4 py-2 border border-surface-300 text-surface-600 rounded hover:bg-surface-50 transition-colors"
 						>
 							Preview Agent
 						</button>
@@ -561,7 +561,7 @@
 						<button
 							type="button"
 							on:click={getAliAssistance}
-							class="w-full px-4 py-2 bg-green-600 text-surface-950 dark:text-surface-50 rounded hover:bg-green-700 transition-colors flex items-center justify-center"
+							class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center justify-center"
 						>
 							<span class="mr-2">🤖</span>
 							Ask Ali for Help
@@ -571,7 +571,7 @@
 							type="button"
 							on:click={activateAliRealTime}
 							disabled={aliRealTimeActive}
-							class="w-full px-4 py-2 bg-purple-600 text-surface-950 dark:text-surface-50 rounded hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+							class="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
 						>
 							<span class="mr-2">{aliRealTimeActive ? '⚡' : '🔥'}</span>
 							{aliRealTimeActive ? 'Ali Real-Time Active' : 'Activate Real-Time Ali'}
@@ -646,11 +646,11 @@
 												<ul class="space-y-2">
 													{#each suggestions as suggestion}
 														<li class="flex justify-between items-start">
-															<p class="text-sm text-surface-300 dark:text-surface-700">{suggestion}</p>
+															<p class="text-sm text-surface-600">{suggestion}</p>
 															<button
 																type="button"
 																on:click={() => applyAliSuggestion(category, suggestion)}
-																class="ml-2 px-2 py-1 bg-blue-600 text-surface-950 dark:text-surface-50 text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
+																class="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
 															>
 																Apply
 															</button>
@@ -664,7 +664,7 @@
 									{#if aliAssistance.next_steps}
 										<div>
 											<h4 class="font-medium text-blue-900 mb-2">Next Steps</h4>
-											<ul class="list-disc list-inside text-sm text-surface-300 dark:text-surface-700 space-y-1">
+											<ul class="list-disc list-inside text-sm text-surface-600 space-y-1">
 												{#each aliAssistance.next_steps as step}
 													<li>{step}</li>
 												{/each}
@@ -683,8 +683,8 @@
 				{/if}
 				
 				<!-- Form Status -->
-				<div class="bg-surface-900 dark:bg-surface-100 rounded-lg p-4">
-					<h3 class="text-sm font-medium text-surface-300 dark:text-surface-700 mb-2">Form Status</h3>
+				<div class="bg-surface-50 rounded-lg p-4">
+					<h3 class="text-sm font-medium text-surface-600 mb-2">Form Status</h3>
 					<div class="space-y-2 text-sm">
 						<div class="flex justify-between">
 							<span>Valid:</span>
@@ -694,11 +694,11 @@
 						</div>
 						<div class="flex justify-between">
 							<span>Tools:</span>
-							<span class="text-surface-400 dark:text-surface-600">{$formData.metadata.tools.length}</span>
+							<span class="text-surface-600">{$formData.metadata.tools.length}</span>
 						</div>
 						<div class="flex justify-between">
 							<span>Expertise Areas:</span>
-							<span class="text-surface-400 dark:text-surface-600">{$formData.content.expertise_areas.length}</span>
+							<span class="text-surface-600">{$formData.content.expertise_areas.length}</span>
 						</div>
 					</div>
 				</div>

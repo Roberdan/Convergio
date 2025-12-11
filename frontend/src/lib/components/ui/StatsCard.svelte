@@ -40,19 +40,19 @@
 
 	// Compute icon color classes
 	$: iconColorClasses = {
-		primary: 'text-primary-600 bg-primary-100 dark:bg-primary-900 dark:text-primary-400',
-		success: 'text-success-600 bg-success-100 dark:bg-success-900 dark:text-success-400',
-		warning: 'text-warning-600 bg-warning-100 dark:bg-warning-900 dark:text-warning-400',
-		error: 'text-error-600 bg-error-100 dark:bg-error-900 dark:text-error-400',
-		info: 'text-info-600 bg-info-100 dark:bg-info-900 dark:text-info-400',
-		gray: 'text-gray-600 bg-gray-100 dark:bg-gray-800 dark:text-gray-400'
+		primary: 'text-primary-600 bg-primary-100',
+		success: 'text-success-600 bg-success-100',
+		warning: 'text-warning-600 bg-warning-100',
+		error: 'text-error-600 bg-error-100',
+		info: 'text-info-600 bg-info-100',
+		gray: 'text-gray-600 bg-gray-100'
 	};
 
 	// Compute trend color classes
 	$: trendColorClasses = trend ? {
-		up: 'text-success-600 dark:text-success-400',
-		down: 'text-error-600 dark:text-error-400',
-		neutral: 'text-gray-500 dark:text-gray-400'
+		up: 'text-success-600',
+		down: 'text-error-600',
+		neutral: 'text-gray-500'
 	}[trend.direction] : '';
 
 	// Compute card classes
@@ -161,7 +161,7 @@
 
 <style>
 	.stats-card {
-		@apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6;
+		@apply bg-white border border-gray-200 rounded-xl p-6;
 		box-shadow: var(--shadow-sm);
 	}
 
@@ -202,12 +202,12 @@
 	}
 
 	.stats-title {
-		@apply text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide;
+		@apply text-sm font-medium text-gray-600 uppercase tracking-wide;
 		font-family: var(--font-primary);
 	}
 
 	.stats-subtitle {
-		@apply mt-1 text-xs text-gray-500 dark:text-gray-500;
+		@apply mt-1 text-xs text-gray-500;
 		font-family: var(--font-primary);
 	}
 
@@ -220,7 +220,7 @@
 	}
 
 	.stats-value {
-		@apply text-3xl font-bold text-gray-900 dark:text-white leading-none;
+		@apply text-3xl font-bold text-gray-900 leading-none;
 		font-family: var(--font-primary);
 	}
 
@@ -242,15 +242,15 @@
 	}
 
 	.trend-period {
-		@apply text-gray-500 dark:text-gray-400 font-normal;
+		@apply text-gray-500 font-normal;
 	}
 
 	.stats-footer {
-		@apply mt-6 pt-4 border-t border-gray-200 dark:border-gray-700;
+		@apply mt-6 pt-4 border-t border-gray-200;
 	}
 
 	.footer-subtitle {
-		@apply text-sm text-gray-600 dark:text-gray-400;
+		@apply text-sm text-gray-600;
 		font-family: var(--font-primary);
 	}
 

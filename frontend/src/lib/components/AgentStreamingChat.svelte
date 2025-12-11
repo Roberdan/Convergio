@@ -323,7 +323,7 @@
         {:else if $connectionState === 'error'}
           <span class="text-red-500">● Error</span>
         {:else}
-          <span class="text-surface-500 dark:text-surface-500">● Disconnected</span>
+          <span class="text-surface-500">● Disconnected</span>
         {/if}
       </div>
     </div>
@@ -402,11 +402,11 @@
 
 <style>
   .agent-chat-container {
-    @apply flex flex-col h-full bg-surface-950 dark:bg-surface-50 dark:bg-gray-900 rounded-lg shadow-lg;
+    @apply flex flex-col h-full bg-white rounded-lg shadow-lg;
   }
   
   .chat-header {
-    @apply flex justify-between items-center p-4 border-b dark:border-gray-700;
+    @apply flex justify-between items-center p-4 border-b;
   }
   
   .messages-container {
@@ -419,11 +419,11 @@
   }
   
   .user-message {
-    @apply self-end bg-blue-500 text-surface-950 dark:text-surface-50 rounded-lg px-4 py-2 max-w-xs;
+    @apply self-end bg-blue-500 text-white rounded-lg px-4 py-2 max-w-xs;
   }
   
   .agent-message {
-    @apply self-start bg-surface-800 dark:bg-surface-200 dark:bg-gray-800 rounded-lg px-4 py-2 max-w-md;
+    @apply self-start bg-surface-100 rounded-lg px-4 py-2 max-w-md;
   }
   
   .error-message {
@@ -431,7 +431,7 @@
   }
   
   .system-message {
-    @apply self-center text-surface-500 dark:text-surface-500 text-sm italic;
+    @apply self-center text-surface-500 text-sm italic;
   }
   
   .timestamp {
@@ -439,23 +439,23 @@
   }
   
   .tools-used {
-    @apply text-xs text-surface-500 dark:text-surface-500 mt-2 pt-2 border-t;
+    @apply text-xs text-surface-500 mt-2 pt-2 border-t;
   }
   
   .chat-input {
-    @apply flex gap-2 p-4 border-t dark:border-gray-700;
+    @apply flex gap-2 p-4 border-t;
   }
   
   .input-field {
-    @apply flex-1 px-4 py-2 rounded-lg border dark:border-gray-600 dark:bg-gray-800;
+    @apply flex-1 px-4 py-2 rounded-lg border;
   }
   
   .send-button {
-    @apply px-4 py-2 bg-blue-500 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-blue-600 disabled:opacity-50;
+    @apply px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50;
   }
   
   .cancel-button {
-    @apply px-4 py-2 bg-red-500 text-surface-950 dark:text-surface-50 rounded-lg hover:bg-red-600;
+    @apply px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600;
   }
   
   .typing-indicator {

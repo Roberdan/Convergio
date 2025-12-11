@@ -32,11 +32,11 @@ Displays agent status indicators (active, waiting, idle, error) and conversation
       case 'waiting':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'idle':
-        return 'bg-surface-800 dark:bg-surface-200 text-surface-400 dark:text-surface-600 border-surface-700 dark:border-surface-300';
+        return 'bg-surface-100 text-surface-600 border-surface-200';
       case 'error':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return 'bg-surface-800 dark:bg-surface-200 text-surface-400 dark:text-surface-600 border-surface-700 dark:border-surface-300';
+        return 'bg-surface-100 text-surface-600 border-surface-200';
     }
   }
 
@@ -82,14 +82,14 @@ Displays agent status indicators (active, waiting, idle, error) and conversation
     </div>
   {:else}
     <!-- Detailed status for agent detail view -->
-    <div class="flex items-center justify-between p-3 bg-surface-900 dark:bg-surface-100 rounded-lg border">
+    <div class="flex items-center justify-between p-3 bg-surface-50 rounded-lg border">
       <div class="flex items-center space-x-3">
         <div class="text-lg">{getStatusIcon(status.status)}</div>
         <div>
-          <div class="text-sm font-medium text-surface-100 dark:text-surface-900">
+          <div class="text-sm font-medium text-surface-900">
             {getStatusText(status.status)}
           </div>
-          <div class="text-xs text-surface-500 dark:text-surface-500">
+          <div class="text-xs text-surface-500">
             {status.conversationCount} messages • 
             Last: {status.lastActivity.toLocaleTimeString()}
           </div>

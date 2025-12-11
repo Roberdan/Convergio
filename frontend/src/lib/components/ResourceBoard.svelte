@@ -201,7 +201,7 @@
       case 'high': return 'text-red-600 bg-red-50';
       case 'medium': return 'text-yellow-600 bg-yellow-50';
       case 'low': return 'text-green-600 bg-green-50';
-      default: return 'text-surface-400 dark:text-surface-600 bg-surface-900 dark:bg-surface-100';
+      default: return 'text-surface-600 bg-surface-50';
     }
   }
   
@@ -231,30 +231,30 @@
 <div class="resource-board p-6">
   <!-- Header -->
   <div class="mb-6">
-    <h2 class="text-2xl font-bold text-surface-100 dark:text-surface-900">Resource Management</h2>
-    <p class="text-surface-400 dark:text-surface-600">Manage team allocation and capacity</p>
+    <h2 class="text-2xl font-bold text-surface-900">Resource Management</h2>
+    <p class="text-surface-600">Manage team allocation and capacity</p>
   </div>
   
   <!-- View Selector and Filters -->
-  <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-4 mb-6">
+  <div class="bg-white rounded-lg shadow p-4 mb-6">
     <div class="flex flex-wrap gap-4 items-center">
       <!-- View Selector -->
       <div class="flex gap-2">
         <button
           on:click={() => selectedView = 'grid'}
-          class="px-3 py-2 rounded {selectedView === 'grid' ? 'bg-blue-600 text-surface-950 dark:text-surface-50' : 'bg-surface-800 dark:bg-surface-200'}"
+          class="px-3 py-2 rounded {selectedView === 'grid' ? 'bg-blue-600 text-white' : 'bg-surface-100'}"
         >
           Grid View
         </button>
         <button
           on:click={() => selectedView = 'timeline'}
-          class="px-3 py-2 rounded {selectedView === 'timeline' ? 'bg-blue-600 text-surface-950 dark:text-surface-50' : 'bg-surface-800 dark:bg-surface-200'}"
+          class="px-3 py-2 rounded {selectedView === 'timeline' ? 'bg-blue-600 text-white' : 'bg-surface-100'}"
         >
           Timeline
         </button>
         <button
           on:click={() => selectedView = 'utilization'}
-          class="px-3 py-2 rounded {selectedView === 'utilization' ? 'bg-blue-600 text-surface-950 dark:text-surface-50' : 'bg-surface-800 dark:bg-surface-200'}"
+          class="px-3 py-2 rounded {selectedView === 'utilization' ? 'bg-blue-600 text-white' : 'bg-surface-100'}"
         >
           Utilization
         </button>
@@ -294,7 +294,7 @@
   {#if selectedView === 'grid'}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {#each filteredResources as resource}
-        <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-4 hover:shadow-lg transition-shadow">
+        <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow">
           <!-- Resource Header -->
           <div class="flex items-start gap-3 mb-3">
             <img
@@ -304,8 +304,8 @@
             />
             <div class="flex-1">
               <h3 class="font-semibold">{resource.name}</h3>
-              <p class="text-sm text-surface-400 dark:text-surface-600">{resource.role}</p>
-              <p class="text-xs text-surface-500 dark:text-surface-500">{resource.department}</p>
+              <p class="text-sm text-surface-600">{resource.role}</p>
+              <p class="text-xs text-surface-500">{resource.department}</p>
             </div>
           </div>
           
@@ -315,7 +315,7 @@
               <span>Availability</span>
               <span>{resource.availability}%</span>
             </div>
-            <div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-2">
+            <div class="w-full bg-surface-200 rounded-full h-2">
               <div
                 class="h-2 rounded-full {getAvailabilityColor(resource.availability)}"
                 style="width: {resource.availability}%"
@@ -332,15 +332,15 @@
           
           <!-- Skills -->
           <div class="mb-3">
-            <p class="text-xs font-medium text-surface-300 dark:text-surface-700 mb-1">Skills:</p>
+            <p class="text-xs font-medium text-surface-600 mb-1">Skills:</p>
             <div class="flex flex-wrap gap-1">
               {#each resource.skills.slice(0, 3) as skill}
-                <span class="px-2 py-1 text-xs bg-surface-800 dark:bg-surface-200 rounded">
+                <span class="px-2 py-1 text-xs bg-surface-100 rounded">
                   {skill}
                 </span>
               {/each}
               {#if resource.skills.length > 3}
-                <span class="px-2 py-1 text-xs bg-surface-800 dark:bg-surface-200 rounded">
+                <span class="px-2 py-1 text-xs bg-surface-100 rounded">
                   +{resource.skills.length - 3}
                 </span>
               {/if}
@@ -349,12 +349,12 @@
           
           <!-- Current Projects -->
           <div class="mb-3">
-            <p class="text-xs font-medium text-surface-300 dark:text-surface-700 mb-1">
+            <p class="text-xs font-medium text-surface-600 mb-1">
               Projects ({resource.currentProjects.length}):
             </p>
             <div class="space-y-1">
               {#each $projects.filter(p => resource.currentProjects.includes(p.id)).slice(0, 2) as project}
-                <div class="text-xs text-surface-400 dark:text-surface-600">• {project.name}</div>
+                <div class="text-xs text-surface-600">• {project.name}</div>
               {/each}
             </div>
           </div>
@@ -362,7 +362,7 @@
           <!-- Actions -->
           <button
             on:click={() => selectedResource = resource}
-            class="w-full px-3 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 text-sm rounded hover:bg-blue-700"
+            class="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
           >
             View Details
           </button>
@@ -373,7 +373,7 @@
   
   <!-- Timeline View -->
   {#if selectedView === 'timeline'}
-    <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-6">
+    <div class="bg-white rounded-lg shadow p-6">
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
@@ -387,7 +387,7 @@
           </thead>
           <tbody>
             {#each filteredResources as resource}
-              <tr class="border-b hover:bg-surface-900 dark:bg-surface-100">
+              <tr class="border-b hover:bg-surface-50">
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2">
                     <img
@@ -397,7 +397,7 @@
                     />
                     <div>
                       <div class="font-medium">{resource.name}</div>
-                      <div class="text-xs text-surface-500 dark:text-surface-500">{resource.role}</div>
+                      <div class="text-xs text-surface-500">{resource.role}</div>
                     </div>
                   </div>
                 </td>
@@ -417,7 +417,7 @@
                   </div>
                 </td>
                 <td class="py-3 px-4">
-                  <div class="h-8 bg-surface-800 dark:bg-surface-200 rounded flex items-center px-2 text-xs">
+                  <div class="h-8 bg-surface-100 rounded flex items-center px-2 text-xs">
                     Available
                   </div>
                 </td>
@@ -431,7 +431,7 @@
   
   <!-- Utilization View -->
   {#if selectedView === 'utilization'}
-    <div class="bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-6">
+    <div class="bg-white rounded-lg shadow p-6">
       <div class="space-y-4">
         {#each filteredResources as resource}
           <div class="flex items-center gap-4">
@@ -444,16 +444,16 @@
                 />
                 <div>
                   <div class="font-medium">{resource.name}</div>
-                  <div class="text-xs text-surface-500 dark:text-surface-500">{resource.capacity}h/week</div>
+                  <div class="text-xs text-surface-500">{resource.capacity}h/week</div>
                 </div>
               </div>
             </div>
             
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <div class="flex-1 bg-surface-700 dark:bg-surface-300 rounded-full h-6">
+                <div class="flex-1 bg-surface-200 rounded-full h-6">
                   <div
-                    class="h-6 rounded-full flex items-center justify-center text-xs text-surface-950 dark:text-surface-50
+                    class="h-6 rounded-full flex items-center justify-center text-xs text-white
                            {resource.utilization >= 90 ? 'bg-red-500' : 
                             resource.utilization >= 70 ? 'bg-yellow-500' : 'bg-green-500'}"
                     style="width: {Math.min(100, resource.utilization)}%"
@@ -461,7 +461,7 @@
                     {resource.utilization}%
                   </div>
                 </div>
-                <span class="text-sm text-surface-400 dark:text-surface-600 w-20">
+                <span class="text-sm text-surface-600 w-20">
                   {Math.round(resource.capacity * resource.utilization / 100)}h used
                 </span>
               </div>
@@ -476,37 +476,37 @@
           <div class="text-2xl font-bold text-green-600">
             {$resources.filter(r => r.utilization < 70).length}
           </div>
-          <div class="text-sm text-surface-400 dark:text-surface-600">Available</div>
+          <div class="text-sm text-surface-600">Available</div>
         </div>
         <div class="text-center">
           <div class="text-2xl font-bold text-yellow-600">
             {$resources.filter(r => r.utilization >= 70 && r.utilization < 90).length}
           </div>
-          <div class="text-sm text-surface-400 dark:text-surface-600">Allocated</div>
+          <div class="text-sm text-surface-600">Allocated</div>
         </div>
         <div class="text-center">
           <div class="text-2xl font-bold text-red-600">
             {$resources.filter(r => r.utilization >= 90).length}
           </div>
-          <div class="text-sm text-surface-400 dark:text-surface-600">Over-allocated</div>
+          <div class="text-sm text-surface-600">Over-allocated</div>
         </div>
       </div>
     </div>
   {/if}
   
   <!-- Unassigned Tasks Panel -->
-  <div class="mt-6 bg-surface-950 dark:bg-surface-50 rounded-lg shadow p-6">
+  <div class="mt-6 bg-white rounded-lg shadow p-6">
     <h3 class="text-lg font-semibold mb-4">Unassigned Resource Needs</h3>
     <div class="space-y-3">
       {#each $projects as project}
         {#each project.resourceNeeds.filter(n => !n.assigned) as need}
-          <div class="flex items-center justify-between p-3 bg-surface-900 dark:bg-surface-100 rounded-lg">
+          <div class="flex items-center justify-between p-3 bg-surface-50 rounded-lg">
             <div>
               <span class="font-medium">{project.name}</span>
               <span class="px-2 py-1 ml-2 text-xs rounded-full {getPriorityColor(project.priority)}">
                 {project.priority}
               </span>
-              <div class="text-sm text-surface-400 dark:text-surface-600 mt-1">
+              <div class="text-sm text-surface-600 mt-1">
                 Needs: {need.skill} ({need.hours}h)
               </div>
             </div>

@@ -13,8 +13,8 @@
       case 'completed': return 'text-green-600 bg-green-50';
       case 'in-progress': return 'text-blue-600 bg-blue-50';
       case 'review': return 'text-yellow-600 bg-yellow-50';
-      case 'planning': return 'text-surface-400 dark:text-surface-600 bg-surface-900 dark:bg-surface-100';
-      default: return 'text-surface-400 dark:text-surface-600 bg-surface-900 dark:bg-surface-100';
+      case 'planning': return 'text-surface-600 bg-surface-50';
+      default: return 'text-surface-600 bg-surface-50';
     }
   }
 
@@ -53,13 +53,13 @@
   onMount(loadData);
 </script>
 
-<div class="bg-surface-950 dark:bg-surface-50 border border-surface-700 dark:border-surface-300 rounded">
-  <div class="px-4 py-3 border-b border-surface-700 dark:border-surface-300">
+<div class="bg-white border border-surface-200 rounded">
+  <div class="px-4 py-3 border-b border-surface-200">
     <div class="flex items-center justify-between">
-      <h3 class="text-sm font-medium text-surface-100 dark:text-surface-900">Projects & Activities</h3>
+      <h3 class="text-sm font-medium text-surface-900">Projects & Activities</h3>
       <button 
         on:click={loadData}
-        class="text-xs text-surface-500 dark:text-surface-500 hover:text-surface-300 dark:text-surface-700 flex items-center space-x-1"
+        class="text-xs text-surface-500 hover:text-surface-600 flex items-center space-x-1"
         aria-label="Refresh projects overview"
       >
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,15 +75,15 @@
       <div class="p-4">
         <div class="animate-pulse space-y-4">
           {#each Array.from({ length: 4 }, (_, i) => i) as i (i)}
-            <div class="flex items-center justify-between p-4 border border-surface-700 dark:border-surface-300 rounded" data-index={i}>
+            <div class="flex items-center justify-between p-4 border border-surface-200 rounded" data-index={i}>
               <div class="flex items-center space-x-3">
-                <div class="w-3 h-3 bg-surface-700 dark:bg-surface-300 rounded-full"></div>
+                <div class="w-3 h-3 bg-surface-200 rounded-full"></div>
                 <div>
-                  <div class="w-32 h-4 bg-surface-700 dark:bg-surface-300 rounded mb-1"></div>
-                  <div class="w-48 h-3 bg-surface-700 dark:bg-surface-300 rounded"></div>
+                  <div class="w-32 h-4 bg-surface-200 rounded mb-1"></div>
+                  <div class="w-48 h-3 bg-surface-200 rounded"></div>
                 </div>
               </div>
-              <div class="w-16 h-4 bg-surface-700 dark:bg-surface-300 rounded"></div>
+              <div class="w-16 h-4 bg-surface-200 rounded"></div>
             </div>
           {/each}
         </div>
@@ -101,8 +101,8 @@
     {:else}
       <!-- Summary Stats -->
       {#if projectOverview}
-        <div class="p-4 border-b border-surface-700 dark:border-surface-300">
-          <h4 class="text-xs font-medium text-surface-300 dark:text-surface-700 mb-3">Project Summary</h4>
+        <div class="p-4 border-b border-surface-200">
+          <h4 class="text-xs font-medium text-surface-600 mb-3">Project Summary</h4>
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div class="bg-blue-50 p-3 rounded">
               <p class="text-xl font-bold text-blue-600">{projectOverview.total_clients}</p>
@@ -125,26 +125,26 @@
 
         <!-- Recent Projects -->
         {#if projectOverview.recent_engagements.length > 0}
-          <div class="p-4 border-b border-surface-700 dark:border-surface-300">
-            <h4 class="text-xs font-medium text-surface-300 dark:text-surface-700 mb-3">Recent Projects</h4>
+          <div class="p-4 border-b border-surface-200">
+            <h4 class="text-xs font-medium text-surface-600 mb-3">Recent Projects</h4>
             <div class="space-y-3">
               {#each projectOverview.recent_engagements.slice(0, 5) as engagement}
                 <button 
-                  class="w-full flex items-center justify-between p-3 bg-surface-900 dark:bg-surface-100 rounded hover:bg-surface-800 dark:bg-surface-200 transition-colors"
+                  class="w-full flex items-center justify-between p-3 bg-surface-50 rounded hover:bg-surface-100 transition-colors"
                   on:click={() => showEngagementDetails(engagement.id)}
                 >
                   <div class="flex items-center space-x-3">
                     <div class="w-2 h-2 rounded-full {getStatusColor(engagement.status).split(' ')[0].replace('text-', 'bg-')}"></div>
                     <div class="text-left">
-                      <p class="text-sm font-medium text-surface-100 dark:text-surface-900">{engagement.title}</p>
-                      <p class="text-xs text-surface-500 dark:text-surface-500">{engagement.description || 'No description'}</p>
+                      <p class="text-sm font-medium text-surface-900">{engagement.title}</p>
+                      <p class="text-xs text-surface-500">{engagement.description || 'No description'}</p>
                     </div>
                   </div>
                   <div class="text-right">
                     <span class="text-xs px-2 py-1 rounded-full {getStatusColor(engagement.status)}">
                       {engagement.status}
                     </span>
-                    <p class="text-xs text-surface-500 dark:text-surface-500 mt-1">{engagement.progress.toFixed(0)}% complete</p>
+                    <p class="text-xs text-surface-500 mt-1">{engagement.progress.toFixed(0)}% complete</p>
                   </div>
                 </button>
               {/each}
@@ -155,23 +155,23 @@
         <!-- Clients Section -->
         {#if projectOverview.clients.length > 0}
           <div class="p-4">
-            <h4 class="text-xs font-medium text-surface-300 dark:text-surface-700 mb-3">Recent Clients</h4>
+            <h4 class="text-xs font-medium text-surface-600 mb-3">Recent Clients</h4>
             <div class="space-y-2">
               {#each projectOverview.clients.slice(0, 8) as client}
-                <div class="flex items-center justify-between p-2 hover:bg-surface-900 dark:bg-surface-100 rounded">
+                <div class="flex items-center justify-between p-2 hover:bg-surface-50 rounded">
                   <div class="flex items-center space-x-3">
                     <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                      <span class="text-surface-950 dark:text-surface-50 text-xs font-semibold">
+                      <span class="text-white text-xs font-semibold">
                         {client.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <p class="text-xs font-medium text-surface-100 dark:text-surface-900">{client.name}</p>
-                      <p class="text-xs text-surface-500 dark:text-surface-500">{client.email}</p>
+                      <p class="text-xs font-medium text-surface-900">{client.name}</p>
+                      <p class="text-xs text-surface-500">{client.email}</p>
                     </div>
                   </div>
                   <div class="text-right">
-                    <p class="text-xs text-surface-500 dark:text-surface-500">
+                    <p class="text-xs text-surface-500">
                       {client.created_at ? new Date(client.created_at).toLocaleDateString() : 'N/A'}
                     </p>
                   </div>
@@ -181,7 +181,7 @@
           </div>
         {/if}
       {:else}
-        <div class="p-4 text-center text-surface-500 dark:text-surface-500">
+        <div class="p-4 text-center text-surface-500">
           <p class="text-xs">No project data available</p>
         </div>
       {/if}
@@ -192,19 +192,19 @@
 <!-- Engagement Details Modal -->
 {#if selectedEngagement}
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div class="bg-surface-950 dark:bg-surface-50 rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+    <div class="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
       <div class="p-6">
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h2 class="text-lg font-semibold text-surface-100 dark:text-surface-900">{selectedEngagement.title}</h2>
+            <h2 class="text-lg font-semibold text-surface-900">{selectedEngagement.title}</h2>
             <span class="text-xs px-2 py-1 rounded-full {getStatusColor(selectedEngagement.status)}">
               {selectedEngagement.status}
             </span>
           </div>
           <button 
             on:click={closeDetails}
-            class="text-surface-400 dark:text-surface-600 hover:text-surface-300 dark:hover:text-surface-700"
+            class="text-surface-600 hover:text-surface-300"
             aria-label="Close details"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,18 +216,18 @@
         <!-- Description -->
         {#if selectedEngagement.description}
           <div class="mb-6">
-            <h3 class="text-sm font-medium text-surface-300 dark:text-surface-700 mb-2">Description</h3>
-            <p class="text-sm text-surface-400 dark:text-surface-600">{selectedEngagement.description}</p>
+            <h3 class="text-sm font-medium text-surface-600 mb-2">Description</h3>
+            <p class="text-sm text-surface-600">{selectedEngagement.description}</p>
           </div>
         {/if}
 
         <!-- Progress -->
         <div class="mb-6">
           <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-medium text-surface-300 dark:text-surface-700">Progress</h3>
-            <span class="text-sm text-surface-400 dark:text-surface-600">{selectedEngagement.progress.toFixed(0)}%</span>
+            <h3 class="text-sm font-medium text-surface-600">Progress</h3>
+            <span class="text-sm text-surface-600">{selectedEngagement.progress.toFixed(0)}%</span>
           </div>
-          <div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-2">
+          <div class="w-full bg-surface-200 rounded-full h-2">
             <div 
               class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
               style="width: {selectedEngagement.progress}%"
@@ -239,31 +239,31 @@
         {#if loadingDetails}
           <div class="text-center py-4">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-            <p class="text-sm text-surface-500 dark:text-surface-500 mt-2">Loading activities...</p>
+            <p class="text-sm text-surface-500 mt-2">Loading activities...</p>
           </div>
         {:else if selectedEngagement.activities.length > 0}
           <div>
-            <h3 class="text-sm font-medium text-surface-300 dark:text-surface-700 mb-3">Activities ({selectedEngagement.activities.length})</h3>
+            <h3 class="text-sm font-medium text-surface-600 mb-3">Activities ({selectedEngagement.activities.length})</h3>
             <div class="space-y-3">
               {#each selectedEngagement.activities as activity}
-                <div class="border border-surface-700 dark:border-surface-300 rounded p-3">
+                <div class="border border-surface-200 rounded p-3">
                   <div class="flex items-center justify-between mb-2">
-                    <h4 class="text-sm font-medium text-surface-100 dark:text-surface-900">{activity.title}</h4>
+                    <h4 class="text-sm font-medium text-surface-900">{activity.title}</h4>
                     <span class="text-xs px-2 py-1 rounded-full {getStatusColor(activity.status)}">
                       {activity.status}
                     </span>
                   </div>
                   {#if activity.description}
-                    <p class="text-xs text-surface-400 dark:text-surface-600 mb-2">{activity.description.substring(0, 100)}...</p>
+                    <p class="text-xs text-surface-600 mb-2">{activity.description.substring(0, 100)}...</p>
                   {/if}
                   <div class="flex items-center justify-between">
-                    <div class="w-full bg-surface-700 dark:bg-surface-300 rounded-full h-1 mr-2">
+                    <div class="w-full bg-surface-200 rounded-full h-1 mr-2">
                       <div 
                         class="bg-green-600 h-1 rounded-full" 
                         style="width: {activity.progress}%"
                       ></div>
                     </div>
-                    <span class="text-xs text-surface-500 dark:text-surface-500 whitespace-nowrap">{activity.progress.toFixed(0)}%</span>
+                    <span class="text-xs text-surface-500 whitespace-nowrap">{activity.progress.toFixed(0)}%</span>
                   </div>
                 </div>
               {/each}
@@ -271,13 +271,13 @@
           </div>
         {:else}
           <div class="text-center py-4">
-            <p class="text-sm text-surface-500 dark:text-surface-500">No activities found for this project</p>
+            <p class="text-sm text-surface-500">No activities found for this project</p>
           </div>
         {/if}
 
         <!-- Footer -->
-        <div class="mt-6 pt-4 border-t border-surface-700 dark:border-surface-300">
-          <div class="flex justify-between text-xs text-surface-500 dark:text-surface-500">
+        <div class="mt-6 pt-4 border-t border-surface-200">
+          <div class="flex justify-between text-xs text-surface-500">
             <span>Created: {selectedEngagement.created_at ? new Date(selectedEngagement.created_at).toLocaleDateString() : 'N/A'}</span>
             <span>Updated: {selectedEngagement.updated_at ? new Date(selectedEngagement.updated_at).toLocaleDateString() : 'N/A'}</span>
           </div>

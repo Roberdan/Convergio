@@ -309,7 +309,7 @@
   {#if loading}
     <div class="flex items-center justify-center py-12">
       <LoadingSpinner />
-      <span class="ml-3 text-surface-600 dark:text-surface-400">Loading orchestration data...</span>
+      <span class="ml-3 text-surface-600 ">Loading orchestration data...</span>
     </div>
   {:else if error}
     <Card>
@@ -328,14 +328,14 @@
         <div class="flex items-center space-x-4">
           <div class="flex items-center space-x-2">
             <div class="w-3 h-3 rounded-full {getStatusColor(currentData.orchestration_status)}"></div>
-            <span class="font-medium text-surface-900 dark:text-surface-100">
+            <span class="font-medium text-surface-900 ">
               AI Orchestration {currentData.orchestration_status.charAt(0).toUpperCase() + currentData.orchestration_status.slice(1)}
             </span>
           </div>
           <Badge class="{getStageColor(currentData.current_stage)}">
             {currentData.current_stage.charAt(0).toUpperCase() + currentData.current_stage.slice(1)} Stage
           </Badge>
-          <span class="text-sm text-surface-600 dark:text-surface-400">
+          <span class="text-sm text-surface-600 ">
             Primary Agent: <span class="font-medium">{currentData.primary_agent}</span>
           </span>
         </div>
@@ -365,44 +365,44 @@
     </Card>
     
     <!-- Navigation Tabs -->
-    <div class="flex space-x-1 bg-surface-200 dark:bg-surface-800 rounded-lg p-1">
+    <div class="flex space-x-1 bg-surface-200  rounded-lg p-1">
       <button
         on:click={() => selectedView = 'overview'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'overview' 
-          ? 'bg-surface-50 dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-          : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+          ? 'bg-surface-50 text-surface-900  shadow-sm' 
+          : 'text-surface-600  hover:text-surface-900'}"
       >
         📊 Overview
       </button>
       <button
         on:click={() => selectedView = 'journey'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'journey' 
-          ? 'bg-surface-50 dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-          : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+          ? 'bg-surface-50 text-surface-900  shadow-sm' 
+          : 'text-surface-600  hover:text-surface-900'}"
       >
         🛤️ Journey
       </button>
       <button
         on:click={() => selectedView = 'agents'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'agents' 
-          ? 'bg-surface-50 dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-          : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+          ? 'bg-surface-50 text-surface-900  shadow-sm' 
+          : 'text-surface-600  hover:text-surface-900'}"
       >
         🤖 Agents
       </button>
       <button
         on:click={() => selectedView = 'metrics'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'metrics' 
-          ? 'bg-surface-50 dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-          : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+          ? 'bg-surface-50 text-surface-900  shadow-sm' 
+          : 'text-surface-600  hover:text-surface-900'}"
       >
         📈 Metrics
       </button>
       <button
         on:click={() => selectedView = 'realtime'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'realtime' 
-          ? 'bg-surface-50 dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-          : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+          ? 'bg-surface-50 text-surface-900  shadow-sm' 
+          : 'text-surface-600  hover:text-surface-900'}"
       >
         📡 Real-time
       </button>

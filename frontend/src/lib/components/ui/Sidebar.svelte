@@ -255,7 +255,7 @@
 
 <style>
 	.sidebar {
-		@apply h-full flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out overflow-hidden;
+		@apply h-full flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out overflow-hidden;
 		width: 16rem; /* 256px */
 	}
 
@@ -264,7 +264,7 @@
 	}
 
 	.sidebar-header {
-		@apply flex items-center gap-3 px-6 py-6 border-b border-gray-200 dark:border-gray-700;
+		@apply flex items-center gap-3 px-6 py-6 border-b border-gray-200;
 	}
 
 	.collapsed .sidebar-header {
@@ -281,7 +281,7 @@
 	}
 
 	.brand-name {
-		@apply text-lg font-bold text-gray-900 dark:text-white truncate;
+		@apply text-lg font-bold text-gray-900 truncate;
 		font-family: var(--font-primary);
 	}
 
@@ -387,11 +387,11 @@
 	}
 
 	.sidebar-user {
-		@apply px-4 py-4 border-t border-gray-200 dark:border-gray-700;
+		@apply px-4 py-4 border-t border-gray-200;
 	}
 
 	.user-info-button {
-		@apply w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+		@apply w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
 	}
 
 	.user-details {
@@ -399,12 +399,12 @@
 	}
 
 	.user-name {
-		@apply block text-sm font-medium text-gray-900 dark:text-white truncate;
+		@apply block text-sm font-medium text-gray-900 truncate;
 		font-family: var(--font-primary);
 	}
 
 	.user-email {
-		@apply block text-xs text-gray-500 dark:text-gray-400 truncate;
+		@apply block text-xs text-gray-500 truncate;
 		font-family: var(--font-primary);
 	}
 
@@ -413,11 +413,11 @@
 	}
 
 	.sidebar-footer {
-		@apply px-6 py-4 border-t border-gray-200 dark:border-gray-700;
+		@apply px-6 py-4 border-t border-gray-200;
 	}
 
 	.footer-text {
-		@apply text-xs text-gray-500 dark:text-gray-400 text-center;
+		@apply text-xs text-gray-500 text-center;
 		font-family: var(--font-primary);
 	}
 
@@ -486,10 +486,10 @@
 	}
 
 	.sidebar-nav::-webkit-scrollbar-thumb {
-		@apply bg-gray-300 dark:bg-gray-600 rounded-full;
+		@apply bg-gray-300 rounded-full;
 	}
 
 	.sidebar-nav::-webkit-scrollbar-thumb:hover {
-		@apply bg-gray-400 dark:bg-gray-500;
+		@apply bg-gray-400;
 	}
 </style>

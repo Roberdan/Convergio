@@ -174,7 +174,7 @@
 		if (task.status === 'blocked') return 'bg-red-100 text-red-800';
 		if (task.priority === 'critical') return 'bg-red-200 text-red-900';
 		if (task.priority === 'high') return 'bg-orange-100 text-orange-800';
-		return 'bg-surface-800 dark:bg-surface-200 text-surface-200 dark:text-surface-800';
+		return 'bg-surface-100 text-surface-800';
 	}
 	
 	function getPriorityIcon(priority: string): string {
@@ -315,12 +315,12 @@
 	{:else if viewMode === 'week'}
 		<div class="week-view">
 			<!-- Week view implementation -->
-			<p class="text-center py-8 text-surface-500 dark:text-surface-500">Week view coming soon...</p>
+			<p class="text-center py-8 text-surface-500">Week view coming soon...</p>
 		</div>
 	{:else if viewMode === 'day'}
 		<div class="day-view">
 			<!-- Day view implementation -->
-			<p class="text-center py-8 text-surface-500 dark:text-surface-500">Day view coming soon...</p>
+			<p class="text-center py-8 text-surface-500">Day view coming soon...</p>
 		</div>
 	{/if}
 	
@@ -360,7 +360,7 @@
 								<div class="task-detail-item milestone">
 									<strong>{milestone.title}</strong>
 									{#if milestone.description}
-										<p class="text-sm text-surface-400 dark:text-surface-600">{milestone.description}</p>
+										<p class="text-sm text-surface-600">{milestone.description}</p>
 									{/if}
 								</div>
 							{/each}

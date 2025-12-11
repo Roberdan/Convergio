@@ -231,16 +231,16 @@ What would you like to know about your project?`,
 	];
 </script>
 
-<div class="ali-assistant bg-white dark:bg-surface-950 rounded-xl shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden h-[600px] flex flex-col">
+<div class="ali-assistant bg-white rounded-xl shadow-sm border border-surface-200  overflow-hidden h-[600px] flex flex-col">
 	<!-- Header -->
-	<div class="p-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+	<div class="p-4 border-b border-surface-200  bg-surface-50 ">
 		<div class="flex items-center space-x-3">
 			<div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
 				<span class="text-white font-semibold text-lg">🤖</span>
 			</div>
 			<div>
-				<h3 class="font-semibold text-surface-900 dark:text-surface-100">Ali AI Assistant</h3>
-				<p class="text-sm text-surface-600 dark:text-surface-400">
+				<h3 class="font-semibold text-surface-900 ">Ali AI Assistant</h3>
+				<p class="text-sm text-surface-600 ">
 					{#if projectContext}
 						Project: {projectContext.projectName}
 					{:else}
@@ -251,7 +251,7 @@ What would you like to know about your project?`,
 			<div class="flex-1"></div>
 			<div class="flex items-center space-x-2">
 				<div class="w-2 h-2 {connectionStatus === 'connected' ? 'bg-success-500' : connectionStatus === 'connecting' ? 'bg-warning-500' : 'bg-error-500'} rounded-full {connectionStatus === 'connecting' ? 'animate-pulse' : ''}"></div>
-				<span class="text-xs text-surface-500 dark:text-surface-400">
+				<span class="text-xs text-surface-500 ">
 					{connectionStatus === 'connected' ? `Online (${aliLatency}ms)` : 
 					 connectionStatus === 'connecting' ? 'Connecting...' : 
 					 connectionStatus === 'error' ? 'Connection Error' : 'Offline'}
@@ -271,10 +271,10 @@ What would you like to know about your project?`,
 								<span class="text-white text-sm">🤖</span>
 							</div>
 							<div>
-								<div class="bg-surface-100 dark:bg-surface-800 rounded-lg p-3 prose prose-sm max-w-none dark:prose-invert">
+								<div class="bg-surface-100  rounded-lg p-3 prose prose-sm max-w-none">
 									{@html message.content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')}
 								</div>
-								<div class="text-xs text-surface-500 dark:text-surface-400 mt-1 ml-1">
+								<div class="text-xs text-surface-500  mt-1 ml-1">
 									{formatTime(message.timestamp)}
 								</div>
 							</div>
@@ -285,7 +285,7 @@ What would you like to know about your project?`,
 								<div class="bg-primary-500 text-white rounded-lg p-3">
 									{message.content}
 								</div>
-								<div class="text-xs text-surface-500 dark:text-surface-400 mt-1 text-right mr-1">
+								<div class="text-xs text-surface-500  mt-1 text-right mr-1">
 									{formatTime(message.timestamp)}
 								</div>
 							</div>
@@ -301,7 +301,7 @@ What would you like to know about your project?`,
 					<div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
 						<span class="text-white text-sm">🤖</span>
 					</div>
-					<div class="bg-surface-100 dark:bg-surface-800 rounded-lg p-3">
+					<div class="bg-surface-100  rounded-lg p-3">
 						<div class="flex space-x-1">
 							<div class="w-2 h-2 bg-surface-400 rounded-full animate-bounce"></div>
 							<div class="w-2 h-2 bg-surface-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
@@ -315,15 +315,15 @@ What would you like to know about your project?`,
 
 	<!-- Quick Actions -->
 	{#if messages.length === 1}
-		<div class="p-4 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+		<div class="p-4 border-t border-surface-200  bg-surface-50 ">
 			<div class="mb-2">
-				<span class="text-xs font-medium text-surface-600 dark:text-surface-400">Quick Actions:</span>
+				<span class="text-xs font-medium text-surface-600 ">Quick Actions:</span>
 			</div>
 			<div class="flex flex-wrap gap-2">
 				{#each quickActions as action}
 					<button 
 						on:click={() => { newMessage = action; sendMessage(); }}
-						class="text-xs px-3 py-1 bg-surface-200 dark:bg-surface-700 hover:bg-primary-100 dark:hover:bg-primary-900 text-surface-700 dark:text-surface-300 hover:text-primary-700 dark:hover:text-primary-300 rounded-full transition-colors duration-200"
+						class="text-xs px-3 py-1 bg-surface-200  hover:bg-primary-100 text-surface-700  hover:text-primary-700 rounded-full transition-colors duration-200"
 						aria-label="Send quick action: {action}"
 					>
 						{action}
@@ -334,7 +334,7 @@ What would you like to know about your project?`,
 	{/if}
 
 	<!-- Input -->
-	<div class="p-4 border-t border-surface-200 dark:border-surface-700">
+	<div class="p-4 border-t border-surface-200 ">
 		<div class="flex space-x-3">
 			<label for="ali-message-input" class="sr-only">Message to Ali AI Assistant</label>
 			<textarea

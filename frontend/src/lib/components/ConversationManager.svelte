@@ -59,7 +59,7 @@ Provides conversation management UI: reset, history, resume, delete
     {#if hasMessages}
       <button
         on:click={handleShowHistory}
-        class="p-1 text-surface-400 dark:text-surface-600 hover:text-surface-300 dark:hover:text-surface-700 rounded"
+        class="p-1 text-surface-600 hover:text-surface-300 rounded"
         aria-label="Show conversation history"
       >
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -68,7 +68,7 @@ Provides conversation management UI: reset, history, resume, delete
       </button>
       <button
         on:click={handleReset}
-        class="p-1 text-surface-400 dark:text-surface-600 hover:text-orange-600 rounded"
+        class="p-1 text-surface-600 hover:text-orange-600 rounded"
         aria-label="Reset conversation with {agentName}"
       >
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -79,11 +79,11 @@ Provides conversation management UI: reset, history, resume, delete
   </div>
 {:else}
   <!-- Full conversation management panel -->
-  <section class="bg-surface-950 dark:bg-surface-50 border rounded-lg p-4 space-y-4" aria-labelledby="conversation-manager-title">
+  <section class="bg-white border rounded-lg p-4 space-y-4" aria-labelledby="conversation-manager-title">
     <div class="flex items-center justify-between">
-      <h3 id="conversation-manager-title" class="text-sm font-medium text-surface-100 dark:text-surface-900">Conversation with {agentName}</h3>
+      <h3 id="conversation-manager-title" class="text-sm font-medium text-surface-900">Conversation with {agentName}</h3>
       {#if conversation}
-        <span class="text-xs text-surface-500 dark:text-surface-500" aria-label="{conversation.messages.length} messages in conversation">
+        <span class="text-xs text-surface-500" aria-label="{conversation.messages.length} messages in conversation">
           {conversation.messages.length} messages
         </span>
       {/if}
@@ -94,7 +94,7 @@ Provides conversation management UI: reset, history, resume, delete
       {#if hasMessages}
         <button
           on:click={handleShowHistory}
-          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-surface-300 dark:text-surface-700 bg-surface-800 dark:bg-surface-200 hover:bg-surface-700 dark:bg-surface-300 rounded-md transition-colors"
+          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-surface-600 bg-surface-100 hover:bg-surface-200 rounded-md transition-colors"
           aria-label="{showHistory ? 'Hide' : 'Show'} conversation history"
         >
           <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -152,22 +152,22 @@ Provides conversation management UI: reset, history, resume, delete
     <!-- Conversation history -->
     {#if showHistory && conversation?.messages.length > 0}
       <div class="border-t pt-4">
-        <h4 id="conversation-history-title" class="text-xs font-medium text-surface-300 dark:text-surface-700 mb-2">Conversation History</h4>
+        <h4 id="conversation-history-title" class="text-xs font-medium text-surface-600 mb-2">Conversation History</h4>
         <div class="space-y-2 max-h-64 overflow-y-auto" role="log" aria-labelledby="conversation-history-title">
           {#each conversation.messages as message (message.id)}
             <div class="flex items-start space-x-2 p-2 rounded border-l-2 {message.type === 'user' ? 'border-blue-200 bg-blue-50' : 'border-green-200 bg-green-50'}" role="group" aria-label="{message.type === 'user' ? 'Your message' : message.agentName + ' message'}">
-              <div class="text-xs text-surface-500 dark:text-surface-500 mt-0.5 w-12 flex-shrink-0" aria-label="Message time {formatMessageTime(message.timestamp)}">
+              <div class="text-xs text-surface-500 mt-0.5 w-12 flex-shrink-0" aria-label="Message time {formatMessageTime(message.timestamp)}">
                 <time datetime="{message.timestamp.toISOString()}">{formatMessageTime(message.timestamp)}</time>
               </div>
               <div class="flex-1 min-w-0">
-                <div class="text-xs font-medium text-surface-300 dark:text-surface-700 mb-1">
+                <div class="text-xs font-medium text-surface-600 mb-1">
                   {message.type === 'user' ? 'You' : message.agentName}
                 </div>
-                <div class="text-xs text-surface-400 dark:text-surface-600 break-words">
+                <div class="text-xs text-surface-600 break-words">
                   {truncateContent(message.content)}
                 </div>
               </div>
-              <div class="text-xs text-surface-400 dark:text-surface-600" role="status">
+              <div class="text-xs text-surface-600" role="status">
                 {#if message.status === 'sending'}
                   <span class="animate-spin" aria-label="Sending message">⏳</span>
                 {:else if message.status === 'error'}
@@ -185,22 +185,22 @@ Provides conversation management UI: reset, history, resume, delete
     <!-- Delete confirmation modal -->
     {#if showConfirmDelete}
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-labelledby="delete-modal-title" aria-describedby="delete-modal-description">
-        <div class="bg-surface-950 dark:bg-surface-50 rounded-lg p-6 max-w-sm mx-4">
-          <h3 id="delete-modal-title" class="text-lg font-medium text-surface-100 dark:text-surface-900 mb-2">Delete Conversation?</h3>
-          <p id="delete-modal-description" class="text-sm text-surface-400 dark:text-surface-600 mb-4">
+        <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
+          <h3 id="delete-modal-title" class="text-lg font-medium text-surface-900 mb-2">Delete Conversation?</h3>
+          <p id="delete-modal-description" class="text-sm text-surface-600 mb-4">
             This will permanently delete your conversation with {agentName}. This action cannot be undone.
           </p>
           <div class="flex space-x-3">
             <button
               on:click={() => showConfirmDelete = false}
-              class="flex-1 px-3 py-2 text-sm font-medium text-surface-300 dark:text-surface-700 bg-surface-800 dark:bg-surface-200 hover:bg-surface-700 dark:bg-surface-300 rounded-md transition-colors"
+              class="flex-1 px-3 py-2 text-sm font-medium text-surface-600 bg-surface-100 hover:bg-surface-200 rounded-md transition-colors"
               aria-label="Cancel deletion"
             >
               Cancel
             </button>
             <button
               on:click={handleDelete}
-              class="flex-1 px-3 py-2 text-sm font-medium text-surface-950 dark:text-surface-50 bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+              class="flex-1 px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
               aria-label="Confirm deletion of conversation with {agentName}"
             >
               Delete

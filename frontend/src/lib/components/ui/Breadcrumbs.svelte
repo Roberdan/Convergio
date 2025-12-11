@@ -153,7 +153,7 @@
 	}
 
 	.breadcrumb-link {
-		@apply text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded px-1 py-0.5 flex items-center gap-1.5;
+		@apply text-gray-500 hover:text-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded px-1 py-0.5 flex items-center gap-1.5;
 		text-decoration: none;
 	}
 
@@ -170,15 +170,15 @@
 	}
 
 	.breadcrumb-current {
-		@apply text-gray-900 dark:text-gray-100 font-medium flex items-center gap-1.5 px-1 py-0.5;
+		@apply text-gray-900 font-medium flex items-center gap-1.5 px-1 py-0.5;
 	}
 
 	.breadcrumb-ellipsis {
-		@apply text-gray-400 dark:text-gray-600 px-1 py-0.5;
+		@apply text-gray-400 px-1 py-0.5;
 	}
 
 	.breadcrumb-separator {
-		@apply text-gray-400 dark:text-gray-600 mx-1 flex items-center;
+		@apply text-gray-400 mx-1 flex items-center;
 	}
 
 	.separator-dot {

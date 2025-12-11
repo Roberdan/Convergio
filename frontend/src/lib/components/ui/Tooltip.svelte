@@ -10,7 +10,7 @@
 		disabled?: boolean;
 		arrow?: boolean;
 		maxWidth?: string;
-		variant?: 'default' | 'dark' | 'light' | 'error' | 'warning' | 'success';
+		variant?: 'default' | 'light' | 'error' | 'warning' | 'success';
 	}
 
 	export let content: $$Props['content'];
@@ -21,7 +21,7 @@
 	export let disabled: $$Props['disabled'] = false;
 	export let arrow: $$Props['arrow'] = true;
 	export let maxWidth: $$Props['maxWidth'] = '200px';
-	export let variant: NonNullable<$$Props['variant']> = 'default';
+	export let variant: NonNullable<$$Props['variant']> = 'light';
 
 	const dispatch = createEventDispatcher<{
 		show: void;
@@ -60,9 +60,8 @@
 
 	// Variant classes
 	$: variantClasses = {
-		default: 'bg-gray-900 dark:bg-gray-700 text-white',
-		dark: 'bg-gray-900 text-white',
-		light: 'bg-white dark:bg-gray-100 text-gray-900 border border-gray-200 dark:border-gray-300',
+		default: 'bg-white text-gray-900 border border-gray-200',
+		light: 'bg-white text-gray-900 border border-gray-200',
 		error: 'bg-error-600 text-white',
 		warning: 'bg-warning-600 text-white',
 		success: 'bg-success-600 text-white'
@@ -70,9 +69,8 @@
 
 	// Arrow variant classes
 	$: arrowVariantClasses = {
-		default: 'border-gray-900 dark:border-gray-700',
-		dark: 'border-gray-900',
-		light: 'border-white dark:border-gray-100',
+		default: 'border-white',
+		light: 'border-white',
 		error: 'border-error-600',
 		warning: 'border-warning-600',
 		success: 'border-success-600'
@@ -277,7 +275,4 @@
 		@apply outline-none ring-2 ring-primary-500 ring-offset-2 rounded;
 	}
 
-	.dark .tooltip-trigger[role="button"]:focus {
-		@apply ring-offset-gray-900;
-	}
 </style>

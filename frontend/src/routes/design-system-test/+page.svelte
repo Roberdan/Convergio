@@ -307,8 +307,8 @@
 				refreshable={true}
 				exportable={true}
 			>
-				<div class="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-700 rounded-lg">
-					<p class="text-gray-500 dark:text-gray-400">Chart visualization would go here</p>
+				<div class="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+					<p class="text-gray-500">Chart visualization would go here</p>
 				</div>
 				<svelte:fragment slot="legend">
 					<div class="flex items-center gap-4">
@@ -404,8 +404,8 @@
 						<Avatar size="lg" fallback="JD" status="online" />
 						<div class="space-y-2">
 							<h4 class="font-medium">John Doe</h4>
-							<p class="text-sm text-gray-600 dark:text-gray-400">john@convergio.com</p>
-							<p class="text-sm text-gray-500 dark:text-gray-500">Administrator</p>
+							<p class="text-sm text-gray-600">john@convergio.com</p>
+							<p class="text-sm text-gray-500">Administrator</p>
 						</div>
 					</div>
 				</svelte:fragment>

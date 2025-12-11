@@ -9,7 +9,7 @@
   export let icon: string;
   export const iconColor: string = 'text-blue-600';
   export const bgColor: string = 'bg-blue-50';
-  export const valueColor: string = 'text-surface-100 dark:text-surface-900';
+  export const valueColor: string = 'text-surface-900';
   export const changeColor: string = 'text-green-600';
   export let formatValue = (val: string | number) => String(val);
   export let showChange: boolean = true;
@@ -25,7 +25,7 @@
   
   $: changeTextColor = changeType === 'increase' ? 'text-green-700' : 
                        changeType === 'decrease' ? 'text-red-700' : 
-                       'text-surface-300 dark:text-surface-700';
+                       'text-surface-600';
 
   function handleClick() {
     dispatch('click');

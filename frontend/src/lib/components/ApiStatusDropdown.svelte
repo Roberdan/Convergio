@@ -166,14 +166,14 @@
   <!-- Status Button -->
   <button
     on:click={() => isOpen = !isOpen}
-    class="flex items-start space-x-2 px-4 py-2 bg-surface-950 dark:bg-surface-50 rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-sm {getStatusColor(overallStatus)}"
+    class="flex items-start space-x-2 px-4 py-2 bg-white rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-sm {getStatusColor(overallStatus)}"
     aria-label="API connection status"
     aria-expanded={isOpen}
   >
     <div class="h-2 w-2 {getStatusBgColor(overallStatus)} rounded-full animate-pulse"></div>
     <span class="hidden sm:inline capitalize font-bold text-sm">{overallStatus}</span>
     <svg
-      class="w-4 h-4 text-surface-300 dark:text-surface-700 transform transition-transform {isOpen ? 'rotate-180' : ''}"
+      class="w-4 h-4 text-surface-600 transform transition-transform {isOpen ? 'rotate-180' : ''}"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -184,9 +184,9 @@
   
   <!-- Dropdown Panel -->
   {#if isOpen}
-    <div class="absolute right-0 top-full mt-2 w-80 bg-surface-950 dark:bg-surface-50 border-2 border-surface-600 dark:border-surface-400 rounded-xl shadow-2xl z-[10000] overflow-hidden">
+    <div class="absolute right-0 top-full mt-2 w-80 bg-white border-2 border-surface-300 rounded-xl shadow-2xl z-[10000] overflow-hidden">
       <!-- Header -->
-      <div class="bg-blue-600 text-surface-950 dark:text-surface-50 px-6 py-4">
+      <div class="bg-blue-600 text-white px-6 py-4">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-lg font-bold">API Connection Status</h3>
@@ -196,21 +196,21 @@
       </div>
       
       <!-- Version Info -->
-      <div class="bg-surface-900 dark:bg-surface-100 border-b border-surface-700 dark:border-surface-300 px-6 py-3">
+      <div class="bg-surface-50 border-b border-surface-200 px-6 py-3">
         <div class="flex items-center justify-between">
-          <span class="text-sm text-surface-400 dark:text-surface-600">Platform Version</span>
-          <span class="text-sm font-bold text-surface-100 dark:text-surface-900">{APP_VERSION}</span>
+          <span class="text-sm text-surface-600">Platform Version</span>
+          <span class="text-sm font-bold text-surface-900">{APP_VERSION}</span>
         </div>
       </div>
       
       <div class="p-6 space-y-4">
         <!-- Backend Status -->
-        <div class="flex items-center justify-between p-4 bg-surface-800 dark:bg-surface-200 rounded-lg">
+        <div class="flex items-center justify-between p-4 bg-surface-100 rounded-lg">
           <div class="flex items-center space-x-3">
             <span class="text-xl">{getServiceIcon('backend')}</span>
             <div>
-              <p class="font-bold text-surface-100 dark:text-surface-900">Backend Server</p>
-              <p class="text-sm text-surface-300 dark:text-surface-700">
+              <p class="font-bold text-surface-900">Backend Server</p>
+              <p class="text-sm text-surface-600">
                 {#if apiStatus.backend.connected}
                   v{apiStatus.backend.version || 'Unknown'}
                 {:else}
@@ -228,12 +228,12 @@
         </div>
         
         <!-- OpenAI Status -->
-        <div class="flex items-center justify-between p-4 bg-surface-800 dark:bg-surface-200 rounded-lg">
+        <div class="flex items-center justify-between p-4 bg-surface-100 rounded-lg">
           <div class="flex items-center space-x-3">
             <span class="text-xl">{getServiceIcon('openai')}</span>
             <div>
-              <p class="font-bold text-surface-100 dark:text-surface-900">OpenAI</p>
-              <p class="text-sm text-surface-300 dark:text-surface-700">
+              <p class="font-bold text-surface-900">OpenAI</p>
+              <p class="text-sm text-surface-600">
                 {#if apiStatus.openai.connected}
                   {apiStatus.openai.model || 'Connected'}
                 {:else if apiStatus.openai.error}
@@ -245,20 +245,20 @@
             </div>
           </div>
           <div class="flex items-center space-x-2">
-            <div class="h-3 w-3 rounded-full {apiStatus.openai.connected ? 'bg-green-500' : 'bg-surface-500 dark:bg-surface-500'}"></div>
-            <span class="text-sm font-bold {apiStatus.openai.connected ? 'text-green-700' : 'text-surface-400 dark:text-surface-600'}">
+            <div class="h-3 w-3 rounded-full {apiStatus.openai.connected ? 'bg-green-500' : 'bg-surface-500'}"></div>
+            <span class="text-sm font-bold {apiStatus.openai.connected ? 'text-green-700' : 'text-surface-600'}">
               {apiStatus.openai.connected ? 'Active' : 'Inactive'}
             </span>
           </div>
         </div>
         
         <!-- Anthropic Status -->
-        <div class="flex items-center justify-between p-4 bg-surface-800 dark:bg-surface-200 rounded-lg">
+        <div class="flex items-center justify-between p-4 bg-surface-100 rounded-lg">
           <div class="flex items-center space-x-3">
             <span class="text-xl">{getServiceIcon('anthropic')}</span>
             <div>
-              <p class="font-bold text-surface-100 dark:text-surface-900">Anthropic</p>
-              <p class="text-sm text-surface-300 dark:text-surface-700">
+              <p class="font-bold text-surface-900">Anthropic</p>
+              <p class="text-sm text-surface-600">
                 {#if apiStatus.anthropic.connected}
                   {apiStatus.anthropic.model || 'Connected'}
                 {:else if apiStatus.anthropic.error}
@@ -270,20 +270,20 @@
             </div>
           </div>
           <div class="flex items-center space-x-2">
-            <div class="h-3 w-3 rounded-full {apiStatus.anthropic.connected ? 'bg-green-500' : 'bg-surface-500 dark:bg-surface-500'}"></div>
-            <span class="text-sm font-bold {apiStatus.anthropic.connected ? 'text-green-700' : 'text-surface-400 dark:text-surface-600'}">
+            <div class="h-3 w-3 rounded-full {apiStatus.anthropic.connected ? 'bg-green-500' : 'bg-surface-500'}"></div>
+            <span class="text-sm font-bold {apiStatus.anthropic.connected ? 'text-green-700' : 'text-surface-600'}">
               {apiStatus.anthropic.connected ? 'Active' : 'Inactive'}
             </span>
           </div>
         </div>
         
         <!-- Perplexity Status -->
-        <div class="flex items-center justify-between p-4 bg-surface-800 dark:bg-surface-200 rounded-lg">
+        <div class="flex items-center justify-between p-4 bg-surface-100 rounded-lg">
           <div class="flex items-center space-x-3">
             <span class="text-xl">{getServiceIcon('perplexity')}</span>
             <div>
-              <p class="font-bold text-surface-100 dark:text-surface-900">Perplexity</p>
-              <p class="text-sm text-surface-300 dark:text-surface-700">
+              <p class="font-bold text-surface-900">Perplexity</p>
+              <p class="text-sm text-surface-600">
                 {#if apiStatus.perplexity.connected}
                   {apiStatus.perplexity.model || 'Web Search Ready'}
                 {:else if apiStatus.perplexity.error}
@@ -304,13 +304,13 @@
       </div>
       
       <!-- Footer -->
-      <div class="bg-surface-800 dark:bg-surface-200 px-6 py-4 flex items-center justify-between text-sm">
-        <p class="text-surface-300 dark:text-surface-700 font-medium">
+      <div class="bg-surface-100 px-6 py-4 flex items-center justify-between text-sm">
+        <p class="text-surface-600 font-medium">
           Last checked: {new Date().toLocaleTimeString()}
         </p>
         <button
           on:click={checkApiStatus}
-          class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-surface-950 dark:text-surface-50 font-bold rounded transition-colors"
+          class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded transition-colors"
         >
           Refresh
         </button>

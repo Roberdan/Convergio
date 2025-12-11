@@ -173,12 +173,12 @@
 </svelte:head>
 
 <!-- Projects Page -->
-<div class="min-h-screen bg-surface-100 dark:bg-surface-900 space-y-6">
+<div class="min-h-screen bg-surface-100  space-y-6">
 	<!-- Header -->
 	<div class="flex items-center justify-between">
 		<div>
-			<h1 class="text-lg font-medium text-surface-900 dark:text-surface-100">🚀 AI-Orchestrated Project Management</h1>
-			<p class="mt-1 text-sm text-surface-700 dark:text-surface-300">CRM-style journey tracking with intelligent agent orchestration and real-time collaboration</p>
+			<h1 class="text-lg font-medium text-surface-900 ">🚀 AI-Orchestrated Project Management</h1>
+			<p class="mt-1 text-sm text-surface-700 ">CRM-style journey tracking with intelligent agent orchestration and real-time collaboration</p>
 		</div>
 		
 		<!-- Quick Actions -->
@@ -215,9 +215,9 @@
 		{:else}
 			<!-- Project Selection -->
 			{#if projects.length > 0}
-				<div class="bg-surface-50 dark:bg-surface-950 border border-surface-300 dark:border-surface-700 rounded-lg overflow-hidden">
-					<div class="p-4 border-b border-surface-300 dark:border-surface-700 bg-surface-100 dark:bg-surface-900">
-						<h2 class="text-md font-medium text-surface-900 dark:text-surface-100">Select Project</h2>
+				<div class="bg-surface-50 border border-surface-300  rounded-lg overflow-hidden">
+					<div class="p-4 border-b border-surface-300  bg-surface-100 ">
+						<h2 class="text-md font-medium text-surface-900 ">Select Project</h2>
 					</div>
 					
 					<div class="p-4">
@@ -227,10 +227,10 @@
 									on:click={() => handleProjectSelect(project.id)}
 									class="text-left p-4 rounded-lg border-2 transition-all duration-200 hover:shadow-md {selectedProjectId === project.id.toString() 
 										? 'border-blue-500 bg-blue-50' 
-										: 'border-surface-300 dark:border-surface-700 bg-surface-50 dark:bg-surface-950 hover:border-surface-400 dark:border-surface-600'}"
+										: 'border-surface-300  bg-surface-50 hover:border-surface-400 '}"
 								>
-									<div class="font-medium text-surface-900 dark:text-surface-100 mb-1">{project.name || project.title}</div>
-									<div class="text-sm text-surface-600 dark:text-surface-400">{project.description || 'No description'}</div>
+									<div class="font-medium text-surface-900  mb-1">{project.name || project.title}</div>
+									<div class="text-sm text-surface-600 ">{project.description || 'No description'}</div>
 									<div class="mt-2 flex items-center justify-between">
 										<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {getStatusColor(project.status)}">
 											{project.status || 'Active'}
@@ -245,15 +245,15 @@
 					</div>
 				</div>
 			{:else}
-				<div class="bg-surface-50 dark:bg-surface-950 border border-surface-300 dark:border-surface-700 rounded-lg">
+				<div class="bg-surface-50 border border-surface-300  rounded-lg">
 					<div class="text-center py-20">
-						<div class="w-24 h-24 mx-auto mb-6 bg-surface-200 dark:bg-surface-800 rounded-full flex items-center justify-center">
-							<svg class="w-12 h-12 text-surface-400 dark:text-surface-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<div class="w-24 h-24 mx-auto mb-6 bg-surface-200  rounded-full flex items-center justify-center">
+							<svg class="w-12 h-12 text-surface-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
 							</svg>
 						</div>
-						<h3 class="text-xl font-medium text-surface-900 dark:text-surface-100 mb-2">No Projects Yet</h3>
-						<p class="text-surface-600 dark:text-surface-400 mb-6">Create your first project to get started with project management</p>
+						<h3 class="text-xl font-medium text-surface-900  mb-2">No Projects Yet</h3>
+						<p class="text-surface-600  mb-6">Create your first project to get started with project management</p>
 						<button 
 							on:click={() => createProject('My First Project', 'Start managing your AI agent workflows')}
 							class="btn-primary flex items-center space-x-2"
@@ -269,58 +269,58 @@
 
 			<!-- View Selection -->
 			{#if selectedProjectId && projects.length > 0}
-				<div class="bg-surface-50 dark:bg-surface-950 border border-surface-300 dark:border-surface-700 rounded-lg overflow-hidden">
-					<div class="p-4 border-b border-surface-300 dark:border-surface-700 bg-surface-100 dark:bg-surface-900">
+				<div class="bg-surface-50 border border-surface-300  rounded-lg overflow-hidden">
+					<div class="p-4 border-b border-surface-300  bg-surface-100 ">
 						<div class="flex items-center justify-between">
-							<h2 class="text-md font-medium text-surface-900 dark:text-surface-100">Project Views</h2>
+							<h2 class="text-md font-medium text-surface-900 ">Project Views</h2>
 							
 							<!-- View Tabs -->
-							<div class="flex bg-surface-200 dark:bg-surface-800 rounded-lg p-1">
+							<div class="flex bg-surface-200  rounded-lg p-1">
 								<button
 									on:click={() => selectedView = 'overview'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'overview' 
-										? 'bg-white dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-										: 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+										? 'bg-white text-surface-900  shadow-sm' 
+										: 'text-surface-600  hover:text-surface-900'}"
 								>
 									📊 Overview
 								</button>
 								<button
 									on:click={() => selectedView = 'gantt'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'gantt' 
-										? 'bg-white dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-										: 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+										? 'bg-white text-surface-900  shadow-sm' 
+										: 'text-surface-600  hover:text-surface-900'}"
 								>
 									📅 Gantt Chart
 								</button>
 								<button
 									on:click={() => selectedView = 'kanban'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'kanban' 
-										? 'bg-white dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-										: 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+										? 'bg-white text-surface-900  shadow-sm' 
+										: 'text-surface-600  hover:text-surface-900'}"
 								>
 									🔄 Kanban
 								</button>
 								<button
 									on:click={() => selectedView = 'resources'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'resources' 
-										? 'bg-white dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-										: 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+										? 'bg-white text-surface-900  shadow-sm' 
+										: 'text-surface-600  hover:text-surface-900'}"
 								>
 									💼 Resources
 								</button>
 								<button
 									on:click={() => selectedView = 'analytics'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'analytics' 
-										? 'bg-white dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-										: 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+										? 'bg-white text-surface-900  shadow-sm' 
+										: 'text-surface-600  hover:text-surface-900'}"
 								>
 									📈 Analytics
 								</button>
 								<button
 									on:click={() => selectedView = 'ali'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'ali' 
-										? 'bg-white dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-										: 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'}"
+										? 'bg-white text-surface-900  shadow-sm' 
+										: 'text-surface-600  hover:text-surface-900'}"
 								>
 									🤖 Ali AI
 								</button>
@@ -340,7 +340,7 @@
 											<div class="card">
 												<div class="card-header">
 													<h3 class="text-lg font-semibold">{selectedProject.name || selectedProject.title}</h3>
-													<p class="text-surface-600 dark:text-surface-400">{selectedProject.description}</p>
+													<p class="text-surface-600 ">{selectedProject.description}</p>
 												</div>
 												<div class="card-content">
 													<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -353,11 +353,11 @@
 															<div class="text-sm text-surface-500">Health</div>
 														</div>
 														<div class="text-center">
-															<div class="text-2xl font-bold text-surface-900 dark:text-surface-100">{selectedProject.team?.length || 0}</div>
+															<div class="text-2xl font-bold text-surface-900 ">{selectedProject.team?.length || 0}</div>
 															<div class="text-sm text-surface-500">Team</div>
 														</div>
 														<div class="text-center">
-															<div class="text-2xl font-bold text-surface-900 dark:text-surface-100">${((selectedProject.actualCost || 0)/1000).toFixed(0)}k</div>
+															<div class="text-2xl font-bold text-surface-900 ">${((selectedProject.actualCost || 0)/1000).toFixed(0)}k</div>
 															<div class="text-sm text-surface-500">Spent</div>
 														</div>
 													</div>
@@ -381,12 +381,12 @@
 														{#each selectedProject.team as member}
 															<div class="flex items-center space-x-3">
 																<div class="avatar avatar-sm">
-																	<div class="w-full h-full bg-primary-200 dark:bg-primary-800 rounded-full flex items-center justify-center text-sm font-semibold text-primary-700 dark:text-primary-300">
+																	<div class="w-full h-full bg-primary-200 rounded-full flex items-center justify-center text-sm font-semibold text-primary-700">
 																		{member.name.charAt(0)}
 																	</div>
 																</div>
 																<div>
-																	<div class="font-medium text-surface-900 dark:text-surface-100">{member.name}</div>
+																	<div class="font-medium text-surface-900 ">{member.name}</div>
 																	<div class="text-sm text-surface-500">{member.role}</div>
 																</div>
 															</div>

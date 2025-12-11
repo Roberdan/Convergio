@@ -157,29 +157,29 @@
 	}
 </script>
 
-<div class="gantt-chart bg-white dark:bg-surface-950 rounded-xl shadow-sm border border-surface-200 dark:border-surface-700 overflow-hidden">
+<div class="gantt-chart bg-white rounded-xl shadow-sm border border-surface-200  overflow-hidden">
 	<!-- Header -->
-	<div class="p-6 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+	<div class="p-6 border-b border-surface-200  bg-surface-50 ">
 		<div class="flex items-center justify-between">
 			<div>
-				<h3 class="text-lg font-semibold text-surface-900 dark:text-surface-100">Project Timeline</h3>
-				<p class="text-sm text-surface-600 dark:text-surface-400">Interactive Gantt chart with dependencies</p>
+				<h3 class="text-lg font-semibold text-surface-900 ">Project Timeline</h3>
+				<p class="text-sm text-surface-600 ">Interactive Gantt chart with dependencies</p>
 			</div>
 			<div class="flex items-center space-x-3">
-				<div class="flex bg-surface-200 dark:bg-surface-800 rounded-lg p-1">
+				<div class="flex bg-surface-200  rounded-lg p-1">
 					<button
 						on:click={() => viewMode = 'weeks'}
 						class="px-3 py-1 rounded text-xs font-medium transition-colors duration-200 {viewMode === 'weeks' 
-							? 'bg-white dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-							: 'text-surface-600 dark:text-surface-400'}"
+							? 'bg-white text-surface-900  shadow-sm' 
+							: 'text-surface-600 '}"
 					>
 						Weeks
 					</button>
 					<button
 						on:click={() => viewMode = 'months'}
 						class="px-3 py-1 rounded text-xs font-medium transition-colors duration-200 {viewMode === 'months' 
-							? 'bg-white dark:bg-surface-950 text-surface-900 dark:text-surface-100 shadow-sm' 
-							: 'text-surface-600 dark:text-surface-400'}"
+							? 'bg-white text-surface-900  shadow-sm' 
+							: 'text-surface-600 '}"
 					>
 						Months
 					</button>
@@ -196,11 +196,11 @@
 		<!-- Gantt Chart -->
 		<div class="gantt-container overflow-x-auto">
 			<!-- Timeline Header -->
-			<div class="timeline-header bg-surface-50 dark:bg-surface-900 border-b border-surface-200 dark:border-surface-700 sticky top-0 z-10">
+			<div class="timeline-header bg-surface-50  border-b border-surface-200  sticky top-0 z-10">
 				<div class="flex">
 					<!-- Task Names Column -->
-					<div class="task-names-header w-80 p-4 border-r border-surface-200 dark:border-surface-700 bg-surface-100 dark:bg-surface-800">
-						<div class="font-medium text-surface-900 dark:text-surface-100">Tasks</div>
+					<div class="task-names-header w-80 p-4 border-r border-surface-200  bg-surface-100 ">
+						<div class="font-medium text-surface-900 ">Tasks</div>
 					</div>
 					
 					<!-- Timeline Grid -->
@@ -208,7 +208,7 @@
 						{#if viewMode === 'weeks'}
 							<div class="grid grid-cols-52 gap-0">
 								{#each timeline.weeks as week, i}
-									<div class="p-2 text-xs text-center text-surface-600 dark:text-surface-400 border-r border-surface-200 dark:border-surface-700">
+									<div class="p-2 text-xs text-center text-surface-600  border-r border-surface-200 ">
 										{week.getDate()}/{week.getMonth() + 1}
 									</div>
 								{/each}
@@ -216,7 +216,7 @@
 						{:else}
 							<div class="grid grid-cols-12 gap-0">
 								{#each timeline.months as month}
-									<div class="p-3 text-sm text-center font-medium text-surface-700 dark:text-surface-300 border-r border-surface-200 dark:border-surface-700">
+									<div class="p-3 text-sm text-center font-medium text-surface-700  border-r border-surface-200 ">
 										{month} 2024
 									</div>
 								{/each}
@@ -229,23 +229,23 @@
 			<!-- Task Rows -->
 			<div class="task-rows">
 				{#each tasks as task, index}
-					<div class="task-row flex border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50 dark:hover:bg-surface-900 transition-colors duration-200">
+					<div class="task-row flex border-b border-surface-100 hover:bg-surface-50 transition-colors duration-200">
 						<!-- Task Info -->
-						<div class="task-info w-80 p-4 border-r border-surface-200 dark:border-surface-700 {getPriorityColor(task.priority)} border-l-4">
+						<div class="task-info w-80 p-4 border-r border-surface-200  {getPriorityColor(task.priority)} border-l-4">
 							<div class="flex items-center justify-between">
 								<div class="flex-1">
-									<div class="font-medium text-surface-900 dark:text-surface-100 text-sm mb-1">{task.name}</div>
-									<div class="flex items-center space-x-3 text-xs text-surface-500 dark:text-surface-400">
+									<div class="font-medium text-surface-900  text-sm mb-1">{task.name}</div>
+									<div class="flex items-center space-x-3 text-xs text-surface-500 ">
 										<span>{formatDate(task.startDate)} - {formatDate(task.endDate)}</span>
 										<span class="badge badge-sm {task.status === 'completed' ? 'badge-success' : task.status === 'in-progress' ? 'badge-primary' : task.status === 'blocked' ? 'badge-error' : 'badge-gray'}">
 											{task.status}
 										</span>
 									</div>
-									<div class="text-xs text-surface-400 dark:text-surface-500 mt-1">
+									<div class="text-xs text-surface-400 mt-1">
 										{task.assignee}
 									</div>
 								</div>
-								<div class="text-xs font-medium text-surface-600 dark:text-surface-400">
+								<div class="text-xs font-medium text-surface-600 ">
 									{task.progress}%
 								</div>
 							</div>
@@ -271,7 +271,7 @@
 								
 								<!-- Dependency Lines -->
 								{#each task.dependencies as depId}
-									<div class="absolute top-0 w-px h-full bg-surface-300 dark:bg-surface-600 opacity-50"></div>
+									<div class="absolute top-0 w-px h-full bg-surface-300 opacity-50"></div>
 								{/each}
 							</div>
 						</div>
@@ -285,10 +285,10 @@
 <!-- Task Detail Modal -->
 {#if selectedTask}
 	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" on:click={() => selectedTask = null}>
-		<div class="bg-white dark:bg-surface-950 rounded-xl shadow-xl max-w-md w-full mx-4 p-6" on:click|stopPropagation>
+		<div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6" on:click|stopPropagation>
 			<div class="flex items-center justify-between mb-4">
-				<h4 class="text-lg font-semibold text-surface-900 dark:text-surface-100">Task Details</h4>
-				<button on:click={() => selectedTask = null} class="text-surface-500 hover:text-surface-700 dark:hover:text-surface-300">
+				<h4 class="text-lg font-semibold text-surface-900 ">Task Details</h4>
+				<button on:click={() => selectedTask = null} class="text-surface-500 hover:text-surface-700">
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 					</svg>
@@ -297,33 +297,33 @@
 			
 			<div class="space-y-4">
 				<div>
-					<label class="text-sm font-medium text-surface-700 dark:text-surface-300">Task Name</label>
-					<p class="text-surface-900 dark:text-surface-100">{selectedTask.name}</p>
+					<label class="text-sm font-medium text-surface-700 ">Task Name</label>
+					<p class="text-surface-900 ">{selectedTask.name}</p>
 				</div>
 				
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label class="text-sm font-medium text-surface-700 dark:text-surface-300">Start Date</label>
-						<p class="text-surface-900 dark:text-surface-100">{formatDate(selectedTask.startDate)}</p>
+						<label class="text-sm font-medium text-surface-700 ">Start Date</label>
+						<p class="text-surface-900 ">{formatDate(selectedTask.startDate)}</p>
 					</div>
 					<div>
-						<label class="text-sm font-medium text-surface-700 dark:text-surface-300">End Date</label>
-						<p class="text-surface-900 dark:text-surface-100">{formatDate(selectedTask.endDate)}</p>
+						<label class="text-sm font-medium text-surface-700 ">End Date</label>
+						<p class="text-surface-900 ">{formatDate(selectedTask.endDate)}</p>
 					</div>
 				</div>
 				
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label class="text-sm font-medium text-surface-700 dark:text-surface-300">Progress</label>
+						<label class="text-sm font-medium text-surface-700 ">Progress</label>
 						<div class="flex items-center space-x-2">
-							<div class="flex-1 bg-surface-200 dark:bg-surface-700 rounded-full h-2">
+							<div class="flex-1 bg-surface-200  rounded-full h-2">
 								<div class="bg-primary-500 h-2 rounded-full transition-all duration-500" style="width: {selectedTask.progress}%"></div>
 							</div>
-							<span class="text-sm font-medium text-surface-900 dark:text-surface-100">{selectedTask.progress}%</span>
+							<span class="text-sm font-medium text-surface-900 ">{selectedTask.progress}%</span>
 						</div>
 					</div>
 					<div>
-						<label class="text-sm font-medium text-surface-700 dark:text-surface-300">Status</label>
+						<label class="text-sm font-medium text-surface-700 ">Status</label>
 						<span class="badge {selectedTask.status === 'completed' ? 'badge-success' : selectedTask.status === 'in-progress' ? 'badge-primary' : selectedTask.status === 'blocked' ? 'badge-error' : 'badge-gray'}">
 							{selectedTask.status}
 						</span>
@@ -331,12 +331,12 @@
 				</div>
 				
 				<div>
-					<label class="text-sm font-medium text-surface-700 dark:text-surface-300">Assignee</label>
-					<p class="text-surface-900 dark:text-surface-100">{selectedTask.assignee}</p>
+					<label class="text-sm font-medium text-surface-700 ">Assignee</label>
+					<p class="text-surface-900 ">{selectedTask.assignee}</p>
 				</div>
 				
 				<div>
-					<label class="text-sm font-medium text-surface-700 dark:text-surface-300">Priority</label>
+					<label class="text-sm font-medium text-surface-700 ">Priority</label>
 					<span class="badge {selectedTask.priority === 'critical' ? 'badge-error' : selectedTask.priority === 'high' ? 'badge-warning' : selectedTask.priority === 'medium' ? 'badge-info' : 'badge-gray'}">
 						{selectedTask.priority}
 					</span>

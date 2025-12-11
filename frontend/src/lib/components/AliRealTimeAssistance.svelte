@@ -241,7 +241,7 @@
 		<div class="flex items-center justify-between mb-4">
 			<div class="flex items-center space-x-3">
 				<div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-					<span class="text-surface-950 dark:text-surface-50 font-bold text-sm">🤖</span>
+					<span class="text-white font-bold text-sm">🤖</span>
 				</div>
 				<div>
 					<h3 class="font-semibold text-blue-900">Ali Real-Time Assistant</h3>
@@ -288,11 +288,11 @@
 							<div class="flex items-center space-x-2">
 								<span>{getPriorityIcon(suggestion.priority)}</span>
 								<h5 class="font-medium text-sm">{suggestion.title}</h5>
-								<span class="text-xs px-2 py-0.5 bg-surface-950 dark:bg-surface-50 bg-opacity-50 rounded-full">
+								<span class="text-xs px-2 py-0.5 bg-white bg-opacity-50 rounded-full">
 									{suggestion.priority}
 								</span>
 							</div>
-							<div class="text-xs text-surface-400 dark:text-surface-600">
+							<div class="text-xs text-surface-600">
 								{getEffortEstimate(suggestion.effort)}
 							</div>
 						</div>
@@ -307,13 +307,13 @@
 							<div class="flex space-x-2">
 								<button
 									on:click={() => applySuggestion(suggestion)}
-									class="px-3 py-1 bg-blue-600 text-surface-950 dark:text-surface-50 text-xs rounded hover:bg-blue-700 transition-colors"
+									class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
 								>
 									Apply
 								</button>
 								<button
 									on:click={() => dismissSuggestion(suggestion)}
-									class="px-3 py-1 border border-surface-600 dark:border-surface-400 text-surface-300 dark:text-surface-700 text-xs rounded hover:bg-surface-900 dark:bg-surface-100 transition-colors"
+									class="px-3 py-1 border border-surface-300 text-surface-600 text-xs rounded hover:bg-surface-50 transition-colors"
 								>
 									Dismiss
 								</button>
@@ -334,7 +334,7 @@
 							 class:bg-blue-100={message.type === 'thinking'}
 							 class:bg-green-100={message.type === 'success'}
 							 class:bg-yellow-100={message.type === 'confidence'}>
-							<span class="text-xs text-surface-500 dark:text-surface-500">
+							<span class="text-xs text-surface-500">
 								{message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
 							</span>
 							<span class="text-xs flex-1">{message.message}</span>
@@ -350,13 +350,13 @@
 				<button
 					on:click={() => performIntelligentAnalysis()}
 					disabled={$isThinking}
-					class="px-3 py-1 bg-blue-600 text-surface-950 dark:text-surface-50 text-xs rounded hover:bg-blue-700 disabled:bg-surface-400 dark:disabled:bg-surface-600 transition-colors"
+					class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:bg-surface-400 transition-colors"
 				>
 					{$isThinking ? 'Analyzing...' : 'Re-analyze'}
 				</button>
 				<button
 					on:click={() => suggestions.set([])}
-					class="px-3 py-1 border border-surface-600 dark:border-surface-400 text-surface-300 dark:text-surface-700 text-xs rounded hover:bg-surface-900 dark:bg-surface-100 transition-colors"
+					class="px-3 py-1 border border-surface-300 text-surface-600 text-xs rounded hover:bg-surface-50 transition-colors"
 				>
 					Clear All
 				</button>
@@ -370,15 +370,15 @@
 		</div>
 	</div>
 {:else if !isActive}
-	<div class="ali-assistance-inactive bg-surface-900 dark:bg-surface-100 border-2 border-dashed border-surface-600 dark:border-surface-400 rounded-lg p-6 text-center">
-		<div class="w-12 h-12 bg-surface-700 dark:bg-surface-300 rounded-full flex items-center justify-center mx-auto mb-3">
-			<span class="text-surface-500 dark:text-surface-500 text-lg">🤖</span>
+	<div class="ali-assistance-inactive bg-surface-50 border-2 border-dashed border-surface-300 rounded-lg p-6 text-center">
+		<div class="w-12 h-12 bg-surface-200 rounded-full flex items-center justify-center mx-auto mb-3">
+			<span class="text-surface-500 text-lg">🤖</span>
 		</div>
-		<h3 class="font-medium text-surface-300 dark:text-surface-700 mb-1">Ali Assistant</h3>
-		<p class="text-sm text-surface-500 dark:text-surface-500 mb-3">Get real-time suggestions and improvements</p>
+		<h3 class="font-medium text-surface-600 mb-1">Ali Assistant</h3>
+		<p class="text-sm text-surface-500 mb-3">Get real-time suggestions and improvements</p>
 		<button
 			on:click={() => dispatch('activate-ali')}
-			class="px-4 py-2 bg-blue-600 text-surface-950 dark:text-surface-50 text-sm rounded-lg hover:bg-blue-700 transition-colors"
+			class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
 		>
 			Activate Ali Assistant
 		</button>

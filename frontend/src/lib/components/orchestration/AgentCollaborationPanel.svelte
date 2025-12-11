@@ -215,10 +215,10 @@
     <div class="p-4">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-lg font-semibold text-surface-900 dark:text-surface-100">
+          <h3 class="text-lg font-semibold text-surface-900 ">
             🤖 Agent Collaboration
           </h3>
-          <p class="text-sm text-surface-600 dark:text-surface-400 mt-1">
+          <p class="text-sm text-surface-600  mt-1">
             Real-time agent performance and collaboration analytics
           </p>
         </div>
@@ -227,8 +227,8 @@
           <!-- Filters and Sort -->
           <select 
             bind:value={filterRole}
-            class="text-sm border border-surface-300 dark:border-surface-600 rounded-md px-3 py-1 
-                   bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+            class="text-sm border border-surface-300  rounded-md px-3 py-1 
+                   bg-surface-50  text-surface-900 "
           >
             <option value="all">All Roles</option>
             <option value="primary">Primary</option>
@@ -239,8 +239,8 @@
           
           <select 
             bind:value={sortBy}
-            class="text-sm border border-surface-300 dark:border-surface-600 rounded-md px-3 py-1 
-                   bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+            class="text-sm border border-surface-300  rounded-md px-3 py-1 
+                   bg-surface-50  text-surface-900 "
           >
             <option value="efficiency">Sort by Efficiency</option>
             <option value="collaboration">Sort by Collaboration</option>
@@ -282,10 +282,10 @@
               </div>
               
               <div>
-                <h4 class="font-medium text-surface-900 dark:text-surface-100">
+                <h4 class="font-medium text-surface-900 ">
                   {agent.agent_name}
                 </h4>
-                <p class="text-xs text-surface-600 dark:text-surface-400">
+                <p class="text-xs text-surface-600 ">
                   {getAgentProfile(agent.agent_name).title}
                 </p>
               </div>
@@ -301,9 +301,9 @@
           <div class="space-y-2">
             <!-- Efficiency Score -->
             <div class="flex items-center justify-between">
-              <span class="text-xs text-surface-600 dark:text-surface-400">Efficiency</span>
+              <span class="text-xs text-surface-600 ">Efficiency</span>
               <div class="flex items-center space-x-2">
-                <div class="w-20 bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                <div class="w-20 bg-gray-200 rounded-full h-1.5">
                   <div 
                     class="h-1.5 rounded-full transition-all duration-500 {getPerformanceColor(agent.efficiency_score, 'bg')}"
                     style="width: {agent.efficiency_score * 100}%"
@@ -317,9 +317,9 @@
             
             <!-- Collaboration Score -->
             <div class="flex items-center justify-between">
-              <span class="text-xs text-surface-600 dark:text-surface-400">Collaboration</span>
+              <span class="text-xs text-surface-600 ">Collaboration</span>
               <div class="flex items-center space-x-2">
-                <div class="w-20 bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                <div class="w-20 bg-gray-200 rounded-full h-1.5">
                   <div 
                     class="h-1.5 rounded-full transition-all duration-500 {getPerformanceColor(agent.collaboration_score, 'bg')}"
                     style="width: {agent.collaboration_score * 100}%"
@@ -333,24 +333,24 @@
           </div>
           
           <!-- Task Summary -->
-          <div class="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">
+          <div class="mt-3 pt-3 border-t border-surface-200 ">
             <div class="grid grid-cols-2 gap-3 text-xs">
               <div>
                 <span class="text-surface-500">Tasks</span>
-                <div class="font-medium text-surface-900 dark:text-surface-100">
+                <div class="font-medium text-surface-900 ">
                   {agent.tasks_completed}/{agent.tasks_assigned}
                 </div>
-                <div class="text-surface-600 dark:text-surface-400">
+                <div class="text-surface-600 ">
                   {Math.round(getCompletionRate(agent))}% complete
                 </div>
               </div>
               
               <div>
                 <span class="text-surface-500">Cost</span>
-                <div class="font-medium text-surface-900 dark:text-surface-100">
+                <div class="font-medium text-surface-900 ">
                   {formatCurrency(agent.cost_incurred)}
                 </div>
-                <div class="text-surface-600 dark:text-surface-400">
+                <div class="text-surface-600 ">
                   ${Math.round(agent.cost_incurred / Math.max(agent.tasks_completed, 1))}/task
                 </div>
               </div>
@@ -359,26 +359,26 @@
           
           <!-- Current Activity -->
           {#if currentStatus[agent.agent_name]}
-            <div class="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">
+            <div class="mt-3 pt-3 border-t border-surface-200 ">
               <div class="flex items-center justify-between text-xs">
                 <span class="text-surface-500">Current Activity</span>
                 <div class="flex items-center space-x-1">
                   <div class="w-2 h-2 rounded-full {currentStatus[agent.agent_name].online ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}"></div>
-                  <span class="text-surface-600 dark:text-surface-400">
+                  <span class="text-surface-600 ">
                     {currentStatus[agent.agent_name].online ? 'Online' : 'Offline'}
                   </span>
                 </div>
               </div>
               
               {#if currentStatus[agent.agent_name].online}
-                <div class="text-xs text-surface-700 dark:text-surface-300 mt-1">
+                <div class="text-xs text-surface-700  mt-1">
                   {currentStatus[agent.agent_name].current_task}
                 </div>
                 
                 <!-- Response Time -->
                 <div class="flex items-center justify-between text-xs mt-1">
                   <span class="text-surface-500">Response Time</span>
-                  <span class="font-medium text-surface-700 dark:text-surface-300">
+                  <span class="font-medium text-surface-700 ">
                     {currentStatus[agent.agent_name].response_time?.toFixed(1)}s
                   </span>
                 </div>
@@ -388,12 +388,12 @@
           
           <!-- Detailed Performance (Expandable) -->
           {#if showPerformanceDetails}
-            <div class="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700" transition:slide>
+            <div class="mt-3 pt-3 border-t border-surface-200 " transition:slide>
               <!-- Quality Score -->
               <div class="flex items-center justify-between text-xs mb-2">
                 <span class="text-surface-500">Quality Score</span>
                 <div class="flex items-center space-x-2">
-                  <div class="w-16 bg-gray-200 rounded-full h-1 dark:bg-gray-700">
+                  <div class="w-16 bg-gray-200 rounded-full h-1">
                     <div 
                       class="h-1 rounded-full transition-all duration-500 {getPerformanceColor(agent.quality_score || 0.8, 'bg')}"
                       style="width: {(agent.quality_score || 0.8) * 100}%"
@@ -412,7 +412,7 @@
                   {#each agentAssignments.slice(0, 3) as otherAgent}
                     {#if otherAgent.agent_name !== agent.agent_name}
                       {@const strength = getCollaborationStrength(agent.agent_name, otherAgent.agent_name)}
-                      <div class="flex items-center space-x-1 bg-surface-100 dark:bg-surface-800 rounded px-1.5 py-0.5">
+                      <div class="flex items-center space-x-1 bg-surface-100  rounded px-1.5 py-0.5">
                         <span>{getAgentProfile(otherAgent.agent_name).avatar}</span>
                         <span class="text-xs">{Math.round(strength * 100)}%</span>
                       </div>
@@ -426,8 +426,8 @@
           <!-- Action Button -->
           <button
             on:click={() => selectedAgent = selectedAgent === agent.agent_name ? null : agent.agent_name}
-            class="w-full mt-3 py-2 text-xs font-medium text-surface-700 dark:text-surface-300 
-                   hover:text-surface-900 dark:hover:text-surface-100 transition-colors duration-200"
+            class="w-full mt-3 py-2 text-xs font-medium text-surface-700  
+                   hover:text-surface-900 transition-colors duration-200"
           >
             {selectedAgent === agent.agent_name ? '▲ Hide Details' : '▼ Show Details'}
           </button>
@@ -442,7 +442,7 @@
       <Card>
         <div class="p-4">
         <div class="flex items-center justify-between mb-4">
-          <h4 class="font-medium text-surface-900 dark:text-surface-100">
+          <h4 class="font-medium text-surface-900 ">
             🔗 {selectedAgent} Collaboration Matrix
           </h4>
           <button
@@ -460,13 +460,13 @@
               <div class="flex items-center justify-between py-2">
                 <div class="flex items-center space-x-3">
                   <span class="text-xl">{getAgentProfile(otherAgent.agent_name).avatar}</span>
-                  <span class="text-sm font-medium text-surface-900 dark:text-surface-100">
+                  <span class="text-sm font-medium text-surface-900 ">
                     {otherAgent.agent_name}
                   </span>
                 </div>
                 
                 <div class="flex items-center space-x-2">
-                  <div class="w-24 bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                  <div class="w-24 bg-gray-200 rounded-full h-2">
                     <div 
                       class="h-2 rounded-full transition-all duration-500 {getPerformanceColor(strength, 'bg')}"
                       style="width: {strength * 100}%"
