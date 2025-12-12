@@ -436,9 +436,9 @@ def query_talents_count() -> str:
             result = conn.execute(text("SELECT COUNT(*) FROM talents WHERE is_admin = true"))
             admin_count = result.scalar() or 0
 
-            result = conn.execute(text("SELECT email FROM talents ORDER BY created_at DESC LIMIT 1"))
+            result = conn.execute(text("SELECT first_name, last_name, email FROM talents ORDER BY created_at DESC LIMIT 1"))
             row = result.fetchone()
-            latest = row[0] if row else None
+            latest = f"{row[0]} {row[1]} ({row[2]})" if row else None
 
         engine.dispose()
 
@@ -452,8 +452,8 @@ def query_talents_count() -> str:
         return f"❌ Query failed: {str(e)}"
 
 
-def query_talent_details(username: str) -> str:
-    """Get detailed information about a specific talent"""
+def query_talent_details(name: str) -> str:
+    """Get detailed information about a specific talent by name or email"""
     try:
         from sqlalchemy import create_engine, text
         from core.config import get_settings
@@ -462,34 +462,43 @@ def query_talent_details(username: str) -> str:
         engine = create_engine(settings.DATABASE_URL_SYNC)
 
         with engine.connect() as conn:
+            # Search by email or by name (first_name or last_name contains search term)
             result = conn.execute(
-                text("SELECT id, username, full_name, email, position, department, is_active, created_at FROM talents WHERE username = :username"),
-                {"username": username}
+                text("""
+                    SELECT id, first_name, last_name, email, department, is_admin, deleted_at, created_at
+                    FROM talents
+                    WHERE email ILIKE :search
+                       OR first_name ILIKE :search
+                       OR last_name ILIKE :search
+                       OR CONCAT(first_name, ' ', last_name) ILIKE :search
+                    LIMIT 1
+                """),
+                {"search": f"%{name}%"}
             )
             row = result.fetchone()
 
             if not row:
                 engine.dispose()
-                return f"❌ Talent '{username}' not found"
+                return f"❌ Talent '{name}' not found"
 
             talent = {
                 "id": row[0],
-                "username": row[1],
-                "full_name": row[2],
+                "first_name": row[1],
+                "last_name": row[2],
+                "full_name": f"{row[1]} {row[2]}",
                 "email": row[3],
-                "position": row[4],
-                "department": row[5],
-                "is_active": row[6],
+                "department": row[4],
+                "is_admin": row[5],
+                "is_active": row[6] is None,  # active if deleted_at is NULL
                 "created_at": row[7]
             }
 
         engine.dispose()
 
         return f"""✅ TALENT PROFILE: {talent['full_name']}
-• Username: {talent['username']}
-• Position: {talent['position'] or 'Not specified'}
-• Department: {talent['department'] or 'Not assigned'}
 • Email: {talent['email'] or 'Not provided'}
+• Department: {talent['department'] or 'Not assigned'}
+• Role: {'Admin' if talent['is_admin'] else 'User'}
 • Status: {'Active' if talent['is_active'] else 'Inactive'}"""
 
     except Exception as e:
@@ -639,18 +648,98 @@ Found {result['results_count']} relevant documents:
         return f"❌ Search failed: {str(e)}"
 
 
+def query_ai_agent_info(agent_name: str) -> str:
+    """Get information about an AI agent in the Convergio ecosystem"""
+    try:
+        from agents.services.agent_loader import agent_loader
+
+        # Ensure agents are loaded
+        if not agent_loader.agent_metadata:
+            agent_loader.scan_and_load_agents()
+
+        # Search for agent by name (case insensitive partial match)
+        search_lower = agent_name.lower()
+        found_agent = None
+
+        for key, metadata in agent_loader.agent_metadata.items():
+            if (search_lower in metadata.name.lower() or
+                search_lower in key.lower() or
+                search_lower in metadata.description.lower()):
+                found_agent = metadata
+                break
+
+        if not found_agent:
+            # List available agents
+            available = [f"{m.name} ({m.tier})" for m in list(agent_loader.agent_metadata.values())[:10]]
+            return f"❌ AI Agent '{agent_name}' not found.\n\nAvailable agents include:\n• " + "\n• ".join(available)
+
+        return f"""✅ AI AGENT: {found_agent.name}
+
+📋 Description: {found_agent.description}
+
+🎯 Tier: {found_agent.tier}
+
+🔧 Tools: {', '.join(found_agent.tools) if found_agent.tools else 'Standard tools'}
+
+🏷️ Expertise: {', '.join(found_agent.expertise_keywords[:5]) if found_agent.expertise_keywords else 'General'}
+
+📊 Version: {found_agent.version}"""
+
+    except Exception as e:
+        return f"❌ Failed to query AI agent info: {str(e)}"
+
+
+def list_ai_agents() -> str:
+    """List all available AI agents in the Convergio ecosystem"""
+    try:
+        from agents.services.agent_loader import agent_loader
+
+        # Ensure agents are loaded
+        if not agent_loader.agent_metadata:
+            agent_loader.scan_and_load_agents()
+
+        # Group by tier
+        tiers = {}
+        for agent in agent_loader.agent_metadata.values():
+            tier = agent.tier
+            if tier not in tiers:
+                tiers[tier] = []
+            tiers[tier].append(agent)
+
+        result = f"✅ CONVERGIO AI TEAM ({len(agent_loader.agent_metadata)} agents)\n\n"
+
+        for tier_name, agents in sorted(tiers.items()):
+            result += f"📁 {tier_name} ({len(agents)} agents):\n"
+            for agent in sorted(agents, key=lambda x: x.name):
+                result += f"  • {agent.name}: {agent.description[:60]}...\n"
+            result += "\n"
+
+        return result
+
+    except Exception as e:
+        return f"❌ Failed to list AI agents: {str(e)}"
+
+
 def get_database_tools() -> List[FunctionTool]:
     """Get all database tools for AutoGen 0.7.2 agents with proper type annotations"""
     from autogen_core.tools import FunctionTool
-    
+
     return [
         FunctionTool(
+            func=query_ai_agent_info,
+            description="Get information about a specific AI agent (like Amy CFO, Andrea CTO, etc.) in the Convergio ecosystem"
+        ),
+        FunctionTool(
+            func=list_ai_agents,
+            description="List all available AI agents in the Convergio ecosystem by tier"
+        ),
+        FunctionTool(
             func=query_talents_count,
-            description="Get total talent count and statistics from Convergio database"
+            description="Get HR talent/employee count and statistics from the database (not AI agents)"
         ),
         FunctionTool(
             func=query_talent_details,
-            description="Get detailed information about a specific talent by username"
+            description="Get detailed information about a specific HR talent/employee by name or email (not AI agents)"
         ),
         FunctionTool(
             func=query_department_structure,
