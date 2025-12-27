@@ -15,7 +15,7 @@ _templates/
 .cursor/
 .dmypy.json
 .docker/
-.dockerignore
+# .dockerignore files are needed for Docker builds - don't ignore
 .docusaurus
 .DS_Store
 .DS_Store?

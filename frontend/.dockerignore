@@ -1,0 +1,44 @@
+# Dependencies
+node_modules
+
+# Build output
+build
+.svelte-kit
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Testing
+coverage
+playwright-report
+test-results
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+
+# Storybook
+storybook-static
+
+# Backup files
+*_backup_*
+
+# CI/CD
+.github
+
+# Test files
+tests/

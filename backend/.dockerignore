@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.env.*
+*.egg-info
+.eggs
+*.egg
+
+# Virtual environments
+venv
+.venv
+env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+coverage.xml
+
+# Logs
+*.log
+logs/
+
+# Local data
+*.db
+*.sqlite3
+data/
+secrets/
+
+# Documentation
+*.md
+docs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github
+
+# Test files
+tests/
+test_*.py
+*_test.py
+conftest.py
