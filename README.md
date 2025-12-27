@@ -1,17 +1,43 @@
 ![Convergio logo: stylized brain split — left colorful facets, right blue circuitry](frontend/static/convergio_logo.png)
 
 # 🚀 Convergio — Human purpose. AI momentum.
-*“Convergio is the platform that lets solopreneurs blend human ingenuity with AI so seamlessly, it feels like magic.”*
+*"Convergio is the platform that lets solopreneurs blend human ingenuity with AI so seamlessly, it feels like magic."*
 
+> ### 🎉 **v2.0.0 Released — Microsoft Agent Framework Migration Complete!**
+> We've completed a major migration from AutoGen to **Microsoft Agent Framework 1.0**, bringing modern orchestration patterns, enhanced streaming, and improved performance. [See release notes →](https://github.com/Roberdan/Convergio/releases/tag/v2.0.0)
 
 Convergio is the AI‑first orchestration platform where human ingenuity converges with a coordinated crew of specialized agents. Through intelligent coordination—not just parallel processing—they plan together, execute seamlessly, and explain outcomes across your tools.
 
 [![CI/CD Pipeline](https://github.com/Roberdan/Convergio/actions/workflows/ci.yml/badge.svg)](https://github.com/Roberdan/Convergio/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Roberdan/Convergio?style=for-the-badge&color=green)](https://github.com/Roberdan/Convergio/releases/tag/v2.0.0)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-teal?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![SvelteKit](https://img.shields.io/badge/Frontend-SvelteKit-orange?style=for-the-badge&logo=svelte)](https://kit.svelte.dev/)
 [![Microsoft Agent Framework](https://img.shields.io/badge/Microsoft%20Agent%20Framework-1.0-blue?style=for-the-badge&logo=microsoft)](https://github.com/microsoft/agent-framework)
 [![License: BSL 1.1](https://img.shields.io/badge/License-BSL%201.1-blue?style=for-the-badge)](LICENSE)
+
+---
+
+## 🆕 What's New in v2.0.0 (December 2025)
+
+This major release represents a complete architectural evolution:
+
+| Component | Before | After |
+|-----------|--------|-------|
+| **Framework** | Microsoft AutoGen | Microsoft Agent Framework 1.0 |
+| **Orchestration** | GroupChat-based | Modern patterns with streaming |
+| **Memory** | Basic persistence | Enhanced context management |
+| **Tools** | Scattered | Unified Tools Registry |
+| **Docker** | Not included | Production-ready Dockerfiles |
+
+**Key Improvements:**
+- **AgentFrameworkOrchestrator** — New orchestrator with improved performance and native streaming
+- **Dual-Framework Adapters** — Backward compatibility layer for gradual migration
+- **Feature Flags** — Controlled rollout with `FrameworkFeatureFlags`
+- **431+ Tests Passing** — Comprehensive test coverage including 276 new framework tests
+- **Enhanced Memory System** — Dedicated `AgentFrameworkMemory` with optimized context
+
+📖 [Full migration documentation →](docs/adr/ADR-001-MIGRATION-TO-AGENT-FRAMEWORK.md)
 
 ---
 
