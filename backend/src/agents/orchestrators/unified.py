@@ -8,10 +8,28 @@ from typing import Dict, List, Any, Optional, AsyncGenerator, Tuple
 from datetime import datetime
 import structlog
 
-from autogen_agentchat.agents import AssistantAgent
-from autogen_agentchat.teams import RoundRobinGroupChat
-from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
-from autogen_agentchat.messages import TextMessage
+# AutoGen imports with fallback
+try:
+    from autogen_agentchat.agents import AssistantAgent
+    from autogen_agentchat.teams import RoundRobinGroupChat
+    from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
+    from autogen_agentchat.messages import TextMessage
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    AUTOGEN_AVAILABLE = False
+    AssistantAgent = None
+    RoundRobinGroupChat = None
+    MaxMessageTermination = None
+    TextMentionTermination = None
+    TextMessage = None
+
+# OpenAI fallback for Agent Framework mode
+try:
+    from openai import AsyncOpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    AsyncOpenAI = None  # type: ignore
+    OPENAI_AVAILABLE = False
 
 from .base import BaseGroupChatOrchestrator
 # Inline resilience components (moved from removed resilience.py)
@@ -106,9 +124,25 @@ class HealthMonitor:
             "status": "running" if self._running else "stopped",
             "check_interval": self.check_interval,
         }
-from src.agents.services.groupchat.intelligent_router import IntelligentAgentRouter
-# RAG functionality is now dynamically imported in initialize() method when enabled
-from src.agents.services.groupchat.metrics import extract_agents_used, estimate_cost
+# GroupChat imports with fallback (requires autogen)
+try:
+    from src.agents.services.groupchat.intelligent_router import IntelligentAgentRouter
+    from src.agents.services.groupchat.metrics import extract_agents_used, estimate_cost
+    GROUPCHAT_AVAILABLE = True
+except ImportError:
+    IntelligentAgentRouter = None
+    extract_agents_used = None
+    estimate_cost = None
+    GROUPCHAT_AVAILABLE = False
+
+# AI clients import with fallback
+try:
+    from src.core.ai_clients import get_autogen_client
+    AI_CLIENTS_AVAILABLE = True
+except ImportError:
+    get_autogen_client = None
+    AI_CLIENTS_AVAILABLE = False
+
 from src.services.unified_cost_tracker import unified_cost_tracker
 from src.agents.services.agent_intelligence import AgentIntelligence
 from src.agents.security.ai_security_guardian import AISecurityGuardian
@@ -116,7 +150,6 @@ from src.agents.services.agent_loader import DynamicAgentLoader
 from src.agents.tools.web_search_tool import get_web_tools
 from src.agents.tools.database_tools import get_database_tools
 from src.agents.tools.vector_search_tool import get_vector_tools
-from src.core.ai_clients import get_autogen_client
 from src.core.config import get_settings
 
 logger = structlog.get_logger()
@@ -136,7 +169,8 @@ class UnifiedOrchestrator(BaseGroupChatOrchestrator):
     
     def __init__(self, name: str = "unified_orchestrator"):
         super().__init__(name)
-        self.router = IntelligentAgentRouter()
+        # Initialize router only if GroupChat is available
+        self.router = IntelligentAgentRouter() if GROUPCHAT_AVAILABLE and IntelligentAgentRouter else None
         self.agent_intelligence = AgentIntelligence(agent_name=name)
         self.agent_loader = None
         self.termination_markers = ["DONE", "TERMINATE", "END_CONVERSATION"]
@@ -173,7 +207,11 @@ class UnifiedOrchestrator(BaseGroupChatOrchestrator):
         try:
             # Initialize model client if not provided
             if model_client is None:
-                model_client = get_autogen_client(provider="openai")
+                if AI_CLIENTS_AVAILABLE and get_autogen_client is not None:
+                    model_client = get_autogen_client(provider="openai")
+                else:
+                    logger.info("ℹ️ Running with Agent Framework (AutoGen legacy client not needed)")
+                    model_client = None
             self.model_client = model_client
             
             # Load agents from directory using DynamicAgentLoader
@@ -188,26 +226,33 @@ class UnifiedOrchestrator(BaseGroupChatOrchestrator):
             all_tools.extend(get_vector_tools())
             
             logger.info(f"🔧 Prepared {len(all_tools)} tools for agents")
-            
-            # Create AutoGen AssistantAgent instances WITH TOOLS
-            self.agents = self.agent_loader.create_autogen_agents(
-                model_client=self.model_client,
-                tools=all_tools  # Pass tools to agent creation
-            )
-                    
-            logger.info(f"✅ Loaded {len(self.agents)} agents with {len(all_tools)} tools integrated")
+
+            # Create AutoGen AssistantAgent instances WITH TOOLS (only if model_client available)
+            if self.model_client is not None and AUTOGEN_AVAILABLE:
+                self.agents = self.agent_loader.create_autogen_agents(
+                    model_client=self.model_client,
+                    tools=all_tools  # Pass tools to agent creation
+                )
+                logger.info(f"✅ Loaded {len(self.agents)} agents with {len(all_tools)} tools integrated")
+            else:
+                # Running without AutoGen - use agent metadata for API responses
+                self.agents = {}
+                logger.info(f"✅ Agent Framework ready - {len(self.agent_loader.agent_metadata)} agent definitions loaded")
 
             # Provide a minimal fallback agent in test/dev if none were discovered
             if not self.agents and get_settings().ENVIRONMENT in ("test", "development"):
-                try:
-                    logger.warning("⚠️ No agents discovered; adding minimal fallback agent for tests")
-                    fallback = AssistantAgent("ali", model_client=self.model_client)
-                    self.agents = {"ali": fallback}
-                except Exception as _e:
-                    logger.warning(f"⚠️ Failed to create fallback agent: {_e}")
+                if AUTOGEN_AVAILABLE and AssistantAgent is not None and self.model_client is not None:
+                    try:
+                        logger.warning("⚠️ No agents discovered; adding minimal fallback agent for tests")
+                        fallback = AssistantAgent("ali", model_client=self.model_client)
+                        self.agents = {"ali": fallback}
+                    except Exception as _e:
+                        logger.warning(f"⚠️ Failed to create fallback agent: {_e}")
+                else:
+                    logger.info("✅ Agent Framework orchestration ready")
             
             # Initialize GroupChat for multi-agent scenarios
-            if len(self.agents) > 1:
+            if len(self.agents) > 1 and AUTOGEN_AVAILABLE and RoundRobinGroupChat is not None:
                 # Configure a sensible termination condition
                 termination = MaxMessageTermination(self.max_rounds) | TextMentionTermination("TERMINATE")
                 self.group_chat = RoundRobinGroupChat(
@@ -259,12 +304,25 @@ class UnifiedOrchestrator(BaseGroupChatOrchestrator):
             return None
         return self.agent_loader.agent_metadata.get(agent_key)
     
+    def list_agents(self) -> List[str]:
+        """Get list of all agent IDs"""
+        if not self.agent_loader:
+            return []
+        return list(self.agent_loader.agent_metadata.keys())
+
     def list_agents_with_metadata(self):
         """Get list of agents with their original metadata"""
         if not self.agent_loader:
             return {}
         return self.agent_loader.agent_metadata
-    
+
+    def is_healthy(self) -> bool:
+        """Check if orchestrator is healthy - works with Agent Framework (no AutoGen needed)"""
+        # Healthy if initialized and has agent definitions loaded
+        has_agents = len(self.agents) > 0 if self.agents else False
+        has_metadata = self.agent_loader and len(self.agent_loader.agent_metadata) > 0
+        return self.is_initialized and (has_agents or has_metadata)
+
     async def orchestrate(
         self,
         message: str,
@@ -450,24 +508,30 @@ class UnifiedOrchestrator(BaseGroupChatOrchestrator):
             # Fallback to first available agent if any exist
             if self.agents:
                 best_agent = list(self.agents.values())[0]
-            else:
-                # No agents available - return error response
-                return {
-                    "response": "No agents available for processing this request.",
-                    "agents_used": [],
-                    "turn_count": 0,
-                    "duration_seconds": 0,
-                    "error": "No agents loaded"
-                }
-        
+
+        # If no AutoGen agents but we have metadata, use OpenAI fallback
+        if not best_agent and self.agent_loader and self.agent_loader.agent_metadata:
+            return await self._execute_with_openai_fallback(message, context, user_id, conversation_id)
+
+        if not best_agent:
+            return {
+                "response": "No agents available for processing this request.",
+                "agents_used": [],
+                "turn_count": 0,
+                "duration_seconds": 0,
+                "error": "No agents loaded"
+            }
+
         logger.info(f"🎯 Single agent execution: {best_agent.name}")
-        
+
         # Agent intelligence is handled through RAG context enhancement instead
-        
+
         # Execute agent WITH TOOLS using AutoGen 0.7.x API
         messages = []
         try:
-            from autogen_agentchat.messages import TextMessage
+            if not AUTOGEN_AVAILABLE or TextMessage is None:
+                # Fallback to OpenAI direct call
+                return await self._execute_with_openai_fallback(message, context, user_id, conversation_id)
             task_message = TextMessage(content=message, source="user")
             
             # Run the agent - tools should now work since they're passed at creation
@@ -524,7 +588,16 @@ class UnifiedOrchestrator(BaseGroupChatOrchestrator):
             return await self._execute_single_agent(
                 message, context, user_id, conversation_id
             )
-        
+
+        if not AUTOGEN_AVAILABLE or TextMessage is None:
+            return {
+                "response": "AutoGen is not available for multi-agent execution.",
+                "agents_used": [],
+                "turn_count": 0,
+                "duration_seconds": 0,
+                "error": "AutoGen not available"
+            }
+
         # Run group chat
         task_message = TextMessage(content=message, source="user")
         # Run team with the task; termination is configured at construction time
@@ -553,7 +626,168 @@ class UnifiedOrchestrator(BaseGroupChatOrchestrator):
             "routing": "multi_agent",
             "cost_breakdown": estimate_cost(messages if isinstance(messages, list) else [])
         }
-    
+
+    async def _execute_with_openai_fallback(
+        self,
+        message: str,
+        context: Optional[Dict[str, Any]],
+        user_id: str,
+        conversation_id: str
+    ) -> Dict[str, Any]:
+        """Execute query using OpenAI directly when AutoGen is not available.
+
+        This is the Agent Framework fallback that uses agent metadata to build
+        appropriate system prompts and calls OpenAI API directly.
+        """
+        if not OPENAI_AVAILABLE or AsyncOpenAI is None:
+            return {
+                "response": "OpenAI client is not available. Please install openai package.",
+                "agents_used": [],
+                "turn_count": 0,
+                "duration_seconds": 0,
+                "error": "OpenAI not available"
+            }
+
+        # Select best agent from metadata
+        target_agent_name = context.get("agent_name") if context else None
+        selected_agent_key = None
+        selected_metadata = None
+
+        if target_agent_name:
+            # User requested a specific agent
+            agent_key = target_agent_name.replace('-', '_').lower()
+            for key, metadata in self.agent_loader.agent_metadata.items():
+                if key.lower() == agent_key or metadata.name.lower() == target_agent_name.lower():
+                    selected_agent_key = key
+                    selected_metadata = metadata
+                    break
+
+        if not selected_metadata:
+            # Use intelligent router logic to select best agent from metadata
+            message_lower = message.lower()
+            best_score = 0
+
+            # Quick pattern matching for common query types
+            financial_keywords = ['revenue', 'earnings', 'financial', 'profit', 'budget', 'roi',
+                                  'investment', 'cash flow', 'margin', 'capital', 'fiscal', 'cost']
+            technical_keywords = ['code', 'api', 'technical', 'system', 'bug', 'architecture',
+                                  'database', 'infrastructure', 'backend', 'frontend']
+            security_keywords = ['security', 'vulnerability', 'threat', 'audit', 'compliance',
+                                 'encryption', 'authentication', 'breach', 'gdpr']
+
+            # Direct routing for common patterns
+            if any(kw in message_lower for kw in financial_keywords):
+                if 'amy_cfo' in self.agent_loader.agent_metadata:
+                    selected_agent_key = 'amy_cfo'
+                    selected_metadata = self.agent_loader.agent_metadata['amy_cfo']
+                    logger.info("📊 Routing financial query to Amy CFO")
+            elif any(kw in message_lower for kw in technical_keywords):
+                if 'baccio_tech_architect' in self.agent_loader.agent_metadata:
+                    selected_agent_key = 'baccio_tech_architect'
+                    selected_metadata = self.agent_loader.agent_metadata['baccio_tech_architect']
+                    logger.info("🔧 Routing technical query to Baccio Tech Architect")
+            elif any(kw in message_lower for kw in security_keywords):
+                if 'luca_security_expert' in self.agent_loader.agent_metadata:
+                    selected_agent_key = 'luca_security_expert'
+                    selected_metadata = self.agent_loader.agent_metadata['luca_security_expert']
+                    logger.info("🔒 Routing security query to Luca Security Expert")
+
+            # If no direct match, use expertise keyword scoring
+            if not selected_metadata:
+                for key, metadata in self.agent_loader.agent_metadata.items():
+                    score = 0
+                    # Check expertise keywords
+                    for keyword in metadata.expertise_keywords:
+                        if keyword.lower() in message_lower:
+                            score += 2
+
+                    # Check name/description relevance
+                    if any(word in message_lower for word in metadata.description.lower().split()[:5]):
+                        score += 1
+
+                    if score > best_score:
+                        best_score = score
+                        selected_agent_key = key
+                        selected_metadata = metadata
+
+            # Default to ali_chief_of_staff if no match
+            if not selected_metadata and 'ali_chief_of_staff' in self.agent_loader.agent_metadata:
+                selected_agent_key = 'ali_chief_of_staff'
+                selected_metadata = self.agent_loader.agent_metadata['ali_chief_of_staff']
+            elif not selected_metadata:
+                # Use first available agent
+                selected_agent_key = next(iter(self.agent_loader.agent_metadata.keys()))
+                selected_metadata = self.agent_loader.agent_metadata[selected_agent_key]
+
+        logger.info(f"🤖 Agent Framework fallback: using {selected_metadata.name}")
+
+        # Build system prompt from agent metadata
+        system_prompt = f"""You are {selected_metadata.name}.
+
+{selected_metadata.persona}
+
+IMPORTANT: Respond in character as {selected_metadata.name}. Be helpful, professional, and provide actionable insights.
+"""
+
+        # Get API key from settings
+        try:
+            from ..utils.config import get_settings
+            settings = get_settings()
+            api_key = settings.openai_api_key
+        except Exception:
+            import os
+            api_key = os.getenv("OPENAI_API_KEY")
+
+        if not api_key:
+            return {
+                "response": "OpenAI API key not configured.",
+                "agents_used": [selected_metadata.name],
+                "turn_count": 0,
+                "duration_seconds": 0,
+                "error": "No API key"
+            }
+
+        try:
+            # Create OpenAI client and make request
+            client = AsyncOpenAI(api_key=api_key)
+
+            response = await client.chat.completions.create(
+                model="gpt-4o-mini",  # Cost-effective default
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message}
+                ],
+                max_tokens=2000,
+                temperature=0.7
+            )
+
+            final_response = response.choices[0].message.content or "No response generated"
+
+            logger.info(f"✅ Agent Framework response from {selected_metadata.name}")
+
+            return {
+                "response": final_response,
+                "agents_used": [selected_metadata.name],
+                "turn_count": 1,
+                "duration_seconds": 0,
+                "routing": "agent_framework_fallback",
+                "cost_breakdown": {
+                    "model": "gpt-4o-mini",
+                    "prompt_tokens": response.usage.prompt_tokens if response.usage else 0,
+                    "completion_tokens": response.usage.completion_tokens if response.usage else 0
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"OpenAI fallback failed: {e}", exc_info=True)
+            return {
+                "response": f"I apologize, but I encountered an error while processing your request: {str(e)}",
+                "agents_used": [selected_metadata.name],
+                "turn_count": 0,
+                "duration_seconds": 0,
+                "error": str(e)
+            }
+
     async def stream(
         self,
         message: str,

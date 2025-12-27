@@ -1,7 +1,7 @@
 """
-🌐 Web Search Tool for AutoGen Agents
-Enables agents to search the internet for up-to-date information
-Based on AutoGen documentation 2024-2025
+Web Search Tool
+Enables agents to search the internet for up-to-date information.
+Supports both Agent Framework and AutoGen patterns.
 """
 
 from typing import Any, Dict, List, Optional, Literal
@@ -11,9 +11,19 @@ from datetime import datetime
 import os
 
 import structlog
-from autogen_core.tools import BaseTool
 from pydantic import BaseModel
 import httpx
+
+# Optional autogen import for backward compatibility
+try:
+    from autogen_core.tools import BaseTool
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    AUTOGEN_AVAILABLE = False
+    class BaseTool:
+        """Placeholder BaseTool when AutoGen not installed."""
+        def __init__(self, *args, **kwargs):
+            pass
 
 logger = structlog.get_logger()
 

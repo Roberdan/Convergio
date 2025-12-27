@@ -136,21 +136,37 @@ class TestSessionManagement:
 
 class TestDatabaseInitialization:
     """Test database initialization process"""
-    
-    @patch('core.database.engine')
-    async def test_init_database_success(self, mock_engine):
+
+    @patch('core.database.create_database_engine')
+    async def test_init_database_success(self, mock_create_engine):
         """Test successful database initialization"""
-        mock_engine.begin = AsyncMock()
+        from contextlib import asynccontextmanager
+
         mock_conn = AsyncMock()
-        mock_engine.begin.return_value.__aenter__.return_value = mock_conn
-        
+        mock_conn.execute = AsyncMock()
+        mock_conn.run_sync = AsyncMock()
+
+        @asynccontextmanager
+        async def mock_begin():
+            yield mock_conn
+
+        mock_engine = MagicMock()
+        mock_engine.begin = mock_begin
+        mock_engine.url = "postgresql://test"
+        mock_create_engine.return_value = mock_engine
+
+        # Clear global engine to force reinitialization
+        import core.database as db_module
+        db_module.engine = None
+        db_module.async_engine = None
+
         from core.database import init_database
-        
+
         # Test initialization
         await init_database()
-        
-        # Should call begin on engine
-        mock_engine.begin.assert_called_once()
+
+        # Should have created engine
+        mock_create_engine.assert_called()
     
     @patch('core.database.engine')
     @patch('core.database.logger')

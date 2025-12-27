@@ -7,8 +7,19 @@ import pytest
 from unittest.mock import Mock, patch
 from datetime import datetime
 
-from src.agents.services.groupchat.conflict_detector import detect_conflicts
-from src.agents.services.groupchat.per_turn_rag import PerTurnRAGInjector
+# Check if autogen is available before importing
+try:
+    from src.agents.services.groupchat.conflict_detector import detect_conflicts
+    from src.agents.services.groupchat.per_turn_rag import PerTurnRAGInjector, AUTOGEN_AVAILABLE
+except ImportError:
+    AUTOGEN_AVAILABLE = False
+    detect_conflicts = None
+    PerTurnRAGInjector = None
+
+pytestmark = pytest.mark.skipif(
+    not AUTOGEN_AVAILABLE,
+    reason="autogen_agentchat not installed - skipping conflict resolution tests"
+)
 
 
 class TestConflictResolution:

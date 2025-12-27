@@ -9,15 +9,19 @@ from typing import Dict, List, Optional, Any
 import structlog
 
 try:
-    from agent_framework import ChatAgent
+    from agent_framework import ChatAgent, ai_function
     from agent_framework.openai import OpenAIChatClient
-    from agent_framework.azure import AzureOpenAIChatClient
+    try:
+        from agent_framework.azure import AzureOpenAIChatClient
+    except ImportError:
+        AzureOpenAIChatClient = None
     AGENT_FRAMEWORK_AVAILABLE = True
 except ImportError:
     AGENT_FRAMEWORK_AVAILABLE = False
     ChatAgent = None
     OpenAIChatClient = None
     AzureOpenAIChatClient = None
+    ai_function = None
 
 from src.agents.services.agent_loader import DynamicAgentLoader, AgentMetadata
 from src.core.agent_framework_config import get_agent_framework_config
@@ -81,14 +85,16 @@ class AgentFrameworkLoader(DynamicAgentLoader):
                     except Exception as e:
                         logger.warning(f"Failed to build Ali knowledge base: {e}")
 
-                # Create ChatAgent using the chat_client's create_agent method
-                # This is the correct pattern according to Microsoft Agent Framework examples
-                agent = chat_client.create_agent(
+                # Create ChatAgent using the Microsoft Agent Framework API
+                # ChatAgent requires chat_client as first positional argument
+                # Note: max_tokens removed due to OpenAI API version compatibility
+                agent = ChatAgent(
+                    chat_client=chat_client,
                     name=metadata.key,
+                    description=metadata.description,
                     instructions=instructions,
                     tools=tools or [],
-                    # Note: Some config options may not be directly supported
-                    # Agent Framework handles max_iterations at workflow level
+                    temperature=0.7
                 )
 
                 agents[key] = agent

@@ -13,7 +13,21 @@ from enum import Enum
 
 import structlog
 import redis.asyncio as redis
-from autogen_agentchat.messages import TextMessage
+
+# AutoGen imports with fallback
+try:
+    from autogen_agentchat.messages import TextMessage
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    # Fallback TextMessage class when autogen is not available
+    class TextMessage:
+        """Fallback TextMessage class for when AutoGen is not installed"""
+        def __init__(self, content: str = "", source: str = "", id: str = "", created_at=None):
+            self.content = content
+            self.source = source
+            self.id = id or str(hash(content))[:8]
+            self.created_at = created_at
+    AUTOGEN_AVAILABLE = False
 
 from ..tools.vector_search_client import embed_text, search_similar
 from src.core.redis import get_redis_client

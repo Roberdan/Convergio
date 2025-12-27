@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
 
-from src.core.database import Base
+from ..core.database import Base
 
 
 class Document(Base):

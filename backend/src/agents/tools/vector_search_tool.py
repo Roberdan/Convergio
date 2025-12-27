@@ -1,5 +1,5 @@
 """
-🔍 Vector Search Tools for AutoGen Agents
+Vector Search Tools for AutoGen Agents
 Enables agents to perform semantic search on the vector database
 """
 
@@ -10,9 +10,16 @@ from datetime import datetime
 import os
 
 import structlog
-from autogen_core.tools import BaseTool
 from pydantic import BaseModel
 import httpx
+
+# AutoGen imports with fallback
+try:
+    from autogen_core.tools import BaseTool
+    AUTOGEN_CORE_AVAILABLE = True
+except ImportError:
+    BaseTool = object  # Use object as base class fallback
+    AUTOGEN_CORE_AVAILABLE = False
 
 logger = structlog.get_logger()
 
@@ -30,14 +37,21 @@ class VectorSearchTool(BaseTool):
     Tool for performing semantic vector search on the knowledge base.
     Connects to the internal vector search API.
     """
-    
+
     def __init__(self, base_url: str = "http://localhost:9000"):
-        super().__init__(
-            args_type=VectorSearchArgs,
-            return_type=str,
-            name="vector_search",
-            description="Perform semantic search on the knowledge base using vector embeddings"
-        )
+        if AUTOGEN_CORE_AVAILABLE:
+            super().__init__(
+                args_type=VectorSearchArgs,
+                return_type=str,
+                name="vector_search",
+                description="Perform semantic search on the knowledge base using vector embeddings"
+            )
+        else:
+            # Fallback for when autogen_core is not available
+            self.args_type = VectorSearchArgs
+            self.return_type = str
+            self.name = "vector_search"
+            self.description = "Perform semantic search on the knowledge base using vector embeddings"
         self.base_url = base_url
     
     async def run(self, args: VectorSearchArgs, cancellation_token=None) -> str:
@@ -121,12 +135,19 @@ class DocumentEmbeddingTool(BaseTool):
     """
     
     def __init__(self, base_url: str = "http://localhost:9000"):
-        super().__init__(
-            args_type=DocumentEmbeddingArgs,
-            return_type=str,
-            name="embed_document",
-            description="Create vector embeddings for document text"
-        )
+        if AUTOGEN_CORE_AVAILABLE:
+            super().__init__(
+                args_type=DocumentEmbeddingArgs,
+                return_type=str,
+                name="embed_document",
+                description="Create vector embeddings for document text"
+            )
+        else:
+            # Fallback for when autogen_core is not available
+            self.args_type = DocumentEmbeddingArgs
+            self.return_type = str
+            self.name = "embed_document"
+            self.description = "Create vector embeddings for document text"
         self.base_url = base_url
     
     async def run(self, args: DocumentEmbeddingArgs, cancellation_token=None) -> str:

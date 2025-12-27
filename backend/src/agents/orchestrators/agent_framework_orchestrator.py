@@ -266,7 +266,7 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
         **kwargs
     ) -> Dict[str, Any]:
         """
-        Orchestrate request using Agent Framework workflow.
+        Orchestrate request using Agent Framework - direct agent execution.
 
         Args:
             message: Input message
@@ -278,6 +278,8 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
             Orchestration result
         """
         start_time = datetime.now()
+        agents_used = []
+        cost_breakdown = {"input_tokens": 0, "output_tokens": 0, "total_cost_usd": 0.0}
 
         try:
             # Safety check if enabled
@@ -292,29 +294,78 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
                         "agents_used": ["safety_guardian"],
                         "turn_count": 0,
                         "duration_seconds": 0,
-                        "blocked": True
+                        "blocked": True,
+                        "cost_breakdown": cost_breakdown
                     }
 
-            # Store routing context for use in workflow
-            self.routing_context = {
-                "target_agent": context.get("target_agent") if context else None,
-                "user_id": user_id,
-                "conversation_id": conversation_id,
-                **(context or {})
-            }
+            # Determine target agent
+            target_agent_key = None
+            if context and context.get("target_agent"):
+                ta = context["target_agent"].lower().replace('-', '_')
+                if ta in self.agents:
+                    target_agent_key = ta
+                elif f"{ta}_chief_of_staff" in self.agents:
+                    target_agent_key = f"{ta}_chief_of_staff"
 
-            # Execute workflow - workflow.run() returns WorkflowRunResult
-            events = await self.workflow.run(message)
+            # Use intelligent router to select best agent if no target specified
+            if not target_agent_key:
+                best_agent = self.router.select_best_agent(
+                    message,
+                    list(self.agents.values()),
+                    context
+                )
+                if best_agent and hasattr(best_agent, 'name'):
+                    target_agent_key = best_agent.name
 
-            # Extract outputs from the workflow
-            outputs = events.get_outputs()
-            final_response = outputs[0] if outputs else "No response generated"
+            # Fallback to Ali if no agent selected
+            if not target_agent_key:
+                target_agent_key = "ali_chief_of_staff" if "ali_chief_of_staff" in self.agents else list(self.agents.keys())[0]
 
-            # Get workflow metadata
-            final_state = events.get_final_state()
-            agents_used = []  # TODO: Extract from workflow events
+            # Get the agent
+            agent = self.agents.get(target_agent_key)
+            if not agent:
+                return {
+                    "response": f"Agent not found: {target_agent_key}",
+                    "agents_used": [],
+                    "turn_count": 0,
+                    "duration_seconds": (datetime.now() - start_time).total_seconds(),
+                    "error": "Agent not found",
+                    "cost_breakdown": cost_breakdown
+                }
 
-            # Calculate metrics
+            logger.info(f"🎯 Routing to agent: {target_agent_key}", message_preview=message[:50])
+            agents_used.append(target_agent_key)
+
+            # Execute agent directly using ChatAgent.run()
+            response = await agent.run(messages=message)
+
+            # Extract response text
+            if hasattr(response, 'text'):
+                final_response = response.text
+            elif hasattr(response, 'content'):
+                final_response = response.content
+            elif isinstance(response, str):
+                final_response = response
+            else:
+                final_response = str(response)
+
+            # Track cost using unified tracker
+            try:
+                await unified_cost_tracker.track_cost(
+                    agent_name=target_agent_key,
+                    model="gpt-4o-mini",
+                    input_tokens=len(message.split()) * 2,  # Estimate
+                    output_tokens=len(final_response.split()) * 2,  # Estimate
+                    user_id=user_id
+                )
+                cost_breakdown = {
+                    "input_tokens": len(message.split()) * 2,
+                    "output_tokens": len(final_response.split()) * 2,
+                    "total_cost_usd": (len(message.split()) * 2 * 0.00015 + len(final_response.split()) * 2 * 0.0006) / 1000
+                }
+            except Exception as cost_err:
+                logger.warning(f"Cost tracking failed: {cost_err}")
+
             duration = (datetime.now() - start_time).total_seconds()
 
             return {
@@ -322,9 +373,8 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
                 "agents_used": agents_used,
                 "turn_count": len(agents_used),
                 "duration_seconds": duration,
-                "execution_mode": "workflow",
-                "workflow_state": str(final_state),
-                "cost_breakdown": {}  # TODO: Implement cost tracking for Agent Framework
+                "execution_mode": "direct",
+                "cost_breakdown": cost_breakdown
             }
 
         except Exception as e:
@@ -332,10 +382,11 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
 
             return {
                 "response": f"I encountered an issue processing your request: {str(e)}",
-                "agents_used": [],
+                "agents_used": agents_used,
                 "turn_count": 0,
                 "duration_seconds": (datetime.now() - start_time).total_seconds(),
-                "error": str(e)
+                "error": str(e),
+                "cost_breakdown": cost_breakdown
             }
 
     async def stream(
@@ -412,3 +463,25 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
             "checkpointing_enabled": self.config.enable_checkpointing,
             "framework": "Microsoft Agent Framework"
         }
+
+    def get_agent_metadata(self, agent_key: str) -> Optional[Any]:
+        """Get original metadata for an agent."""
+        return self.agent_metadata.get(agent_key)
+
+    def list_agents_with_metadata(self) -> Dict[str, Any]:
+        """Get list of agents with their original metadata."""
+        return {
+            key: {
+                "agent": self.agents.get(key),
+                "metadata": self.agent_metadata.get(key)
+            }
+            for key in self.agents.keys()
+        }
+
+    async def shutdown(self) -> None:
+        """Shutdown the orchestrator and cleanup resources."""
+        logger.info("Shutting down Agent Framework Orchestrator")
+        self.agents.clear()
+        self.agent_executors.clear()
+        self.workflow = None
+        self.is_initialized = False

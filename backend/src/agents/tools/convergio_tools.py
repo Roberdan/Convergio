@@ -1,6 +1,7 @@
 """
-🔧 Convergio Custom AutoGen Tools
-Advanced tools that integrate AutoGen agents with Convergio backend APIs
+Convergio Custom Tools
+Advanced tools that integrate agents with Convergio backend APIs.
+Supports both Agent Framework (@ai_function) and AutoGen (BaseTool) patterns.
 """
 
 from typing import Any, Dict, List, Optional, Literal
@@ -9,8 +10,19 @@ import asyncio
 from datetime import datetime
 
 import structlog
-from autogen_core.tools import BaseTool
 from pydantic import BaseModel
+
+# Optional autogen import for backward compatibility
+try:
+    from autogen_core.tools import BaseTool
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    AUTOGEN_AVAILABLE = False
+    # Create a placeholder class if autogen not available
+    class BaseTool:
+        """Placeholder BaseTool when AutoGen not installed."""
+        def __init__(self, *args, **kwargs):
+            pass
 from .vector_search_client import search_similar, embed_text
 from .web_search_tool import (
     WebSearchTool,

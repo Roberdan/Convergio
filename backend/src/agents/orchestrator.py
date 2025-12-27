@@ -1,6 +1,6 @@
 """
-🎭 Convergio - UNIFIED Agent Orchestrator
-Single orchestrator that handles all use cases
+🎭 Convergio - Agent Framework Orchestrator
+Uses Microsoft Agent Framework for all agent operations
 """
 
 import asyncio
@@ -10,68 +10,136 @@ from typing import Any, Dict, Optional, List
 
 from src.core.config import get_settings
 from src.core.redis import get_redis_client
-from src.agents.orchestrators.unified import UnifiedOrchestrator
 from src.agents.orchestrators.base import OrchestratorRegistry
-from src.agents.services.redis_state_manager import RedisStateManager  
+from src.agents.services.redis_state_manager import RedisStateManager
 from src.services.unified_cost_tracker import unified_cost_tracker
-from src.agents.memory.autogen_memory_system import AutoGenMemorySystem
-from src.agents.observability.otel_observer import OtelAutoGenObserver
+
+# Try Agent Framework first, fall back to UnifiedOrchestrator
+try:
+    from agent_framework import ChatAgent
+    from agent_framework.openai import OpenAIChatClient
+    from src.agents.services.agent_framework_loader import AgentFrameworkLoader
+    from src.agents.orchestrators.agent_framework_orchestrator import AgentFrameworkOrchestrator
+    from src.agents.tools.agent_framework_tools import get_all_agent_framework_tools
+    AGENT_FRAMEWORK_AVAILABLE = True
+except ImportError:
+    AGENT_FRAMEWORK_AVAILABLE = False
+    ChatAgent = None
+    OpenAIChatClient = None
+    AgentFrameworkLoader = None
+    AgentFrameworkOrchestrator = None
+    get_all_agent_framework_tools = None
+
+# Fallback imports
+if not AGENT_FRAMEWORK_AVAILABLE:
+    from src.agents.orchestrators.unified import UnifiedOrchestrator
 
 logger = structlog.get_logger()
 
 
 class RealAgentOrchestrator:
-    """REAL Agent Orchestrator using the UnifiedOrchestrator directly."""
-    
+    """Agent Orchestrator using Microsoft Agent Framework."""
+
     def __init__(self):
-        """Initialize with REAL components."""
+        """Initialize with Agent Framework components."""
         self.settings = get_settings()
-        
-        # Use the UnifiedOrchestrator directly
-        self.orchestrator: UnifiedOrchestrator = None
+        self.orchestrator = None
         self.registry = OrchestratorRegistry()
-        
+        self.agent_loader = None
+        self.chat_client = None
+
         # Use absolute path for agent definitions
         backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.agents_directory: str = os.path.join(backend_dir, "src", "agents", "definitions")
-        
+
         self._initialized = False
-    
+        self._use_agent_framework = AGENT_FRAMEWORK_AVAILABLE
+
     async def initialize(self) -> None:
-        """Initialize the REAL agent system."""
+        """Initialize the agent system with Microsoft Agent Framework."""
         try:
-            logger.info("🚀 Initializing REAL Agent System with UnifiedOrchestrator")
-            
-            # Ensure Redis is initialized
-            try:
-                redis_client = get_redis_client()
-            except RuntimeError as e:
-                if "Redis not initialized" in str(e):
-                    logger.info("🔄 Redis not initialized, initializing now...")
-                    from core.redis import init_redis
-                    await init_redis()
-                    redis_client = get_redis_client()
-                else:
-                    raise
-            
-            # Initialize the UnifiedOrchestrator directly
-            self.orchestrator = UnifiedOrchestrator()
-            
-            # Initialize with agents directory
-            init_ok = await self.orchestrator.initialize(
-                agents_dir=self.agents_directory,
-                enable_rag=True,
-                enable_safety=True
-            )
-            if not init_ok:
-                raise RuntimeError("UnifiedOrchestrator failed to initialize")
-            
+            if self._use_agent_framework:
+                logger.info("🚀 Initializing Agent System with Microsoft Agent Framework")
+                await self._initialize_agent_framework()
+            else:
+                logger.info("🚀 Initializing Agent System with fallback orchestrator")
+                await self._initialize_fallback()
+
             self._initialized = True
-            logger.info("✅ REAL Agent System initialized successfully")
-            
+            logger.info("✅ Agent System initialized successfully",
+                       framework="Agent Framework" if self._use_agent_framework else "Fallback")
+
         except Exception as e:
-            logger.error("❌ Failed to initialize REAL Agent System", error=str(e))
+            logger.error("❌ Failed to initialize Agent System", error=str(e))
             raise
+
+    async def _initialize_agent_framework(self) -> None:
+        """Initialize with Microsoft Agent Framework."""
+        # Create OpenAI chat client
+        api_key = self.settings.OPENAI_API_KEY
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY not configured")
+
+        model_id = getattr(self.settings, 'DEFAULT_AI_MODEL', None) or "gpt-4o-mini"
+        self.chat_client = OpenAIChatClient(
+            model_id=model_id,
+            api_key=api_key
+        )
+
+        # Load agent definitions
+        self.agent_loader = AgentFrameworkLoader(
+            agents_directory=self.agents_directory,
+            enable_hot_reload=False
+        )
+        await asyncio.to_thread(self.agent_loader.scan_and_load_agents)
+
+        # Get all Agent Framework tools
+        self.tools = get_all_agent_framework_tools()
+        logger.info(f"🔧 Loaded {len(self.tools)} tools for agents")
+
+        # Create ChatAgent instances with tools
+        agents = self.agent_loader.create_chat_agents(
+            chat_client=self.chat_client,
+            tools=self.tools
+        )
+
+        # Initialize AgentFrameworkOrchestrator
+        self.orchestrator = AgentFrameworkOrchestrator()
+        init_ok = await self.orchestrator.initialize(
+            agents=agents,
+            agent_metadata={k: v for k, v in self.agent_loader.agent_metadata.items()},
+            enable_safety=True
+        )
+
+        if not init_ok:
+            raise RuntimeError("AgentFrameworkOrchestrator failed to initialize")
+
+        logger.info("✅ Agent Framework initialized",
+                   agents_count=len(agents))
+
+    async def _initialize_fallback(self) -> None:
+        """Initialize with fallback UnifiedOrchestrator."""
+        # Ensure Redis is initialized
+        try:
+            redis_client = get_redis_client()
+        except RuntimeError as e:
+            if "Redis not initialized" in str(e):
+                logger.info("🔄 Redis not initialized, initializing now...")
+                from core.redis import init_redis
+                await init_redis()
+                redis_client = get_redis_client()
+            else:
+                raise
+
+        self.orchestrator = UnifiedOrchestrator()
+        init_ok = await self.orchestrator.initialize(
+            agents_dir=self.agents_directory,
+            enable_rag=True,
+            enable_safety=True
+        )
+
+        if not init_ok:
+            raise RuntimeError("UnifiedOrchestrator failed to initialize")
     
     async def orchestrate_conversation(
         self,
@@ -189,13 +257,28 @@ class RealAgentOrchestrator:
         """Reload agents."""
         if not self._initialized:
             await self.initialize()
-        
-        # Reinitialize the unified orchestrator
-        ok = await self.orchestrator.initialize(
-            agents_dir=self.agents_directory, 
-            enable_rag=True, 
-            enable_safety=True
-        )
+            return {"reloaded": True}
+
+        # Reinitialize based on framework type
+        if self._use_agent_framework:
+            # Reload agent definitions and reinitialize
+            await asyncio.to_thread(self.agent_loader.scan_and_load_agents)
+            agents = self.agent_loader.create_chat_agents(
+                chat_client=self.chat_client,
+                tools=self.tools
+            )
+            ok = await self.orchestrator.initialize(
+                agents=agents,
+                agent_metadata={k: v for k, v in self.agent_loader.agent_metadata.items()},
+                enable_safety=True
+            )
+        else:
+            # Fallback to UnifiedOrchestrator reload
+            ok = await self.orchestrator.initialize(
+                agents_dir=self.agents_directory,
+                enable_rag=True,
+                enable_safety=True
+            )
         return {"reloaded": ok}
     
     def is_healthy(self) -> bool:

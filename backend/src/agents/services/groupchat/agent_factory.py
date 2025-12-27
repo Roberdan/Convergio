@@ -3,11 +3,18 @@ Agent Factory
 Creates AssistantAgent instances with appropriate tools and system messages.
 """
 
-from typing import Dict
+from typing import Dict, Any
 import structlog
 
-from autogen_agentchat.agents import AssistantAgent
-from autogen_ext.models.openai import OpenAIChatCompletionClient
+# AutoGen imports with fallback
+try:
+    from autogen_agentchat.agents import AssistantAgent
+    from autogen_ext.models.openai import OpenAIChatCompletionClient
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    AssistantAgent = None
+    OpenAIChatCompletionClient = None
+    AUTOGEN_AVAILABLE = False
 
 from ..agent_loader import DynamicAgentLoader, AgentMetadata
 from .agent_instructions import optimize_agent_prompt
@@ -18,9 +25,14 @@ logger = structlog.get_logger()
 
 def create_business_agents(
     loader: DynamicAgentLoader,
-    model_client: OpenAIChatCompletionClient,
-) -> Dict[str, AssistantAgent]:
-    agents: Dict[str, AssistantAgent] = {}
+    model_client: Any,
+) -> Dict[str, Any]:
+    """Create business agents. Returns empty dict if AutoGen is not available."""
+    if not AUTOGEN_AVAILABLE:
+        logger.debug("Legacy AutoGen business agents not created (using Agent Framework)")
+        return {}
+
+    agents: Dict[str, Any] = {}
 
     for agent_id, metadata in loader.agent_metadata.items():
         original_prompt = loader._build_system_message(metadata)

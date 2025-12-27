@@ -6,7 +6,17 @@ Ensures tool calls from agents are properly executed
 import json
 import structlog
 from typing import Any, Dict, List, Optional
-from autogen_agentchat.messages import TextMessage
+
+# Optional AutoGen import
+try:
+    from autogen_agentchat.messages import TextMessage
+except ImportError:
+    class TextMessage:  # type: ignore
+        """Fallback TextMessage when AutoGen not available"""
+        def __init__(self, content: str = "", source: str = ""):
+            self.content = content
+            self.source = source
+
 from ...tools.smart_tool_selector import SmartToolSelector
 from ...tools.web_search_tool import WebSearchTool, WebSearchArgs
 from ..observability.telemetry import get_telemetry, TelemetryContext

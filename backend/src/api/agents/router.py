@@ -88,14 +88,10 @@ async def list_agents(
     agent_list = []
     for agent_id in agents:
         agent = orchestrator.get_agent(agent_id)
+        metadata = agents_metadata.get(agent_id)
+
         if agent:
-            # Use original metadata if available, otherwise fallback to agent properties
-            metadata = agents_metadata.get(agent_id)
-            
-            # Debug metadata structure
-            if metadata:
-                logger.info(f"🔍 Agent {agent_id} metadata: type={type(metadata)}, description={getattr(metadata, 'description', 'NO_DESC')}")
-            
+            # Use actual agent with metadata fallback
             agent_list.append(AgentInfo(
                 id=agent_id,
                 name=agent.name,
@@ -105,7 +101,18 @@ async def list_agents(
                 model=getattr(agent, "model", None),
                 tools=metadata.tools if metadata else getattr(agent, "tools", [])
             ))
-    
+        elif metadata:
+            # Fallback to metadata when agent not instantiated (AutoGen not available)
+            agent_list.append(AgentInfo(
+                id=agent_id,
+                name=getattr(metadata, 'name', agent_id),
+                description=getattr(metadata, 'description', ''),
+                capabilities=getattr(metadata, 'tools', []),
+                status="available",
+                model=None,
+                tools=getattr(metadata, 'tools', [])
+            ))
+
     return agent_list
 
 

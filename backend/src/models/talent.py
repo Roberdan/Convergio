@@ -12,7 +12,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 
-from src.core.database import Base
+from ..core.database import Base
 
 
 class Talent(Base):

@@ -8,7 +8,24 @@ import sys
 import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
-from autogen_core.tools import FunctionTool
+# Agent Framework import with fallback
+try:
+    from agent_framework import ai_function
+    AGENT_FRAMEWORK_AVAILABLE = True
+except ImportError:
+    AGENT_FRAMEWORK_AVAILABLE = False
+    # Fallback decorator for when AF is not installed
+    def ai_function(func):
+        """Fallback decorator - just returns function unchanged"""
+        return func
+
+# Legacy AutoGen import for backward compatibility
+try:
+    from autogen_core.tools import FunctionTool
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    AUTOGEN_AVAILABLE = False
+    FunctionTool = None
 
 # Add parent directories to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -18,9 +35,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text, func
 from sqlalchemy.future import select
 
-from core.database import get_db_session
-from models.talent import Talent
-from models.document import Document, DocumentEmbedding
+from ...core.database import get_db_session
+from ...models.talent import Talent
+from ...models.document import Document, DocumentEmbedding
 
 logger = structlog.get_logger()
 
@@ -33,7 +50,7 @@ def create_sync_db_session():
     """
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
-    from core.config import get_settings
+    from ...core.config import get_settings
 
     settings = get_settings()
     sync_db_url = settings.DATABASE_URL_SYNC
@@ -54,7 +71,7 @@ def safe_run_sync_query(query_func):
     """
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
-    from core.config import get_settings
+    from ...core.config import get_settings
 
     settings = get_settings()
     sync_db_url = settings.DATABASE_URL_SYNC
@@ -82,7 +99,7 @@ class DatabaseTools:
     async def get_talents_summary(cls) -> Dict[str, Any]:
         """Get comprehensive talents summary with statistics"""
         try:
-            from core.database import get_async_session
+            from ...core.database import get_async_session
             
             async with get_async_session() as db:
                 # Get all active talents with basic stats
@@ -121,7 +138,7 @@ class DatabaseTools:
     async def get_talent_by_username(cls, username: str) -> Dict[str, Any]:
         """Get specific talent details by username"""
         try:
-            from core.database import get_async_session
+            from ...core.database import get_async_session
             
             async with get_async_session() as db:
                 talent = await Talent.get_by_username(db, username)
@@ -161,7 +178,7 @@ class DatabaseTools:
     async def get_department_overview(cls, department: str = None) -> Dict[str, Any]:
         """Get department overview and team structure"""
         try:
-            from core.database import get_async_session
+            from ...core.database import get_async_session
             
             async with get_async_session() as db:
                 # Get talents filtered by department if specified
@@ -211,7 +228,7 @@ class DatabaseTools:
     async def get_documents_summary(cls) -> Dict[str, Any]:
         """Get comprehensive documents and knowledge base summary"""
         try:
-            from core.database import get_async_session
+            from ...core.database import get_async_session
             
             async with get_async_session() as db:
                 # Get document statistics using the model method
@@ -262,8 +279,8 @@ class DatabaseTools:
     async def get_projects_overview(cls) -> Dict[str, Any]:
         """Get overview of projects from database"""
         try:
-            from core.database import get_async_session
-            from models.engagement import Engagement
+            from ...core.database import get_async_session
+            from ...models.engagement import Engagement
             from sqlalchemy import select, func
             
             async with get_async_session() as db:
@@ -320,7 +337,7 @@ class DatabaseTools:
     async def search_documents(cls, query: str, limit: int = 5) -> Dict[str, Any]:
         """Search documents by content or title"""
         try:
-            from core.database import get_async_session
+            from ...core.database import get_async_session
             
             async with get_async_session() as db:
                 # Simple text search in title and content
@@ -372,7 +389,7 @@ class DatabaseTools:
     async def get_system_health(cls) -> Dict[str, Any]:
         """Get comprehensive system health and statistics"""
         try:
-            from core.database import get_async_session
+            from ...core.database import get_async_session
             
             async with get_async_session() as db:
                 # Test database connectivity with a simple query
@@ -420,11 +437,19 @@ class DatabaseTools:
 
 
 # Tool functions for agent use - using synchronous queries
+# All functions decorated with @ai_function for Agent Framework compatibility
+
+@ai_function
 def query_talents_count() -> str:
-    """Get the total number of talents and basic statistics"""
+    """
+    Get the total number of talents and basic statistics from the database.
+
+    Returns:
+        String with talent overview including total count, admin count, and latest talent.
+    """
     try:
         from sqlalchemy import create_engine, text
-        from core.config import get_settings
+        from ...core.config import get_settings
 
         settings = get_settings()
         engine = create_engine(settings.DATABASE_URL_SYNC)
@@ -452,11 +477,20 @@ def query_talents_count() -> str:
         return f"❌ Query failed: {str(e)}"
 
 
+@ai_function
 def query_talent_details(name: str) -> str:
-    """Get detailed information about a specific talent by name or email"""
+    """
+    Get detailed information about a specific talent by name or email.
+
+    Args:
+        name: The talent's name or email to search for (partial match supported).
+
+    Returns:
+        String with talent profile including email, department, role, and status.
+    """
     try:
         from sqlalchemy import create_engine, text
-        from core.config import get_settings
+        from ...core.config import get_settings
 
         settings = get_settings()
         engine = create_engine(settings.DATABASE_URL_SYNC)
@@ -505,11 +539,20 @@ def query_talent_details(name: str) -> str:
         return f"❌ Query failed: {str(e)}"
 
 
+@ai_function
 def query_department_structure(department: str = None) -> str:
-    """Get department overview and team structure"""
+    """
+    Get department overview and team structure.
+
+    Args:
+        department: Optional department name to filter by. If not provided, returns all departments.
+
+    Returns:
+        String with department overview including total count and department breakdown.
+    """
     try:
         from sqlalchemy import create_engine, text
-        from core.config import get_settings
+        from ...core.config import get_settings
 
         settings = get_settings()
         engine = create_engine(settings.DATABASE_URL_SYNC)
@@ -553,11 +596,17 @@ def query_department_structure(department: str = None) -> str:
         return f"❌ Query failed: {str(e)}"
 
 
+@ai_function
 def query_knowledge_base() -> str:
-    """Get knowledge base and documents overview"""
+    """
+    Get knowledge base and documents overview from the vector store.
+
+    Returns:
+        String with document statistics, embedding counts, and recent documents list.
+    """
     try:
         from sqlalchemy import create_engine, text
-        from core.config import get_settings
+        from ...core.config import get_settings
 
         settings = get_settings()
         engine = create_engine(settings.DATABASE_URL_SYNC)
@@ -591,8 +640,17 @@ RECENT DOCUMENTS:
         return f"❌ Query failed: {str(e)}"
 
 
+@ai_function
 def search_knowledge(query: str) -> str:
-    """Search for information in the knowledge base using vector search"""
+    """
+    Search for information in the knowledge base using vector search.
+
+    Args:
+        query: The search query to find relevant documents.
+
+    Returns:
+        String with search results including document titles, snippets, and similarity scores.
+    """
     try:
         # Use direct vector search API instead of database async issues
         import requests
@@ -643,13 +701,22 @@ Found {result['results_count']} relevant documents:
             return summary
         else:
             return f"❌ Search failed: {result.get('error', 'Unknown error')}"
-            
+
     except Exception as e:
         return f"❌ Search failed: {str(e)}"
 
 
+@ai_function
 def query_ai_agent_info(agent_name: str) -> str:
-    """Get information about an AI agent in the Convergio ecosystem"""
+    """
+    Get information about a specific AI agent in the Convergio ecosystem.
+
+    Args:
+        agent_name: The name of the AI agent to look up (e.g., "Amy CFO", "Andrea CTO").
+
+    Returns:
+        String with agent details including description, tier, tools, and expertise areas.
+    """
     try:
         from agents.services.agent_loader import agent_loader
 
@@ -689,8 +756,14 @@ def query_ai_agent_info(agent_name: str) -> str:
         return f"❌ Failed to query AI agent info: {str(e)}"
 
 
+@ai_function
 def list_ai_agents() -> str:
-    """List all available AI agents in the Convergio ecosystem"""
+    """
+    List all available AI agents in the Convergio ecosystem organized by tier.
+
+    Returns:
+        String with all agents grouped by tier with names and descriptions.
+    """
     try:
         from agents.services.agent_loader import agent_loader
 
@@ -720,8 +793,150 @@ def list_ai_agents() -> str:
         return f"❌ Failed to list AI agents: {str(e)}"
 
 
-def get_database_tools() -> List[FunctionTool]:
-    """Get all database tools for AutoGen 0.7.2 agents with proper type annotations"""
+@ai_function
+def query_projects() -> str:
+    """
+    Get comprehensive project overview from the database.
+
+    Returns:
+        String with project statistics including total, active, completed counts and status breakdown.
+    """
+    try:
+        # Direct database query without async complications
+        from sqlalchemy import create_engine, text
+        from ...core.config import get_settings
+
+        settings = get_settings()
+
+        # Create synchronous engine
+        sync_db_url = settings.DATABASE_URL_SYNC
+        engine = create_engine(sync_db_url)
+
+        with engine.connect() as conn:
+            # Query engagements table directly
+            result = conn.execute(text("SELECT COUNT(*) as total, status FROM engagements GROUP BY status"))
+            rows = result.fetchall()
+
+            total_projects = sum(row[0] for row in rows)
+            status_counts = {row[1]: row[0] for row in rows}
+
+            active_count = status_counts.get('active', 0) + status_counts.get('in_progress', 0) + status_counts.get('planning', 0)
+
+            # Get latest project
+            latest_result = conn.execute(text("SELECT title FROM engagements ORDER BY created_at DESC LIMIT 1"))
+            latest_row = latest_result.fetchone()
+            latest_project = latest_row[0] if latest_row else "No projects found"
+
+            result_data = {
+                "total_projects": total_projects,
+                "active_projects": active_count,
+                "completed": status_counts.get('completed', 0),
+                "latest_project": latest_project,
+                "status_breakdown": status_counts
+            }
+
+        engine.dispose()
+
+        return f"""✅ PROJECT OVERVIEW FROM DATABASE:
+• Total Projects: {result_data['total_projects']}
+• Active Projects: {result_data['active_projects']}
+• Completed: {result_data['completed']}
+• Latest Project: {result_data['latest_project']}
+• Status Breakdown: {result_data['status_breakdown']}"""
+
+    except Exception as e:
+        return f"❌ Project query failed: {str(e)}"
+
+
+@ai_function
+def query_system_status() -> str:
+    """
+    Get comprehensive system health and operational status.
+
+    Returns:
+        String with system health status including database connectivity and table counts.
+    """
+    try:
+        from sqlalchemy import create_engine, text
+        from ...core.config import get_settings
+        from datetime import datetime
+
+        settings = get_settings()
+        engine = create_engine(settings.DATABASE_URL_SYNC)
+
+        with engine.connect() as conn:
+            # Test connectivity
+            result = conn.execute(text("SELECT NOW()"))
+            db_time = result.scalar()
+
+            # Get table counts
+            result = conn.execute(text("SELECT COUNT(*) FROM talents"))
+            talent_count = result.scalar() or 0
+
+            result = conn.execute(text("SELECT COUNT(*) FROM documents"))
+            doc_count = result.scalar() or 0
+
+            result = conn.execute(text("SELECT COUNT(*) FROM document_embeddings"))
+            embedding_count = result.scalar() or 0
+
+        engine.dispose()
+
+        return f"""✅ SYSTEM STATUS: HEALTHY
+• Database: Connected ✅
+• Data Tables:
+  - Talents: {talent_count}
+  - Documents: {doc_count}
+  - Embeddings: {embedding_count}
+• Last Check: {datetime.utcnow().isoformat()[:19]}"""
+
+    except Exception as e:
+        return f"❌ SYSTEM STATUS: UNHEALTHY\nError: {str(e)}"
+
+
+# ================================
+# TOOL REGISTRATION
+# ================================
+
+def get_database_tools_af() -> List[Any]:
+    """
+    Get all @ai_function decorated database tools for Agent Framework.
+
+    Returns:
+        List of tool functions decorated with @ai_function.
+    """
+    return [
+        query_ai_agent_info,
+        list_ai_agents,
+        query_talents_count,
+        query_talent_details,
+        query_department_structure,
+        query_knowledge_base,
+        query_projects,
+        search_knowledge,
+        query_system_status,
+    ]
+
+
+def get_database_tools() -> List:
+    """
+    Get all database tools for backward compatibility with AutoGen.
+
+    Uses Agent Framework @ai_function decorated tools when available,
+    wraps in FunctionTool for AutoGen compatibility when needed.
+
+    Returns:
+        List of tools compatible with the current framework.
+    """
+    # If Agent Framework is available and preferred, return decorated functions
+    if AGENT_FRAMEWORK_AVAILABLE:
+        return get_database_tools_af()
+
+    # Fallback to AutoGen FunctionTool wrapping
+    if not AUTOGEN_AVAILABLE:
+        # Neither framework available - return raw functions for basic use
+        logger.warning("Neither Agent Framework nor AutoGen available, returning raw functions")
+        return get_database_tools_af()
+
     from autogen_core.tools import FunctionTool
 
     return [
@@ -762,89 +977,3 @@ def get_database_tools() -> List[FunctionTool]:
             description="Get comprehensive system health and operational status"
         )
     ]
-
-
-def query_projects() -> str:
-    """Get project overview from database"""
-    try:
-        # Direct database query without async complications
-        from sqlalchemy import create_engine, text
-        from core.config import get_settings
-        
-        settings = get_settings()
-        
-        # Create synchronous engine
-        sync_db_url = settings.DATABASE_URL_SYNC
-        engine = create_engine(sync_db_url)
-        
-        with engine.connect() as conn:
-            # Query engagements table directly
-            result = conn.execute(text("SELECT COUNT(*) as total, status FROM engagements GROUP BY status"))
-            rows = result.fetchall()
-            
-            total_projects = sum(row[0] for row in rows)
-            status_counts = {row[1]: row[0] for row in rows}
-            
-            active_count = status_counts.get('active', 0) + status_counts.get('in_progress', 0) + status_counts.get('planning', 0)
-            
-            # Get latest project
-            latest_result = conn.execute(text("SELECT title FROM engagements ORDER BY created_at DESC LIMIT 1"))
-            latest_row = latest_result.fetchone()
-            latest_project = latest_row[0] if latest_row else "No projects found"
-            
-            result_data = {
-                "total_projects": total_projects,
-                "active_projects": active_count,
-                "completed": status_counts.get('completed', 0),
-                "latest_project": latest_project,
-                "status_breakdown": status_counts
-            }
-        
-        return f"""✅ PROJECT OVERVIEW FROM DATABASE:
-• Total Projects: {result_data['total_projects']}
-• Active Projects: {result_data['active_projects']}
-• Completed: {result_data['completed']}
-• Latest Project: {result_data['latest_project']}
-• Status Breakdown: {result_data['status_breakdown']}"""
-            
-    except Exception as e:
-        return f"❌ Project query failed: {str(e)}"
-
-
-def query_system_status() -> str:
-    """Get comprehensive system health status"""
-    try:
-        from sqlalchemy import create_engine, text
-        from core.config import get_settings
-        from datetime import datetime
-
-        settings = get_settings()
-        engine = create_engine(settings.DATABASE_URL_SYNC)
-
-        with engine.connect() as conn:
-            # Test connectivity
-            result = conn.execute(text("SELECT NOW()"))
-            db_time = result.scalar()
-
-            # Get table counts
-            result = conn.execute(text("SELECT COUNT(*) FROM talents"))
-            talent_count = result.scalar() or 0
-
-            result = conn.execute(text("SELECT COUNT(*) FROM documents"))
-            doc_count = result.scalar() or 0
-
-            result = conn.execute(text("SELECT COUNT(*) FROM document_embeddings"))
-            embedding_count = result.scalar() or 0
-
-        engine.dispose()
-
-        return f"""✅ SYSTEM STATUS: HEALTHY
-• Database: Connected ✅
-• Data Tables:
-  - Talents: {talent_count}
-  - Documents: {doc_count}
-  - Embeddings: {embedding_count}
-• Last Check: {datetime.utcnow().isoformat()[:19]}"""
-
-    except Exception as e:
-        return f"❌ SYSTEM STATUS: UNHEALTHY\nError: {str(e)}"

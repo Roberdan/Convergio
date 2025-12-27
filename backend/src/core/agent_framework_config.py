@@ -103,7 +103,7 @@ def get_agent_framework_client(config: Optional[AgentFrameworkConfig] = None) ->
             if config.api_key:
                 client_kwargs['api_key'] = config.api_key
             if config.model_name:
-                client_kwargs['model'] = config.model_name
+                client_kwargs['model_id'] = config.model_name
 
             client = OpenAIChatClient(**client_kwargs)
 

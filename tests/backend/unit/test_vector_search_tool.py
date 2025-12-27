@@ -1,9 +1,10 @@
 import pytest
 
-from agents.tools.convergio_tools import VectorSearchTool, VectorSearchArgs
+from agents.tools.convergio_tools import VectorSearchTool, VectorSearchArgs, AUTOGEN_AVAILABLE
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(not AUTOGEN_AVAILABLE, reason="AutoGen not installed")
 async def test_vector_search_tool_no_results_dev_mock(monkeypatch):
     # The dev client returns empty results list; ensure tool handles gracefully
     tool = VectorSearchTool()

@@ -201,15 +201,18 @@ async def init_db() -> None:
         # Test connection and (optionally) ensure basic schema in test/dev
         # Use the test-patched engine for initialization if present
         base_engine = engine or async_engine
-        async with base_engine.begin() as conn:
-            # Ensure required extension (Postgres only)
+
+        # Try to ensure pgvector extension in a separate transaction
+        if str(async_engine.url).startswith("postgresql"):
             try:
-                if str(async_engine.url).startswith("postgresql"):
-                    await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+                async with base_engine.begin() as ext_conn:
+                    await ext_conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
                     logger.info("🧩 Ensured pgvector extension present")
             except Exception as ext_e:
-                logger.warning("⚠️ Unable to ensure pgvector extension", error=str(ext_e))
+                logger.warning("⚠️ Unable to ensure pgvector extension (not installed)", error=str(ext_e))
 
+        # Main transaction for connectivity check and table creation
+        async with base_engine.begin() as conn:
             # Simple connectivity check
             await conn.run_sync(lambda sync_conn: sync_conn.execute(text("SELECT 1")))
 

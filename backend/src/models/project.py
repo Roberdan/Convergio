@@ -14,7 +14,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
-from src.core.database import Base
+from ..core.database import Base
 
 
 class ProjectStatus(str, Enum):
