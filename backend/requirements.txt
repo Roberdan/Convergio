@@ -34,9 +34,10 @@ slowapi==0.1.9
 # 🤖 AI & AGENTS
 # ================================
 # Microsoft Agent Framework (next-gen successor to AutoGen)
-agent-framework>=0.1.0
+# Note: Using beta versions as stable releases are not yet available
+agent-framework>=1.0.0b251016
 agent-framework-core>=1.0.0b251016
-agent-framework-azure-ai>=0.1.0
+# agent-framework-azure-ai>=0.1.0  # Optional: uncomment if using Azure AI features
 
 # AI Model Providers
 openai>=1.100.1

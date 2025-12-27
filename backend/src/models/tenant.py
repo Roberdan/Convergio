@@ -4,7 +4,7 @@ Complete tenant isolation and subscription management
 """
 
 from datetime import datetime, date
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 from enum import Enum
 from decimal import Decimal
 from sqlalchemy import (
@@ -15,7 +15,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
-from src.core.database import Base
+from ..core.database import Base
 
 
 class TenantStatus(str, Enum):
@@ -327,10 +327,10 @@ class UsageRecord(Base):
     total_cost = Column(Numeric(10, 2), default=0)
     
     # Metadata
-    metadata = Column(JSON, default=dict)
-    
+    extra_data = Column('metadata', JSON, default=dict)
+
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     tenant = relationship("Tenant", back_populates="usage_records")
     
@@ -363,7 +363,7 @@ class TenantAuditLog(Base):
     # Details
     description = Column(Text)
     changes = Column(JSON, default=dict)  # before/after values
-    metadata = Column(JSON, default=dict)
+    extra_data = Column('metadata', JSON, default=dict)
     
     # Status
     success = Column(Boolean, default=True)
@@ -388,7 +388,7 @@ class TenantAuditLog(Base):
 def create_tenant(
     name: str,
     email: str,
-    plan: SubscriptionPlan = SubscriptionPlan.TRIAL,
+    plan: SubscriptionPlan = SubscriptionPlan.FREE,
     **kwargs
 ) -> Tenant:
     """Create a new tenant"""
@@ -411,8 +411,8 @@ def create_tenant(
         **kwargs
     )
     
-    # Set trial period for new tenants
-    if plan == SubscriptionPlan.TRIAL:
+    # Set trial period for new tenants (FREE plan gets 14 day trial)
+    if plan == SubscriptionPlan.FREE:
         from datetime import timedelta
         tenant.trial_ends_at = datetime.utcnow() + timedelta(days=14)
     

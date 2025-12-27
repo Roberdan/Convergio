@@ -10,7 +10,16 @@ from typing import Optional, List, Dict, Any, Tuple
 from dataclasses import dataclass
 
 import structlog
-from autogen_agentchat.messages import TextMessage
+
+# Optional AutoGen import
+try:
+    from autogen_agentchat.messages import TextMessage
+except ImportError:
+    class TextMessage:  # type: ignore
+        """Fallback TextMessage when AutoGen not available"""
+        def __init__(self, content: str = "", source: str = ""):
+            self.content = content
+            self.source = source
 
 from ...memory.autogen_memory_system import AutoGenMemorySystem, MemoryType, MemoryEntry
 from ...utils.config import get_settings

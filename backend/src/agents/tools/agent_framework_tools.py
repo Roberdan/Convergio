@@ -384,6 +384,129 @@ async def format_as_json(data: Dict[str, Any]) -> str:
 
 
 # ================================
+# ANALYTICS TOOLS
+# ================================
+
+@ai_function
+async def get_engagement_analytics(
+    analysis_type: Literal["summary", "dashboard", "trends"] = "summary"
+) -> str:
+    """
+    Analyze engagement data and business metrics.
+
+    Args:
+        analysis_type: Type of analysis - summary (counts), dashboard (stats), or trends (over time)
+
+    Returns:
+        JSON string with engagement analytics data
+    """
+    try:
+        logger.info(f"Fetching engagement analytics", analysis_type=analysis_type)
+        base_url = os.getenv("BACKEND_URL", "http://localhost:9000")
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            if analysis_type == "summary":
+                response = await client.get(f"{base_url}/api/v1/engagements")
+                if response.status_code == 200:
+                    data = response.json()
+                    engagements = data if isinstance(data, list) else data.get("data", [])
+                    return json.dumps({
+                        "total_engagements": len(engagements),
+                        "active": sum(1 for e in engagements if str(e.get("status", "")).lower() in ["active", "in_progress"]),
+                        "completed": sum(1 for e in engagements if str(e.get("status", "")).lower() in ["completed", "done"]),
+                        "status": "success"
+                    }, indent=2)
+                else:
+                    return json.dumps({"error": f"API returned {response.status_code}", "status": "error"})
+
+            elif analysis_type == "dashboard":
+                response = await client.get(f"{base_url}/api/v1/dashboard/stats")
+                if response.status_code == 200:
+                    return json.dumps(response.json(), indent=2)
+                else:
+                    return json.dumps({"error": "Dashboard stats not available", "status": "error"})
+
+            elif analysis_type == "trends":
+                response = await client.get(f"{base_url}/api/v1/engagements")
+                if response.status_code == 200:
+                    data = response.json()
+                    engagements = data if isinstance(data, list) else data.get("data", [])
+                    return json.dumps({
+                        "total_engagements": len(engagements),
+                        "analysis_date": datetime.now().isoformat(),
+                        "trends_data": engagements[:10],  # Last 10 for trends
+                        "status": "success"
+                    }, indent=2)
+                else:
+                    return json.dumps({"error": f"API returned {response.status_code}", "status": "error"})
+
+    except httpx.TimeoutException:
+        return json.dumps({"error": "Request timed out", "status": "error"})
+    except Exception as e:
+        logger.error(f"Engagement analytics error: {e}")
+        return json.dumps({"error": str(e), "status": "error"})
+
+
+@ai_function
+async def get_business_intelligence(
+    focus_area: Literal["overview", "talents", "performance", "insights"] = "overview"
+) -> str:
+    """
+    Generate comprehensive business intelligence reports.
+
+    Args:
+        focus_area: Focus of the report - overview (all), talents, performance, or insights
+
+    Returns:
+        JSON string with business intelligence data
+    """
+    try:
+        logger.info(f"Generating business intelligence", focus_area=focus_area)
+        base_url = os.getenv("BACKEND_URL", "http://localhost:9000")
+
+        report = {
+            "business_intelligence_report": {
+                "generated_at": datetime.now().isoformat(),
+                "focus_area": focus_area
+            }
+        }
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            if focus_area in ["overview", "talents"]:
+                # Get talent data
+                response = await client.get(f"{base_url}/api/v1/talents")
+                if response.status_code == 200:
+                    talents = response.json()
+                    if isinstance(talents, list):
+                        report["talent_analysis"] = {
+                            "total": len(talents),
+                            "active": sum(1 for t in talents if t.get("is_active", True)),
+                            "admins": sum(1 for t in talents if t.get("is_admin", False))
+                        }
+                else:
+                    report["talent_analysis"] = {"error": "Unable to fetch talent data"}
+
+            if focus_area in ["overview", "performance"]:
+                # Get performance data
+                response = await client.get(f"{base_url}/api/v1/dashboard/stats")
+                if response.status_code == 200:
+                    report["performance_metrics"] = response.json()
+                else:
+                    report["performance_metrics"] = {"error": "Dashboard stats unavailable"}
+
+            if focus_area == "insights":
+                # Search for insights
+                insights_result = await vector_search("business insights performance metrics", top_k=3)
+                report["ai_insights"] = insights_result
+
+        return json.dumps(report, indent=2)
+
+    except Exception as e:
+        logger.error(f"Business intelligence error: {e}")
+        return json.dumps({"error": str(e), "status": "error"})
+
+
+# ================================
 # TOOL REGISTRATION
 # ================================
 
@@ -409,10 +532,31 @@ def get_all_agent_framework_tools() -> List[Any]:
         vector_search,
         semantic_knowledge_search,
 
+        # Analytics tools
+        get_engagement_analytics,
+        get_business_intelligence,
+
         # Utility tools
         get_current_date,
         format_as_json,
     ]
+
+
+def _get_tool_name(tool) -> str:
+    """Get name from tool (works with AIFunction and regular functions)."""
+    if hasattr(tool, 'name'):
+        return tool.name
+    return getattr(tool, '__name__', str(tool))
+
+
+def _get_tool_description(tool) -> str:
+    """Get description from tool (works with AIFunction and regular functions)."""
+    if hasattr(tool, 'description') and tool.description:
+        return tool.description
+    doc = getattr(tool, '__doc__', None)
+    if doc:
+        return doc.strip()
+    return "No description"
 
 
 def get_tool_descriptions() -> Dict[str, str]:
@@ -424,6 +568,6 @@ def get_tool_descriptions() -> Dict[str, str]:
     """
     tools = get_all_agent_framework_tools()
     return {
-        func.__name__: func.__doc__.strip() if func.__doc__ else "No description"
+        _get_tool_name(func): _get_tool_description(func)
         for func in tools
     }

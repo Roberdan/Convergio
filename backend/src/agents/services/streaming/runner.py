@@ -1,6 +1,7 @@
 """
 True AutoGen Streaming Runner - Native streaming without simulation
 Implements real AutoGen streaming with proper event handling and backpressure control.
+NOTE: This module requires autogen_agentchat which is deprecated in favor of Agent Framework.
 """
 
 import asyncio
@@ -12,8 +13,21 @@ from dataclasses import dataclass
 from enum import Enum
 
 import structlog
-from autogen_agentchat.agents import AssistantAgent
-from autogen_agentchat.messages import TextMessage, HandoffMessage, ToolCallRequestEvent, ToolCallExecutionEvent, ToolCallSummaryMessage
+
+# Conditional imports for autogen compatibility
+try:
+    from autogen_agentchat.agents import AssistantAgent
+    from autogen_agentchat.messages import TextMessage, HandoffMessage, ToolCallRequestEvent, ToolCallExecutionEvent, ToolCallSummaryMessage
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    # Fallback for Agent Framework migration
+    AssistantAgent = None
+    TextMessage = None
+    HandoffMessage = None
+    ToolCallRequestEvent = None
+    ToolCallExecutionEvent = None
+    ToolCallSummaryMessage = None
+    AUTOGEN_AVAILABLE = False
 
 from .response_types import StreamingResponse
 

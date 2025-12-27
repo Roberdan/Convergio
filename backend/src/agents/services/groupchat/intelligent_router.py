@@ -6,7 +6,12 @@ Routes queries to the most appropriate single agent based on expertise
 import re
 import structlog
 from typing import List, Optional, Dict, Any
-from autogen_agentchat.agents import AssistantAgent
+
+# Optional AutoGen import
+try:
+    from autogen_agentchat.agents import AssistantAgent
+except ImportError:
+    AssistantAgent = None  # type: ignore
 
 logger = structlog.get_logger()
 

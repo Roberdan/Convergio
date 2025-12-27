@@ -9,8 +9,17 @@ from datetime import datetime
 import hashlib
 
 import structlog
-from autogen_agentchat.messages import TextMessage
-from autogen_agentchat.teams import SelectorGroupChat
+
+# Conditional imports for framework compatibility
+try:
+    from autogen_agentchat.messages import TextMessage
+    from autogen_agentchat.teams import SelectorGroupChat
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    # Fallback for Agent Framework migration
+    TextMessage = None
+    SelectorGroupChat = None
+    AUTOGEN_AVAILABLE = False
 
 from .rag import AdvancedRAGProcessor
 from src.agents.utils.config import get_settings

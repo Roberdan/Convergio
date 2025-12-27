@@ -16,10 +16,26 @@ from dataclasses import dataclass
 from datetime import datetime
 
 import structlog
-from autogen_agentchat.agents import AssistantAgent
-from autogen_ext.models.openai import OpenAIChatCompletionClient
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler, FileModifiedEvent
+
+# Optional autogen imports for backward compatibility
+try:
+    from autogen_agentchat.agents import AssistantAgent
+    from autogen_ext.models.openai import OpenAIChatCompletionClient
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    AUTOGEN_AVAILABLE = False
+    AssistantAgent = None
+    OpenAIChatCompletionClient = None
+
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler, FileModifiedEvent
+    WATCHDOG_AVAILABLE = True
+except ImportError:
+    WATCHDOG_AVAILABLE = False
+    Observer = None
+    FileSystemEventHandler = object  # Base class fallback
+    FileModifiedEvent = None
 
 logger = structlog.get_logger()
 
@@ -290,10 +306,17 @@ class DynamicAgentLoader:
             for agent in self.agent_metadata.values()
         }
     
-    def create_autogen_agents(self, model_client: OpenAIChatCompletionClient, tools: List[Any] = None) -> Dict[str, AssistantAgent]:
-        """Create AutoGen AssistantAgent instances from loaded metadata."""
+    def create_autogen_agents(self, model_client: Any = None, tools: List[Any] = None) -> Dict[str, Any]:
+        """Create AutoGen AssistantAgent instances from loaded metadata.
+
+        Requires AutoGen to be installed. Returns empty dict if not available.
+        """
+        if not AUTOGEN_AVAILABLE:
+            logger.debug("Legacy AutoGen agents not created (using Agent Framework)")
+            return {}
+
         agents = {}
-        
+
         for key, metadata in self.agent_metadata.items():
             try:
                 # Build system message
@@ -415,10 +438,14 @@ ROUTING INTELLIGENCE:
         """Start file watcher for hot-reload"""
         if not self.enable_hot_reload:
             return
-        
+
+        if not WATCHDOG_AVAILABLE:
+            logger.warning("Watchdog not available, hot-reload disabled")
+            return
+
         if self.file_observer:
             self.stop_watching()
-        
+
         self.watcher = AgentFileWatcher(self)
         self.file_observer = Observer()
         self.file_observer.schedule(
@@ -427,7 +454,7 @@ ROUTING INTELLIGENCE:
             recursive=False
         )
         self.file_observer.start()
-        logger.info("🔥 Hot-reload enabled for agent definitions")
+        logger.info("Hot-reload enabled for agent definitions")
     
     def stop_watching(self):
         """Stop file watcher"""

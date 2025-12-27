@@ -18,7 +18,7 @@ import httpx
 from ..core.database import get_db_session
 from ..core.redis import cache_get, cache_set
 from ..api.user_keys import get_user_api_key, get_user_default_model
-from core.config import get_settings
+from src.core.config import get_settings
 from ..models.talent import Talent
 from ..models.document import Document
 from ..agents.orchestrator import get_agent_orchestrator

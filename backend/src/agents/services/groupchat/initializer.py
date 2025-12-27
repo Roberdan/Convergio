@@ -3,11 +3,17 @@ GroupChat Initializer
 Sets up model client and agent loader for AutoGen GroupChat.
 """
 
-from typing import Dict
+from typing import Dict, Any, Optional
 import structlog
 import logging
 
-from autogen_ext.models.openai import OpenAIChatCompletionClient
+# AutoGen imports with fallback
+try:
+    from autogen_ext.models.openai import OpenAIChatCompletionClient
+    AUTOGEN_EXT_AVAILABLE = True
+except ImportError:
+    OpenAIChatCompletionClient = None
+    AUTOGEN_EXT_AVAILABLE = False
 
 from ..agent_loader import DynamicAgentLoader, AgentMetadata
 from src.agents.utils.config import get_settings
@@ -35,36 +41,43 @@ if not openai_logger.handlers:
     httpx_logger.propagate = False
 
 
-def initialize_model_client() -> OpenAIChatCompletionClient:
-    """Initialize model client using centralized AI client manager"""
+def initialize_model_client() -> Optional[Any]:
+    """Initialize model client using centralized AI client manager.
+
+    Returns None if AutoGen is not available.
+    """
+    if not AUTOGEN_EXT_AVAILABLE:
+        logger.warning("AutoGen extensions not available, skipping model client initialization")
+        return None
+
     from ....core.ai_clients import get_autogen_client
-    
+
     settings = get_settings()
-    
+
     try:
         # Use centralized client manager
         client = get_autogen_client(provider="openai", model=settings.default_ai_model)
-        
-        logger.info("🔍 Model client initialized via AI Client Manager", 
+
+        logger.info("Model client initialized via AI Client Manager",
                    model=settings.default_ai_model,
                    provider="openai")
-        
+
         return client
-        
+
     except Exception as e:
-        logger.error("❌ Failed to initialize model client", error=str(e))
-        
+        logger.error("Failed to initialize model client", error=str(e))
+
         # Fallback to direct initialization
-        logger.info("🔄 Falling back to direct client initialization")
-        
+        logger.info("Falling back to direct client initialization")
+
         client_params = {
             "model": settings.default_ai_model,
             "api_key": settings.openai_api_key,
         }
-        
+
         if settings.openai_api_base and settings.openai_api_base.strip():
             client_params["base_url"] = settings.openai_api_base
-        
+
         return OpenAIChatCompletionClient(**client_params)
 
 

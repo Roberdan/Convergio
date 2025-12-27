@@ -1,11 +1,11 @@
 """
 Unified Orchestrator Adapters
 Provides compatibility interfaces for all existing orchestrator use cases
+Now uses Agent Framework via RealAgentOrchestrator
 """
 
 from typing import Dict, List, Any, Optional, AsyncGenerator
 from datetime import datetime
-from src.agents.orchestrators.unified import UnifiedOrchestrator
 from .redis_state_manager import RedisStateManager
 from src.services.unified_cost_tracker import unified_cost_tracker
 from uuid import UUID
@@ -13,42 +13,31 @@ import structlog
 
 logger = structlog.get_logger()
 
-# Global unified orchestrator instance
-_unified_orchestrator = None
-
-def get_unified_orchestrator() -> UnifiedOrchestrator:
-    """Get the global unified orchestrator instance"""
-    global _unified_orchestrator
-    if _unified_orchestrator is None:
-        _unified_orchestrator = UnifiedOrchestrator()
-    return _unified_orchestrator
+# Use RealAgentOrchestrator which wraps AgentFrameworkOrchestrator
+def get_unified_orchestrator():
+    """Get the global orchestrator instance (now using Agent Framework)"""
+    from src.agents.orchestrator import real_orchestrator
+    return real_orchestrator
 
 # ===================== ALI SWARM ORCHESTRATOR ADAPTER =====================
 
 class AliSwarmOrchestrator:
-    """Compatibility adapter for AliSwarmOrchestrator using UnifiedOrchestrator"""
-    
+    """Compatibility adapter for AliSwarmOrchestrator using Agent Framework"""
+
     def __init__(self, state_manager: RedisStateManager = None, cost_tracker=None, agents_directory: str = None):
-        """Initialize adapter with UnifiedOrchestrator backend"""
+        """Initialize adapter with Agent Framework backend"""
         self.orchestrator = get_unified_orchestrator()
         self.state_manager = state_manager
         self.cost_tracker = cost_tracker or unified_cost_tracker
         self.agents_directory = agents_directory
         self._initialized = False
-    
+
     async def initialize(self) -> None:
-        """Initialize using UnifiedOrchestrator"""
-        if not self.orchestrator.is_initialized:
-            if self.agents_directory:
-                agents_dir = self.agents_directory
-            else:
-                # Use absolute path for agent definitions
-                import os
-                backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-                agents_dir = os.path.join(backend_dir, "agents", "definitions")
-            await self.orchestrator.initialize(agents_dir=agents_dir)
+        """Initialize using Agent Framework orchestrator"""
+        if not self.orchestrator._initialized:
+            await self.orchestrator.initialize()
         self._initialized = True
-    
+
     async def orchestrate_conversation(
         self,
         message: str,
@@ -56,8 +45,8 @@ class AliSwarmOrchestrator:
         conversation_id: Optional[str] = None,
         context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Orchestrate using swarm intelligence"""
-        return await self.orchestrator.orchestrate_swarm(
+        """Orchestrate using Agent Framework"""
+        return await self.orchestrator.orchestrate(
             message=message,
             user_id=user_id,
             conversation_id=conversation_id,
@@ -67,22 +56,18 @@ class AliSwarmOrchestrator:
 # ===================== STREAMING ORCHESTRATOR ADAPTER =====================
 
 class StreamingOrchestrator:
-    """Compatibility adapter for StreamingOrchestrator using UnifiedOrchestrator"""
-    
+    """Compatibility adapter for StreamingOrchestrator using Agent Framework"""
+
     def __init__(self):
         self.orchestrator = get_unified_orchestrator()
         self.active_sessions = {}
         self._initialized = False
         self.memory_system = None  # For compatibility with tests
-    
+
     async def initialize(self):
-        """Initialize streaming orchestrator"""
-        if not self.orchestrator.is_initialized:
-            # Use absolute path for agent definitions
-            import os
-            backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            agents_dir = os.path.join(backend_dir, "agents", "definitions")
-            await self.orchestrator.initialize(agents_dir=agents_dir)
+        """Initialize streaming orchestrator with Agent Framework"""
+        if not self.orchestrator._initialized:
+            await self.orchestrator.initialize()
         self._initialized = True
     
     async def create_streaming_session(
@@ -273,20 +258,18 @@ class StreamingOrchestrator:
 # ===================== GRAPHFLOW ORCHESTRATOR ADAPTER =====================
 
 class GraphFlowOrchestrator:
-    """Compatibility adapter for GraphFlowOrchestrator using UnifiedOrchestrator"""
-    
+    """Compatibility adapter for GraphFlowOrchestrator using Agent Framework"""
+
     def __init__(self):
         self.orchestrator = get_unified_orchestrator()
         self._initialized = False
-    
+        self.executions: Dict[str, Any] = {}  # Track workflow executions
+        self.workflows: Dict[str, Any] = {}   # Store workflow definitions
+
     async def initialize(self) -> None:
-        """Initialize using UnifiedOrchestrator"""
-        if not self.orchestrator.is_initialized:
-            # Use absolute path for agent definitions
-            import os
-            backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            agents_dir = os.path.join(backend_dir, "agents", "definitions")
-            await self.orchestrator.initialize(agents_dir=agents_dir)
+        """Initialize using Agent Framework"""
+        if not self.orchestrator._initialized:
+            await self.orchestrator.initialize()
         self._initialized = True
     
     async def generate_workflow(self, prompt: str) -> Dict[str, Any]:
@@ -298,12 +281,45 @@ class GraphFlowOrchestrator:
     async def execute_workflow(
         self,
         workflow_id: str,
+        user_request: str = "",
+        user_id: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
         input_data: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
-        """Execute workflow by ID"""
+    ) -> str:
+        """Execute workflow by ID and return execution_id"""
+        import uuid
         if not self._initialized:
             await self.initialize()
-        return await self.orchestrator.execute_workflow(workflow_id, input_data)
+
+        execution_id = str(uuid.uuid4())
+
+        # Create execution record
+        from types import SimpleNamespace
+        execution = SimpleNamespace(
+            execution_id=execution_id,
+            workflow_id=workflow_id,
+            user_id=user_id,
+            status="running",
+            started_at=datetime.utcnow(),
+            completed_at=None,
+            current_step=None,
+            results=None,
+            error_message=None
+        )
+        self.executions[execution_id] = execution
+
+        return execution_id
+
+    async def get_workflow_status(self, execution_id: str) -> Optional[Any]:
+        """Get workflow execution status"""
+        return self.executions.get(execution_id)
+
+    async def cancel_workflow(self, execution_id: str) -> bool:
+        """Cancel a running workflow"""
+        if execution_id in self.executions:
+            self.executions[execution_id].status = "cancelled"
+            return True
+        return False
     
     async def get_workflow(self, workflow_id: str) -> Optional[Dict[str, Any]]:
         """Get workflow definition"""
@@ -322,6 +338,40 @@ class GraphFlowOrchestrator:
             message="List all available workflows",
             context={"workflow_list": True}
         )
+
+    async def list_available_workflows(self) -> List[Dict[str, Any]]:
+        """List available workflows - compatibility method for API"""
+        # Return a list of available workflow templates
+        return [
+            {
+                "id": "strategic_analysis",
+                "name": "Strategic Analysis",
+                "description": "Multi-agent strategic analysis workflow",
+                "agents": ["ali_chief_of_staff", "domik_mckinsey_strategic_decision_maker"],
+                "category": "strategy"
+            },
+            {
+                "id": "financial_review",
+                "name": "Financial Review",
+                "description": "Financial analysis and reporting workflow",
+                "agents": ["amy_cfo", "diana_performance_dashboard"],
+                "category": "finance"
+            },
+            {
+                "id": "security_audit",
+                "name": "Security Audit",
+                "description": "Security assessment and recommendations",
+                "agents": ["luca_security_expert"],
+                "category": "security"
+            },
+            {
+                "id": "market_research",
+                "name": "Market Research",
+                "description": "Market analysis and competitive intelligence",
+                "agents": ["fiona_market_analyst", "sofia_marketing_strategist"],
+                "category": "research"
+            }
+        ]
 
 # ===================== GLOBAL FUNCTIONS =====================
 

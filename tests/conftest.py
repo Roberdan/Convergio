@@ -175,6 +175,7 @@ def ensure_backend_server():
     # Allow opt-out to avoid starting a server for pure unit runs
     auto_start = os.environ.get("AUTO_START_TEST_SERVER", "true").lower() in ("1", "true", "yes")
     if not auto_start:
+        yield
         return
 
     already_running = _is_port_open(host, port)
@@ -522,7 +523,9 @@ async def ai_api_connectivity_test():
     return results
 
 # Test markers
-pytest_plugins = []
+pytest_plugins = [
+    "fixtures.agent_framework",
+]
 
 def pytest_configure(config):
     """Configure pytest with custom markers."""

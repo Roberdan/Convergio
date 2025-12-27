@@ -1,6 +1,6 @@
 """
 Advanced Speaker Selection Policy - Intelligent agent routing with multi-factor analysis
-Chooses the next speaker based on message intent, agent capabilities, conversation history, 
+Chooses the next speaker based on message intent, agent capabilities, conversation history,
 mission phase, and dynamic expertise scoring.
 """
 
@@ -13,8 +13,16 @@ from dataclasses import dataclass
 from enum import Enum
 
 import structlog
-from autogen_agentchat.agents import AssistantAgent
-from autogen_agentchat.messages import TextMessage
+
+# AutoGen imports with fallback
+try:
+    from autogen_agentchat.agents import AssistantAgent
+    from autogen_agentchat.messages import TextMessage
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    AssistantAgent = None
+    TextMessage = None
+    AUTOGEN_AVAILABLE = False
 
 from .selection_metrics import record_selection_metrics, get_selection_history
 from ...tools.vector_search_client import embed_text, calculate_similarity

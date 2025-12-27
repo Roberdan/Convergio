@@ -10,7 +10,7 @@ from datetime import datetime
 import uuid
 import enum
 
-from src.core.database import Base
+from ..core.database import Base
 
 
 class FieldType(enum.Enum):

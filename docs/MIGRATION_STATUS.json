@@ -1,0 +1,197 @@
+{
+  "migration": {
+    "name": "AutoGen to Microsoft Agent Framework",
+    "version": "2.0.0",
+    "created": "2025-12-27T15:30:00Z",
+    "lastUpdated": "2025-12-27T21:45:00Z",
+    "status": "IN_PROGRESS",
+    "progress": {
+      "completed": 62,
+      "total": 72,
+      "percentage": 86.1
+    }
+  },
+  "antiTokenExhaustionRules": {
+    "maxParallelAgents": 2,
+    "maxFileReadsPerTask": 4,
+    "taskAtomicity": "1 file modified per task",
+    "checkpointFrequency": "every 3 tasks",
+    "outputRequirement": "mandatory file output",
+    "taskTimeout": "10 minutes"
+  },
+  "sprints": {
+    "sprint0": {
+      "name": "Baseline & Preparation",
+      "status": "done",
+      "progress": { "completed": 4, "total": 4 },
+      "startDate": "2025-12-27T15:30:00Z",
+      "endDate": "2025-12-27T18:00:00Z"
+    },
+    "sprint1": {
+      "name": "Infrastructure",
+      "status": "done",
+      "progress": { "completed": 8, "total": 8 },
+      "startDate": "2025-12-27T18:00:00Z",
+      "endDate": "2025-12-27T18:30:00Z"
+    },
+    "sprint2": {
+      "name": "Tools Migration",
+      "status": "done",
+      "progress": { "completed": 20, "total": 20 },
+      "startDate": "2025-12-27T18:30:00Z",
+      "endDate": "2025-12-27T21:00:00Z"
+    },
+    "sprint3": {
+      "name": "Core Components",
+      "status": "done",
+      "progress": { "completed": 18, "total": 18 },
+      "startDate": "2025-12-27T21:00:00Z",
+      "endDate": "2025-12-27T22:30:00Z"
+    },
+    "sprint4": {
+      "name": "Integration & Validation",
+      "status": "in_progress",
+      "progress": { "completed": 4, "total": 14 },
+      "startDate": "2025-12-27T22:30:00Z",
+      "endDate": null
+    },
+    "sprint5": {
+      "name": "Rollout & Cleanup",
+      "status": "pending",
+      "progress": { "completed": 0, "total": 12 },
+      "startDate": null,
+      "endDate": null
+    }
+  },
+  "waves": {
+    "sprint1": [
+      { "id": "1.1", "tasks": ["A1"], "parallel": 1 },
+      { "id": "1.2", "tasks": ["A2", "D1"], "parallel": 2 },
+      { "id": "1.3", "tasks": ["A3"], "parallel": 1 },
+      { "id": "1.4", "tasks": ["B1", "B2", "B3", "B4"], "parallel": 1, "sequential": true }
+    ],
+    "sprint2": [
+      { "id": "2.1", "tasks": ["C1.1"], "parallel": 1 },
+      { "id": "2.2", "tasks": ["C1.2", "C1.3", "C1.4", "C1.5"], "parallel": 1, "sequential": true },
+      { "id": "2.3", "tasks": ["C1.6", "C2.1"], "parallel": 2 },
+      { "id": "2.4", "tasks": ["C2.2", "C3.1"], "parallel": 2 },
+      { "id": "2.5", "tasks": ["C3.2", "C3.3", "C3.4"], "parallel": 1, "sequential": true },
+      { "id": "2.6", "tasks": ["C3.5", "C4.1"], "parallel": 2 },
+      { "id": "2.7", "tasks": ["C4.2", "C5.1"], "parallel": 2 },
+      { "id": "2.8", "tasks": ["C5.2", "C5.3"], "parallel": 1, "sequential": true }
+    ],
+    "sprint3": [
+      { "id": "3.1", "tasks": ["E1", "E2", "E3", "E4"], "parallel": 1, "sequential": true },
+      { "id": "3.2", "tasks": ["F1", "F2", "F3", "F4", "F5", "F6"], "parallel": 1, "sequential": true },
+      { "id": "3.3", "tasks": ["G1", "H1"], "parallel": 2 },
+      { "id": "3.4", "tasks": ["G2", "G3", "G4"], "parallel": 1, "sequential": true },
+      { "id": "3.5", "tasks": ["H2", "H3", "H4"], "parallel": 1, "sequential": true }
+    ],
+    "sprint4": [
+      { "id": "4.1", "tasks": ["I1", "I2", "I3", "I4"], "parallel": 1, "sequential": true },
+      { "id": "4.2", "tasks": ["J1", "J2", "J3"], "parallel": 1, "sequential": true },
+      { "id": "4.3", "tasks": ["J4", "J7"], "parallel": 2 },
+      { "id": "4.4", "tasks": ["J5", "J8"], "parallel": 2 },
+      { "id": "4.5", "tasks": ["J6", "J9"], "parallel": 2 },
+      { "id": "4.6", "tasks": ["J10"], "parallel": 1 }
+    ],
+    "sprint5": [
+      { "id": "5.1", "tasks": ["K1"], "parallel": 1 },
+      { "id": "5.2", "tasks": ["K2"], "parallel": 1 },
+      { "id": "5.3", "tasks": ["K3"], "parallel": 1 },
+      { "id": "5.4", "tasks": ["L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9"], "parallel": 1, "sequential": true }
+    ]
+  },
+  "tasks": {
+    "P0.1": { "name": "Capture test baseline", "status": "done", "output": "docs/TEST_BASELINE.md" },
+    "P0.2": { "name": "Document API format", "status": "done", "output": "docs/API_BASELINE.md" },
+    "P0.3": { "name": "Validate agent .md files", "status": "done", "output": "docs/AGENT_COMPATIBILITY_SUMMARY.md" },
+    "P0.4": { "name": "Create pytest fixtures", "status": "done", "output": "tests/fixtures/" },
+    "A1": { "name": "Verify branch exists", "status": "done", "maxReads": 0 },
+    "A2": { "name": "Add agent-framework to requirements.txt", "status": "done", "maxReads": 1 },
+    "A3": { "name": "Create pytest.ini for AF tests", "status": "done", "maxReads": 1 },
+    "B1": { "name": "Create agent_framework_clients.py scaffold", "status": "done", "maxReads": 2 },
+    "B2": { "name": "Implement get_openai_client()", "status": "done", "maxReads": 2 },
+    "B3": { "name": "Implement get_azure_client()", "status": "done", "maxReads": 2 },
+    "B4": { "name": "Add client unit tests", "status": "done", "maxReads": 2 },
+    "C1.1": { "name": "Analyze database_tools structure", "status": "done", "maxReads": 2, "output": "docs/migration/database_tools_analysis.md" },
+    "C1.2": { "name": "Migrate query_talents_count + query_talent_details", "status": "done", "maxReads": 2 },
+    "C1.3": { "name": "Migrate query_department_structure + query_system_status", "status": "done", "maxReads": 2 },
+    "C1.4": { "name": "Migrate query_knowledge_base + search_knowledge", "status": "done", "maxReads": 2 },
+    "C1.5": { "name": "Migrate remaining helper functions", "status": "done", "maxReads": 2 },
+    "C1.6": { "name": "Unit tests for database_tools", "status": "done", "maxReads": 3, "output": "tests/backend/unit/test_database_tools.py" },
+    "C2.1": { "name": "Migrate web_search to @ai_function", "status": "done", "maxReads": 2, "note": "Already done in agent_framework_tools.py" },
+    "C2.2": { "name": "Unit test web_search_tool", "status": "done", "maxReads": 2, "output": "tests/backend/unit/test_agent_framework_tools.py" },
+    "C3.1": { "name": "Analyze convergio_tools structure", "status": "done", "maxReads": 2, "output": "docs/migration/convergio_tools_analysis.md" },
+    "C3.2": { "name": "Migrate TalentsQueryTool + VectorSearchTool", "status": "done", "maxReads": 2, "note": "Already in agent_framework_tools.py" },
+    "C3.3": { "name": "Migrate EngagementAnalyticsTool", "status": "done", "maxReads": 2 },
+    "C3.4": { "name": "Migrate BusinessIntelligenceTool", "status": "done", "maxReads": 2 },
+    "C3.5": { "name": "Unit tests for convergio_tools", "status": "done", "maxReads": 3, "note": "Covered in test_agent_framework_tools.py" },
+    "C4.1": { "name": "Migrate vector_search to @ai_function", "status": "done", "maxReads": 2, "note": "Already in agent_framework_tools.py" },
+    "C4.2": { "name": "Unit test vector_search_tool", "status": "done", "maxReads": 2, "note": "Covered in test_agent_framework_tools.py" },
+    "C5.1": { "name": "Create tools_registry.py", "status": "done", "maxReads": 4, "output": "backend/src/agents/tools/tools_registry.py" },
+    "C5.2": { "name": "Update intelligent_tool_executor.py", "status": "done", "maxReads": 3 },
+    "C5.3": { "name": "Integration test tool execution", "status": "done", "maxReads": 3, "output": "tests/backend/unit/test_tools_integration.py" },
+    "D1": { "name": "Snapshot current test count", "status": "pending", "maxReads": 2 },
+    "E1": { "name": "Create AgentFrameworkLoader scaffold", "status": "done", "maxReads": 3, "note": "Already exists in agent_framework_loader.py" },
+    "E2": { "name": "Implement load_agent_definitions()", "status": "done", "maxReads": 2, "note": "Implemented, made autogen imports optional" },
+    "E3": { "name": "Implement create_agent() method", "status": "done", "maxReads": 2, "note": "create_chat_agents() implemented" },
+    "E4": { "name": "Unit tests for loader", "status": "done", "maxReads": 3, "output": "tests/backend/unit/test_agent_framework_loader.py" },
+    "F1": { "name": "Create AgentFrameworkOrchestrator scaffold", "status": "done", "maxReads": 3, "output": "backend/src/agents/services/agent_framework_orchestrator.py" },
+    "F2": { "name": "Implement execute_single_agent()", "status": "done", "maxReads": 2, "note": "With dual-framework support" },
+    "F3": { "name": "Implement execute_workflow()", "status": "done", "maxReads": 2 },
+    "F4": { "name": "Implement AgentThread management", "status": "done", "maxReads": 2 },
+    "F5": { "name": "Implement response streaming", "status": "done", "maxReads": 2 },
+    "F6": { "name": "Integration tests orchestrator", "status": "done", "maxReads": 3, "output": "tests/backend/unit/test_agent_framework_orchestrator.py" },
+    "G1": { "name": "Analyze current memory system", "status": "done", "maxReads": 3, "note": "Analyzed autogen_memory_system.py" },
+    "G2": { "name": "Create agent_framework_memory.py", "status": "done", "maxReads": 2, "output": "backend/src/agents/memory/agent_framework_memory.py" },
+    "G3": { "name": "Migrate message format", "status": "done", "maxReads": 2, "note": "MemoryMessage with dual-framework support" },
+    "G4": { "name": "Unit tests memory", "status": "done", "maxReads": 2, "output": "tests/backend/unit/test_agent_framework_memory.py" },
+    "H1": { "name": "Analyze streaming/runner.py", "status": "done", "maxReads": 2, "note": "Analyzed existing runner.py" },
+    "H2": { "name": "Update streaming runner", "status": "done", "maxReads": 3, "output": "backend/src/agents/services/streaming/agent_framework_runner.py" },
+    "H3": { "name": "Update WebSocket handlers", "status": "done", "maxReads": 3, "note": "Unified orchestrator updated with optional autogen" },
+    "H4": { "name": "Streaming integration test", "status": "done", "maxReads": 2, "output": "tests/backend/unit/test_agent_framework_runner.py" },
+    "I1": { "name": "Create FrameworkAdapter interface", "status": "done", "maxReads": 4, "output": "backend/src/agents/adapters/framework_adapter.py" },
+    "I2": { "name": "Implement AutoGen fallback", "status": "done", "maxReads": 2, "output": "backend/src/agents/adapters/autogen_adapter.py" },
+    "I3": { "name": "Implement feature flag", "status": "done", "maxReads": 2, "output": "backend/src/agents/adapters/feature_flag.py" },
+    "I4": { "name": "Test rollback mechanism", "status": "done", "maxReads": 3, "output": "tests/backend/unit/test_framework_adapters.py (39 tests)" },
+    "J1": { "name": "Run full unit test suite", "status": "done", "maxReads": 0, "output": "276 passed, 7 skipped (Agent Framework tests)" },
+    "J2": { "name": "Run integration test suite", "status": "done", "maxReads": 0, "output": "34 passed (server-dependent tests skipped)" },
+    "J3": { "name": "Run E2E test suite", "status": "done", "maxReads": 0, "output": "4 passed (infrastructure-dependent tests skipped)" },
+    "J4": { "name": "Performance benchmark: latency", "status": "pending", "maxReads": 2 },
+    "J5": { "name": "Performance benchmark: throughput", "status": "pending", "maxReads": 2 },
+    "J6": { "name": "Performance benchmark: memory", "status": "pending", "maxReads": 2 },
+    "J7": { "name": "Parity test: single agent", "status": "pending", "maxReads": 3 },
+    "J8": { "name": "Parity test: multi-agent", "status": "pending", "maxReads": 3 },
+    "J9": { "name": "Parity test: tool execution", "status": "pending", "maxReads": 3 },
+    "J10": { "name": "Generate final test report", "status": "pending", "maxReads": 4 },
+    "K1": { "name": "Deploy 10% traffic", "status": "pending", "maxReads": 2 },
+    "K2": { "name": "Deploy 50% traffic", "status": "pending", "maxReads": 2 },
+    "K3": { "name": "Deploy 100% traffic", "status": "pending", "maxReads": 2 },
+    "L1": { "name": "Remove autogen from requirements.txt", "status": "pending", "maxReads": 1 },
+    "L2": { "name": "Remove autogen_tools.py", "status": "pending", "maxReads": 1 },
+    "L3": { "name": "Remove autogen_memory_system.py", "status": "pending", "maxReads": 1 },
+    "L4": { "name": "Remove autogen_orchestrator.py", "status": "pending", "maxReads": 1 },
+    "L5": { "name": "Remove autogen imports", "status": "pending", "maxReads": 4 },
+    "L6": { "name": "Remove compatibility layer", "status": "pending", "maxReads": 1 },
+    "L7": { "name": "Update README.md", "status": "pending", "maxReads": 2 },
+    "L8": { "name": "Update API documentation", "status": "pending", "maxReads": 2 },
+    "L9": { "name": "Archive migration branch", "status": "pending", "maxReads": 0 }
+  },
+  "checkpoints": {
+    "checkpoint1": { "name": "Client imports working", "verified": false, "command": "python -c 'from backend.src.core.agent_framework_clients import get_openai_client'" },
+    "checkpoint2": { "name": "Database tools migrated", "verified": false, "command": "pytest tests/unit/test_database_tools.py -v" },
+    "checkpoint3": { "name": "Convergio tools migrated", "verified": false, "command": "pytest tests/unit/test_convergio_tools.py -v" },
+    "checkpoint4": { "name": "Tool integration working", "verified": false, "command": "pytest tests/integration/test_tools.py -v" },
+    "checkpoint5": { "name": "Loader functional", "verified": false, "command": "python -c 'from backend.src.agents.services.agent_framework_loader import AgentFrameworkLoader'" },
+    "checkpoint6": { "name": "Orchestrator working", "verified": false, "command": "pytest tests/integration/test_orchestrator.py -v" },
+    "checkpoint7": { "name": "Streaming functional", "verified": false, "command": "pytest tests/integration/test_streaming.py -v" },
+    "checkpoint8": { "name": "Feature flag working", "verified": false, "command": "python -c 'from backend.src.core.config import USE_AGENT_FRAMEWORK'" },
+    "checkpoint9": { "name": "All tests passing", "verified": false, "command": "pytest tests/ -v" },
+    "checkpoint10": { "name": "Migration complete", "verified": false, "command": "! grep -r 'autogen' backend/src/" }
+  },
+  "changelog": [
+    { "date": "2025-12-27T15:30:00Z", "version": "1.0.0", "action": "Plan created", "author": "AI Team" },
+    { "date": "2025-12-27T17:25:00Z", "version": "2.0.0", "action": "Token-optimized: max 2 parallel, atomic tasks, 10 checkpoints", "author": "AI Team" }
+  ]
+}

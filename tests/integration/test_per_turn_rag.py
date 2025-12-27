@@ -8,9 +8,21 @@ import asyncio
 from unittest.mock import Mock, AsyncMock
 from datetime import datetime, timedelta
 
-from agents.services.groupchat.per_turn_rag import PerTurnRAGInjector
-from agents.services.groupchat.conflict_detector import detect_conflicts
-from agents.utils.config import get_settings
+# Check if autogen is available before importing
+try:
+    from agents.services.groupchat.per_turn_rag import PerTurnRAGInjector, AUTOGEN_AVAILABLE
+    from agents.services.groupchat.conflict_detector import detect_conflicts
+    from agents.utils.config import get_settings
+except ImportError:
+    AUTOGEN_AVAILABLE = False
+    PerTurnRAGInjector = None
+    detect_conflicts = None
+    get_settings = None
+
+pytestmark = pytest.mark.skipif(
+    not AUTOGEN_AVAILABLE,
+    reason="autogen_agentchat not installed - skipping per-turn RAG tests"
+)
 
 
 class TestPerTurnRAG:

@@ -14,8 +14,8 @@ from pathlib import Path
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "backend" / "src"))
 
-from core.database import get_async_session, init_db, close_db
-from models.cost_tracking import CostTracking, CostSession
+from src.core.database import get_async_session, init_db, close_db
+from src.models.cost_tracking import CostTracking, CostSession
 from sqlalchemy import select, func
 
 

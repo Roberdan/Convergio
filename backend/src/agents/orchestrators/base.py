@@ -8,8 +8,15 @@ from typing import Dict, List, Any, Optional, AsyncGenerator, Tuple
 from datetime import datetime
 import structlog
 
-from autogen_agentchat.agents import AssistantAgent
-from autogen_agentchat.teams import BaseGroupChat
+# AutoGen imports with fallback
+try:
+    from autogen_agentchat.agents import AssistantAgent
+    from autogen_agentchat.teams import BaseGroupChat
+    AUTOGEN_AVAILABLE = True
+except ImportError:
+    AssistantAgent = None
+    BaseGroupChat = None
+    AUTOGEN_AVAILABLE = False
 
 logger = structlog.get_logger()
 
@@ -22,7 +29,7 @@ class IAgentOrchestrator(ABC):
     
     def __init__(self, name: str = "base_orchestrator"):
         self.name = name
-        self.agents: Dict[str, AssistantAgent] = {}
+        self.agents: Dict[str, Any] = {}  # Any to support both AutoGen and Agent Framework agents
         self.is_initialized = False
         self.initialization_time: Optional[datetime] = None
         self.metrics = {
