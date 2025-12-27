@@ -10,14 +10,14 @@ Convergio is the AI‑first orchestration platform where human ingenuity converg
 [![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-teal?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![SvelteKit](https://img.shields.io/badge/Frontend-SvelteKit-orange?style=for-the-badge&logo=svelte)](https://kit.svelte.dev/)
-[![Microsoft AutoGen](https://img.shields.io/badge/Microsoft%20AutoGen-0.7.x-red?style=for-the-badge&logo=microsoft)](https://github.com/microsoft/autogen)
+[![Microsoft Agent Framework](https://img.shields.io/badge/Microsoft%20Agent%20Framework-1.0-blue?style=for-the-badge&logo=microsoft)](https://github.com/microsoft/agent-framework)
 [![License: BSL 1.1](https://img.shields.io/badge/License-BSL%201.1-blue?style=for-the-badge)](LICENSE)
 
 ---
 
 ## 🗞️ What this is (and why it matters)
 
-- Convergio is a unified, production‑leaning reference implementation of a multi‑agent platform built on top of Microsoft AutoGen. It is one of the first large‑scale, end‑to‑end implementations of AutoGen in an open repository, showing how to compose dozens of purpose‑built agents into reliable workflows. See Microsoft AutoGen on GitHub: https://github.com/microsoft/autogen
+- Convergio is a unified, production‑leaning reference implementation of a multi‑agent platform built on top of Microsoft Agent Framework. It demonstrates how to compose dozens of purpose‑built agents into reliable workflows with modern orchestration patterns. See Microsoft Agent Framework on GitHub: https://github.com/microsoft/agent-framework
 - Our north star is the Agentic Manifesto and inclusive design. Start here:
   - Agentic Manifesto: [AgenticManifesto/AgenticManifesto.md](AgenticManifesto/AgenticManifesto.md)
   - What is Convergio: [AgenticManifesto/WhatIsConvergio.md](AgenticManifesto/WhatIsConvergio.md)
@@ -32,7 +32,7 @@ Convergio is the AI‑first orchestration platform where human ingenuity converg
 
 - Backend: FastAPI (Python 3.11), SQLAlchemy 2.x (async), PostgreSQL, Redis, Prometheus metrics
 - Frontend: SvelteKit + TypeScript + TailwindCSS (dev server on port 4000, proxy to backend 9000)
-- AI Orchestration: Multi‑agent system using Microsoft AutoGen 0.7.x (autogen-core, autogen-agentchat, autogen-ext)
+- AI Orchestration: Multi‑agent system using Microsoft Agent Framework 1.0 with modern orchestration patterns
 - Streaming & coordination: internal streaming orchestrator with typed protocols and runners
 - Security: security headers, CORS, JWT scaffolding (RS256), optional rate‑limit middleware (currently disabled in code)
 
@@ -278,22 +278,22 @@ Each agent is powered by advanced AI capabilities including:
 
 ## 🧪 Testing
 
-### Test Suite Status (August 2025)
+### Test Suite Status (December 2025)
 
 ✅ **All test scripts systematically fixed and optimized**
 
 #### Backend Tests
-- **Unit Tests**: 97/97 passing ✅
-- **Integration Tests**: 117/118 passing (99.2%) ✅
-- **E2E Tests**: 4/5 passing (database session issues resolved) ✅
+- **Unit Tests**: 431+ passing ✅
+- **Integration Tests**: All passing ✅
+- **E2E Tests**: Core tests passing (12 E2E infra-dependent tests require specific setup) ✅
 - **Security Tests**: All core security validations passing ✅
 - **Performance Tests**: Load testing and metrics collection working ✅
 
-#### Frontend Tests  
+#### Frontend Tests
 - **Unit Tests (Vitest)**: Core functionality tests passing ✅
-- **E2E Tests (Playwright)**: 30+ core tests passing ✅
-- **Accessibility Tests**: All 11 accessibility requirements met ✅
-- **Component Tests**: Dashboard, agents, navigation all working ✅
+- **E2E Tests (Playwright)**: Core tests passing ✅
+- **Accessibility Tests**: All accessibility requirements met ✅
+- **Component Tests**: Dashboard, agents, talents, navigation all working ✅
 
 ### Quick Test Execution
 
@@ -485,8 +485,9 @@ After the change date (2027-01-01), this software will be available under the Ap
 
 ## 🙏 Acknowledgments
 
-- Microsoft AutoGen team for the amazing multi-agent framework
+- Microsoft Agent Framework team for the modern multi-agent framework
 - OpenAI for GPT models powering our agents
+- Anthropic for Claude models used in development
 - The open-source community for invaluable tools and libraries
 
 ---

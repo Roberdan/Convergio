@@ -1,4 +1,73 @@
 # Changelog
+## [1.0.211] - 2025-12-27
+
+### 🔄 **Build Update**
+- Automatic build number increment
+- Commit: $(git rev-parse --short HEAD)
+
+
+## [2.0.0] - 2025-12-27
+
+### 🚀 **Major Release: Microsoft Agent Framework Migration**
+
+This release completes the migration from Microsoft AutoGen to Microsoft Agent Framework, representing a significant architectural upgrade.
+
+#### Core Framework Changes
+- **Migrated from AutoGen to Microsoft Agent Framework 1.0**
+- **New AgentFrameworkOrchestrator** - Modern orchestration with improved performance
+- **New AgentFrameworkLoader** - Dynamic agent loading with hot-reload support
+- **New AgentFrameworkMemory** - Enhanced memory system with vector search
+- **New AgentFrameworkRunner** - Streaming runner with typed protocols
+
+#### Infrastructure Improvements
+- **Unified Orchestrator Adapters** - Compatibility layer for existing orchestrator use cases
+- **Tools Registry** - Centralized tool management with @ai_function decorators
+- **GraphFlow Orchestrator** - Fixed workflow execution tracking and status management
+- **Streaming Orchestrator** - Memory integration and enhanced session management
+
+#### Frontend Additions
+- **Dedicated Talents Page** - Full team management at `/talents` with search, filter, and sort
+- **Enhanced Dashboard Navigation** - Team section accessible via dashboard tabs
+
+#### Bug Fixes
+- Fixed SQLAlchemy reserved `metadata` attribute conflict
+- Fixed non-existent SubscriptionPlan.TRIAL enum value
+- Fixed missing Tuple import in tenant models
+- Fixed relative imports for package compatibility
+- Fixed pytest `agent_framework` marker registration
+- Fixed workflows executions endpoint (GraphFlowOrchestrator attributes)
+
+#### Test Results
+- **431+ backend tests passing**
+- **12 E2E tests require infrastructure setup** (Playwright, WebSocket auth, database tables)
+- **4 tests skipped** (infrastructure-dependent)
+
+#### Documentation
+- Updated README.md to reflect Agent Framework migration
+- Created comprehensive MigrationPlanDec27.md
+- Updated API documentation and agent compatibility reports
+
+### 🔧 **Technical Details**
+
+**New Files Created (36+)**
+- `backend/src/agents/adapters/` (5 adapter files)
+- `backend/src/agents/memory/agent_framework_memory.py`
+- `backend/src/agents/services/agent_framework_orchestrator.py`
+- `backend/src/agents/services/streaming/` (runner and response types)
+- `backend/src/agents/tools/tools_registry.py`
+- `frontend/src/routes/(app)/talents/+page.svelte`
+- `docs/` (10+ documentation files)
+- `tests/backend/unit/` (10+ new test files)
+- `tests/fixtures/` (3 fixture files)
+
+**Modified Files (51+)**
+- All model files (relative imports)
+- All orchestrator files (Agent Framework support)
+- All tool files (@ai_function decorators)
+- Configuration files (pytest.ini, etc.)
+
+---
+
 ## [1.0.210] - 2025-12-27
 
 ### 🔄 **Build Update**
