@@ -4,7 +4,7 @@
 # ==============================================================================
 
 # Stage 1: Dependencies
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 # Stage 2: Builder
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ COPY . .
 RUN npm run build
 
 # Stage 3: Production
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 WORKDIR /app
 
