@@ -101,7 +101,9 @@ jobs:
     
     - name: 🔧 Install Frontend Dependencies
       working-directory: ./frontend
-      run: npm ci
+      run: |
+        rm -rf node_modules package-lock.json
+        npm install --legacy-peer-deps
     
     - name: 🏗️ Build Frontend
       working-directory: ./frontend
