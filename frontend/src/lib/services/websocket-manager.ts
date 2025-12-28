@@ -30,12 +30,16 @@ export interface ConnectionState {
 class WebSocketManager {
   private ws: WebSocket | null = null;
   private config: Required<WebSocketConfig>;
-  private reconnectTimer: NodeJS.Timeout | null = null;
-  private heartbeatTimer: NodeJS.Timeout | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private messageQueue: WebSocketMessage[] = [];
   private pendingMessages: Map<
     string,
-    { resolve: Function; reject: Function; timeout: NodeJS.Timeout }
+    {
+      resolve: (value: any) => void;
+      reject: (reason?: any) => void;
+      timeout: ReturnType<typeof setTimeout>;
+    }
   > = new Map();
 
   public state = writable<ConnectionState>({
@@ -188,7 +192,7 @@ class WebSocketManager {
     }
   }
 
-  private handleError(error: Event) {
+  private handleError(_error: Event) {
     const errorMessage = "WebSocket error occurred";
 
     this.updateState({
@@ -199,7 +203,7 @@ class WebSocketManager {
     notify.error("Connection Error", errorMessage);
   }
 
-  private handleClose(event: CloseEvent) {
+  private handleClose(_event: CloseEvent) {
     this.updateState({
       status: "disconnected",
       lastDisconnected: new Date(),

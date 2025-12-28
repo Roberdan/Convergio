@@ -44,71 +44,49 @@ class WorkflowsService {
   private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
   async getWorkflows(): Promise<Workflow[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/workflows/`);
+    const response = await fetch(`${this.baseUrl}/workflows/`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.workflows || [];
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.workflows || [];
   }
 
   async getWorkflowExecution(executionId: string): Promise<WorkflowExecution> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/workflows/execution/${executionId}`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/workflows/execution/${executionId}`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getRecentExecutions(): Promise<RecentExecution[]> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/workflows/executions/recent`,
-      );
+    const response = await fetch(`${this.baseUrl}/workflows/executions/recent`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.executions || [];
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.executions || [];
   }
 
   async getWorkflowDetails(workflowId: string): Promise<any> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/workflows/${workflowId}/details`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/workflows/${workflowId}/details`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async executeWorkflow(
@@ -116,26 +94,21 @@ class WorkflowsService {
     userRequest: string,
     userId: string = "dashboard-user",
   ): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/workflows/execute`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          workflow_id: workflowId,
-          user_request: userRequest,
-          user_id: userId,
-        }),
-      });
+    const response = await fetch(`${this.baseUrl}/workflows/execute`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        workflow_id: workflowId,
+        user_request: userRequest,
+        user_id: userId,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 }
 

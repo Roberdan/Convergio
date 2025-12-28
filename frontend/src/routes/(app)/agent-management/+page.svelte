@@ -123,16 +123,6 @@ Dependencies: Agent definition standardization, advanced UI components
 		}
 	}
 	
-	function handleEditorSaved(event: CustomEvent<{ message: string }>) {
-		showNotification(event.detail.message, 'success');
-		showEditor.set(false);
-		loadAgents();
-	}
-
-	function handleEditorError(event: CustomEvent<{ message: string }>) {
-		showNotification(event.detail.message, 'error');
-	}
-	
 	function closeEditor() {
 		showEditor.set(false);
 		selectedAgent.set(null);

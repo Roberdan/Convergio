@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { writable } from 'svelte/store';
 	import GanttChart from '$lib/components/pm/GanttChart.svelte';
 	import KanbanBoard from '$lib/components/pm/KanbanBoard.svelte';
 	import AliAssistant from '$lib/components/pm/AliAssistant.svelte';
 	import ResourceManagement from '$lib/components/pm/ResourceManagement.svelte';
 	import AnalyticsDashboard from '$lib/components/pm/AnalyticsDashboard.svelte';
 	import ActivityFeed from '$lib/components/pm/ActivityFeed.svelte';
-	import { projectsService, type ProjectOverview, type Engagement, type Client } from '$lib/services/projectsService';
+	import { projectsService, type Engagement } from '$lib/services/projectsService';
 
 	// Interface Types - using real backend data structure
 	interface Project {
@@ -38,12 +37,9 @@
 	// State Management
 	let selectedProjectId = '';
 	let projects: Project[] = [];
-	let projectOverview: ProjectOverview | null = null;
-	let clients: Client[] = [];
 	let selectedView: 'overview' | 'gantt' | 'kanban' | 'resources' | 'analytics' | 'ali' = 'overview';
 	let loading = false;
 	let error = '';
-	let showCreateModal = false;
 	let searchQuery = '';
 	let filterStatus = 'all';
 	let sortBy = 'name';
@@ -53,16 +49,8 @@
 		loading = true;
 		error = '';
 		try {
-			// Load project overview, engagements, and clients in parallel
-			const [overviewData, engagementsData, clientsData] = await Promise.all([
-				projectsService.getProjectOverview(),
-				projectsService.getEngagements(),
-				projectsService.getClients()
-			]);
+			const engagementsData = await projectsService.getEngagements();
 
-			projectOverview = overviewData;
-			clients = clientsData;
-			
 			// Convert engagements to projects using real backend data
 			projects = engagementsData.map((engagement: Engagement) => ({
 				...engagement,
@@ -107,16 +95,6 @@
 			case 'completed': return 'bg-surface-100 text-surface-700 border-surface-200';
 			case 'review': return 'bg-purple-100 text-purple-700 border-purple-200';
 			default: return 'bg-surface-100 text-surface-700 border-surface-200';
-		}
-	}
-
-	function getPriorityColor(priority: string) {
-		switch (priority) {
-			case 'critical': return 'bg-error-500';
-			case 'high': return 'bg-warning-500';
-			case 'medium': return 'bg-info-500';
-			case 'low': return 'bg-surface-400';
-			default: return 'bg-surface-400';
 		}
 	}
 

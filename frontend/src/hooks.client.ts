@@ -5,7 +5,7 @@
 
 import type { HandleClientError } from "@sveltejs/kit";
 
-export const handleError: HandleClientError = ({ error, event }) => {
+export const handleError: HandleClientError = ({ error }) => {
   // Don't expose sensitive information in production
   if (import.meta.env.PROD) {
     return {

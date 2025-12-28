@@ -9,7 +9,6 @@ import type { User, AuthResponse } from "$lib/auth/auth.types";
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:9000";
-const API_VERSION = "v1";
 
 export class ApiError extends Error {
   constructor(

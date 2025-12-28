@@ -1,4 +1,4 @@
-import { writable, derived, type Writable } from "svelte/store";
+import { writable, derived } from "svelte/store";
 import WebSocketManager, { type ConnectionState } from "./websocket-manager";
 
 // Interfaces for real-time PM events
@@ -177,13 +177,8 @@ class PMRealtimeService {
       throw new Error("WebSocket manager not initialized");
     }
 
-    try {
-      await this.wsManager.connect();
-      this.connected = true;
-    } catch (error) {
-      // Silent failure
-      throw error;
-    }
+    await this.wsManager.connect();
+    this.connected = true;
   }
 
   // Disconnect from WebSocket

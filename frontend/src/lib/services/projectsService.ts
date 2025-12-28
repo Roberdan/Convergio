@@ -82,7 +82,13 @@ export interface ProjectBudget {
 export interface ProjectTask {
   id: string;
   title: string;
-  status: "pending" | "in_progress" | "in_review" | "blocked" | "completed" | "cancelled";
+  status:
+    | "pending"
+    | "in_progress"
+    | "in_review"
+    | "blocked"
+    | "completed"
+    | "cancelled";
   priority: "critical" | "high" | "medium" | "low";
   progress_percentage: number;
 }
@@ -91,141 +97,101 @@ class ProjectsService {
   private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
   async getProjectOverview(): Promise<ProjectOverview> {
-    try {
-      const response = await fetch(`${this.baseUrl}/projects/overview`);
+    const response = await fetch(`${this.baseUrl}/projects/overview`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getClients(): Promise<Client[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/projects/clients`);
+    const response = await fetch(`${this.baseUrl}/projects/clients`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.clients || data; // Handle both formats
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.clients || data; // Handle both formats
   }
 
   async getEngagements(): Promise<Engagement[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/projects/engagements`);
+    const response = await fetch(`${this.baseUrl}/projects/engagements`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.engagements || data; // Handle both formats
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.engagements || data; // Handle both formats
   }
 
   async getClient(id: number): Promise<Client> {
-    try {
-      const response = await fetch(`${this.baseUrl}/projects/clients/${id}`);
+    const response = await fetch(`${this.baseUrl}/projects/clients/${id}`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getEngagement(id: number): Promise<Engagement> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/projects/engagements/${id}`,
-      );
+    const response = await fetch(`${this.baseUrl}/projects/engagements/${id}`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getEngagementDetails(id: number): Promise<EngagementDetail> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/projects/engagements/${id}/details`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/projects/engagements/${id}/details`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getActivities(): Promise<Activity[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/projects/activities`);
+    const response = await fetch(`${this.baseUrl}/projects/activities`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.activities || data; // Handle both formats
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.activities || data; // Handle both formats
   }
 
   async createEngagement(engagement: EngagementCreate): Promise<Engagement> {
-    try {
-      const response = await fetch(`${this.baseUrl}/projects/engagements`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(engagement),
-      });
+    const response = await fetch(`${this.baseUrl}/projects/engagements`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(engagement),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getProjectTeam(projectId: number): Promise<ProjectTeam> {
     try {
-      const response = await fetch(`${this.baseUrl}/projects/${projectId}/team`);
+      const response = await fetch(
+        `${this.baseUrl}/projects/${projectId}/team`,
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -272,7 +238,9 @@ class ProjectsService {
 
   async getProjectTasks(projectId: number): Promise<ProjectTask[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/pm/projects/${projectId}/tasks`);
+      const response = await fetch(
+        `${this.baseUrl}/pm/projects/${projectId}/tasks`,
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -286,7 +254,7 @@ class ProjectsService {
   }
 
   getBlockedTasks(tasks: ProjectTask[]): ProjectTask[] {
-    return tasks.filter(task => task.status === "blocked");
+    return tasks.filter((task) => task.status === "blocked");
   }
 }
 

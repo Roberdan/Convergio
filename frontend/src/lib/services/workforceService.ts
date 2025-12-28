@@ -3,13 +3,8 @@
  * Combines Talents and Agents into a unified workforce view
  */
 
-import {
-  talentsService,
-  type Talent,
-  type ProjectTeam,
-  type ResourceProjects,
-} from "./talentsService";
-import { agentsService, type Agent } from "./agentsService";
+import { talentsService, type ResourceProjects } from "./talentsService";
+import { agentsService } from "./agentsService";
 import {
   type UnifiedResource,
   type ResourceType,
@@ -156,7 +151,7 @@ class WorkforceService {
         ? all.reduce((sum, r) => sum + r.utilization, 0) / all.length
         : 0;
 
-    const totalCapacity = all.reduce((sum, r) => sum + 100, 0);
+    const totalCapacity = all.reduce((sum, _r) => sum + 100, 0);
     const availableCapacity = all.reduce((sum, r) => sum + r.availability, 0);
 
     // Calculate skill distribution

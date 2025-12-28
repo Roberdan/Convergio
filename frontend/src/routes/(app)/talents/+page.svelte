@@ -243,7 +243,7 @@
     <div class="bg-white border border-surface-200 rounded-xl overflow-hidden">
       {#if loading}
         <div class="p-6 space-y-4">
-          {#each Array(5) as _}
+          {#each [1, 2, 3, 4, 5] as i (i)}
             <div class="flex items-center space-x-4 animate-pulse">
               <div class="w-12 h-12 bg-surface-200 rounded-full"></div>
               <div class="flex-1">

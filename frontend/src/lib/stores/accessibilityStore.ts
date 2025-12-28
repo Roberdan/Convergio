@@ -3,7 +3,7 @@
  * Manages accessibility preferences for the application
  */
 
-import { writable, derived, get } from "svelte/store";
+import { writable, derived } from "svelte/store";
 import { browser } from "$app/environment";
 
 export type AccessibilityProfile =
@@ -196,7 +196,7 @@ function createAccessibilityStore() {
     subscribe,
 
     setProfile(profile: AccessibilityProfile) {
-      update((state) => {
+      update((_state) => {
         const preset = profilePresets[profile];
         const newState = { ...defaultState, ...preset, profile };
         saveToStorage(newState);

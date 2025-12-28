@@ -7,7 +7,6 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import AgentStatus from '$lib/components/AgentStatus.svelte';
-  import ConversationManager from '$lib/components/ConversationManager.svelte';
   
   // Get agent name from URL parameter
   $: agentName = $page.params.agent;
@@ -32,8 +31,7 @@
   
   let currentMessage = '';
   let isLoading = false;
-  let streamingResponse = '';
-  
+
   // Conversation management
   let conversationId = '';
   
@@ -65,7 +63,6 @@
     const query = currentMessage;
     currentMessage = '';
     isLoading = true;
-    streamingResponse = '';
     
     try {
       // Send to backend API

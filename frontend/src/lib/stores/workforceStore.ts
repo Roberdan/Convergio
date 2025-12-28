@@ -9,7 +9,7 @@ import {
   type WorkforceFilter,
   type WorkforceSummary,
 } from "$lib/services/workforceService";
-import type { UnifiedResource, ResourceType } from "$lib/types/resource";
+import type { UnifiedResource } from "$lib/types/resource";
 
 // State types
 interface WorkforceState {
@@ -178,7 +178,7 @@ export const workforceSummary = derived(workforceStore, ($state) => {
       ? all.reduce((sum, r) => sum + r.utilization, 0) / all.length
       : 0;
 
-  const totalCapacity = all.reduce((sum, r) => sum + 100, 0);
+  const totalCapacity = all.reduce((sum, _r) => sum + 100, 0);
   const availableCapacity = all.reduce((sum, r) => sum + r.availability, 0);
 
   // Calculate skill distribution

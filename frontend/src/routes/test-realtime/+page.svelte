@@ -99,11 +99,11 @@
       debug: true
     });
     
-    wsManager.state.subscribe(state => {
+    wsManager.state.subscribe(() => {
       updateConnectionStats();
     });
-    
-    wsManager.on('message', (data) => {
+
+    wsManager.on('message', () => {
       // Message received
     });
     

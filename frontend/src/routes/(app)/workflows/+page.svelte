@@ -28,7 +28,6 @@
 	
 	let workflows: Workflow[] = [];
 	let executions: WorkflowExecution[] = [];
-	let selectedWorkflow: Workflow | null = null;
 	let isGenerating = false;
 	let generationPrompt = '';
 	let generationDomain = 'operations';
@@ -465,12 +464,6 @@
 				</div>
 				
 				<div class="flex space-x-2">
-					<button
-						on:click={() => selectedWorkflow = workflow}
-						class="flex-1 px-3 py-1 border border-surface-300 rounded hover:bg-surface-50 transition-colors text-sm"
-					>
-						View Details
-					</button>
 					<button
 						on:click={() => executeWorkflow(workflow.workflow_id)}
 						class="flex-1 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"

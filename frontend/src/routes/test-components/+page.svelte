@@ -15,15 +15,15 @@
   
   // Demo handlers
   function handleRAGSave(config: any) {
-    alert('RAG Configuration saved successfully!');
+    alert(`RAG Configuration saved successfully!\nModel: ${config?.embeddingModel || 'N/A'}`);
   }
 
   function handleWorkflowSave(workflow: any) {
-    alert('Workflow saved successfully!');
+    alert(`Workflow saved successfully!\nID: ${workflow?.id || 'N/A'}`);
   }
 
   function handleApproval(approvalId: string, decision: any) {
-    alert(`Decision submitted for approval ${approvalId}`);
+    alert(`Decision submitted for approval ${approvalId}\nDecision: ${decision?.approved ? 'Approved' : 'Rejected'}`);
   }
 </script>
 

@@ -8,10 +8,8 @@
   let isOpen = false;
   let isMinimized = false;
   let isTyping = false;
-  let apiKeyConfigured = false;
-  let isProactive = true; // Ali is proactive by default
-  let proactiveTimer: NodeJS.Timeout;
-  
+  let isProactive = true;
+
   // Messages - start empty, Ali will respond intelligently when asked
   let messages: any[] = [];
   let messagesContainer: HTMLElement;
@@ -36,44 +34,10 @@
   }
 
   onMount(async () => {
-    // Check environment and key configuration
-    try {
-      // Check backend health to get environment info
-      const healthResponse = await fetch('http://localhost:9000/health');
-      if (healthResponse.ok) {
-        const healthData = await healthResponse.json();
-        const isDevelopment = healthData.environment === "development";
-        
-        if (isDevelopment) {
-          // In development, always use server keys (from .env)
-          apiKeyConfigured = true;
-        } else {
-          // In production, check if user has configured their own keys
-          const keyStatusResponse = await fetch('http://localhost:9000/api/v1/user-keys/status');
-          if (keyStatusResponse.ok) {
-            const status = await keyStatusResponse.json();
-            apiKeyConfigured = status.openai.is_configured;
-          }
-        }
-      } else {
-        // Fallback: assume development if health check fails
-        apiKeyConfigured = true;
-      }
-    } catch (error) {
-      apiKeyConfigured = true;
-    }
-    
-    // Start proactive assistance
     startProactiveMode();
   });
 
   function startProactiveMode() {
-    // Ali proactively offers help every 2 minutes
-    proactiveTimer = setInterval(() => {
-      if (!isOpen && !isTyping) {
-        showProactiveHint();
-      }
-    }, 120000); // 2 minutes
   }
 
   function showProactiveHint() {

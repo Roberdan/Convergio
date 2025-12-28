@@ -118,164 +118,114 @@ class TalentsService {
   // ===== Talent CRUD =====
 
   async getTalents(): Promise<Talent[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/talents`);
+    const response = await fetch(`${this.baseUrl}/talents`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getTalent(id: number): Promise<Talent> {
-    try {
-      const response = await fetch(`${this.baseUrl}/talents/${id}`);
+    const response = await fetch(`${this.baseUrl}/talents/${id}`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async createTalent(data: TalentCreate): Promise<Talent> {
-    try {
-      const response = await fetch(`${this.baseUrl}/talents`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+    const response = await fetch(`${this.baseUrl}/talents`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async updateTalent(id: number, data: TalentUpdate): Promise<Talent> {
-    try {
-      const response = await fetch(`${this.baseUrl}/talents/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+    const response = await fetch(`${this.baseUrl}/talents/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async deleteTalent(id: number): Promise<void> {
-    try {
-      const response = await fetch(`${this.baseUrl}/talents/${id}`, {
-        method: "DELETE",
-      });
+    const response = await fetch(`${this.baseUrl}/talents/${id}`, {
+      method: "DELETE",
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
   }
 
   async getTalentHierarchy(id: number): Promise<TalentHierarchy> {
-    try {
-      const response = await fetch(`${this.baseUrl}/talents/${id}/hierarchy`);
+    const response = await fetch(`${this.baseUrl}/talents/${id}/hierarchy`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   // ===== Talent Projects =====
 
   async getTalentProjects(talentId: number): Promise<ResourceProjects> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/talents/${talentId}/projects`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/talents/${talentId}/projects`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   // ===== Project Team =====
 
   async getProjectTeam(projectId: number): Promise<ProjectTeam> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/team`,
-      );
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}/team`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async addTeamMember(
     projectId: number,
     member: TeamMemberAdd,
   ): Promise<ProjectAssignment> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/team`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(member),
-        },
-      );
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}/team`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(member),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async updateTeamMember(
@@ -284,25 +234,20 @@ class TalentsService {
     resourceType: "talent" | "agent",
     update: Partial<ProjectAssignment>,
   ): Promise<ProjectAssignment> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/team/${resourceId}?resource_type=${resourceType}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(update),
-        },
-      );
+    const response = await fetch(
+      `${this.baseUrl}/projects/${projectId}/team/${resourceId}?resource_type=${resourceType}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(update),
+      },
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async removeTeamMember(
@@ -310,20 +255,15 @@ class TalentsService {
     resourceId: number,
     resourceType: "talent" | "agent",
   ): Promise<void> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/team/${resourceId}?resource_type=${resourceType}`,
-        {
-          method: "DELETE",
-        },
-      );
+    const response = await fetch(
+      `${this.baseUrl}/projects/${projectId}/team/${resourceId}?resource_type=${resourceType}`,
+      {
+        method: "DELETE",
+      },
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
   }
 }

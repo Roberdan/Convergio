@@ -3,7 +3,7 @@
  * Provides a common interface for both Talents and Agents
  */
 
-import type { Talent, SkillItem } from "$lib/services/talentsService";
+import type { Talent } from "$lib/services/talentsService";
 import type { Agent } from "$lib/services/agentsService";
 
 export type ResourceType = "talent" | "agent";
@@ -87,7 +87,9 @@ export function talentToResource(talent: Talent): UnifiedResource {
     dailyRate: talent.daily_rate,
     utilization: 100 - (talent.availability ?? 100), // inverse of availability
     performance: {
-      tasksCompleted: talent.experience_years ? talent.experience_years * 12 : 0, // Estimate based on experience
+      tasksCompleted: talent.experience_years
+        ? talent.experience_years * 12
+        : 0, // Estimate based on experience
       averageRating: talent.rating ?? 0,
       efficiency: talent.rating ? Math.round((talent.rating / 5) * 100) : 75, // Derive from rating or use baseline
     },

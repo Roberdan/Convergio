@@ -24,32 +24,10 @@
   // - CEO Dashboard (Executive business intelligence)
   // - Agent Management (Advanced CRUD operations)  
   // - Swarm Coordination (Multi-agent orchestration)
-  
-  let healthStatus: { status?: string; build?: string } | null = null;
-  const APP_VERSION: string = (typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : (typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0')) as string;
-  
+
   onMount(async () => {
     // Initialize accessibility settings
     accessibilityStore.init();
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
-      const response = await fetch(`${apiUrl}/health`, {
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        healthStatus = await response.json();
-      }
-    } catch {
-      // Silent failure
-      healthStatus = null;
-    }
   });
   
   // SEMPLICE: controlla se il path corrente inizia con l'href del menu

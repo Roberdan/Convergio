@@ -3,7 +3,6 @@
   import { dashboardService, type DashboardMetrics } from '$lib/services/dashboardService';
   import { aliService } from '$lib/services/aliService';
   import ModernAnalyticsDashboard from '$lib/components/modern/ModernAnalyticsDashboard.svelte';
-  import AIProjectIntegration from '$lib/components/modern/AIProjectIntegration.svelte';
   import DashboardMetricCard from '$lib/components/DashboardMetricCard.svelte';
   import ProjectCard from '$lib/components/ProjectCard.svelte';
   import DashboardNavigation from '$lib/components/dashboard/DashboardNavigation.svelte';
@@ -16,7 +15,6 @@
 
   let dashboardData: DashboardMetrics | null = null;
   let loading = true;
-  let error: string | null = null;
   let timeRange = '7d';
   let activeSection = 'overview';
 
@@ -36,11 +34,9 @@
   async function loadDashboardData() {
     try {
       loading = true;
-      error = null;
       dashboardData = await dashboardService.getDashboardMetrics(timeRange);
     } catch {
       // Silent failure
-      error = 'Failed to load dashboard data. Please try again.';
     } finally {
       loading = false;
     }
@@ -139,7 +135,7 @@
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {#if loading}
         <!-- Loading state -->
-        {#each Array(4) as _, i}
+        {#each [1, 2, 3, 4] as i (i)}
           <div class="bg-surface-50 border border-surface-300  rounded p-4 animate-pulse">
             <div class="h-4 bg-surface-200 rounded mb-2"></div>
             <div class="h-6 bg-surface-200 rounded mb-1"></div>
@@ -207,7 +203,7 @@
         <h3 class="text-lg font-medium text-surface-900  mb-6">Performance Metrics</h3>
         {#if loading}
           <div class="space-y-3 animate-pulse">
-            {#each Array(4) as _, i}
+            {#each [1, 2, 3, 4] as i (i)}
               <div class="flex justify-between items-center">
                 <div class="h-3 bg-surface-200 rounded w-24"></div>
                 <div class="h-3 bg-surface-200 rounded w-16"></div>
@@ -257,7 +253,7 @@
         <h3 class="text-lg font-medium text-surface-900  mb-6">Cost Summary</h3>
         {#if loading}
           <div class="space-y-3 animate-pulse">
-            {#each Array(4) as _, i}
+            {#each [1, 2, 3, 4] as i (i)}
               <div class="flex justify-between items-center">
                 <div class="h-3 bg-surface-200 rounded w-24"></div>
                 <div class="h-3 bg-surface-200 rounded w-16"></div>
@@ -326,7 +322,7 @@
       <div class="p-0">
         {#if loading}
           <!-- Loading state for projects -->
-          {#each Array(3) as _, i}
+          {#each [1, 2, 3] as i (i)}
             <div class="px-4 py-3 border-b border-gray-100 last:border-b-0 animate-pulse">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">

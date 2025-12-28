@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import AgentIcons from '$lib/components/AgentIcons.svelte';
   import AgentStatus from '$lib/components/AgentStatus.svelte';
-  import ConversationManager from '$lib/components/ConversationManager.svelte';
   import MarkdownRenderer from '$lib/components/MarkdownRenderer.svelte';
   import { conversationManager, currentAgentId } from '$lib/stores/conversationStore';
 
@@ -28,9 +27,6 @@
   // Search functionality
   let searchQuery = '';
   let selectedSkill = '';
-  
-  // Conversation management
-  let showConversationManager = false;
   
   // Dynamic AI agents list - loaded from API
   let allAgents: Agent[] = [];
@@ -141,8 +137,6 @@
       });
 
       if (response.ok) {
-        const result = await response.json();
-
         creationSuccess = true;
         
         // Reload agents to include the new one
@@ -204,13 +198,6 @@
       is_featured: true
     }
   ];
-
-  // Function to capitalize first letter of each specialty
-  function capitalizeSpecialty(specialty: string): string {
-    return specialty.split(', ').map(skill => 
-      skill.charAt(0).toUpperCase() + skill.slice(1)
-    ).join(', ');
-  }
 
   // Helper functions to get simple agent data
   function getSimpleRole(key: string): string {
@@ -430,8 +417,7 @@
 
   function selectAgent(agent: Agent) {
     selectedAgent = agent;
-    showConversationManager = true;
-    
+
     // Switch conversation context
     if (agent.key) {
       conversationManager.switchToAgent(agent.key);
