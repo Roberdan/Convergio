@@ -4,18 +4,18 @@
 # ==============================================================================
 
 # Stage 1: Dependencies
-FROM node:18-alpine as deps
+FROM node:18-alpine AS deps
 
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm ci --only=production=false
+# Install all dependencies (including devDependencies for build)
+RUN npm ci
 
 # Stage 2: Builder
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ COPY . .
 RUN npm run build
 
 # Stage 3: Production
-FROM node:18-alpine as production
+FROM node:18-alpine AS production
 
 WORKDIR /app
 
