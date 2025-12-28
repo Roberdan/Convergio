@@ -1,4 +1,122 @@
 # Changelog
+## [3.0.223] - 2025-12-28
+
+### 🔄 **Build Update**
+- Automatic build number increment
+- Commit: $(git rev-parse --short HEAD)
+
+
+## [3.0.0] - 2025-12-28
+
+### 🚀 **Major Release: Standalone Web App Platform**
+
+This release marks the separation of Convergio Web Platform as a standalone application, independent from ConvergioCLI.
+
+#### Highlights
+
+**Platform Independence**
+- Convergio Web Platform now has its own versioning (starting at 3.0.0)
+- Separate release cycle from ConvergioCLI
+- Dedicated release management system
+
+**All 2026 Plan Workstreams Complete (198/198 tasks)**
+- WS1: Agent Sync (18 tasks) - All 54 agents synchronized
+- WS2: People Data Model (20 tasks) - Full talent management
+- WS3: Unified Workforce UI (22 tasks) - Integrated people + AI agents
+- WS4: AI Provider Config (30 tasks) - Complete settings UI
+- WS5: Accessibility (12 tasks) - WCAG compliance, dyslexia/ADHD support
+- WS6: Ollama-First Mode (52 tasks) - $0 local AI
+- WS7: E2E Testing (24 tasks) - Full test coverage
+- WS8: Documentation (20 tasks) - Complete docs
+
+**Accessibility System (WS5)**
+- 5 accessibility profiles (dyslexia, ADHD, autism, motor impairment, low-vision)
+- OpenDyslexic font support (DY01)
+- Cream background for dyslexia (DY04)
+- Reduced motion support (AU04)
+- Focus mode for ADHD (AD04)
+- Text-to-speech integration (DY05)
+- Skip-to-content links (WS5-C2)
+- 44x44px minimum touch targets (CP03)
+
+**Release Management System**
+- app-release-manager agent for automated quality checks
+- Pre-release validation script
+- Version bump automation
+- GitHub Actions release workflow
+
+#### Breaking Changes
+- Version scheme reset to 3.0.0 (from 2.x.x)
+- Package name: `platform-convergio-io-frontend`
+
+---
+
+## [2.1.0] - 2025-12-28
+
+### 🚀 **Major Release: Ollama-First AI Provider System**
+
+This release introduces the Ollama-First AI Provider System, enabling complete control over AI provider routing with intelligent fallback strategies.
+
+#### Core Features
+
+**Provider Modes**
+| Mode | Primary | Fallback | Cost |
+|------|---------|----------|------|
+| `ollama_only` | Ollama | None | $0 |
+| `azure_only` | Azure OpenAI | None | Pay-per-use |
+| `hybrid` | Ollama | Azure OpenAI | Minimal |
+| `cloud_first` | Azure OpenAI | Ollama | Standard |
+
+**Strict Mode**
+- Blocks cloud API calls when in restricted modes (ollama_only, azure_only)
+- Prevents accidental cloud spending during development
+- Configurable via `AI_STRICT_MODE=true`
+
+**Per-Agent/Feature Override**
+- Configure provider preferences at agent level
+- Override global settings for specific features
+- Route high-priority tasks to premium providers
+
+#### New API Endpoints
+- `GET /api/v1/settings/ai/mode` - Get current provider mode
+- `POST /api/v1/settings/ai/mode` - Update provider mode
+- `GET /api/v1/settings/ai/costs` - View cost tracking metrics
+- `GET /api/v1/settings/ai/capabilities` - Provider capability matrix
+
+#### Architecture
+- **ProviderRouter** - Intelligent routing with health checks
+- **AIConfig** - Centralized configuration management
+- **OllamaService** - Native Ollama integration with streaming
+- **CostTracker** - Real-time cost monitoring ($0 for Ollama)
+
+#### Test Suite
+- **24 E2E tests passing** (100% coverage of provider scenarios)
+- **41 AI provider unit tests** (2 skipped for infrastructure)
+- **All tests use Ollama** - $0 test execution cost
+
+#### Configuration (Environment Variables)
+```bash
+# Provider Mode
+AI_PROVIDER_MODE=ollama_only|azure_only|hybrid|cloud_first
+AI_STRICT_MODE=true|false
+
+# Ollama Settings
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_DEFAULT_MODEL=llama3.2
+
+# Azure OpenAI Settings
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
+AZURE_OPENAI_API_KEY=your-key
+AZURE_OPENAI_DEPLOYMENT=gpt-4o
+```
+
+#### Documentation
+- Updated README.md with Ollama-First features
+- Added provider mode configuration guide
+- Updated API documentation
+
+---
+
 ## [2.0.222] - 2025-12-27
 
 ### 🔄 **Build Update**

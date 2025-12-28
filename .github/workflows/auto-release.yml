@@ -1,0 +1,73 @@
+name: Auto-Release on VERSION Change
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'VERSION'
+
+jobs:
+  create-tag:
+    name: Create Release Tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read VERSION file
+        id: version
+        run: |
+          VERSION=$(cat VERSION | tr -d '[:space:]')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version from file: $VERSION"
+
+      - name: Check if tag already exists
+        id: check-tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v$VERSION does not exist"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate CHANGELOG entry
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if grep -q "## \[$VERSION\]" docs/CHANGELOG.md; then
+            echo "CHANGELOG has entry for $VERSION"
+          else
+            echo "ERROR: CHANGELOG.md missing entry for version $VERSION"
+            echo "Please add a CHANGELOG entry before releasing"
+            exit 1
+          fi
+
+      - name: Create and push tag
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+          echo "Created and pushed tag v$VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if [[ "${{ steps.check-tag.outputs.exists }}" == "true" ]]; then
+            echo "## Tag v$VERSION already exists" >> $GITHUB_STEP_SUMMARY
+            echo "No action taken." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Created tag v$VERSION" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The release workflow will now trigger automatically." >> $GITHUB_STEP_SUMMARY
+          fi

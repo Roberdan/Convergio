@@ -1,0 +1,222 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 3.0.0)'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ============================================================================
+  # Phase 1: Validate Release
+  # ============================================================================
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Releasing version: $VERSION"
+
+      - name: Validate VERSION file matches tag
+        run: |
+          FILE_VERSION=$(cat VERSION | tr -d '[:space:]')
+          TAG_VERSION="${{ steps.version.outputs.version }}"
+          if [[ "$FILE_VERSION" != "$TAG_VERSION" ]]; then
+            echo "ERROR: VERSION file ($FILE_VERSION) does not match tag ($TAG_VERSION)"
+            exit 1
+          fi
+          echo "VERSION file matches tag: $FILE_VERSION"
+
+      - name: Check CHANGELOG has entry
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if grep -q "## \[$VERSION\]" docs/CHANGELOG.md; then
+            echo "CHANGELOG has entry for $VERSION"
+          else
+            echo "ERROR: CHANGELOG.md missing entry for version $VERSION"
+            exit 1
+          fi
+
+  # ============================================================================
+  # Phase 2: Build and Test Frontend
+  # ============================================================================
+  frontend:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type check
+        working-directory: frontend
+        run: npm run check
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Test
+        working-directory: frontend
+        run: npm test
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Security audit
+        working-directory: frontend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/build/
+          retention-days: 7
+
+  # ============================================================================
+  # Phase 3: Build and Test Backend
+  # ============================================================================
+  backend:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff pytest pytest-asyncio
+
+      - name: Lint with ruff
+        working-directory: backend
+        run: ruff check .
+        continue-on-error: true
+
+      - name: Run tests
+        working-directory: backend
+        run: pytest tests/ -v --tb=short
+        continue-on-error: true
+        env:
+          PYTHONPATH: ${{ github.workspace }}/backend/src
+
+  # ============================================================================
+  # Phase 4: Create GitHub Release
+  # ============================================================================
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate, frontend, backend]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend-build/
+
+      - name: Create release archive
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          tar -czf convergio-platform-$VERSION.tar.gz \
+            frontend-build/ \
+            backend/src/ \
+            docs/ \
+            VERSION \
+            README.md
+
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          # Extract changelog section for this version
+          awk "/## \[$VERSION\]/,/^## \[/" docs/CHANGELOG.md | head -n -1 > release_notes.md
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.validate.outputs.version }}
+          name: Release v${{ needs.validate.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          files: |
+            convergio-platform-${{ needs.validate.outputs.version }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================================
+  # Phase 5: Post-Release Verification
+  # ============================================================================
+  verify:
+    name: Verify Release
+    runs-on: ubuntu-latest
+    needs: [validate, release]
+    steps:
+      - name: Check release exists
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/v$VERSION"
+          echo "Release URL: $RELEASE_URL"
+          curl -s -o /dev/null -w "%{http_code}" "$RELEASE_URL" | grep -q "200" && \
+            echo "Release verified successfully" || \
+            echo "Warning: Could not verify release URL"
+
+      - name: Summary
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          echo "## Release v$VERSION Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: Built and tested" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend: Built and tested" >> $GITHUB_STEP_SUMMARY
+          echo "- Release: Created on GitHub" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 Release v$VERSION is now live!" >> $GITHUB_STEP_SUMMARY

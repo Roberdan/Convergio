@@ -455,7 +455,8 @@ dev-debug.log
 # OS specific
 
 # IDE stuff
-.claude/
+.claude/*
+!.claude/agents/
 .cursor/
 .taskmaster
 .windsurf
