@@ -19,7 +19,6 @@
 	export let squared: $$Props['squared'] = false;
 	export let bordered: $$Props['bordered'] = false;
 
-	let imageLoaded = false;
 	let imageError = false;
 
 	// Compute CSS classes
@@ -58,14 +57,8 @@
 				.slice(0, 2)
 		: '';
 
-	function handleImageLoad() {
-		imageLoaded = true;
-		imageError = false;
-	}
-
 	function handleImageError() {
 		imageError = true;
-		imageLoaded = false;
 	}
 </script>
 
@@ -75,7 +68,6 @@
 			{src}
 			{alt}
 			class="w-full h-full object-cover"
-			on:load={handleImageLoad}
 			on:error={handleImageError}
 		/>
 	{:else if initials}

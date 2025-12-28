@@ -1,4 +1,4 @@
-import { writable, get } from "svelte/store";
+import { writable } from "svelte/store";
 
 export interface QueuedMessage {
   id: string;
@@ -38,7 +38,7 @@ export class MessageQueue {
   private config: QueueConfig;
   private processor: ((message: any) => Promise<any>) | null = null;
   private isProcessing = false;
-  private processTimer: NodeJS.Timeout | null = null;
+  private processTimer: ReturnType<typeof setTimeout> | null = null;
   private stats: QueueStats = {
     totalMessages: 0,
     pendingMessages: 0,
@@ -435,7 +435,7 @@ export class BatchProcessor {
   private batchSize: number;
   private batchTimeout: number;
   private batch: any[] = [];
-  private batchTimer: NodeJS.Timeout | null = null;
+  private batchTimer: ReturnType<typeof setTimeout> | null = null;
   private processor: ((batch: any[]) => Promise<any>) | null = null;
 
   constructor(
@@ -480,12 +480,7 @@ export class BatchProcessor {
     const currentBatch = [...this.batch];
     this.batch = [];
 
-    try {
-      await this.processor(currentBatch);
-    } catch (error) {
-      // Silent failure
-      throw error;
-    }
+    await this.processor(currentBatch);
   }
 
   async flush() {

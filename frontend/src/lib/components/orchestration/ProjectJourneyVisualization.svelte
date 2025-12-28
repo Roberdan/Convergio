@@ -1,13 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Card, Badge, Button } from '$lib/components/ui';
-  import { scale, slide } from 'svelte/transition';
+  import { Card, Badge } from '$lib/components/ui';
+  import { scale } from 'svelte/transition';
   
   export let journeyStages: any[] = [];
   export let currentStage: string = '';
   export let detailed: boolean = false;
   
-  interface JourneyStage {
+  interface _JourneyStage {
     stage_name: string;
     status: string;
     progress_percentage: number;
@@ -198,7 +198,7 @@
       
       <!-- Journey Stages -->
       <div class="flex justify-between relative">
-        {#each stageTimeline as stage, index}
+        {#each stageTimeline as stage}
           <div class="flex flex-col items-center relative" style="z-index: 10;">
             <!-- Stage Circle -->
             <button

@@ -53,104 +53,79 @@ class CostService {
   private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
   async getCostOverview(): Promise<CostOverview> {
-    try {
-      const response = await fetch(`${this.baseUrl}/cost-management/overview`);
+    const response = await fetch(`${this.baseUrl}/cost-management/overview`);
 
-      if (!response.ok) {
-        // NO MOCK DATA - Always show real data or zero
-        return {
-          total_cost_usd: 0,
-          period_cost_usd: 0,
-          cost_breakdown: {
-            input_tokens: 0,
-            output_tokens: 0,
-            total_requests: 0,
-          },
-          top_agents: [],
-          top_models: [],
-        };
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      // NO MOCK DATA - Always show real data or zero
+      return {
+        total_cost_usd: 0,
+        period_cost_usd: 0,
+        cost_breakdown: {
+          input_tokens: 0,
+          output_tokens: 0,
+          total_requests: 0,
+        },
+        top_agents: [],
+        top_models: [],
+      };
     }
+
+    return await response.json();
   }
 
   async getAgentCostSummary(agentId: string): Promise<CostSummary> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/cost-management/agents/${agentId}/summary`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/cost-management/agents/${agentId}/summary`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getBudgetStatus(): Promise<BudgetStatus> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/cost-management/budget/status`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/cost-management/budget/status`,
+    );
 
-      if (!response.ok) {
-        // NO MOCK DATA - Always show real budget data or zero
-        return {
-          total_budget_usd: 0,
-          used_budget_usd: 0,
-          remaining_budget_usd: 0,
-          utilization_percentage: 0,
-          projected_monthly_cost: 0,
-          budget_health: "healthy",
-          days_remaining: 0,
-        };
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      // NO MOCK DATA - Always show real budget data or zero
+      return {
+        total_budget_usd: 0,
+        used_budget_usd: 0,
+        remaining_budget_usd: 0,
+        utilization_percentage: 0,
+        projected_monthly_cost: 0,
+        budget_health: "healthy",
+        days_remaining: 0,
+      };
     }
+
+    return await response.json();
   }
 
   async getLLMProviders(): Promise<LLMProvider[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/cost-management/providers`);
+    const response = await fetch(`${this.baseUrl}/cost-management/providers`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getRealtimeCost(): Promise<any> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/cost-management/realtime/current`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/cost-management/realtime/current`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 }
 

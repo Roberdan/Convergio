@@ -107,7 +107,7 @@
     dispatch('taskSelected', task);
   }
 
-  function handleTaskDrag(task: any, e?: MouseEvent) {
+  function handleTaskDrag() {
     // Implement drag functionality for task scheduling
   }
   
@@ -255,11 +255,11 @@
         
         <!-- Task Bars with Glassmorphism Effect -->
         {#each displayTasks as task, i}
-          <g 
-            class="task-group" 
+          <g
+            class="task-group"
             transform="translate(0, {yScale(i)})"
             on:click={() => handleTaskClick(task)}
-            on:mousedown={(e) => handleTaskDrag(task, e)}
+            on:mousedown={() => handleTaskDrag()}
             role="button"
             tabindex="0"
             aria-label={`Select task ${task.name}`}

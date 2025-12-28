@@ -6,11 +6,6 @@
   let loading = true;
   let error: string | null = null;
 
-  function formatDate(dateString?: string): string {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString();
-  }
-
   async function loadTalents() {
     try {
       loading = true;
@@ -50,14 +45,14 @@
     {#if loading}
       <div class="animate-pulse space-y-4">
         <div class="grid grid-cols-3 gap-4 mb-6">
-          {#each Array(3) as _}
+          {#each [1, 2, 3] as i (i)}
             <div class="bg-surface-100 p-4 rounded">
               <div class="w-16 h-6 bg-surface-200 rounded mb-1"></div>
               <div class="w-12 h-4 bg-surface-200 rounded"></div>
             </div>
           {/each}
         </div>
-        {#each Array(5) as _}
+        {#each [1, 2, 3, 4, 5] as i (i)}
           <div class="flex items-center space-x-3 p-3 border border-surface-200 rounded">
             <div class="w-8 h-8 bg-surface-200 rounded-full"></div>
             <div class="flex-1">

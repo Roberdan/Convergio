@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { writable } from 'svelte/store';
 	import { aliService, type AliResponse } from '$lib/services/aliService';
-	import { projectsService, type Engagement, type ProjectTeam, type ProjectTask } from '$lib/services/projectsService';
+	import { projectsService, type Engagement } from '$lib/services/projectsService';
 
 	// Props
 	export let projectId: string;
@@ -37,6 +36,7 @@
 	// State
 	let messages: Message[] = [];
 	let newMessage = '';
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in template
 	let loading = false;
 	let isTyping = false;
 	let chatContainer: HTMLElement;

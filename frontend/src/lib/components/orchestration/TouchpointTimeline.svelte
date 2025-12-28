@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Card, Badge, Button } from '$lib/components/ui';
-  import { slide, scale } from 'svelte/transition';
+  import { slide } from 'svelte/transition';
   
   export let touchpoints: any[] = [];
   export let orchestrationId: string = '';
@@ -220,9 +220,10 @@
           return new Date(b.interaction_date).getTime() - new Date(a.interaction_date).getTime();
         case 'satisfaction':
           return (b.satisfaction_score || 0) - (a.satisfaction_score || 0);
-        case 'impact':
+        case 'impact': {
           const impactOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
           return (impactOrder[b.impact_level] || 0) - (impactOrder[a.impact_level] || 0);
+        }
         default:
           return 0;
       }

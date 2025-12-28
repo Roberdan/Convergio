@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
-  import { Card, Badge, Button, Avatar } from '$lib/components/ui';
+  import { Card, Badge, Button } from '$lib/components/ui';
   import { slide, scale } from 'svelte/transition';
 
   export let agentAssignments: any[] = [];

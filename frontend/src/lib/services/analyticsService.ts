@@ -34,82 +34,62 @@ class AnalyticsService {
   private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
   async getActivities(limit: number = 50): Promise<Activity[]> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/analytics/activities?limit=${limit}`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/analytics/activities?limit=${limit}`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.activities || [];
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.activities || [];
   }
 
   async getPerformanceMetrics(timeRange: string = "7d"): Promise<any> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/analytics/performance?time_range=${timeRange}`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/analytics/performance?time_range=${timeRange}`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getRealTimeData(): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/analytics/real-time`);
+    const response = await fetch(`${this.baseUrl}/analytics/real-time`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async exportData(
     format: "csv" | "json" = "json",
     timeRange: string = "7d",
   ): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/analytics/export`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          format,
-          time_range: timeRange,
-          include_metrics: true,
-          include_activities: true,
-        }),
-      });
+    const response = await fetch(`${this.baseUrl}/analytics/export`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        format,
+        time_range: timeRange,
+        include_metrics: true,
+        include_activities: true,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 }
 

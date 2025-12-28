@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Badge } from './index';
+	import { Badge } from './index';
 
 	interface BreadcrumbItem {
 		label: string;

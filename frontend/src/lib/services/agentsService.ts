@@ -46,66 +46,46 @@ class AgentsService {
   private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
   async getAgents(): Promise<Agent[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/agents/list`);
+    const response = await fetch(`${this.baseUrl}/agents/list`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.agents || [];
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.agents || [];
   }
 
   async getSwarmStatus(): Promise<SwarmStatus> {
-    try {
-      const response = await fetch(`${this.baseUrl}/swarm/status`);
+    const response = await fetch(`${this.baseUrl}/swarm/status`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async getAgentTasks(): Promise<AgentTask[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/swarm/tasks`);
+    const response = await fetch(`${this.baseUrl}/swarm/tasks`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.tasks || [];
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.tasks || [];
   }
 
   async getAgentProjects(): Promise<any[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/agents/projects`);
+    const response = await fetch(`${this.baseUrl}/agents/projects`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.projects || [];
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.projects || [];
   }
 }
 

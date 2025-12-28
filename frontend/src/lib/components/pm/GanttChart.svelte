@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { writable } from 'svelte/store';
-	import { projectsService, type Activity } from '$lib/services/projectsService';
+	import { projectsService } from '$lib/services/projectsService';
 
 	// Props
 	export let projectId: string;
@@ -30,7 +29,6 @@
 	let loading = false;
 	let selectedTask: Task | null = null;
 	let viewMode: 'weeks' | 'months' = 'weeks';
-	let activities: Activity[] = [];
 
 	onMount(async () => {
 		await loadTasks();
@@ -42,9 +40,9 @@
 		try {
 			// Load real activities from backend
 			if (projectId) {
-				activities = await projectsService.getActivities();
+				const activities = await projectsService.getActivities();
 				// Also load project engagement for team data
-				const engagement = await projectsService.getEngagement(parseInt(projectId));
+				const _engagement = await projectsService.getEngagement(parseInt(projectId));
 				
 				// Convert activities to tasks with real backend data
 				tasks = activities.map((activity, index) => {
@@ -207,7 +205,7 @@
 					<div class="timeline-grid flex-1 min-w-[800px]">
 						{#if viewMode === 'weeks'}
 							<div class="grid grid-cols-52 gap-0">
-								{#each timeline.weeks as week, i}
+								{#each timeline.weeks as week, _i}
 									<div class="p-2 text-xs text-center text-surface-600  border-r border-surface-200 ">
 										{week.getDate()}/{week.getMonth() + 1}
 									</div>
@@ -228,7 +226,7 @@
 
 			<!-- Task Rows -->
 			<div class="task-rows">
-				{#each tasks as task, index}
+				{#each tasks as task, _index}
 					<div class="task-row flex border-b border-surface-100 hover:bg-surface-50 transition-colors duration-200">
 						<!-- Task Info -->
 						<div class="task-info w-80 p-4 border-r border-surface-200  {getPriorityColor(task.priority)} border-l-4">
@@ -270,7 +268,7 @@
 								</button>
 								
 								<!-- Dependency Lines -->
-								{#each task.dependencies as depId}
+								{#each task.dependencies as _depId}
 									<div class="absolute top-0 w-px h-full bg-surface-300 opacity-50"></div>
 								{/each}
 							</div>

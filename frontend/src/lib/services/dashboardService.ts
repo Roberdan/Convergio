@@ -64,63 +64,48 @@ class DashboardService {
   async getDashboardMetrics(
     timeRange: string = "7d",
   ): Promise<DashboardMetrics> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/analytics/dashboard?time_range=${timeRange}`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/analytics/dashboard?time_range=${timeRange}`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data as DashboardMetrics;
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data as DashboardMetrics;
   }
 
   async getProjects(): Promise<Project[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/agents/projects`);
+    const response = await fetch(`${this.baseUrl}/agents/projects`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (!data?.projects) {
-        throw new Error("Projects payload missing");
-      }
-      return data.projects as Project[];
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    if (!data?.projects) {
+      throw new Error("Projects payload missing");
+    }
+    return data.projects as Project[];
   }
 
   async getRevenueTrend(
     timeRange: string = "7d",
   ): Promise<{ labels: string[]; data: number[] }> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/analytics/revenue?time_range=${timeRange}`,
-      );
+    const response = await fetch(
+      `${this.baseUrl}/analytics/revenue?time_range=${timeRange}`,
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return {
-        labels: data.labels,
-        data: data.data,
-      };
-    } catch (error) {
-      // Silent failure
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return {
+      labels: data.labels,
+      data: data.data,
+    };
   }
 }
 

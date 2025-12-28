@@ -43,6 +43,7 @@
   let resources = writable<Resource[]>([]);
   let projects = writable<Project[]>([]);
   let allocations = writable<Allocation[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in template
   let selectedResource: Resource | null = null;
   let selectedView: 'grid' | 'timeline' | 'utilization' = 'grid';
   let filterDepartment = 'all';
@@ -205,12 +206,8 @@
     }
   }
   
-  function assignResource(resourceId: string, projectId: string, skill: string) {
+  function assignResource(_resourceId: string, _projectId: string, _skill: string) {
     // Logic to assign resource to project
-  }
-  
-  function deallocateResource(allocationId: string) {
-    allocations.update(items => items.filter(a => a.id !== allocationId));
   }
   
   $: filteredResources = $resources.filter(resource => {
@@ -224,7 +221,6 @@
   });
   
   $: departments = [...new Set($resources.map(r => r.department))];
-  $: allSkills = [...new Set($resources.flatMap(r => r.skills))].sort();
 </script>
 
 <div class="resource-board p-6">

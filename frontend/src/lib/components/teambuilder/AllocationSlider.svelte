@@ -16,13 +16,6 @@
 		const newValue = parseInt(target.value, 10);
 		dispatch('change', newValue);
 	}
-
-	function getColor(percent: number) {
-		if (percent >= 100) return 'bg-error-500';
-		if (percent >= 75) return 'bg-warning-500';
-		if (percent >= 50) return 'bg-primary-500';
-		return 'bg-success-500';
-	}
 </script>
 
 <div class="allocation-slider">

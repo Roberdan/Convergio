@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Button, Badge } from './index';
+	import { Button } from './index';
 
 	interface $$Props {
 		title: string;
@@ -37,7 +37,6 @@
 		filter: { filters: Record<string, any> };
 	}>();
 
-	let chartContainer: HTMLElement;
 	let isRefreshing = false;
 
 	// Chart height based on variant
@@ -63,7 +62,7 @@
 		}, 2000);
 	}
 
-	function handleExport(format: 'png' | 'svg' | 'pdf') {
+	function _handleExport(format: 'png' | 'svg' | 'pdf') {
 		dispatch('export', { format });
 	}
 
@@ -180,7 +179,7 @@
 			</div>
 		{:else}
 			<!-- Chart Container -->
-			<div bind:this={chartContainer} class="chart-container">
+			<div class="chart-container">
 				<slot />
 			</div>
 		{/if}

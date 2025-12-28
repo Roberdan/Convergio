@@ -80,8 +80,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   
   function processMetrics(data: any): RunMetrics {
     const timeline = data.timeline || [];
-    const summary = data.summary || {};
-    
+
     // Calcola metriche aggregate
     let totalCost = 0;
     let totalTokens = 0;

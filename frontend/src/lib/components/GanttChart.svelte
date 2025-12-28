@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { scaleTime, scaleLinear, scaleBand } from 'd3-scale';
+	import { scaleTime, scaleBand } from 'd3-scale';
 	import { timeMonth, timeWeek, timeDay } from 'd3-time';
 	import { timeFormat } from 'd3-time-format';
 	

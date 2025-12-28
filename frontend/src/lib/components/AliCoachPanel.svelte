@@ -213,36 +213,39 @@
     ]);
   }
   
-  function assignResource(resource: string, project: string) {
+  function assignResource(_r: string, _p: string) {
+    void _r; void _p;
     markSuggestionApplied('s1');
   }
 
-  function viewResourceDetails(resource: string) {
-    // View resource details
+  function viewResourceDetails(_r: string) {
+    void _r;
   }
 
-  function reviewBudget(project: string) {
+  function reviewBudget(_p: string) {
+    void _p;
     // Review budget
   }
 
-  function optimizeCosts(project: string) {
-    // Optimize costs
+  function optimizeCosts(_p: string) {
+    void _p;
   }
 
-  function expandPractice(practice: string) {
-    // Expand practice
+  function expandPractice(_p: string) {
+    void _p;
   }
 
-  function shareReport(report: string) {
-    // Share report
+  function shareReport(_r: string) {
+    void _r;
   }
 
-  function resolveConflict(project: string) {
+  function resolveConflict(_p: string) {
+    void _p;
     // Resolve conflict
   }
 
-  function adjustTimeline(project: string) {
-    // Adjust timeline
+  function adjustTimeline(_p: string) {
+    void _p;
   }
 
   function optimizeMeetings() {

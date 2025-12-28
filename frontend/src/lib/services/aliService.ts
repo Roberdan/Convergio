@@ -117,7 +117,7 @@ class AliService {
       this.connectionStatus.set("connected");
     };
 
-    ws.onerror = (error) => {
+    ws.onerror = (_error) => {
       // Silent failure
       this.connectionStatus.set("error");
     };

@@ -20,9 +20,8 @@
 	let analysisInterval: any;
 	let lastAnalysisTime = 0;
 	const ANALYSIS_COOLDOWN = 3000; // 3 seconds between analyses
-	
-	// Reactive suggestions categorization
-	$: categorizedSuggestions = categorizeAliSuggestions($suggestions);
+
+	// Reactive suggestions
 	$: hasActiveSuggestions = $suggestions.length > 0;
 	
 	// REMOVED: aliResponses - no fake messages
@@ -154,18 +153,9 @@
 	
 	// REMOVED: parseAliResponse - no longer needed
 	// Ali service handles all response parsing internally
-	
-	function categorizeAliSuggestions(suggestions: any[]) {
-		const categories = {
-			expertise: suggestions.filter((s: any) => s.category === 'expertise'),
-			tools: suggestions.filter((s: any) => s.category === 'tools'),
-			persona: suggestions.filter((s: any) => s.category === 'persona'),
-			coordination: suggestions.filter(s => s.category === 'coordination')
-		};
-		
-		return categories;
-	}
-	
+
+	// REMOVED: categorizeAliSuggestions - unused function
+
 	function addAssistanceMessage(type: string, message: string) {
 		assistanceHistory.update(history => [
 			...history,

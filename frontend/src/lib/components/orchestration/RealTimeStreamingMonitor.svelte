@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
   import { Card, Badge, Button } from '$lib/components/ui';
-  import { slide, fade } from 'svelte/transition';
+  import { slide } from 'svelte/transition';
   
   export let orchestrationId: string = '';
   export let websocketConnection: WebSocket | null = null;

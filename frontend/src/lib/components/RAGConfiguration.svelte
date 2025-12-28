@@ -3,7 +3,7 @@
   import { writable } from 'svelte/store';
   
   export let agentId: string = '';
-  export let onSave: (config: RAGConfig) => void = () => {};
+  export let onSave: (_config: RAGConfig) => void = () => {};
   
   interface RAGConfig {
     enabled: boolean;

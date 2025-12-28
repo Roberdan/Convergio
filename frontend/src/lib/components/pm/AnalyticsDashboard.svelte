@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { projectsService, type Activity } from '$lib/services/projectsService';
 
 	// Interfaces
 	interface ProjectMetrics {
@@ -34,11 +33,11 @@
 	// State
 	let metrics: ProjectMetrics | null = null;
 	let velocityData: TimeSeriesData[] = [];
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in template
 	let burndownData: TimeSeriesData[] = [];
 	let teamPerformance: TeamMember[] = [];
 	let loading = false;
 	let selectedMetric = 'overview';
-	let activities: Activity[] = [];
 
 	// Mock data for demonstration
 	const mockMetrics: ProjectMetrics = {
@@ -283,7 +282,7 @@
 						<div class="card-content">
 							<div class="chart-container h-64 bg-surface-50  rounded-lg p-4">
 								<div class="grid grid-cols-6 gap-4 h-full">
-									{#each velocityData as data, i}
+									{#each velocityData as data, _i}
 										<div class="flex flex-col items-center justify-end space-y-2">
 											<div class="text-xs text-surface-500">{data.value}</div>
 											<div class="w-full bg-primary-500 rounded-t" style="height: {(data.value / 40) * 100}%"></div>

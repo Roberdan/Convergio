@@ -4,8 +4,7 @@ Provides conversation management UI: reset, history, resume, delete
 -->
 
 <script lang="ts">
-  import { conversations, conversationManager, currentConversation } from '$lib/stores/conversationStore';
-  import type { ConversationMessage } from '$lib/stores/conversationStore';
+  import { conversationManager, currentConversation } from '$lib/stores/conversationStore';
 
   export let agentId: string;
   export let agentName: string;

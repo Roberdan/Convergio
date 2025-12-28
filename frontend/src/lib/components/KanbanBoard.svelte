@@ -33,8 +33,10 @@
 	];
 	
 	let selectedTask: Task | null = null;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in template
 	let showAgentDialog = false;
 	let defaultAgent = 'ali_chief_of_staff'; // 🤖 Ali è l'agente di default
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in template
 	let availableAgents = [
 		'ali_chief_of_staff',
 		'davide_project_manager',
@@ -104,12 +106,7 @@
 			// Silent failure
 		}
 	}
-	
-	function openAgentDialog(task: Task) {
-		selectedTask = task;
-		showAgentDialog = true;
-	}
-	
+
 	async function attachAgent(agentName: string) {
 		if (!selectedTask) return;
 		
@@ -240,53 +237,6 @@
 	</div>
 </div>
 
-<!-- Agent Attachment Dialog -->
-{#if showAgentDialog}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-		<div class="bg-white rounded-lg p-6 max-w-md w-full">
-			<h3 class="text-lg font-semibold mb-4">Attach AI Agent to Task</h3>
-			
-			{#if selectedTask}
-				<p class="text-sm text-surface-600 mb-4">
-					Task: <strong>{selectedTask.title}</strong>
-				</p>
-			{/if}
-			
-			<div class="space-y-2 mb-4">
-				{#each availableAgents as agent}
-					<button
-						on:click={() => attachAgent(agent)}
-						class="w-full text-left p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors"
-					>
-						<div class="font-medium">{agent}</div>
-						<div class="text-xs text-surface-500">
-							{#if agent === 'ali_chief_of_staff'}
-								Master orchestrator and coordinator
-							{:else if agent === 'davide_project_manager'}
-								Project execution and delivery
-							{:else if agent === 'luke_program_manager'}
-								Program coordination and planning
-							{:else if agent === 'wanda_workflow_orchestrator'}
-								Workflow automation and optimization
-							{:else if agent === 'baccio_tech_architect'}
-								Technical architecture and design
-							{:else if agent === 'marco_devops_engineer'}
-								DevOps and infrastructure
-							{/if}
-						</div>
-					</button>
-				{/each}
-			</div>
-			
-			<button
-				on:click={() => showAgentDialog = false}
-				class="w-full px-4 py-2 border border-surface-300 rounded-lg hover:bg-surface-50"
-			>
-				Cancel
-			</button>
-		</div>
-	</div>
-{/if}
 
 <style>
 	.line-clamp-2 {

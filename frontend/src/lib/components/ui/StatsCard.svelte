@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Badge } from './index';
 
 	interface TrendData {
 		value: number;

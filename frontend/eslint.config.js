@@ -35,7 +35,7 @@ export default [
       ],
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 
@@ -55,11 +55,21 @@ export default [
         ...globals.node,
       },
     },
+    plugins: {
+      "@typescript-eslint": typescript,
+    },
     rules: {
       "svelte/no-at-html-tags": "warn",
       "svelte/valid-compile": "error",
       // TS already checks undefined types; avoid false positives in Svelte TS
       "no-undef": "off",
+      // Disable base rule in favor of TypeScript rule
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 

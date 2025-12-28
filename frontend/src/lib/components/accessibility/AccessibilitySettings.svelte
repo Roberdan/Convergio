@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import { accessibilityStore, type AccessibilityProfile } from '$lib/stores/accessibilityStore';
 	import FontSettings from './FontSettings.svelte';
 	import ColorTheme from './ColorTheme.svelte';
 	import MotionSettings from './MotionSettings.svelte';
 	import FocusMode from './FocusMode.svelte';
-	import ReadingRuler from './ReadingRuler.svelte';
 
 	const dispatch = createEventDispatcher<{ save: void }>();
 

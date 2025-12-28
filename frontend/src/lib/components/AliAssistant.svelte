@@ -40,11 +40,6 @@
   function startProactiveMode() {
   }
 
-  function showProactiveHint() {
-    // Skip proactive hints - let Ali be quiet until asked
-    return;
-  }
-
   async function sendMessage() {
     if (!newMessage.trim()) return;
     

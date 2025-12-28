@@ -498,7 +498,7 @@
 						</button>
 					</div>
 					
-					{#each $formData.content.expertise_areas as _area, index}
+					{#each $formData.content.expertise_areas as _item, index (_item)}
 						<div class="flex items-center space-x-2 mb-2">
 							<input
 								type="text"

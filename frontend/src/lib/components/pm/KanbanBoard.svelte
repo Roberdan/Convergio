@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { writable } from 'svelte/store';
-	import { projectsService, type Activity } from '$lib/services/projectsService';
+	import { projectsService } from '$lib/services/projectsService';
 
 	// Props
 	export let projectId: string;
@@ -38,7 +37,6 @@
 	let draggedTask: Task | null = null;
 	let showTaskModal = false;
 	let newTask: Partial<Task> = {};
-	let activities: Activity[] = [];
 
 	onMount(async () => {
 		await loadKanbanData();
@@ -49,7 +47,7 @@
 		try {
 			// Load real activities from backend
 			if (projectId) {
-				activities = await projectsService.getActivities();
+				const activities = await projectsService.getActivities();
 				
 				// Group activities by status into kanban columns
 				const tasksByStatus: {
@@ -67,9 +65,9 @@
 				};
 
 				// Convert activities to tasks and group by status
-				const engagement = await projectsService.getEngagement(parseInt(projectId));
-							
-				activities.forEach((activity, index) => {
+				const _engagement = await projectsService.getEngagement(parseInt(projectId));
+
+				activities.forEach((activity, _index) => {
 					// Calculate realistic due date based on activity creation
 					const createdDate = new Date(activity.created_at || new Date());
 					const dueDate = new Date(createdDate);

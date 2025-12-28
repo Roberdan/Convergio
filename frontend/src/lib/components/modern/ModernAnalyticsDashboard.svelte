@@ -18,7 +18,6 @@
     throughput?: number;
   }
 
-  let loading = true;
   let selectedMetric = 'overview';
   let realTimeData = writable<RealTimeData>({});
   let chartData: any = {};
@@ -127,7 +126,6 @@
     await loadAnalyticsData();
     await loadAIInsights();
     setupRealTimeUpdates();
-    loading = false;
   });
   
   async function loadAnalyticsData() {
@@ -436,7 +434,7 @@
         <div class="chart-container">
           <!-- Simplified chart visualization -->
           <div class="simple-chart">
-            {#each chartData.projectVelocity?.datasets || [] as dataset, i}
+            {#each chartData.projectVelocity?.datasets || [] as dataset}
               <div class="chart-legend-item">
                 <div class="legend-color" style="background: {dataset.color}"></div>
                 <span class="body-sm">{dataset.label}</span>
@@ -446,7 +444,7 @@
               {#each chartData.projectVelocity?.labels || [] as label, i}
                 <div class="bar-group">
                   <div class="bar-label body-xs text-muted">{label}</div>
-                  {#each chartData.projectVelocity?.datasets || [] as dataset, j}
+                  {#each chartData.projectVelocity?.datasets || [] as dataset}
                     <div 
                       class="chart-bar" 
                       style="height: {(dataset.data[i] / 30) * 100}%; background: {dataset.color}"

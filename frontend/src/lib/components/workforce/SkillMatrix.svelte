@@ -36,16 +36,6 @@
 			.sort((a, b) => b.count - a.count)
 			.slice(0, 12); // Top 12 skills
 	}
-
-	function getLevelColor(level: string) {
-		switch (level) {
-			case 'expert': return 'bg-purple-500';
-			case 'advanced': return 'bg-blue-500';
-			case 'intermediate': return 'bg-green-500';
-			case 'beginner': return 'bg-yellow-500';
-			default: return 'bg-surface-300';
-		}
-	}
 </script>
 
 <div class="skill-matrix bg-white rounded-xl shadow-sm border border-surface-200 p-6">

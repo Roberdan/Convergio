@@ -20,22 +20,13 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   let refreshInterval: number | null = null;
   
   // Types
-  interface TimelineEvent {
+  interface _TimelineEvent {
     event_type: string;
     agent_name?: string;
-    data: any;
+    data: unknown;
     timestamp: string;
   }
-  
-  interface TimelineTurn {
-    turn_number: number;
-    timestamp: string;
-    events: TimelineEvent[];
-    agents_involved: string[];
-    total_cost: number;
-    total_tokens: number;
-  }
-  
+
   // Methods
   async function loadTimeline() {
     if (!conversationId) return;

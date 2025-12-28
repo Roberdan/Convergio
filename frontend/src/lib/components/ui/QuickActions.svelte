@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { Button } from './index';
 
 	interface QuickAction {
 		id: string;
@@ -42,7 +41,6 @@
 	}>();
 
 	let isExpanded = trigger === 'always';
-	let containerRef: HTMLElement;
 
 	// Compute visible actions
 	$: visibleActions = maxVisible ? actions.slice(0, maxVisible) : actions;
@@ -128,7 +126,6 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <div
-	bind:this={containerRef}
 	class="quick-actions {positionClasses}"
 	role="group"
 	aria-label="Quick actions menu"

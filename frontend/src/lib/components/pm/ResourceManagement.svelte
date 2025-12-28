@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { workforceStore, filteredResources } from '$lib/stores/workforceStore';
-	import { workforceService } from '$lib/services/workforceService';
 	import type { UnifiedResource } from '$lib/types/resource';
 	import { ResourceDetail } from '$lib/components/workforce';
 
@@ -10,7 +9,7 @@
 	let error: string | null = null;
 	let selectedResource: UnifiedResource | null = null;
 	let showDetailModal = false;
-	let showAddResourceModal = false;
+	let _showAddResourceModal = false;
 	let filterType: 'all' | 'talent' | 'agent' = 'all';
 	let sortBy: 'utilization' | 'name' | 'efficiency' | 'availability' = 'utilization';
 

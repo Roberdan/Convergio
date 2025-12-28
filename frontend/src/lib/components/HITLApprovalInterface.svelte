@@ -3,7 +3,7 @@
   import { writable } from 'svelte/store';
   
   export let userId: string = '';
-  export let onApproval: (approvalId: string, decision: ApprovalDecision) => void = () => {};
+  export let onApproval: (_approvalId: string, _decision: ApprovalDecision) => void = () => {};
   
   interface ApprovalRequest {
     id: string;
