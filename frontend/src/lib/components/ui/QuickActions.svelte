@@ -127,9 +127,11 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div 
+<div
 	bind:this={containerRef}
 	class="quick-actions {positionClasses}"
+	role="group"
+	aria-label="Quick actions menu"
 	on:mouseenter={handleMouseEnter}
 	on:mouseleave={handleMouseLeave}
 >

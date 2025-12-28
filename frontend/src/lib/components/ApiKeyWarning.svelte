@@ -17,7 +17,7 @@
         showWarning = !apiKeyStatus.openai.is_configured;
       }
     } catch (error) {
-      console.log('Could not check API key status');
+      // Could not check API key status
     }
   }
   

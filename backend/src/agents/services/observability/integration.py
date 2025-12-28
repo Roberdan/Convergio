@@ -4,21 +4,19 @@ Provides seamless observability across all AutoGen components.
 """
 
 import asyncio
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from datetime import datetime
 from functools import wraps
 
 import structlog
 
 from .telemetry import (
-    ConvergioTelemetry,
     TelemetryContext,
     ObservabilityEvent,
     initialize_telemetry,
     get_telemetry
 )
 from .metrics_collector import (
-    MetricsCollector,
     initialize_metrics_collector,
     get_metrics_collector
 )
@@ -297,7 +295,7 @@ def observe_conversation(func):
     async def wrapper(*args, **kwargs):
         # Extract context from arguments
         self = args[0] if args else None
-        message = kwargs.get("message", "")
+        kwargs.get("message", "")
         user_id = kwargs.get("user_id", "unknown")
         conversation_id = kwargs.get("conversation_id", str(datetime.utcnow().timestamp()))
         

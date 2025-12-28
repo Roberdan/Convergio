@@ -12,7 +12,6 @@ from enum import Enum
 import random
 
 import structlog
-from pydantic import BaseModel
 
 logger = structlog.get_logger()
 
@@ -471,7 +470,7 @@ class FeatureFlagManager:
             except Exception as e:
                 logger.error(f"Failed to import flag {flag_name_str}: {e}")
         
-        logger.info(f"Imported feature flag configuration")
+        logger.info("Imported feature flag configuration")
 
 
 # Global feature flag manager

@@ -3,14 +3,13 @@ Turn-by-Turn Speaker Selection Integration
 Integrates intelligent speaker selection into each turn of GroupChat execution
 """
 
-import asyncio
-from typing import List, Dict, Any, Optional, Sequence, Callable
+from typing import List, Dict, Any, Optional, Sequence
 from datetime import datetime
 import structlog
 
 from autogen_agentchat.teams import SelectorGroupChat
 from autogen_agentchat.agents import AssistantAgent
-from autogen_agentchat.messages import TextMessage, ChatMessage
+from autogen_agentchat.messages import ChatMessage
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 
 from .selection_policy import (
@@ -19,7 +18,7 @@ from .selection_policy import (
     MissionPhase,
     ExpertiseDomain
 )
-from .selection_metrics import record_selection_metrics, get_selection_history
+from .selection_metrics import record_selection_metrics
 from src.agents.utils.tracing import start_span
 from src.agents.utils.config import get_settings
 

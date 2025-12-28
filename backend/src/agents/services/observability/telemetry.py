@@ -3,7 +3,6 @@ Convergio Observability - OpenTelemetry integration for comprehensive monitoring
 Implements distributed tracing, metrics collection, and structured logging for AutoGen workflows.
 """
 
-import json
 import time
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Callable
@@ -15,8 +14,7 @@ import traceback
 import structlog
 from opentelemetry import trace, metrics, baggage
 from opentelemetry.trace import Status, StatusCode, Span
-from opentelemetry.metrics import Meter, Counter, Histogram, UpDownCounter
-from opentelemetry.sdk.trace import TracerProvider, Span as SDKSpan
+from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -27,7 +25,6 @@ try:
     from opentelemetry.instrumentation.logging import LoggingInstrumentor
 except Exception:
     LoggingInstrumentor = None  # type: ignore
-from opentelemetry.propagate import inject, extract
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 logger = structlog.get_logger()

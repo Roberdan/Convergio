@@ -4,8 +4,6 @@
 
 import logging
 import sys
-from pathlib import Path
-from typing import Any, Dict
 
 import structlog
 from structlog.processors import JSONRenderer

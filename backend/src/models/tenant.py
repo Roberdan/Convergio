@@ -3,13 +3,12 @@ Multi-Tenant SaaS Model with Billing Integration
 Complete tenant isolation and subscription management
 """
 
-from datetime import datetime, date
-from typing import Optional, List, Dict, Any, Tuple
+from datetime import datetime
+from typing import Tuple
 from enum import Enum
-from decimal import Decimal
 from sqlalchemy import (
     Column, String, Integer, Text, DateTime, Boolean, Numeric, Date,
-    ForeignKey, JSON, Enum as SQLEnum, Index, CheckConstraint, UniqueConstraint
+    ForeignKey, JSON, Enum as SQLEnum, Index, UniqueConstraint
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID

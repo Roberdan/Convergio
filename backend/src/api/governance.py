@@ -3,15 +3,14 @@ Governance API for Rate Limiting, SLO Monitoring, and Runbook Management
 Provides endpoints for operational control and monitoring
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Request, Query
+from fastapi import APIRouter, HTTPException, Depends, Query
 from fastapi.responses import JSONResponse
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-import asyncio
 
-from ..core.rate_limiting import get_rate_limiter, RateLimiter
-from ..agents.services.observability.slo_dashboard import get_slo_dashboard, SLODashboard
-from ..agents.services.observability.runbook import get_runbook_manager, RunbookManager, IncidentSeverity, IncidentStatus
+from ..core.rate_limiting import get_rate_limiter
+from ..agents.services.observability.slo_dashboard import get_slo_dashboard
+from ..agents.services.observability.runbook import get_runbook_manager, IncidentSeverity, IncidentStatus
 from ..core.security_middleware import get_current_user
 from ..models.user import User
 
@@ -56,7 +55,7 @@ async def unblock_identifier(
 ):
     """Unblock a previously blocked identifier"""
     try:
-        rate_limiter = await get_rate_limiter()
+        await get_rate_limiter()
         # This would need to be implemented in the RateLimiter class
         return {"message": f"Identifier {identifier} unblocked"}
     except Exception as e:

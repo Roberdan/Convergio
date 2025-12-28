@@ -18,8 +18,7 @@ import os
 import re
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-from datetime import datetime
+from typing import Dict, List, Optional
 import json
 import random
 from openai import OpenAI
@@ -320,7 +319,7 @@ Start with the YAML frontmatter (---) and end with the complete agent descriptio
             job_files = job_files[:limit]
         
         logger.info(f"\n{'='*60}")
-        logger.info(f"🚀 AI AGENT GENERATION STARTING")
+        logger.info("🚀 AI AGENT GENERATION STARTING")
         logger.info(f"{'='*60}")
         logger.info(f"📁 Source: {self.input_dir}")
         logger.info(f"📁 Output: {self.output_dir}")
@@ -360,13 +359,13 @@ Start with the YAML frontmatter (---) and end with the complete agent descriptio
         print("\n" + "="*60)
         print("🎉 AI AGENT GENERATION COMPLETE")
         print("="*60)
-        print(f"📊 Statistics:")
+        print("📊 Statistics:")
         print(f"  • Job descriptions processed: {results['processed']}")
         print(f"  • Agents successfully created: {results['agents_created']}")
         print(f"  • Generation success rate: {results['agents_created']/results['processed']*100:.1f}%")
         
         if results['summary_by_level']:
-            print(f"\n📈 Breakdown by level:")
+            print("\n📈 Breakdown by level:")
             for level, agents in sorted(results['summary_by_level'].items()):
                 print(f"  • {level}: {len(agents)} agents")
                 for agent in agents[:3]:  # Show first 3 agents

@@ -27,8 +27,8 @@
       error = null;
       talents = await talentsService.getTalents();
       applyFilters();
-    } catch (err) {
-      console.error('Failed to load talents:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load talents data';
     } finally {
       loading = false;
@@ -230,6 +230,7 @@
           on:click={() => sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'}
           class="p-2 border border-surface-200 rounded-lg hover:bg-surface-50 transition-colors"
           title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+          aria-label="Toggle sort order: {sortOrder === 'asc' ? 'Ascending' : 'Descending'}"
         >
           <svg class="w-5 h-5 text-surface-600 transition-transform {sortOrder === 'desc' ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />

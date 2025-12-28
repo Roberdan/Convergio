@@ -3,24 +3,18 @@ Agent Collaboration Analytics Service
 Tracks agent performance, collaboration patterns, and optimization opportunities
 """
 
-import asyncio
-import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
+from typing import Dict, List, Any, Optional
 from uuid import UUID
-from collections import defaultdict
 import structlog
 
-from sqlalchemy import select, update, delete, and_, or_, func, desc
+from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_async_session
 from ..models.project_orchestration import (
-    ProjectOrchestration, ProjectAgentAssignment, ProjectJourneyStage,
-    ProjectTouchpoint, ProjectConversation, AgentCollaborationMetric,
-    AgentRole
+    ProjectAgentAssignment, ProjectTouchpoint, ProjectConversation
 )
-from ..services.realtime_streaming_service import publish_metrics_update
 
 logger = structlog.get_logger()
 
@@ -65,7 +59,7 @@ class AgentCollaborationAnalytics:
             select(ProjectAgentAssignment)
             .where(and_(
                 ProjectAgentAssignment.orchestration_id == orchestration_id,
-                ProjectAgentAssignment.active == True
+                ProjectAgentAssignment.active
             ))
         )
         result = await db.execute(stmt)
@@ -190,7 +184,7 @@ class AgentCollaborationAnalytics:
         assignments_stmt = select(ProjectAgentAssignment).where(
             and_(
                 ProjectAgentAssignment.orchestration_id == orchestration_id,
-                ProjectAgentAssignment.active == True
+                ProjectAgentAssignment.active
             )
         )
         assignments_result = await db.execute(assignments_stmt)

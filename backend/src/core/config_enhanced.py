@@ -7,7 +7,7 @@ import os
 import secrets
 import string
 from pathlib import Path
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict
 from functools import lru_cache
 import structlog
 

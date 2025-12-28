@@ -3,9 +3,9 @@
   import { goto } from '$app/navigation';
   import AliAssistant from '$lib/components/AliAssistant.svelte';
 
-  let healthStatus: any = null;
+  let healthStatus: { status?: string; build?: string } | null = null;
   let loading = true;
-  const APP_VERSION: string = (typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : (typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0')) as unknown as string;
+  const APP_VERSION: string = (typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : (typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0')) as string;
 
   onMount(async () => {
     try {

@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { Card, Badge, Button } from '$lib/components/ui';
   import { slide } from 'svelte/transition';
-  
+
   export let orchestrationData: any = {};
   export let timeRange: string = '30d';
   
@@ -59,8 +59,8 @@
         // Fallback to mock data
         metricsData = generateMockMetricsData();
       }
-    } catch (error) {
-      console.error('Error loading metrics:', error);
+    } catch {
+      // Silent failure
       metricsData = generateMockMetricsData();
     } finally {
       loading = false;
@@ -237,8 +237,8 @@
         // Reload metrics to show updated data
         await loadMetricsData();
       }
-    } catch (error) {
-      console.error('Error applying insight:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -449,49 +449,50 @@
       <div transition:slide>
         <Card>
           <div class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h4 class="font-semibold text-surface-900 ">
-              🧠 AI Insights & Recommendations
-            </h4>
-            <Badge class="bg-blue-100 text-blue-800">
-              {metricsData.ai_insights.length} insights
-            </Badge>
-          </div>
-          
-          <div class="space-y-3">
-            {#each metricsData.ai_insights as insight}
-              <div class="border border-surface-200  rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-2 mb-2">
-                      <span class="text-lg">{getInsightIcon(insight.type)}</span>
-                      <h5 class="font-medium text-surface-900 ">
-                        {insight.title}
-                      </h5>
-                      <Badge class="{getPriorityColor(insight.priority)}">
-                        {insight.priority}
-                      </Badge>
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-semibold text-surface-900 ">
+                🧠 AI Insights & Recommendations
+              </h4>
+              <Badge class="bg-blue-100 text-blue-800">
+                {metricsData.ai_insights.length} insights
+              </Badge>
+            </div>
+
+            <div class="space-y-3">
+              {#each metricsData.ai_insights as insight}
+                <div class="border border-surface-200  rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-2 mb-2">
+                        <span class="text-lg">{getInsightIcon(insight.type)}</span>
+                        <h5 class="font-medium text-surface-900 ">
+                          {insight.title}
+                        </h5>
+                        <Badge class="{getPriorityColor(insight.priority)}">
+                          {insight.priority}
+                        </Badge>
+                      </div>
+
+                      <p class="text-sm text-surface-700  mb-2">
+                        {insight.message}
+                      </p>
+
+                      <div class="flex items-center space-x-4 text-xs text-surface-600 ">
+                        <span>Confidence: <strong>{Math.round(insight.confidence * 100)}%</strong></span>
+                        <span>Impact: <strong class="text-green-600">{insight.impact}</strong></span>
+                        <span>By: <strong>{insight.agent}</strong></span>
+                      </div>
                     </div>
-                    
-                    <p class="text-sm text-surface-700  mb-2">
-                      {insight.message}
-                    </p>
-                    
-                    <div class="flex items-center space-x-4 text-xs text-surface-600 ">
-                      <span>Confidence: <strong>{Math.round(insight.confidence * 100)}%</strong></span>
-                      <span>Impact: <strong class="text-green-600">{insight.impact}</strong></span>
-                      <span>By: <strong>{insight.agent}</strong></span>
+
+                    <div class="ml-4">
+                      <Button variant="outline" size="sm" on:click={() => applyInsight(insight)}>
+                        Apply
+                      </Button>
                     </div>
-                  </div>
-                  
-                  <div class="ml-4">
-                    <Button variant="outline" size="sm" on:click={() => applyInsight(insight)}>
-                      Apply
-                    </Button>
                   </div>
                 </div>
-              </div>
-            {/each}
+              {/each}
+            </div>
           </div>
         </Card>
       </div>

@@ -3,24 +3,18 @@
 Advanced AI-powered assistant with real vector search, database integration, and strategic reasoning
 """
 
-import asyncio
-import logging
-from datetime import datetime
 from typing import Any, Dict, List, Optional
-import json
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 import httpx
 
 from ..core.database import get_db_session
-from ..core.redis import cache_get, cache_set
 from ..api.user_keys import get_user_api_key, get_user_default_model
 from src.core.config import get_settings
 from ..models.talent import Talent
-from ..models.document import Document
 from ..agents.orchestrator import get_agent_orchestrator
 
 logger = structlog.get_logger()

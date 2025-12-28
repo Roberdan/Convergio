@@ -4,7 +4,6 @@ Projects, Epics, Tasks, Subtasks, Resources, Dependencies
 """
 
 from datetime import datetime
-from typing import Optional, List, Dict, Any
 from enum import Enum
 from sqlalchemy import (
     Column, String, Integer, Text, DateTime, Boolean, Float,

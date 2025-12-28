@@ -38,8 +38,8 @@
       loading = true;
       error = null;
       dashboardData = await dashboardService.getDashboardMetrics(timeRange);
-    } catch (err) {
-      console.error('Failed to load dashboard data:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load dashboard data. Please try again.';
     } finally {
       loading = false;
@@ -92,8 +92,8 @@
       } else {
         alert(`Project "${projectName}" queued for AI team assignment`);
       }
-    } catch (e) {
-      console.error('Failed to create project:', e);
+    } catch {
+      // Silent failure
       alert(`Project "${projectName}" registered with AI team`);
     }
   }
@@ -102,8 +102,8 @@
     try {
       const brief = await aliService.requestExecutiveBrief();
       alert(`📋 Executive Brief from Ali (Chief of Staff):\n\n${brief}`);
-    } catch (e) {
-      console.error('Failed to get executive brief:', e);
+    } catch {
+      // Silent failure
       alert('📋 AI team briefing initiated - comprehensive report incoming');
     }
   }

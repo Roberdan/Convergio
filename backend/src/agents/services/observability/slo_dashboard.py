@@ -3,13 +3,11 @@ SLO Dashboard System for Service Level Objectives
 Provides real-time monitoring and alerting for key metrics
 """
 
-import asyncio
 import time
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-import json
 from ...utils.config import get_settings
 
 class SLOStatus(Enum):

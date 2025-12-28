@@ -10,7 +10,7 @@ from sqlalchemy import Integer, String, Text, JSON, Boolean, DateTime, func, tex
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
+from sqlalchemy.orm import Mapped, mapped_column, selectinload
 
 from ..core.database import Base
 
@@ -252,7 +252,7 @@ class DocumentEmbedding(Base):
                 query = query.where(cls.embed_metadata[key].astext == str(value))
         
         # Use pgvector cosine similarity with proper SQL
-        from sqlalchemy import func, text
+        from sqlalchemy import func
         
         # Convert query embedding to PostgreSQL array format
         embedding_array = f"[{','.join(map(str, query_embedding))}]"

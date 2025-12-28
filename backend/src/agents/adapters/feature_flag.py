@@ -6,7 +6,7 @@ Controls which agent framework to use with rollback support.
 import os
 from typing import Optional, Dict, Any
 from enum import Enum
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 
 import structlog

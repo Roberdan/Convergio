@@ -4,7 +4,7 @@ SQLAlchemy 2.0 Activity model matching existing database schema
 """
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, TYPE_CHECKING
 
 from sqlalchemy import Integer, String, DateTime, func, Text, BigInteger, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,9 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..core.database import Base
+
+if TYPE_CHECKING:
+    from .engagement import Engagement
 
 
 class Activity(Base):

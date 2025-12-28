@@ -9,14 +9,7 @@
   import { Card, Button, Badge, LoadingSpinner } from '$lib/components/ui';
   
   export let projectId: string = '';
-  
-  // State management
-  let orchestrationData = writable(null);
-  let loading = true;
-  let error = '';
-  let selectedView: 'overview' | 'journey' | 'agents' | 'metrics' | 'realtime' = 'overview';
-  let websocketConnection: WebSocket | null = null;
-  
+
   // Orchestration data structure
   interface OrchestrationData {
     id: string;
@@ -32,6 +25,13 @@
     recent_touchpoints: Touchpoint[];
     real_time_metrics: any;
   }
+
+  // State management
+  let orchestrationData = writable<OrchestrationData | null>(null);
+  let loading = true;
+  let error = '';
+  let selectedView: 'overview' | 'journey' | 'agents' | 'metrics' | 'realtime' = 'overview';
+  let websocketConnection: WebSocket | null = null;
   
   interface AgentAssignment {
     agent_name: string;
@@ -93,9 +93,9 @@
       orchestrationData.set(data);
       
     } catch (err) {
-      console.error('Error loading orchestration data:', err);
+      // Silent failure
       error = err instanceof Error ? err.message : 'Failed to load orchestration data';
-      
+
       // Fallback to mock data for development
       orchestrationData.set(getMockOrchestrationData());
     } finally {
@@ -109,24 +109,23 @@
       websocketConnection = new WebSocket(wsUrl);
       
       websocketConnection.onopen = () => {
-        console.log('✅ Real-time connection established');
+        // Real-time connection established
       };
       
       websocketConnection.onmessage = (event) => {
         try {
           const update = JSON.parse(event.data);
           handleRealTimeUpdate(update);
-        } catch (error) {
-          console.error('Error parsing real-time update:', error);
+        } catch {
+          // Silent failure
         }
       };
       
-      websocketConnection.onerror = (error) => {
-        console.error('WebSocket error:', error);
+      websocketConnection.onerror = () => {
+        // Silent failure
       };
       
       websocketConnection.onclose = () => {
-        console.log('Real-time connection closed');
         // Attempt to reconnect after 5 seconds
         setTimeout(() => {
           if (projectId) {
@@ -135,25 +134,25 @@
         }, 5000);
       };
       
-    } catch (error) {
-      console.error('Failed to setup WebSocket connection:', error);
+    } catch {
+      // Silent failure
     }
   }
   
   function handleRealTimeUpdate(update: any) {
     orchestrationData.update(current => {
       if (!current) return current;
-      
+
       switch (update.type) {
         case 'orchestration_update':
-          return { ...current, ...update.data };
+          return { ...current, ...(update.data as Partial<OrchestrationData>) };
         case 'agent_conversation':
           // Update agent activity indicators
           return current;
         case 'metrics':
           return { ...current, real_time_metrics: update.data.metrics };
         case 'stage_transition':
-          return { ...current, current_stage: update.data.to_stage };
+          return { ...current, current_stage: update.data.to_stage as string };
         default:
           return current;
       }
@@ -272,8 +271,8 @@
         await loadOrchestrationData();
         // Could show optimization results in a modal
       }
-    } catch (error) {
-      console.error('Error optimizing project:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -300,7 +299,7 @@
     }
   }
   
-  $: currentData = $orchestrationData;
+  $: currentData = $orchestrationData as OrchestrationData | null;
 </script>
 
 <!-- PM Orchestration Dashboard -->
@@ -456,10 +455,9 @@
       {:else if selectedView === 'realtime'}
         <!-- Real-time: Live monitoring and streaming -->
         <div class="col-span-12">
-          <RealTimeStreamingMonitor 
+          <RealTimeStreamingMonitor
             orchestrationId={currentData.id}
             websocketConnection={websocketConnection}
-            realTimeMetrics={currentData.real_time_metrics}
           />
         </div>
       {/if}

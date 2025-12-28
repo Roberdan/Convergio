@@ -9,7 +9,6 @@ from fastapi.responses import Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from typing import Callable, Optional
 import time
-from datetime import datetime, timedelta
 import os
 from jose import jwt, JWTError, ExpiredSignatureError
 
@@ -57,7 +56,7 @@ class SecurityMiddleware:
         """Validate incoming request for security compliance"""
         try:
             # Basic validation checks
-            if not request.method in ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]:
+            if request.method not in ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]:
                 return False
             
             # Check for suspicious headers
@@ -187,7 +186,7 @@ async def get_current_user(
             username="admin",
             full_name="Admin User"
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",

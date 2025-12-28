@@ -33,8 +33,8 @@
       
       agents = agentsData || [];
       swarmStatus = swarmData;
-    } catch (err) {
-      console.error('Failed to load agents data:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load agents data';
     } finally {
       loading = false;

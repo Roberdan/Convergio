@@ -5,7 +5,7 @@ Provides step-by-step procedures for incident response and troubleshooting
 
 import json
 import time
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum

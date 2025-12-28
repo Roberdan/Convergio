@@ -4,12 +4,11 @@ Real-time event processing and pattern detection
 """
 
 import asyncio
-from typing import Dict, List, Any, Optional, Callable, Set
+from typing import Dict, List, Any, Optional, Callable
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from enum import Enum
-import json
 import uuid
 from asyncio import Queue
 

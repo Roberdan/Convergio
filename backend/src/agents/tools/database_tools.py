@@ -3,11 +3,10 @@ Database Tools for Ali and Agent Ecosystem
 Direct database access for real-time data queries using SQLAlchemy models
 """
 
-import asyncio
 import sys
 import os
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from datetime import datetime
+from typing import Dict, List, Any
 # Agent Framework import with fallback
 try:
     from agent_framework import ai_function
@@ -31,11 +30,9 @@ except ImportError:
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 import structlog
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text, func
+from sqlalchemy import func
 from sqlalchemy.future import select
 
-from ...core.database import get_db_session
 from ...models.talent import Talent
 from ...models.document import Document, DocumentEmbedding
 
@@ -84,7 +81,7 @@ def safe_run_sync_query(query_func):
         result = query_func(session, engine.connect())
         session.commit()
         return result
-    except Exception as e:
+    except Exception:
         session.rollback()
         raise
     finally:
@@ -281,7 +278,7 @@ class DatabaseTools:
         try:
             from ...core.database import get_async_session
             from ...models.engagement import Engagement
-            from sqlalchemy import select, func
+            from sqlalchemy import select
             
             async with get_async_session() as db:
                 # Get all engagements (projects) with basic stats
@@ -867,7 +864,7 @@ def query_system_status() -> str:
         with engine.connect() as conn:
             # Test connectivity
             result = conn.execute(text("SELECT NOW()"))
-            db_time = result.scalar()
+            result.scalar()
 
             # Get table counts
             result = conn.execute(text("SELECT COUNT(*) FROM talents"))

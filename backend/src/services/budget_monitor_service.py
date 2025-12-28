@@ -3,20 +3,17 @@
 Intelligent budget monitoring, spending limits, and credit exhaustion detection
 """
 
-import asyncio
-import json
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import structlog
-from sqlalchemy import and_, func, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import and_, func, select
 
 from ..core.database import get_async_session, get_async_read_session
 from ..models.cost_tracking import (
-    CostAlert, CostSession, CostStatus, CostTracking,
-    DailyCostSummary, Provider, ProviderPricing
+    CostAlert, CostSession, CostTracking,
+    DailyCostSummary
 )
 
 logger = structlog.get_logger()
@@ -363,7 +360,7 @@ class BudgetMonitorService:
         """Generate intelligent alerts based on all monitoring results"""
         
         alerts = []
-        current_time = datetime.utcnow()
+        datetime.utcnow()
         
         # Daily limit alerts
         daily = status_results["daily_status"]

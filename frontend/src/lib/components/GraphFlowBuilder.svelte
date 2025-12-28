@@ -41,7 +41,7 @@
     metadata: {}
   };
   
-  let canvas: HTMLElement;
+  let canvas: SVGSVGElement;
   let selectedNode: Node | null = null;
   let selectedEdge: Edge | null = null;
   let isDragging = false;
@@ -204,8 +204,8 @@
       if (response.ok) {
         onSave(workflow);
       }
-    } catch (error) {
-      console.error('Failed to save workflow:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -217,8 +217,8 @@
       if (response.ok) {
         workflow = await response.json();
       }
-    } catch (error) {
-      console.error('Failed to load workflow:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -303,8 +303,7 @@
             <button
               class="agent-item"
               on:click={() => {
-                const node = addNode('agent', agent);
-                if (node) node.data.agentName = agent;
+                addNode('agent', agent);
               }}
             >
               🤖 {agent}
@@ -414,10 +413,15 @@
                 tabindex="0"
                 on:mouseup={() => endConnection(node.id, 'input')}
                 on:mousedown|stopPropagation={(e) => startConnection(node.id, 'input', e)}
-                on:keydown|stopPropagation={(e) => (e.key === 'Enter' || e.key === ' ') && startConnection(node.id, 'input', /** @type {any} */(e))}
+                on:keydown|stopPropagation={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    endConnection(node.id, 'input');
+                    e.preventDefault();
+                  }
+                }}
               ></div>
             {/if}
-            
+
             {#if node.outputs && node.outputs.length > 0}
               <div
                 class="node-port output"
@@ -426,7 +430,12 @@
                 tabindex="0"
                 on:mouseup={() => endConnection(node.id, 'output')}
                 on:mousedown|stopPropagation={(e) => startConnection(node.id, 'output', e)}
-                on:keydown|stopPropagation={(e) => (e.key === 'Enter' || e.key === ' ') && startConnection(node.id, 'output', /** @type {any} */(e))}
+                on:keydown|stopPropagation={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    endConnection(node.id, 'output');
+                    e.preventDefault();
+                  }
+                }}
               ></div>
             {/if}
           </div>

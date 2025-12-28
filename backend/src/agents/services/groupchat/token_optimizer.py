@@ -3,7 +3,6 @@ Token Optimization Module
 Implements AutoGen best practices for reducing token usage and costs
 """
 import hashlib
-import json
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 import structlog

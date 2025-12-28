@@ -89,8 +89,8 @@
 			if (response.ok) {
 				insights = await response.json();
 			}
-		} catch (error) {
-			console.error('Failed to load insights:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -100,8 +100,8 @@
 			if (response.ok) {
 				actions = await response.json();
 			}
-		} catch (error) {
-			console.error('Failed to load actions:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -111,8 +111,8 @@
 			if (response.ok) {
 				metrics = await response.json();
 			}
-		} catch (error) {
-			console.error('Failed to load metrics:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -132,8 +132,8 @@
 			}
 		};
 		
-		ws.onerror = (error) => {
-			console.error('WebSocket error:', error);
+		ws.onerror = () => {
+			// Silent failure
 		};
 		
 		ws.onclose = () => {
@@ -156,8 +156,8 @@
 			if (response.ok) {
 				await loadActions();
 			}
-		} catch (error) {
-			console.error('Failed to take action:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	

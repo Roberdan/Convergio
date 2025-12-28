@@ -400,7 +400,7 @@ class AutoGenBenchRunner:
                 )
             
             logger.info(
-                f"✅ Scenario completed",
+                "✅ Scenario completed",
                 scenario_id=scenario.scenario_id,
                 passed=passed,
                 duration_ms=duration_ms,
@@ -494,7 +494,7 @@ class AutoGenBenchRunner:
         report = self._generate_report(report_id, results)
         
         logger.info(
-            f"📊 Benchmark complete",
+            "📊 Benchmark complete",
             total=report.total_scenarios,
             passed=report.passed_scenarios,
             failed=report.failed_scenarios
@@ -654,14 +654,14 @@ async def main():
     print(f"Passed: {report.passed_scenarios}")
     print(f"Failed: {report.failed_scenarios}")
     print(f"Pass Rate: {report.passed_scenarios/report.total_scenarios*100:.1f}%")
-    print(f"\nPerformance Metrics:")
+    print("\nPerformance Metrics:")
     print(f"  Avg Duration: {report.avg_duration_ms:.0f}ms")
     print(f"  P50 Duration: {report.p50_duration_ms}ms")
     print(f"  P95 Duration: {report.p95_duration_ms}ms")
     print(f"  Avg Turns: {report.avg_turns:.1f}")
     print(f"  Avg Tokens: {report.avg_tokens:.0f}")
     print(f"  Total Cost: ${report.total_cost_usd:.4f}")
-    print(f"\nCategory Performance:")
+    print("\nCategory Performance:")
     for category, metrics in report.category_results.items():
         print(f"  {category}: {metrics['passed']}/{metrics['total']} passed")
     print("="*60)

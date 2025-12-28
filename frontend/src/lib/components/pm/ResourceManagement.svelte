@@ -5,9 +5,6 @@
 	import type { UnifiedResource } from '$lib/types/resource';
 	import { ResourceDetail } from '$lib/components/workforce';
 
-	// Props
-	export let projectId: string;
-
 	// State
 	let loading = true;
 	let error: string | null = null;
@@ -28,7 +25,6 @@
 			await workforceStore.loadAll();
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load resources';
-			console.error('Error loading resources:', e);
 		} finally {
 			loading = false;
 		}

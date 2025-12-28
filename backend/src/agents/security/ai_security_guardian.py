@@ -5,17 +5,14 @@ Advanced security validation for responsible AI, prompt injection protection, an
 
 import re
 import hashlib
-import hmac
-import json
 import asyncio
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
 
 import structlog
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 logger = structlog.get_logger()
 
@@ -273,31 +270,6 @@ class AISecurityGuardian:
         
         return result
 
-    async def redact_sensitive_data(self, content: str) -> str:
-        """Redact obvious sensitive tokens like keys/emails for safe logging."""
-        try:
-            # Simple redactions
-            content = re.sub(r"(?i)(api[-_ ]?key|secret|token)\s*[:=]\s*[A-Za-z0-9-_]{8,}", "<redacted>", content)
-            content = re.sub(r"[\w\.-]+@[\w\.-]+", "<email>", content)
-            return content
-        except Exception:
-            return content
-
-    async def safe_log(self, message: str, extra: Optional[Dict[str, Any]] = None) -> None:
-        """Log after redacting sensitive data."""
-        redacted = await self.redact_sensitive_data(message)
-        logger.info("safe_log", message=redacted, **(extra or {}))
-
-    async def validate_conversation(self, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Lightweight conversation validation returning aggregate assessment."""
-        joined = "\n".join(m.get("content", "") for m in messages)
-        res = await self.validate_prompt(joined, user_id="conversation")
-        return {
-            "is_safe": getattr(res, "is_safe", True),
-            "risk_level": getattr(res, "risk_level", "safe"),
-            "issues": getattr(res, "violations", []),
-        }
-    
     async def _detect_prompt_injection(self, prompt: str) -> List[str]:
         """Detect prompt injection attempts using pattern matching and ML"""
         violations = []
@@ -541,7 +513,6 @@ class AISecurityGuardian:
     # Test compatibility methods with flexible signatures
     def validate_prompt_sync(self, prompt: str, context: Optional[Dict] = None) -> SecurityValidationResult:
         """Flexible signature for test compatibility - synchronous wrapper"""
-        import asyncio
         try:
             loop = asyncio.get_event_loop()
             return loop.run_until_complete(self.validate_prompt_async(prompt, "", context or {}))
@@ -555,10 +526,6 @@ class AISecurityGuardian:
         logger.info("🔍 Starting comprehensive prompt validation", user_id=user_id or "anonymous")
         
         validation_start = datetime.now(timezone.utc)
-        violations = []
-        suggestions = []
-        accessibility_issues = []
-        responsible_ai_concerns = []
         
         # The full implementation continues here...
         # For now, return a basic successful validation

@@ -3,12 +3,12 @@
  * Configures testing environment and global test utilities
  */
 
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 // Mock browser APIs that might not be available in test environment
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -59,17 +59,17 @@ global.console = {
 };
 
 // Mock SvelteKit environment variables
-Object.defineProperty(global, '$app/environment', {
+Object.defineProperty(global, "$app/environment", {
   value: {
     browser: true,
     dev: false,
     building: false,
-    version: 'test'
-  }
+    version: "test",
+  },
 });
 
 // Mock SvelteKit navigation
-Object.defineProperty(global, '$app/navigation', {
+Object.defineProperty(global, "$app/navigation", {
   value: {
     goto: vi.fn(),
     invalidate: vi.fn(),
@@ -78,45 +78,47 @@ Object.defineProperty(global, '$app/navigation', {
     preloadCode: vi.fn(),
     onNavigate: vi.fn(),
     beforeNavigate: vi.fn(),
-    afterNavigate: vi.fn()
-  }
+    afterNavigate: vi.fn(),
+  },
 });
 
 // Mock SvelteKit stores
-Object.defineProperty(global, '$app/stores', {
+Object.defineProperty(global, "$app/stores", {
   value: {
     page: { subscribe: vi.fn() },
     navigating: { subscribe: vi.fn() },
-    updated: { subscribe: vi.fn() }
-  }
+    updated: { subscribe: vi.fn() },
+  },
 });
 
 // Setup global test utilities
 global.testUtils = {
   // Helper to wait for next tick
-  nextTick: () => new Promise(resolve => setTimeout(resolve, 0)),
-  
+  nextTick: () => new Promise((resolve) => setTimeout(resolve, 0)),
+
   // Helper to wait for element to be present
   waitForElement: (selector: string, timeout = 1000) => {
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
-      
+
       const checkElement = () => {
         const element = document.querySelector(selector);
         if (element) {
           resolve(element);
           return;
         }
-        
+
         if (Date.now() - startTime > timeout) {
-          reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+          reject(
+            new Error(`Element ${selector} not found within ${timeout}ms`),
+          );
           return;
         }
-        
+
         setTimeout(checkElement, 10);
       };
-      
+
       checkElement();
     });
-  }
+  },
 };

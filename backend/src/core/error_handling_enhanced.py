@@ -8,7 +8,7 @@ import time
 import traceback
 import uuid
 from enum import Enum
-from typing import Dict, Any, Optional, Callable, List, Union
+from typing import Dict, Any, Optional, Callable, List
 from dataclasses import dataclass, field
 from contextlib import asynccontextmanager
 import structlog

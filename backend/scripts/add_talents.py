@@ -8,7 +8,6 @@ import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from datetime import datetime
 from src.core.database import get_async_session, init_db
 from src.models.talent import Talent
 

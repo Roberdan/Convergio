@@ -98,7 +98,7 @@ psutil==7.0.0
 # ================================
 # 🔒 SECURITY
 # ================================
-slowapi==0.1.9
+# slowapi already listed under Rate Limiting
 
 # ================================
 # 📊 OBSERVABILITY & MONITORING

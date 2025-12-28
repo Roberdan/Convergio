@@ -6,7 +6,7 @@
   --primary-blue: #2563eb;
   --primary-blue-hover: #1d4ed8;
   --primary-blue-light: #dbeafe;
-  
+
   /* Grigi */
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
@@ -17,21 +17,21 @@
   --gray-700: #374151;
   --gray-800: #1f2937;
   --gray-900: #111827;
-  
+
   /* Background */
   --bg-primary: white;
   --bg-secondary: var(--gray-50);
   --bg-accent: var(--gray-100);
-  
+
   /* Text */
   --text-primary: var(--gray-900);
   --text-secondary: var(--gray-700);
   --text-muted: var(--gray-600);
-  
+
   /* Borders */
   --border-default: var(--gray-300);
   --border-hover: var(--primary-blue);
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -40,18 +40,38 @@
 }
 
 /* === TYPOGRAPHY === */
-.heading-xl { @apply text-3xl font-bold text-gray-900; }
-.heading-lg { @apply text-2xl font-bold text-gray-900; }
-.heading-md { @apply text-xl font-bold text-gray-900; }
-.heading-sm { @apply text-lg font-bold text-gray-900; }
-.heading-xs { @apply text-base font-bold text-gray-900; }
+.heading-xl {
+  @apply text-3xl font-bold text-gray-900;
+}
+.heading-lg {
+  @apply text-2xl font-bold text-gray-900;
+}
+.heading-md {
+  @apply text-xl font-bold text-gray-900;
+}
+.heading-sm {
+  @apply text-lg font-bold text-gray-900;
+}
+.heading-xs {
+  @apply text-base font-bold text-gray-900;
+}
 
-.body-lg { @apply text-lg text-gray-700 font-medium; }
-.body-md { @apply text-base text-gray-700 font-medium; }
-.body-sm { @apply text-sm text-gray-700 font-medium; }
-.body-xs { @apply text-xs text-gray-700 font-medium; }
+.body-lg {
+  @apply text-lg text-gray-700 font-medium;
+}
+.body-md {
+  @apply text-base text-gray-700 font-medium;
+}
+.body-sm {
+  @apply text-sm text-gray-700 font-medium;
+}
+.body-xs {
+  @apply text-xs text-gray-700 font-medium;
+}
 
-.text-muted { @apply text-gray-600; }
+.text-muted {
+  @apply text-gray-600;
+}
 
 /* === COMPONENTS === */
 .card {
@@ -97,26 +117,35 @@
 }
 
 /* === STATES === */
-.loading { @apply opacity-60 cursor-not-allowed; }
-.disabled { @apply opacity-50 cursor-not-allowed; }
+.loading {
+  @apply opacity-60 cursor-not-allowed;
+}
+.disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
 
 /* === OVERRIDES PER CONSISTENZA === */
 * {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 /* Rimuovi tutti gli stili inconsistenti */
-.backdrop-blur-lg, .backdrop-blur-sm, .backdrop-blur { 
-  backdrop-filter: none !important; 
+.backdrop-blur-lg,
+.backdrop-blur-sm,
+.backdrop-blur {
+  backdrop-filter: none !important;
   background: var(--bg-primary) !important;
 }
 
 /* Forza colori consistenti */
-.bg-white\/\*, .bg-gray-\*\/\* { 
-  background: var(--bg-primary) !important; 
+.bg-white\/\*,
+.bg-gray-\*\/\* {
+  background: var(--bg-primary) !important;
 }
 
-.text-white\/\*, .text-gray-\*\/\* {
+.text-white\/\*,
+.text-gray-\*\/\* {
   color: var(--text-primary) !important;
 }
 

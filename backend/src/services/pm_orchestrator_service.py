@@ -3,34 +3,31 @@ PM Orchestrator Service
 AI-orchestrated project management using UnifiedOrchestrator patterns
 """
 
-import asyncio
 import json
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, AsyncGenerator, Tuple
-from uuid import UUID, uuid4
+from typing import Dict, List, Any, Optional
+from uuid import UUID
 import structlog
 
-from sqlalchemy import select, update, delete, and_, or_, func
+from sqlalchemy import select, update, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from ..agents.orchestrators.unified import UnifiedOrchestrator
 from ..agents.services.unified_orchestrator_adapter import get_unified_orchestrator
 from ..services.unified_cost_tracker import unified_cost_tracker
-from ..services.realtime_streaming_service import publish_orchestration_update, publish_agent_conversation, publish_metrics_update
+from ..services.realtime_streaming_service import publish_orchestration_update
 from ..core.database import get_async_session
 from ..core.config import get_settings
 
-from ..models.project import Project, Task, Epic
+from ..models.project import Project
 from ..models.project_orchestration import (
     ProjectOrchestration, ProjectAgentAssignment, ProjectJourneyStage,
     ProjectTouchpoint, ProjectConversation, AgentCollaborationMetric,
-    OrchestrationStatus, CoordinationPattern, JourneyStage, TouchpointType, AgentRole
+    OrchestrationStatus, JourneyStage, TouchpointType, AgentRole
 )
 from ..api.schemas.project_orchestration import (
     EnhancedProjectCreateRequest, ProjectOrchestrationResponse,
-    ProjectOrchestrationDetailResponse, OrchestrationMetricsResponse,
-    AgentAssignmentResponse, JourneyStageResponse, TouchpointResponse
+    ProjectOrchestrationDetailResponse, AgentAssignmentResponse, JourneyStageResponse, TouchpointResponse
 )
 
 logger = structlog.get_logger()
@@ -533,9 +530,8 @@ class PMOrchestratorService:
         
         # Get agents for project type
         potential_agents = self.project_type_agents.get(project_type, ["ali-chief-of-staff"])
-        
+
         # For now, return the first agent
-        # TODO: Implement intelligent agent selection based on requirements
         return potential_agents[0] if potential_agents else "ali-chief-of-staff"
     
     async def _initialize_journey_stages(self, orchestration_id: UUID, db: AsyncSession):

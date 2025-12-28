@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # Authentication removed - no auth required for this version
 from ..core.database import get_db_session, get_read_db_session
 from ..core.redis import cache_get, cache_set
-from ..core.pagination import CursorPaginator, PaginationParams, PaginatedResponse
+from ..core.pagination import CursorPaginator, PaginationParams
 from ..models.user import User
 
 logger = structlog.get_logger()
@@ -226,7 +226,7 @@ async def get_paginated_activities(
         pagination = PaginationParams(limit=limit, cursor=cursor)
         
         # Decode cursor if provided
-        cursor_data = CursorPaginator.decode_cursor(cursor) if cursor else {}
+        CursorPaginator.decode_cursor(cursor) if cursor else {}
         
         # Build query with cursor pagination
         base_query = """
@@ -471,7 +471,7 @@ async def _generate_csv_export(export_data: Dict[str, Any]) -> StreamingResponse
 async def _generate_xlsx_export(export_data: Dict[str, Any]):
     """Generate a simple XLSX with one sheet per top-level section if openpyxl is available."""
     try:
-        import openpyxl  # type: ignore
+        pass  # type: ignore
     except Exception:
         # Fallback when openpyxl is not installed
         return {

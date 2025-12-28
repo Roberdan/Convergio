@@ -7,7 +7,6 @@
 	
 	// Props
 	export let currentDefinition: any = null;
-	export let agentKey = '';
 	export let isActive = false;
 	
 	// Ali assistance state
@@ -52,8 +51,6 @@
 	}
 	
 	async function startRealTimeAssistance() {
-		console.log('🤖 Ali: Starting real-time assistance');
-		
 		// Connect to REAL Ali backend using the service
 		try {
 			const ecosystem = await aliService.getEcosystemStatus();
@@ -78,8 +75,8 @@
 					aliConnection.update(conn => ({ ...conn, status: 'error' }));
 				}
 			});
-		} catch (err) {
-			console.error('Failed to connect to Ali:', err);
+		} catch {
+			// Silent failure
 			aliConnection.set({
 				status: 'error',
 				latency: -1
@@ -143,9 +140,9 @@
 				addAssistanceMessage('suggestions', 
 					`💡 I found ${analysis.suggestions.length} improvement opportunities!`);
 			}
-			
-		} catch (error) {
-			console.error('Ali analysis failed:', error);
+
+		} catch {
+			// Silent failure
 			addAssistanceMessage('error', '⚠️ Oops! I encountered an issue during analysis.');
 		} finally {
 			isThinking.set(false);
@@ -186,8 +183,6 @@
 	// All messages come from REAL Ali backend
 	
 	function applySuggestion(suggestion: any) {
-		console.log('🤖 Ali: Applying suggestion', suggestion);
-		
 		// Apply the suggestion to the agent definition
 		dispatch('apply-suggestion', {
 			suggestion,
@@ -208,7 +203,7 @@
 	}
 	
 	function getPriorityColor(priority: string) {
-		const colors = {
+		const colors: Record<string, string> = {
 			high: 'border-red-200 bg-red-50 text-red-800',
 			medium: 'border-yellow-200 bg-yellow-50 text-yellow-800',
 			low: 'border-blue-200 bg-blue-50 text-blue-800'
@@ -217,7 +212,7 @@
 	}
 	
 	function getPriorityIcon(priority: string) {
-		const icons = {
+		const icons: Record<string, string> = {
 			high: '🔥',
 			medium: '⚡',
 			low: '💡'
@@ -226,7 +221,7 @@
 	}
 	
 	function getEffortEstimate(effort: string) {
-		const estimates = {
+		const estimates: Record<string, string> = {
 			low: '~2 min',
 			medium: '~5 min',
 			high: '~10 min'

@@ -9,14 +9,14 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Optional
 
 import structlog
-from sqlalchemy import event, pool, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.pool import AsyncAdaptedQueuePool
 
 from .config import get_settings
@@ -26,7 +26,6 @@ logger = structlog.get_logger()
 # Test-environment compatibility: provide helper for mocking get_async_session
 try:
     import sys
-    from unittest.mock import AsyncMock
     from contextlib import asynccontextmanager
     
     if "pytest" in sys.modules:
@@ -177,7 +176,7 @@ async def init_db() -> None:
                 autoflush=True,  # Auto-flush before queries
                 autocommit=False,  # Explicit transaction control
             )
-        except Exception as e:
+        except Exception:
             logger.error("Unable to create async db session")
 
         # Create read replica engine and session factory if configured
@@ -362,7 +361,7 @@ async def ensure_dev_schema() -> None:
                 ))
                 row_ident = res_ident.fetchone()
                 is_identity_val = row_ident[0] if row_ident else None
-                has_default = row_ident and row_ident[1]
+                row_ident and row_ident[1]
                 if is_identity_val is None or str(is_identity_val).upper() != 'YES':
                     # Try to set identity first
                     try:

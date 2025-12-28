@@ -6,22 +6,25 @@ Handles step-by-step execution with state management, error handling, and observ
 import asyncio
 import json
 import uuid
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 import structlog
 
 import redis.asyncio as redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
 
 from .definitions import (
-    BusinessWorkflow, WorkflowStep, WorkflowStatus, 
-    StepType, WorkflowPriority
+    BusinessWorkflow, WorkflowStep, WorkflowStatus,
+    StepType
 )
 from agents.utils.config import get_settings
-from ...services.observability.integration import ObservabilityIntegration
+
+try:
+    from ..observability.integration import get_observability
+except ImportError:
+    get_observability = None
 
 logger = structlog.get_logger()
 
@@ -525,7 +528,7 @@ class GraphFlowRunner:
         # This would save to PostgreSQL
         # For now, just log
         logger.info(
-            f"Persisting execution state",
+            "Persisting execution state",
             execution_id=execution.execution_id,
             status=execution.status.value
         )
@@ -543,7 +546,7 @@ class GraphFlowRunner:
             checkpoint_data = await self.redis.get(checkpoint_key)
             
             if checkpoint_data:
-                checkpoint = json.loads(checkpoint_data)
+                json.loads(checkpoint_data)
                 
                 # Reconstruct execution
                 execution = self.active_executions.get(execution_id)

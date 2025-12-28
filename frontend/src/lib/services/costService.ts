@@ -25,7 +25,7 @@ export interface CostSummary {
   session_count: number;
   avg_cost_per_session: number;
   last_activity: string;
-  cost_trend: 'increasing' | 'decreasing' | 'stable';
+  cost_trend: "increasing" | "decreasing" | "stable";
 }
 
 export interface BudgetStatus {
@@ -34,13 +34,13 @@ export interface BudgetStatus {
   remaining_budget_usd: number;
   utilization_percentage: number;
   projected_monthly_cost: number;
-  budget_health: 'healthy' | 'warning' | 'critical';
+  budget_health: "healthy" | "warning" | "critical";
   days_remaining: number;
 }
 
 export interface LLMProvider {
   provider: string;
-  status: 'active' | 'inactive' | 'error';
+  status: "active" | "inactive" | "error";
   models: string[];
   current_cost: number;
   rate_limits: {
@@ -50,12 +50,12 @@ export interface LLMProvider {
 }
 
 class CostService {
-  private baseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:9000'}/api/v1`;
+  private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
   async getCostOverview(): Promise<CostOverview> {
     try {
       const response = await fetch(`${this.baseUrl}/cost-management/overview`);
-      
+
       if (!response.ok) {
         // NO MOCK DATA - Always show real data or zero
         return {
@@ -64,39 +64,43 @@ class CostService {
           cost_breakdown: {
             input_tokens: 0,
             output_tokens: 0,
-            total_requests: 0
+            total_requests: 0,
           },
           top_agents: [],
-          top_models: []
+          top_models: [],
         };
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch cost overview:', error);
+      // Silent failure
       throw error;
     }
   }
 
   async getAgentCostSummary(agentId: string): Promise<CostSummary> {
     try {
-      const response = await fetch(`${this.baseUrl}/cost-management/agents/${agentId}/summary`);
-      
+      const response = await fetch(
+        `${this.baseUrl}/cost-management/agents/${agentId}/summary`,
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch agent cost summary:', error);
+      // Silent failure
       throw error;
     }
   }
 
   async getBudgetStatus(): Promise<BudgetStatus> {
     try {
-      const response = await fetch(`${this.baseUrl}/cost-management/budget/status`);
-      
+      const response = await fetch(
+        `${this.baseUrl}/cost-management/budget/status`,
+      );
+
       if (!response.ok) {
         // NO MOCK DATA - Always show real budget data or zero
         return {
@@ -105,14 +109,14 @@ class CostService {
           remaining_budget_usd: 0,
           utilization_percentage: 0,
           projected_monthly_cost: 0,
-          budget_health: 'healthy',
-          days_remaining: 0
+          budget_health: "healthy",
+          days_remaining: 0,
         };
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch budget status:', error);
+      // Silent failure
       throw error;
     }
   }
@@ -120,29 +124,31 @@ class CostService {
   async getLLMProviders(): Promise<LLMProvider[]> {
     try {
       const response = await fetch(`${this.baseUrl}/cost-management/providers`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch LLM providers:', error);
+      // Silent failure
       throw error;
     }
   }
 
   async getRealtimeCost(): Promise<any> {
     try {
-      const response = await fetch(`${this.baseUrl}/cost-management/realtime/current`);
-      
+      const response = await fetch(
+        `${this.baseUrl}/cost-management/realtime/current`,
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch realtime cost:', error);
+      // Silent failure
       throw error;
     }
   }

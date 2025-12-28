@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  
+
   // Get app version from environment or fallback
-  const APP_VERSION: string = (typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : (typeof __VERSION__ !== 'undefined' ? __VERSION__ : 'V1.0.129')) as unknown as string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const APP_VERSION: string = ((globalThis as any).__APP_VERSION__ || (globalThis as any).__VERSION__ || 'V1.0.129') as string;
   
   interface ApiStatus {
     openai: { connected: boolean; model?: string; error?: string };
@@ -104,11 +105,10 @@
         }
       } catch (userKeysError) {
         // User keys are optional, don't fail if not available
-        console.log('User keys not checked:', userKeysError);
       }
-      
-    } catch (error) {
-      console.error('Failed to check API status:', error);
+
+    } catch {
+      // Silent failure
       apiStatus.backend = { connected: false };
     }
     

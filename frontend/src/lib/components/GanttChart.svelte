@@ -17,6 +17,7 @@
 		assignedAgent?: string;
 		priority: string;
 		status: string;
+		is_milestone?: boolean;
 	}
 	
 	interface Milestone {
@@ -42,8 +43,8 @@
 	const rowHeight = 40;
 	const barHeight = 25;
 	
-	onMount(async () => {
-		await loadProjectData();
+	onMount(() => {
+		loadProjectData();
 		updateDimensions();
 		window.addEventListener('resize', updateDimensions);
 		return () => window.removeEventListener('resize', updateDimensions);
@@ -69,8 +70,8 @@
 						date: t.end_date
 					}));
 			}
-		} catch (error) {
-			console.error('Failed to load project data:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -184,16 +185,18 @@
 				</button>
 			</div>
 			
-			<label class="flex items-center gap-2">
+			<label for="show-dependencies" class="flex items-center gap-2">
 				<input
+					id="show-dependencies"
 					type="checkbox"
 					bind:checked={showDependencies}
 				/>
 				Dependencies
 			</label>
 			
-			<label class="flex items-center gap-2">
+			<label for="show-progress" class="flex items-center gap-2">
 				<input
+					id="show-progress"
 					type="checkbox"
 					bind:checked={showProgress}
 				/>
@@ -293,7 +296,7 @@
 						<g
 							class="task-group"
 							on:click={() => handleTaskClick(task)}
-							on:keydown={() => {}}
+							on:keydown={(e) => e.key === 'Enter' && handleTaskClick(task)}
 							role="button"
 							tabindex="0"
 						>
@@ -360,29 +363,30 @@
 				</g>
 				
 				<!-- Today line -->
-				{#if (() => {
-					const today = new Date();
-					return timeScale(today) >= 0 && timeScale(today) <= chartWidth;
-				})()}
-					<line
-						x1={margin.left + timeScale(new Date())}
-						y1={margin.top}
-						x2={margin.left + timeScale(new Date())}
-						y2={margin.top + chartHeight}
-						stroke="#ef4444"
-						stroke-width="2"
-						stroke-dasharray="5,5"
-					/>
-					<text
-						x={margin.left + timeScale(today)}
-						y={margin.top - 20}
-						text-anchor="middle"
-						fill="#ef4444"
-						font-size="12"
-						font-weight="bold"
-					>
-						Today
-					</text>
+				{#if timeScale}
+					{@const today = new Date()}
+					{@const todayX = timeScale(today)}
+					{#if todayX >= 0 && todayX <= chartWidth}
+						<line
+							x1={margin.left + todayX}
+							y1={margin.top}
+							x2={margin.left + todayX}
+							y2={margin.top + chartHeight}
+							stroke="#ef4444"
+							stroke-width="2"
+							stroke-dasharray="5,5"
+						/>
+						<text
+							x={margin.left + todayX}
+							y={margin.top - 20}
+							text-anchor="middle"
+							fill="#ef4444"
+							font-size="12"
+							font-weight="bold"
+						>
+							Today
+						</text>
+					{/if}
 				{/if}
 			</svg>
 		{/if}
@@ -393,7 +397,7 @@
 		<div class="task-details-panel">
 			<div class="panel-header">
 				<h3 class="font-semibold">{selectedTask.title}</h3>
-				<button on:click={() => selectedTask = null} class="close-btn">×</button>
+				<button on:click={() => selectedTask = null} class="close-btn" aria-label="Close task details">×</button>
 			</div>
 			<div class="panel-content">
 				<p><strong>Status:</strong> {selectedTask.status}</p>

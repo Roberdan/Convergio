@@ -34,7 +34,7 @@
       actions: [
         {
           label: 'View Details',
-          action: () => console.log('Viewing details'),
+          action: () => {},
           style: 'primary'
         }
       ]
@@ -47,12 +47,12 @@
       actions: [
         {
           label: 'Retry',
-          action: () => console.log('Retrying...'),
+          action: () => {},
           style: 'primary'
         },
         {
           label: 'Dismiss',
-          action: () => console.log('Dismissed'),
+          action: () => {},
           style: 'secondary'
         }
       ]
@@ -104,11 +104,11 @@
     });
     
     wsManager.on('message', (data) => {
-      console.log(`Connection ${index} received:`, data);
+      // Message received
     });
     
-    wsManager.connect().catch(error => {
-      console.error(`Connection ${index} failed:`, error);
+    wsManager.connect().catch(() => {
+      // Silent failure
     });
     
     return wsManager;
@@ -151,8 +151,6 @@
     
     // Set up processor
     messageQueue.setProcessor(async (message) => {
-      console.log('Processing message:', message);
-      
       // Simulate processing delay
       await new Promise(resolve => setTimeout(resolve, Math.random() * 2000));
       

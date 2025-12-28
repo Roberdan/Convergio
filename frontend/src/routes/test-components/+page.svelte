@@ -15,17 +15,14 @@
   
   // Demo handlers
   function handleRAGSave(config: any) {
-    console.log('RAG Configuration saved:', config);
     alert('RAG Configuration saved successfully!');
   }
-  
+
   function handleWorkflowSave(workflow: any) {
-    console.log('Workflow saved:', workflow);
     alert('Workflow saved successfully!');
   }
-  
+
   function handleApproval(approvalId: string, decision: any) {
-    console.log('Approval decision:', approvalId, decision);
     alert(`Decision submitted for approval ${approvalId}`);
   }
 </script>

@@ -207,7 +207,6 @@
   
   function assignResource(resourceId: string, projectId: string, skill: string) {
     // Logic to assign resource to project
-    console.log(`Assigning ${resourceId} to ${projectId} for ${skill}`);
   }
   
   function deallocateResource(allocationId: string) {
@@ -511,7 +510,12 @@
               </div>
             </div>
             <select
-              on:change={(e) => assignResource(e.target.value, project.id, need.skill)}
+              on:change={(e) => {
+                const target = e.target as HTMLSelectElement;
+                if (target?.value) {
+                  assignResource(target.value, project.id, need.skill);
+                }
+              }}
               class="px-3 py-2 border rounded-lg"
             >
               <option value="">Assign to...</option>

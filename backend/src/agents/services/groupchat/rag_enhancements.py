@@ -3,11 +3,10 @@ RAG Enhancements - Advanced features for Task 2
 Implements per-agent filters, dynamic thresholds, semantic deduplication, and caching
 """
 
-import asyncio
 import hashlib
 import json
-from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Any, Tuple, Set
+from datetime import datetime
+from typing import Optional, List, Dict, Any, Tuple
 from dataclasses import dataclass, field
 from collections import defaultdict
 import numpy as np

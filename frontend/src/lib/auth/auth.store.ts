@@ -1,12 +1,12 @@
-import { writable } from 'svelte/store';
-import type { AuthState } from './auth.types';
+import { writable } from "svelte/store";
+import type { AuthState } from "./auth.types";
 
 const initialState: AuthState = {
   user: null,
   token: null,
   isAuthenticated: false,
   loading: false,
-  error: null
+  error: null,
 };
 
 function createAuthStore() {
@@ -15,12 +15,12 @@ function createAuthStore() {
   return {
     subscribe,
     setAuth: (token: string, user: any) => {
-      update(state => ({
+      update((state) => ({
         ...state,
         token,
         user,
         isAuthenticated: true,
-        error: null
+        error: null,
       }));
     },
     clearAuth: () => {
@@ -30,11 +30,11 @@ function createAuthStore() {
       set(initialState);
     },
     setLoading: (loading: boolean) => {
-      update(state => ({ ...state, loading }));
+      update((state) => ({ ...state, loading }));
     },
     setError: (error: string | null) => {
-      update(state => ({ ...state, error }));
-    }
+      update((state) => ({ ...state, error }));
+    },
   };
 }
 

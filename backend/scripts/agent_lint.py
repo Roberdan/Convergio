@@ -10,10 +10,8 @@ import json
 import re
 import yaml
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple
 import argparse
-from datetime import datetime
-import jsonschema
 from jsonschema import validate, ValidationError
 
 
@@ -130,10 +128,6 @@ class AgentLinter:
             self.errors.append("Duplicate tool names found")
         
         # Check for standard tools
-        standard_tools = [
-            "web_search", "vector_search", "database_query", 
-            "code_execution", "file_operations"
-        ]
         
         for tool in tools:
             name = tool.get('name', '')

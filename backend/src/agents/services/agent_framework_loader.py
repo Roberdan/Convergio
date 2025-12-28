@@ -4,8 +4,7 @@ Extends DynamicAgentLoader to support Microsoft Agent Framework
 """
 
 import os
-from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 import structlog
 
 try:

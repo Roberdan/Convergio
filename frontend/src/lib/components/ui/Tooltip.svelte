@@ -166,8 +166,7 @@
 		on:focus={handleFocus}
 		on:blur={handleBlur}
 		on:keydown={(e) => e.key === 'Enter' && handleClick()}
-		role={trigger === 'click' ? 'button' : undefined}
-		tabindex={trigger === 'click' ? 0 : undefined}
+		{...(trigger === 'click' ? { role: 'button', tabindex: 0 } : {})}
 	>
 		<slot />
 	</div>
@@ -234,26 +233,6 @@
 	/* Placement-specific arrow adjustments */
 	.tooltip-arrow {
 		z-index: -1;
-	}
-
-	/* Top placement arrow */
-	:global(.tooltip-container .tooltip) + .tooltip-arrow {
-		border-top-color: currentColor;
-	}
-
-	/* Bottom placement arrow */
-	:global(.tooltip-container .tooltip.top-full) + .tooltip-arrow {
-		border-bottom-color: currentColor;
-	}
-
-	/* Left placement arrow */
-	:global(.tooltip-container .tooltip.right-full) + .tooltip-arrow {
-		border-left-color: currentColor;
-	}
-
-	/* Right placement arrow */
-	:global(.tooltip-container .tooltip.left-full) + .tooltip-arrow {
-		border-right-color: currentColor;
 	}
 
 	/* Responsive adjustments */

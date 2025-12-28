@@ -3,7 +3,7 @@ Microsoft Agent Framework Configuration
 Centralized configuration for Agent Framework components
 """
 
-from typing import Optional, Dict, Any
+from typing import Optional, Any
 from pydantic import BaseModel, Field
 import structlog
 

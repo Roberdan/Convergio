@@ -3,8 +3,7 @@ Unified Orchestrator Implementation
 Consolidates all orchestration strategies into a single, efficient implementation
 """
 
-import asyncio
-from typing import Dict, List, Any, Optional, AsyncGenerator, Tuple
+from typing import Dict, List, Any, Optional, AsyncGenerator
 from datetime import datetime
 import structlog
 
@@ -32,6 +31,13 @@ except ImportError:
     OPENAI_AVAILABLE = False
 
 from .base import BaseGroupChatOrchestrator
+from src.agents.services.agent_intelligence import AgentIntelligence
+from src.agents.security.ai_security_guardian import AISecurityGuardian
+from src.agents.services.agent_loader import DynamicAgentLoader
+from src.agents.tools.web_search_tool import get_web_tools
+from src.agents.tools.database_tools import get_database_tools
+from src.agents.tools.vector_search_tool import get_vector_tools
+from src.core.config import get_settings
 # Inline resilience components (moved from removed resilience.py)
 from enum import Enum
 from typing import Callable
@@ -80,7 +86,7 @@ class CircuitBreaker:
             result = await func(*args, **kwargs)
             self.stats.successful_calls += 1
             return result
-        except Exception as e:
+        except Exception:
             self.stats.failed_calls += 1
             raise
 
@@ -142,15 +148,6 @@ try:
 except ImportError:
     get_autogen_client = None
     AI_CLIENTS_AVAILABLE = False
-
-from src.services.unified_cost_tracker import unified_cost_tracker
-from src.agents.services.agent_intelligence import AgentIntelligence
-from src.agents.security.ai_security_guardian import AISecurityGuardian
-from src.agents.services.agent_loader import DynamicAgentLoader
-from src.agents.tools.web_search_tool import get_web_tools
-from src.agents.tools.database_tools import get_database_tools
-from src.agents.tools.vector_search_tool import get_vector_tools
-from src.core.config import get_settings
 
 logger = structlog.get_logger()
 
@@ -290,7 +287,7 @@ class UnifiedOrchestrator(BaseGroupChatOrchestrator):
             # Start health monitoring
             await self.health_monitor.start({self.name: self})
             
-            logger.info(f"✅ Unified orchestrator initialized successfully")
+            logger.info("✅ Unified orchestrator initialized successfully")
             return True
             
         except Exception as e:

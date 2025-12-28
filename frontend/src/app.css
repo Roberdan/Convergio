@@ -1,7 +1,7 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-@import './lib/styles/unified-design-system.css';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import "./lib/styles/unified-design-system.css";
 
 /* 🎨 Additional Convergio Styles - Supplementing Unified Design System */
 
@@ -119,11 +119,11 @@
   .no-print {
     display: none !important;
   }
-  
+
   .print-break-before {
     break-before: page;
   }
-  
+
   .print-break-after {
     break-after: page;
   }

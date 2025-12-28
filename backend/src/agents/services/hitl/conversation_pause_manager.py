@@ -4,9 +4,9 @@ Integrates with orchestrator to control conversation flow during approvals
 """
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Optional, Any, Callable, List
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 import structlog
 
@@ -166,7 +166,7 @@ class ConversationPauseManager:
         await self._notify_callbacks("on_pause", conversation_id, paused)
         
         logger.info(
-            f"⏸️ Conversation paused",
+            "⏸️ Conversation paused",
             conversation_id=conversation_id,
             approval_id=approval_id,
             reason=reason
@@ -217,7 +217,7 @@ class ConversationPauseManager:
         await self._notify_callbacks("on_resume", conversation_id, resume_context)
         
         logger.info(
-            f"▶️ Conversation resumed",
+            "▶️ Conversation resumed",
             conversation_id=conversation_id,
             approval_status=approval.status.value,
             duration=resume_context["paused_duration_seconds"]

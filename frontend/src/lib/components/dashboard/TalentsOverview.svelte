@@ -16,8 +16,8 @@
       loading = true;
       error = null;
       talents = await talentsService.getTalents();
-    } catch (err) {
-      console.error('Failed to load talents:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load talents data';
     } finally {
       loading = false;

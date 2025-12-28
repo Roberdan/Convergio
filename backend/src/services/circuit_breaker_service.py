@@ -4,17 +4,15 @@ Automatic protection against budget overruns with intelligent suspension
 """
 
 import asyncio
-import json
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 from enum import Enum
 
 import structlog
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.database import get_async_session, get_async_read_session
-# from ..services.budget_monitor_service import budget_monitor
+from ..core.database import get_async_session
+from ..services.budget_monitor_service import budget_monitor
 
 logger = structlog.get_logger()
 
@@ -209,7 +207,7 @@ class CircuitBreakerService:
     async def _record_cost_spike(self, provider: str, agent_id: Optional[str], cost: float):
         """Record a cost spike for monitoring"""
         
-        spike_key = f"spike_{provider}_{agent_id}_{datetime.utcnow().isoformat()}"
+        f"spike_{provider}_{agent_id}_{datetime.utcnow().isoformat()}"
         
         logger.warning("💸 Cost spike detected",
                       provider=provider,

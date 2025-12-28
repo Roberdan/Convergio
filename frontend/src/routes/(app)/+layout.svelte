@@ -25,8 +25,8 @@
   // - Agent Management (Advanced CRUD operations)  
   // - Swarm Coordination (Multi-agent orchestration)
   
-  let healthStatus: any = null;
-  const APP_VERSION: string = (typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : (typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0')) as unknown as string;
+  let healthStatus: { status?: string; build?: string } | null = null;
+  const APP_VERSION: string = (typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : (typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0')) as string;
   
   onMount(async () => {
     // Initialize accessibility settings
@@ -46,10 +46,9 @@
       if (response.ok) {
         healthStatus = await response.json();
       }
-    } catch (error) {
-      // No fallback - show real error state
+    } catch {
+      // Silent failure
       healthStatus = null;
-      console.error('Failed to get health status:', error);
     }
   });
   
@@ -95,7 +94,7 @@
             <a
               href={item.href}
               data-sveltekit-prefetch
-              aria-current={isActive(item.href) ? 'page' : null}
+              aria-current={isActive(item.href) ? 'page' : undefined}
               class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 {isActive(item.href)
                 ? 'bg-blue-600 text-white shadow-md'
                 : 'text-surface-800 hover:text-blue-600 hover:bg-blue-50'}"

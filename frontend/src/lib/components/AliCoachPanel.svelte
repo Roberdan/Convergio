@@ -42,7 +42,7 @@
   let filterType = 'all';
   let showDismissed = false;
   let autoRefresh = true;
-  let refreshInterval: number;
+  let refreshInterval: ReturnType<typeof setInterval> | undefined;
   
   onMount(() => {
     loadSuggestions();
@@ -214,40 +214,39 @@
   }
   
   function assignResource(resource: string, project: string) {
-    console.log(`Assigning ${resource} to ${project}`);
     markSuggestionApplied('s1');
   }
-  
+
   function viewResourceDetails(resource: string) {
-    console.log(`Viewing details for ${resource}`);
+    // View resource details
   }
-  
+
   function reviewBudget(project: string) {
-    console.log(`Reviewing budget for ${project}`);
+    // Review budget
   }
-  
+
   function optimizeCosts(project: string) {
-    console.log(`Optimizing costs for ${project}`);
+    // Optimize costs
   }
-  
+
   function expandPractice(practice: string) {
-    console.log(`Expanding ${practice}`);
+    // Expand practice
   }
-  
+
   function shareReport(report: string) {
-    console.log(`Sharing ${report}`);
+    // Share report
   }
-  
+
   function resolveConflict(project: string) {
-    console.log(`Resolving conflict for ${project}`);
+    // Resolve conflict
   }
-  
+
   function adjustTimeline(project: string) {
-    console.log(`Adjusting timeline for ${project}`);
+    // Adjust timeline
   }
-  
+
   function optimizeMeetings() {
-    console.log('Optimizing meetings');
+    // Optimize meetings
   }
   
   function dismissSuggestion(id: string) {

@@ -467,10 +467,6 @@
 		font-family: var(--font-primary);
 	}
 
-	.demo-content {
-		@apply space-y-6;
-	}
-
 	.component-grid {
 		@apply grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6;
 	}

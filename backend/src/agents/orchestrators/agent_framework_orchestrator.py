@@ -3,8 +3,7 @@ Agent Framework Orchestrator - Next-Generation Orchestration
 Replaces AutoGen-based UnifiedOrchestrator with Microsoft Agent Framework
 """
 
-import asyncio
-from typing import Dict, List, Any, Optional, AsyncGenerator
+from typing import Dict, Any, Optional, AsyncGenerator
 from datetime import datetime
 import structlog
 
@@ -15,8 +14,6 @@ try:
         WorkflowBuilder,
         WorkflowContext,
         executor,
-        Case,
-        Default,
         AgentExecutor,
         AgentExecutorRequest,
         AgentExecutorResponse,
@@ -33,7 +30,6 @@ except ImportError:
 
 from .base import BaseGroupChatOrchestrator
 from src.agents.services.groupchat.intelligent_router import IntelligentAgentRouter
-from src.agents.services.groupchat.metrics import extract_agents_used, estimate_cost
 from src.services.unified_cost_tracker import unified_cost_tracker
 from src.agents.services.agent_intelligence import AgentIntelligence
 from src.agents.security.ai_security_guardian import AISecurityGuardian
@@ -222,7 +218,7 @@ class AgentFrameworkOrchestrator(BaseGroupChatOrchestrator):
             response_text = response.agent_run_response.text if hasattr(response.agent_run_response, 'text') else str(response)
 
             # Get metadata
-            start_time_str: str = await ctx.get_shared_state("start_time") or datetime.now().isoformat()
+            await ctx.get_shared_state("start_time") or datetime.now().isoformat()
             agents_executed: list = await ctx.get_shared_state("agents_executed") or []
 
             # Yield final output

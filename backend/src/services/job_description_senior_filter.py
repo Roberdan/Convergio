@@ -13,11 +13,10 @@ Senior Levels:
 - C-suite (CEO, CTO, CFO, etc.)
 """
 
-import os
 import re
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Set
+from typing import Dict, List, Set
 from datetime import datetime
 import json
 
@@ -115,20 +114,20 @@ class SeniorLevelExtractor:
         senior = []
         
         # Check IC levels
-        ic_levels = [l for l in all_levels if l.startswith('IC')]
+        ic_levels = [level for level in all_levels if level.startswith('IC')]
         if ic_levels:
             # Get the highest IC level(s) that meet threshold
-            ic_nums = [(l, int(l[2:])) for l in ic_levels]
+            ic_nums = [(level, int(level[2:])) for level in ic_levels]
             max_ic = max(ic_nums, key=lambda x: x[1])[1]
             if max_ic >= self.SENIOR_THRESHOLDS['IC']:
                 # Add only the highest IC level
                 senior.append(f'IC{max_ic}')
         
         # Check M levels
-        m_levels = [l for l in all_levels if l.startswith('M') and l[1:].isdigit()]
+        m_levels = [level for level in all_levels if level.startswith('M') and level[1:].isdigit()]
         if m_levels:
             # Get the highest M level(s) that meet threshold
-            m_nums = [(l, int(l[1:])) for l in m_levels]
+            m_nums = [(level, int(level[1:])) for level in m_levels]
             max_m = max(m_nums, key=lambda x: x[1])[1]
             if max_m >= self.SENIOR_THRESHOLDS['M']:
                 # Add only the highest M level
@@ -363,7 +362,7 @@ class SeniorLevelExtractor:
             if level_column >= 0:
                 skills = []
                 for line in lines:
-                    if '|' in line and not '---' in line:
+                    if '|' in line and '---' not in line:
                         cells = line.split('|')
                         if len(cells) > level_column:
                             # Check if this level requires the skill (usually marked with 1 or 2)
@@ -447,7 +446,7 @@ Type: Senior Position
         print("="*60)
         print(f"Files processed: {results['processed']}")
         print(f"Senior position files created: {results['senior_files_created']}")
-        print(f"\nBreakdown by level:")
+        print("\nBreakdown by level:")
         for level, files in sorted(results['summary_by_level'].items()):
             print(f"  {level}: {len(files)} files")
         print(f"\nOutput directory: {self.output_dir}")

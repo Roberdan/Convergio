@@ -2,7 +2,7 @@
 Agent Adapter - Provides compatibility between AutoGen and Agent Framework agents
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, List
 import structlog
 
 logger = structlog.get_logger()

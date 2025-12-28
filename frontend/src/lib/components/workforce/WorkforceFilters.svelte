@@ -45,11 +45,13 @@
 	<div class="flex flex-wrap items-center gap-4">
 		<!-- Search -->
 		<div class="flex-1 min-w-[200px]">
+			<label for="workforce-search" class="sr-only">Search by name, role, or skill</label>
 			<div class="relative">
-				<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 				</svg>
 				<input
+					id="workforce-search"
 					type="text"
 					bind:value={searchQuery}
 					placeholder="Search by name, role, or skill..."
@@ -59,47 +61,63 @@
 		</div>
 
 		<!-- Type Filter -->
-		<select
-			bind:value={selectedType}
-			class="px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-		>
-			<option value="all">All Types</option>
-			<option value="talent">Talents</option>
-			<option value="agent">AI Agents</option>
-		</select>
+		<div>
+			<label for="workforce-type" class="sr-only">Filter by resource type</label>
+			<select
+				id="workforce-type"
+				bind:value={selectedType}
+				class="px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+			>
+				<option value="all">All Types</option>
+				<option value="talent">Talents</option>
+				<option value="agent">AI Agents</option>
+			</select>
+		</div>
 
 		<!-- Status Filter -->
-		<select
-			bind:value={selectedStatus}
-			class="px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-		>
-			<option value="all">All Status</option>
-			<option value="active">Active</option>
-			<option value="inactive">Inactive</option>
-			<option value="busy">Busy</option>
-		</select>
+		<div>
+			<label for="workforce-status" class="sr-only">Filter by status</label>
+			<select
+				id="workforce-status"
+				bind:value={selectedStatus}
+				class="px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+			>
+				<option value="all">All Status</option>
+				<option value="active">Active</option>
+				<option value="inactive">Inactive</option>
+				<option value="busy">Busy</option>
+			</select>
+		</div>
 
 		<!-- Tier Filter -->
-		<select
-			bind:value={selectedTier}
-			class="px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-		>
-			<option value="">All Tiers</option>
-			{#each tiers as tier}
-				<option value={tier}>{tier.charAt(0).toUpperCase() + tier.slice(1)}</option>
-			{/each}
-		</select>
+		<div>
+			<label for="workforce-tier" class="sr-only">Filter by tier</label>
+			<select
+				id="workforce-tier"
+				bind:value={selectedTier}
+				class="px-3 py-2 border border-surface-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+			>
+				<option value="">All Tiers</option>
+				{#each tiers as tier}
+					<option value={tier}>{tier.charAt(0).toUpperCase() + tier.slice(1)}</option>
+				{/each}
+			</select>
+		</div>
 
 		<!-- Availability Slider -->
 		<div class="flex items-center gap-2">
-			<label class="text-sm text-surface-600 whitespace-nowrap">Min Availability:</label>
+			<label for="min-availability" class="text-sm text-surface-600 whitespace-nowrap">Min Availability:</label>
 			<input
+				id="min-availability"
 				type="range"
 				bind:value={minAvailability}
 				min="0"
 				max="100"
 				step="10"
 				class="w-24"
+				aria-valuemin="0"
+				aria-valuemax="100"
+				aria-valuenow={minAvailability}
 			/>
 			<span class="text-sm font-medium text-surface-900 w-10">{minAvailability}%</span>
 		</div>

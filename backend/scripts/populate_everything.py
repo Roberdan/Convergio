@@ -195,7 +195,7 @@ class CompleteDBPopulator:
                     name, code, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} geographies")
@@ -216,7 +216,7 @@ class CompleteDBPopulator:
                 if result:
                     self.area_ids.append(result['id'])
                     count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} areas")
@@ -241,7 +241,7 @@ class CompleteDBPopulator:
                     name, address, country, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} locations")
@@ -264,7 +264,7 @@ class CompleteDBPopulator:
                 if result:
                     self.organization_ids.append(result['id'])
                     count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} organizations")
@@ -283,7 +283,7 @@ class CompleteDBPopulator:
                     name, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} tenants")
@@ -308,7 +308,7 @@ class CompleteDBPopulator:
                     name, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} disciplines")
@@ -333,7 +333,7 @@ class CompleteDBPopulator:
                     name, category, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} skills")
@@ -356,7 +356,7 @@ class CompleteDBPopulator:
                     name, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} titles")
@@ -378,7 +378,7 @@ class CompleteDBPopulator:
                     name, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} client industries")
@@ -413,7 +413,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} client contacts")
@@ -437,7 +437,7 @@ class CompleteDBPopulator:
                 if result:
                     self.crew_ids.append(result['id'])
                     count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} crews")
@@ -475,7 +475,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} initiatives")
@@ -511,7 +511,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} milestones")
@@ -535,7 +535,7 @@ class CompleteDBPopulator:
                     name, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} activity types")
@@ -561,7 +561,7 @@ class CompleteDBPopulator:
                     name, description, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} activity statuses")
@@ -591,7 +591,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} activity assignments")
@@ -629,7 +629,7 @@ class CompleteDBPopulator:
                         datetime.now() - timedelta(days=random.randint(0, 30))
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} activity updates")
@@ -660,7 +660,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} activity reports")
@@ -698,7 +698,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} activity feedbacks")
@@ -728,7 +728,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} activity OKR links")
@@ -755,7 +755,7 @@ class CompleteDBPopulator:
                     name, description, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} engagement statuses")
@@ -793,7 +793,7 @@ class CompleteDBPopulator:
                         datetime.now() - timedelta(days=random.randint(0, 60))
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} engagement updates")
@@ -822,7 +822,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} engagement financials")
@@ -852,7 +852,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} engagement forecasts")
@@ -889,7 +889,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} engagement feedbacks")
@@ -918,7 +918,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} engagement tags")
@@ -945,7 +945,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} engagement subscriptions")
@@ -975,7 +975,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} engagement OKR links")
@@ -1001,7 +1001,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} fiscal years")
@@ -1029,7 +1029,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} fiscal periods")
@@ -1065,7 +1065,7 @@ class CompleteDBPopulator:
                 if result:
                     self.document_ids.append(result['id'])
                     count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} documents")
@@ -1096,7 +1096,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} document embeddings")
@@ -1132,7 +1132,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} knowledge base entries")
@@ -1164,7 +1164,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} attachments")
@@ -1196,7 +1196,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} feedbacks")
@@ -1226,7 +1226,7 @@ class CompleteDBPopulator:
                     name, slug, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} kudos categories")
@@ -1272,7 +1272,7 @@ class CompleteDBPopulator:
                     datetime.now() - timedelta(days=random.randint(0, 90))
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} kudos")
@@ -1299,7 +1299,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} sentiment tracking records")
@@ -1328,7 +1328,7 @@ class CompleteDBPopulator:
                     name, slug, is_active, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} LLM providers")
@@ -1363,7 +1363,7 @@ class CompleteDBPopulator:
                         name, model_id, provider_id, is_active, datetime.now(), datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} LLM models")
@@ -1393,7 +1393,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} provider pricing records")
@@ -1420,7 +1420,7 @@ class CompleteDBPopulator:
                     name, template, category, True, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} AI prompts")
@@ -1453,7 +1453,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} AI agent bindings")
@@ -1481,7 +1481,7 @@ class CompleteDBPopulator:
                     datetime.now() - timedelta(days=random.randint(0, 30))
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} AI agent logs")
@@ -1509,7 +1509,7 @@ class CompleteDBPopulator:
                     name, slug, endpoint, is_active, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} MCP servers")
@@ -1542,7 +1542,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} MCP agent bindings")
@@ -1574,7 +1574,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} workload assignments")
@@ -1617,7 +1617,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} daily agenda items")
@@ -1649,7 +1649,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} vacations")
@@ -1679,7 +1679,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} time off periods")
@@ -1722,7 +1722,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} risks")
@@ -1749,7 +1749,7 @@ class CompleteDBPopulator:
                     name, metric, warning, critical, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} risk thresholds")
@@ -1779,7 +1779,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} change requests")
@@ -1811,7 +1811,7 @@ class CompleteDBPopulator:
                     key, value, value_type, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} system settings")
@@ -1843,7 +1843,7 @@ class CompleteDBPopulator:
                         org_id, key, value, datetime.now(), datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} organization settings")
@@ -1880,7 +1880,7 @@ class CompleteDBPopulator:
                         datetime.now() - timedelta(days=random.randint(0, 30))
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} notifications")
@@ -1920,7 +1920,7 @@ class CompleteDBPopulator:
                     datetime.now() - timedelta(days=random.randint(0, 90))
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} audit logs")
@@ -1944,7 +1944,7 @@ class CompleteDBPopulator:
                     datetime.now() - timedelta(days=i)
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} backup log entries")
@@ -1970,7 +1970,7 @@ class CompleteDBPopulator:
                     datetime.now() - timedelta(days=i * 5)
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} import log entries")
@@ -2006,7 +2006,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} experimentation logs")
@@ -2016,7 +2016,6 @@ class CompleteDBPopulator:
     async def populate_users(self):
         """Populate users table"""
         logger.info("Populating users...")
-        count = 0
         
         # Users might be same as talents in this system
         # Skip if talents exist as users
@@ -2046,11 +2045,11 @@ class CompleteDBPopulator:
                         talent_id,
                         'engagement',
                         engagement_id,
-                        f"Bookmarked engagement",
+                        "Bookmarked engagement",
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} bookmarks")
@@ -2081,7 +2080,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} chat sessions")
@@ -2106,7 +2105,7 @@ class CompleteDBPopulator:
                     datetime.now() - timedelta(days=random.randint(30, 180))
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} password history entries")
@@ -2135,7 +2134,7 @@ class CompleteDBPopulator:
                     datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} account security records")
@@ -2162,7 +2161,7 @@ class CompleteDBPopulator:
                     name, description, enabled, datetime.now(), datetime.now()
                 )
                 count += 1
-            except:
+            except Exception:
                 pass
         
         logger.info(f"✅ Created {count} support flags")
@@ -2196,7 +2195,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} talent skills")
@@ -2222,7 +2221,7 @@ class CompleteDBPopulator:
                         datetime.now()
                     )
                     count += 1
-                except:
+                except Exception:
                     pass
         
         logger.info(f"✅ Created {count} studio area links")

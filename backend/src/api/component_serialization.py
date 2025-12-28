@@ -4,11 +4,9 @@ REST endpoints for managing agent state serialization and system snapshots
 """
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
-from fastapi.responses import JSONResponse
 from typing import Dict, List, Any, Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
-import structlog
 
 from ..agents.serialization.component_serializer import component_serializer
 from ..core.logging import get_logger

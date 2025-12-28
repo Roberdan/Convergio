@@ -2,7 +2,7 @@
 Message Adapter - Converts between AutoGen and Agent Framework message formats
 """
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 import structlog
 
 logger = structlog.get_logger()

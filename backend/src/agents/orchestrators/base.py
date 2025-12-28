@@ -4,7 +4,7 @@ Defines the contract for all agent orchestrators in Convergio
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, AsyncGenerator, Tuple
+from typing import Dict, List, Any, Optional, AsyncGenerator
 from datetime import datetime
 import structlog
 

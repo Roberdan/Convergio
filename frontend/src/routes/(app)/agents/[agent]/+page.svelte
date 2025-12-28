@@ -98,9 +98,9 @@
       
       messages = [...messages, agentMessage];
       
-    } catch (error) {
-      console.error('Error sending message:', error);
-      
+    } catch {
+      // Silent failure
+
       // Add error response for testing
       const errorMessage = {
         id: `error_${Date.now()}`,

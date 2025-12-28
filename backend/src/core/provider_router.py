@@ -13,7 +13,7 @@ Copyright (c) 2025 Convergio.io
 
 import os
 import logging
-from typing import Optional, AsyncGenerator
+from typing import Optional
 from pydantic import BaseModel
 
 from .ai_providers import (
@@ -27,7 +27,7 @@ from .ai_providers import (
     can_provider_handle_capability,
     PROVIDER_INFO,
 )
-from .ollama_service import OllamaService, get_ollama_service
+from .ollama_service import get_ollama_service
 
 logger = logging.getLogger(__name__)
 
@@ -127,13 +127,13 @@ class ProviderRouter:
         info = PROVIDER_INFO.get(provider)
         if info and info.requires_api_key:
             if provider == AIProvider.OPENAI and not os.getenv("OPENAI_API_KEY"):
-                raise ProviderUnavailable(f"OpenAI API key not configured")
+                raise ProviderUnavailable("OpenAI API key not configured")
             if provider == AIProvider.ANTHROPIC and not os.getenv("ANTHROPIC_API_KEY"):
-                raise ProviderUnavailable(f"Anthropic API key not configured")
+                raise ProviderUnavailable("Anthropic API key not configured")
             if provider == AIProvider.AZURE_OPENAI and not os.getenv("AZURE_OPENAI_API_KEY"):
-                raise ProviderUnavailable(f"Azure OpenAI API key not configured")
+                raise ProviderUnavailable("Azure OpenAI API key not configured")
             if provider == AIProvider.PERPLEXITY and not os.getenv("PERPLEXITY_API_KEY"):
-                raise ProviderUnavailable(f"Perplexity API key not configured")
+                raise ProviderUnavailable("Perplexity API key not configured")
 
     async def chat_completion(
         self,
@@ -701,7 +701,6 @@ class ProviderRouter:
     ) -> ChatResponse:
         """Chat with function calling using Anthropic Claude."""
         import httpx
-        import json
 
         api_key = os.getenv("ANTHROPIC_API_KEY")
 

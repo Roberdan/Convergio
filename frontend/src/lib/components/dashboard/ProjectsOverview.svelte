@@ -26,8 +26,8 @@
       error = null;
       
       projectOverview = await projectsService.getProjectOverview();
-    } catch (err) {
-      console.error('Failed to load projects data:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load projects data';
     } finally {
       loading = false;
@@ -38,8 +38,8 @@
     try {
       loadingDetails = true;
       selectedEngagement = await projectsService.getEngagementDetails(engagementId);
-    } catch (err) {
-      console.error('Failed to load engagement details:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load engagement details';
     } finally {
       loadingDetails = false;

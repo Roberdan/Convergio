@@ -3,23 +3,22 @@ Project Journey Service
 CRM-inspired project journey tracking and analytics
 """
 
-import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from uuid import UUID
 import structlog
 
-from sqlalchemy import select, update, delete, and_, or_, func, desc
+from sqlalchemy import select, update, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from ..core.database import get_async_session
 from ..models.project_orchestration import (
     ProjectOrchestration, ProjectJourneyStage, ProjectTouchpoint,
-    AgentCollaborationMetric, JourneyStage, TouchpointType
+    JourneyStage, TouchpointType
 )
 from ..api.schemas.project_orchestration import (
-    ProjectJourneyAnalyticsResponse, TouchpointResponse
+    ProjectJourneyAnalyticsResponse
 )
 
 logger = structlog.get_logger()

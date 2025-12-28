@@ -3,22 +3,19 @@ Proactive Actions System - Ali's automated intervention system
 Automatically takes actions based on insights and patterns
 """
 
-from typing import Dict, List, Any, Optional, Callable, Tuple
+from typing import Dict, List, Any, Optional, Callable
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from enum import Enum
-import json
 import uuid
 import asyncio
 from collections import deque
 
 import structlog
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..event_bus import Event, EventType, EventPriority, event_bus
 from ..insight_engine import Insight, InsightType, InsightSeverity, insight_engine
 from ..ali_swarm_orchestrator import AliSwarmOrchestrator
-from ..telemetry import TelemetryService
 
 logger = structlog.get_logger()
 

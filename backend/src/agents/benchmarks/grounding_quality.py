@@ -6,14 +6,14 @@ Measures the quality improvement from RAG context injection
 import asyncio
 import json
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field, asdict
 import structlog
 from pathlib import Path
 
 from ..services.autogen_groupchat_orchestrator import ModernGroupChatOrchestrator
 from ..services.redis_state_manager import RedisStateManager
-from ...services.unified_cost_tracker import unified_cost_tracker
+from ..services.unified_cost_tracker import unified_cost_tracker
 from ..utils.config import get_settings
 from ..utils.feature_flags import FeatureFlagName, get_feature_flags
 
@@ -453,11 +453,10 @@ async def main():
     # Initialize components
     settings = get_settings()
     state_manager = RedisStateManager(settings.REDIS_URL)
-    cost_tracker = CostTracker()
-    
+
     orchestrator = ModernGroupChatOrchestrator(
         state_manager=state_manager,
-        cost_tracker=cost_tracker
+        cost_tracker=unified_cost_tracker
     )
     
     await orchestrator.initialize()
@@ -479,18 +478,18 @@ async def main():
     print("GROUNDING QUALITY BENCHMARK RESULTS")
     print("="*60)
     print(f"Total Tasks: {report.total_tasks}")
-    print(f"\nGrounding Scores:")
+    print("\nGrounding Scores:")
     print(f"  With RAG:    {report.avg_grounding_with_rag:.2%}")
     print(f"  Without RAG: {report.avg_grounding_without_rag:.2%}")
     print(f"  Lift:        {report.grounding_lift_percentage:+.1f}%")
-    print(f"\nRelevance Scores:")
+    print("\nRelevance Scores:")
     print(f"  With RAG:    {report.avg_relevance_with_rag:.2%}")
     print(f"  Without RAG: {report.avg_relevance_without_rag:.2%}")
     print(f"  Lift:        {report.relevance_lift_percentage:+.1f}%")
-    print(f"\nPerformance Impact:")
+    print("\nPerformance Impact:")
     print(f"  Latency increase: {report.avg_latency_with_rag_ms - report.avg_latency_without_rag_ms:.0f}ms")
     print(f"  Cost increase:    ${report.avg_cost_with_rag_usd - report.avg_cost_without_rag_usd:.4f}")
-    print(f"\nCategory Performance:")
+    print("\nCategory Performance:")
     for category, perf in report.category_performance.items():
         print(f"  {category}: {perf['grounding_lift_percentage']:+.1f}% lift")
     print(f"\nBenchmark {'PASSED ✅' if report.passed else 'FAILED ❌'}")

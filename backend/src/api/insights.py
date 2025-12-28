@@ -2,10 +2,9 @@
 API endpoints for insights and proactive actions
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, Query, WebSocket, WebSocketDisconnect
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
-import json
 import asyncio
 
 from ..agents.services.insight_engine import (

@@ -5,25 +5,17 @@ Tests the complete AI-orchestrated project management workflow end-to-end
 
 import pytest
 import asyncio
-from datetime import datetime, timedelta
 from uuid import uuid4
 from typing import Dict, Any
-import json
 
-from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from httpx import AsyncClient, ASGITransport
 
 from src.main import app
 from src.core.database import get_async_session
 from src.models.project import Project
-from src.models.project_orchestration import (
-    ProjectOrchestration, ProjectAgentAssignment, ProjectJourneyStage,
-    ProjectTouchpoint, OrchestrationStatus, JourneyStage, TouchpointType, AgentRole
-)
 from src.services.pm_orchestrator_service import PMOrchestratorService
 from src.services.project_journey_service import ProjectJourneyService
-from src.api.schemas.project_orchestration import EnhancedProjectCreateRequest
 
 
 class TestPMOrchestrationIntegration:

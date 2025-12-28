@@ -4,8 +4,7 @@ Decides when to use web search vs regular chat based on query analysis
 """
 
 import re
-from typing import Dict, List, Tuple
-from datetime import datetime
+from typing import Dict
 import structlog
 
 logger = structlog.get_logger()

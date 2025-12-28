@@ -6,10 +6,8 @@ Validates all environment variables and configuration settings for production re
 import os
 import re
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Tuple
 from dataclasses import dataclass
-from pathlib import Path
-from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -181,7 +179,7 @@ class ConfigValidator:
                     warnings.append("PostgreSQL password is weak default (consider changing for security)")
         
         # Redis configuration
-        redis_host = os.getenv("REDIS_HOST")
+        os.getenv("REDIS_HOST")
         redis_port = os.getenv("REDIS_PORT", "6379")
         
         if redis_port:
@@ -201,7 +199,7 @@ class ConfigValidator:
         recommendations = []
         
         # Port validation
-        environment = os.getenv("ENVIRONMENT", "development").lower()
+        os.getenv("ENVIRONMENT", "development").lower()
         ports = {
             "FRONTEND_PORT": os.getenv("FRONTEND_PORT", "4000"),
             "BACKEND_PORT": os.getenv("BACKEND_PORT", "9000"),

@@ -183,8 +183,8 @@ def create_conditional_workflow(
     builder.add_node("evaluate", evaluate_node)
 
     # Create branches
-    true_workflow = create_sequential_workflow(true_agents, [f"true_{i}" for i in range(len(true_agents))])
-    false_workflow = create_sequential_workflow(false_agents, [f"false_{i}" for i in range(len(false_agents))])
+    create_sequential_workflow(true_agents, [f"true_{i}" for i in range(len(true_agents))])
+    create_sequential_workflow(false_agents, [f"false_{i}" for i in range(len(false_agents))])
 
     # Add conditional routing
     async def routing_fn(context: Dict[str, Any]) -> str:

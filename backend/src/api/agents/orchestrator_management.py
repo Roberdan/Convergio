@@ -49,7 +49,7 @@ async def list_orchestrators():
             # Get health status
             try:
                 health = await orch.health() if hasattr(orch, 'health') else True
-            except:
+            except Exception:
                 health = False
             
             # Get circuit breaker status

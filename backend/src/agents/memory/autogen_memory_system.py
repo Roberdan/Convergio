@@ -4,11 +4,10 @@ Complete memory management for AutoGen agents with Redis persistence and vector 
 """
 
 import json
-import asyncio
 import hashlib
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass
 from enum import Enum
 
 import structlog
@@ -29,7 +28,7 @@ except ImportError:
             self.created_at = created_at
     AUTOGEN_AVAILABLE = False
 
-from ..tools.vector_search_client import embed_text, search_similar
+from ..tools.vector_search_client import embed_text
 from src.core.redis import get_redis_client
 
 logger = structlog.get_logger()

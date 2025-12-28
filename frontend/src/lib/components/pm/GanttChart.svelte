@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { projectsService } from '$lib/services/projectsService';
+	import { projectsService, type Activity } from '$lib/services/projectsService';
 
 	// Props
 	export let projectId: string;
@@ -30,7 +30,7 @@
 	let loading = false;
 	let selectedTask: Task | null = null;
 	let viewMode: 'weeks' | 'months' = 'weeks';
-	let activities: any[] = [];
+	let activities: Activity[] = [];
 
 	onMount(async () => {
 		await loadTasks();
@@ -72,8 +72,8 @@
 				// If no project ID, load empty state or show error
 				tasks = [];
 			}
-		} catch (error) {
-			console.error('Error loading tasks:', error);
+		} catch {
+			// Silent failure
 			// Set empty state on error instead of mock data
 			tasks = [];
 		} finally {
@@ -284,12 +284,12 @@
 
 <!-- Task Detail Modal -->
 {#if selectedTask}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" on:click={() => selectedTask = null}>
-		<div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6" on:click|stopPropagation>
+	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="button" tabindex="0" on:click={() => selectedTask = null} on:keydown={(e) => e.key === 'Escape' && (selectedTask = null)}>
+		<div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6" role="dialog" aria-modal="true" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
 			<div class="flex items-center justify-between mb-4">
 				<h4 class="text-lg font-semibold text-surface-900 ">Task Details</h4>
-				<button on:click={() => selectedTask = null} class="text-surface-500 hover:text-surface-700">
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<button on:click={() => selectedTask = null} class="text-surface-500 hover:text-surface-700" aria-label="Close task details">
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 					</svg>
 				</button>
@@ -297,24 +297,24 @@
 			
 			<div class="space-y-4">
 				<div>
-					<label class="text-sm font-medium text-surface-700 ">Task Name</label>
+					<span class="text-sm font-medium text-surface-700 block">Task Name</span>
 					<p class="text-surface-900 ">{selectedTask.name}</p>
 				</div>
-				
+
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label class="text-sm font-medium text-surface-700 ">Start Date</label>
+						<span class="text-sm font-medium text-surface-700 block">Start Date</span>
 						<p class="text-surface-900 ">{formatDate(selectedTask.startDate)}</p>
 					</div>
 					<div>
-						<label class="text-sm font-medium text-surface-700 ">End Date</label>
+						<span class="text-sm font-medium text-surface-700 block">End Date</span>
 						<p class="text-surface-900 ">{formatDate(selectedTask.endDate)}</p>
 					</div>
 				</div>
-				
+
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label class="text-sm font-medium text-surface-700 ">Progress</label>
+						<span class="text-sm font-medium text-surface-700 block">Progress</span>
 						<div class="flex items-center space-x-2">
 							<div class="flex-1 bg-surface-200  rounded-full h-2">
 								<div class="bg-primary-500 h-2 rounded-full transition-all duration-500" style="width: {selectedTask.progress}%"></div>
@@ -323,20 +323,20 @@
 						</div>
 					</div>
 					<div>
-						<label class="text-sm font-medium text-surface-700 ">Status</label>
+						<span class="text-sm font-medium text-surface-700 block">Status</span>
 						<span class="badge {selectedTask.status === 'completed' ? 'badge-success' : selectedTask.status === 'in-progress' ? 'badge-primary' : selectedTask.status === 'blocked' ? 'badge-error' : 'badge-gray'}">
 							{selectedTask.status}
 						</span>
 					</div>
 				</div>
-				
+
 				<div>
-					<label class="text-sm font-medium text-surface-700 ">Assignee</label>
+					<span class="text-sm font-medium text-surface-700 block">Assignee</span>
 					<p class="text-surface-900 ">{selectedTask.assignee}</p>
 				</div>
-				
+
 				<div>
-					<label class="text-sm font-medium text-surface-700 ">Priority</label>
+					<span class="text-sm font-medium text-surface-700 block">Priority</span>
 					<span class="badge {selectedTask.priority === 'critical' ? 'badge-error' : selectedTask.priority === 'high' ? 'badge-warning' : selectedTask.priority === 'medium' ? 'badge-info' : 'badge-gray'}">
 						{selectedTask.priority}
 					</span>

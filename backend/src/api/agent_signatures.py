@@ -3,12 +3,10 @@ Agent Digital Signatures API
 REST endpoints for managing agent cryptographic signatures and validation
 """
 
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.responses import JSONResponse
-from typing import Dict, List, Any, Optional
+from fastapi import APIRouter, HTTPException
+from typing import Dict, List, Any
 from pydantic import BaseModel, Field
 from datetime import datetime, timedelta
-import structlog
 
 from ..agents.security.digital_signatures import signature_manager
 from ..agents.services.agent_loader import agent_loader

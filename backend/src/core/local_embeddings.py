@@ -36,7 +36,7 @@ def get_local_model():
                 # First try offline mode
                 _model = SentenceTransformer(model_name, cache_folder="./models", device='cpu')
                 logger.info("✅ Local embedding model loaded from cache")
-            except:
+            except Exception:
                 try:
                     # Try online download with timeout
                     import socket

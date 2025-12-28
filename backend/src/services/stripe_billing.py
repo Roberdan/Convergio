@@ -4,8 +4,8 @@ Handles subscriptions, payments, and billing management
 """
 
 import os
-from typing import Optional, Dict, Any, List
-from datetime import datetime, timedelta
+from typing import Optional, Dict, Any
+from datetime import datetime
 from decimal import Decimal
 import stripe
 import structlog
@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.tenant import (
     Tenant, TenantStatus, SubscriptionPlan, BillingPeriod,
-    Invoice, PaymentStatus, SubscriptionPlanDefinition
+    Invoice, PaymentStatus
 )
 
 logger = structlog.get_logger()
@@ -63,7 +63,7 @@ class StripeBillingService:
                 description=f"Tenant: {tenant.name}"
             )
             
-            logger.info(f"✅ Created Stripe customer", 
+            logger.info("✅ Created Stripe customer", 
                        customer_id=customer.id,
                        tenant_id=tenant.id)
             
@@ -121,7 +121,7 @@ class StripeBillingService:
                 trial_period_days=14 if tenant.status == TenantStatus.TRIAL else 0
             )
             
-            logger.info(f"✅ Created subscription",
+            logger.info("✅ Created subscription",
                        subscription_id=subscription.id,
                        tenant_id=tenant.id,
                        plan=plan)
@@ -174,7 +174,7 @@ class StripeBillingService:
                 }
             )
             
-            logger.info(f"✅ Updated subscription",
+            logger.info("✅ Updated subscription",
                        subscription_id=updated.id,
                        tenant_id=tenant.id,
                        new_plan=new_plan)
@@ -211,7 +211,7 @@ class StripeBillingService:
                     tenant.stripe_subscription_id
                 )
             
-            logger.info(f"✅ Cancelled subscription",
+            logger.info("✅ Cancelled subscription",
                        subscription_id=subscription.id,
                        tenant_id=tenant.id,
                        at_period_end=at_period_end)
@@ -248,7 +248,7 @@ class StripeBillingService:
                 }
             )
             
-            logger.info(f"✅ Created payment intent",
+            logger.info("✅ Created payment intent",
                        intent_id=intent.id,
                        tenant_id=tenant.id,
                        amount=amount)
@@ -297,7 +297,7 @@ class StripeBillingService:
                 action=action  # "increment" or "set"
             )
             
-            logger.info(f"✅ Created usage record",
+            logger.info("✅ Created usage record",
                        subscription_id=tenant.stripe_subscription_id,
                        quantity=quantity)
             
@@ -346,7 +346,7 @@ class StripeBillingService:
                 }
             )
             
-            logger.info(f"✅ Created checkout session",
+            logger.info("✅ Created checkout session",
                        session_id=session.id,
                        tenant_id=tenant.id)
             
@@ -371,7 +371,7 @@ class StripeBillingService:
                 return_url=return_url
             )
             
-            logger.info(f"✅ Created billing portal session",
+            logger.info("✅ Created billing portal session",
                        tenant_id=tenant.id)
             
             return session.url
@@ -393,7 +393,7 @@ class StripeBillingService:
                 payload, signature, self.webhook_secret
             )
             
-            logger.info(f"📨 Received webhook event", type=event.type)
+            logger.info("📨 Received webhook event", type=event.type)
             
             # Handle different event types
             if event.type == "customer.subscription.created":
@@ -437,7 +437,7 @@ class StripeBillingService:
                 tenant.activated_at = datetime.utcnow()
                 await db.commit()
                 
-                logger.info(f"✅ Updated tenant with subscription",
+                logger.info("✅ Updated tenant with subscription",
                           tenant_id=tenant_id,
                           subscription_id=subscription.id)
     
@@ -495,7 +495,7 @@ class StripeBillingService:
             db.add(invoice_record)
             await db.commit()
             
-            logger.info(f"✅ Payment succeeded",
+            logger.info("✅ Payment succeeded",
                        tenant_id=tenant_id,
                        invoice_id=invoice.id)
     
@@ -512,7 +512,7 @@ class StripeBillingService:
                 tenant.suspended_at = datetime.utcnow()
                 await db.commit()
                 
-                logger.warning(f"⚠️ Payment failed, tenant suspended",
+                logger.warning("⚠️ Payment failed, tenant suspended",
                              tenant_id=tenant_id)
     
     async def _handle_checkout_completed(self, event, db: AsyncSession):
@@ -528,7 +528,7 @@ class StripeBillingService:
                 tenant.activated_at = datetime.utcnow()
                 await db.commit()
                 
-                logger.info(f"✅ Checkout completed",
+                logger.info("✅ Checkout completed",
                           tenant_id=tenant_id,
                           subscription_id=session.subscription)
 

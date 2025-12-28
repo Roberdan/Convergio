@@ -3,7 +3,7 @@ Tools Registry - Unified tool registration for Agent Framework migration.
 Provides a single point of access to all tools across the platform.
 """
 
-from typing import Any, Dict, List, Callable, Optional
+from typing import Dict, List, Callable, Optional
 import structlog
 
 logger = structlog.get_logger()
@@ -11,7 +11,7 @@ logger = structlog.get_logger()
 
 # Framework availability flags
 try:
-    from agent_framework import ai_function
+    from agent_framework import ai_function  # noqa: F401
     AGENT_FRAMEWORK_AVAILABLE = True
 except ImportError:
     AGENT_FRAMEWORK_AVAILABLE = False

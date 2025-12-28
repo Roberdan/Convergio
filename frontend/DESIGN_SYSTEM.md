@@ -9,38 +9,45 @@ A comprehensive design system built with SvelteKit, Tailwind CSS, and TypeScript
 The design system is built around a purple/violet color palette with semantic variants:
 
 **Primary (Purple/Violet)**
+
 - `primary-50` to `primary-950` - Main brand colors
 - Primary 600 (`#7c3aed`) as the main brand color
 
 **Semantic Colors**
+
 - **Success**: Green tones for positive actions
 - **Warning**: Orange tones for warnings
 - **Error**: Red tones for errors
 - **Info**: Blue tones for information
 
 **Surface Colors**
+
 - Neutral grays from `surface-0` (white) to `surface-950` (near black)
 - Semantic surface variants for borders and backgrounds
 
 ### Typography
 
 **Font Family**
+
 - Primary: `JetBrains Mono` (monospace for technical feel)
 - Secondary: `Inter` (fallback system fonts)
 
 **Font Sizes**
+
 - `text-xs` (12px) to `text-4xl` (36px)
 - Consistent 1.125 scale ratio
 
 **Font Weights**
+
 - `font-normal` (400)
-- `font-medium` (500) 
+- `font-medium` (500)
 - `font-semibold` (600)
 - `font-bold` (700)
 
 ### Spacing System
 
 Consistent spacing scale using rem units:
+
 - `space-1` (4px) to `space-16` (64px)
 - Follows standard 4px baseline grid
 
@@ -58,6 +65,7 @@ Consistent spacing scale using rem units:
 ### Core UI Components
 
 #### Button
+
 **Variants:** `primary`, `secondary`, `outline`, `ghost`
 **Sizes:** `sm`, `md`, `lg`, `icon`
 **States:** `loading`, `disabled`
@@ -68,6 +76,7 @@ Consistent spacing scale using rem units:
 ```
 
 #### Input
+
 **Features:** Icons, validation states, clearable
 **Variants:** `default`, `error`, `success`
 **Sizes:** `sm`, `md`, `lg`
@@ -78,6 +87,7 @@ Consistent spacing scale using rem units:
 ```
 
 #### Card
+
 **Variants:** `default`, `elevated`, `flat`
 **Structure:** Header, content, footer slots
 
@@ -91,6 +101,7 @@ Consistent spacing scale using rem units:
 ```
 
 #### Badge
+
 **Variants:** `primary`, `secondary`, `success`, `warning`, `error`, `info`
 **Sizes:** `sm`, `md`, `lg`
 
@@ -100,6 +111,7 @@ Consistent spacing scale using rem units:
 ```
 
 #### Avatar
+
 **Variants:** Image, initials fallback
 **Sizes:** `xs`, `sm`, `md`, `lg`, `xl`
 
@@ -110,6 +122,7 @@ Consistent spacing scale using rem units:
 ### Dashboard Layout Components
 
 #### DashboardLayout
+
 Main layout container with sidebar and header integration.
 
 ```svelte
@@ -125,10 +138,11 @@ Main layout container with sidebar and header integration.
 ```
 
 #### Header
+
 Navigation header with search, notifications, and user menu.
 
 ```svelte
-<Header 
+<Header
   title="Dashboard"
   showSearch={true}
   showNotifications={true}
@@ -138,10 +152,11 @@ Navigation header with search, notifications, and user menu.
 ```
 
 #### Sidebar
+
 Collapsible navigation sidebar with hierarchical menu support.
 
 ```svelte
-<Sidebar 
+<Sidebar
   {menuItems}
   collapsed={false}
   userInfo={{ name: "John", email: "john@example.com" }}
@@ -151,6 +166,7 @@ Collapsible navigation sidebar with hierarchical menu support.
 ### Chart and Stats Components
 
 #### StatsCard
+
 Displays key metrics with trend indicators.
 
 **Variants:** `default`, `compact`, `detailed`
@@ -166,6 +182,7 @@ Displays key metrics with trend indicators.
 ```
 
 #### ChartCard
+
 Container for charts with controls and legends.
 
 ```svelte
@@ -186,6 +203,7 @@ Container for charts with controls and legends.
 ### Navigation Components
 
 #### Breadcrumbs
+
 Navigation breadcrumb trail.
 
 ```svelte
@@ -199,6 +217,7 @@ Navigation breadcrumb trail.
 ```
 
 #### QuickActions
+
 Floating action button with expandable actions.
 
 ```svelte
@@ -211,6 +230,7 @@ Floating action button with expandable actions.
 ```
 
 #### NotificationDropdown
+
 Dropdown for displaying notifications.
 
 ```svelte
@@ -224,6 +244,7 @@ Dropdown for displaying notifications.
 ### Utility Components
 
 #### Modal
+
 Dialog component with backdrop and focus management.
 
 ```svelte
@@ -242,6 +263,7 @@ Dialog component with backdrop and focus management.
 ```
 
 #### Tooltip
+
 Contextual help tooltips.
 
 ```svelte
@@ -251,6 +273,7 @@ Contextual help tooltips.
 ```
 
 #### LoadingSpinner
+
 Loading indicators with multiple variants.
 
 **Variants:** `circle`, `dots`, `pulse`, `bars`
@@ -316,7 +339,7 @@ Visit `/design-system-test` to see all components in action with various states 
 The design system follows a mobile-first approach with these breakpoints:
 
 - **Mobile**: < 640px
-- **Tablet**: 640px - 1024px  
+- **Tablet**: 640px - 1024px
 - **Desktop**: > 1024px
 
 All components are designed to work seamlessly across these breakpoints.

@@ -5,17 +5,14 @@ Complete PM system with Projects, Tasks, Resources, and Agent attachment
 
 from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete, and_, or_, func, case
+from sqlalchemy import select, func, case
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import UUID
-import json
 
 from ..core.database import get_db
 from ..models.project import (
-    Project, Epic, Task, Resource, TaskConversation, ProjectAnalytics,
-    ProjectStatus, TaskStatus, TaskPriority, ResourceType,
-    task_dependencies, task_resources, task_agents
+    Project, Task, ProjectStatus, TaskStatus, TaskPriority, task_agents
 )
 from ..agents.services.ali_swarm_orchestrator import AliSwarmOrchestrator
 from pydantic import BaseModel, Field
@@ -225,7 +222,7 @@ async def execute_task_with_agent(
 ):
     """Background task to execute task with attached agent"""
     try:
-        orchestrator = AliSwarmOrchestrator()
+        AliSwarmOrchestrator()
         
         # Get task details from database
         async with get_db() as db:
@@ -236,14 +233,6 @@ async def execute_task_with_agent(
             
             if task:
                 # Execute task with agent
-                prompt = f"""
-                Task: {task.title}
-                Description: {task.description}
-                Priority: {task.priority}
-                Due Date: {task.due_date}
-                
-                Please complete this task according to the requirements.
-                """
                 
                 # Update task status
                 task.status = TaskStatus.IN_PROGRESS

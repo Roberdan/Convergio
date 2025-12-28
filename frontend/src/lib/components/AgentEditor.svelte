@@ -2,36 +2,66 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import AliRealTimeAssistance from './AliRealTimeAssistance.svelte';
-	
+
 	const dispatch = createEventDispatcher();
-	
+
 	// Props
-	export let agentKey = '';
-	export let isNewAgent = false;
+	export let agentKey: string = '';
+	export let isNewAgent: boolean = false;
 	export let initialData: any = null;
-	
+
+	// Type definitions
+	interface FormData {
+		metadata: {
+			name: string;
+			description: string;
+			color: string;
+			tools: string[];
+		};
+		content: {
+			persona: string;
+			expertise_areas: string[];
+			additional_content: string;
+		};
+	}
+
+	interface ValidationErrors {
+		name?: string;
+		description?: string;
+		persona?: string;
+		expertise?: string;
+	}
+
+	interface AliAssistance {
+		error?: string;
+		confidence_score?: number;
+		estimated_improvement?: string;
+		suggestions?: Record<string, string[]>;
+		next_steps?: string[];
+	}
+
 	// Stores for form data
-	let formData = writable({
+	let formData = writable<FormData>({
 		metadata: {
 			name: '',
 			description: '',
 			color: '#4A90E2',
-			tools: []
+			tools: [] as string[]
 		},
 		content: {
 			persona: '',
-			expertise_areas: [],
+			expertise_areas: [] as string[],
 			additional_content: ''
 		}
 	});
-	
+
 	// UI state
 	let isLoading = false;
 	let isSaving = false;
-	let aliAssistance = null;
+	let aliAssistance: AliAssistance | null = null;
 	let showAliHelp = false;
 	let aliRealTimeActive = false;
-	let validationErrors = {};
+	let validationErrors: ValidationErrors = {};
 	let saveStatus = '';
 	
 	// Available tools list (could be fetched from API)
@@ -78,8 +108,8 @@
 				metadata: data.metadata,
 				content: data.content
 			});
-		} catch (error) {
-			console.error('Failed to load agent:', error);
+		} catch {
+			// Silent failure
 			dispatch('error', { message: 'Failed to load agent data' });
 		} finally {
 			isLoading = false;
@@ -129,8 +159,8 @@
 			
 			setTimeout(() => saveStatus = '', 3000);
 			
-		} catch (error) {
-			console.error('Failed to save agent:', error);
+		} catch {
+			// Silent failure
 			saveStatus = 'error';
 			dispatch('error', { message: 'Failed to save agent' });
 			setTimeout(() => saveStatus = '', 3000);
@@ -157,24 +187,24 @@
 			if (!response.ok) throw new Error('Failed to get Ali assistance');
 			
 			aliAssistance = await response.json();
-		} catch (error) {
-			console.error('Failed to get Ali assistance:', error);
+		} catch {
+			// Silent failure
 			aliAssistance = { error: 'Failed to get assistance from Ali' };
 		}
 	}
 	
-	function applyAliSuggestion(category, suggestion) {
+	function applyAliSuggestion(category: string, suggestion: string) {
 		// Apply Ali's suggestions to the form
 		if (category === 'expertise_improvements' && suggestion.includes('expertise areas')) {
 			// Add suggested expertise areas
-			const newAreas = [...currentData.content.expertise_areas, 'advanced analytics', 'strategic planning'];
+			const newAreas: string[] = [...currentData.content.expertise_areas, 'advanced analytics', 'strategic planning'];
 			formData.update(data => ({
 				...data,
 				content: { ...data.content, expertise_areas: newAreas }
 			}));
 		} else if (category === 'persona_enhancements') {
 			// Enhance persona
-			const enhancedPersona = currentData.content.persona + 
+			const enhancedPersona = currentData.content.persona +
 				'\n\nYou excel at collaborative problem-solving and adapt your communication style to match user preferences.';
 			formData.update(data => ({
 				...data,
@@ -183,13 +213,13 @@
 		} else if (category === 'tool_recommendations') {
 			// Add recommended tools
 			const recommendedTools = suggestion.match(/tools?: (.+)/i)?.[1]?.split(', ') || [];
-			const newTools = [...new Set([...currentData.metadata.tools, ...recommendedTools])];
+			const newTools: string[] = [...new Set([...currentData.metadata.tools, ...recommendedTools])];
 			formData.update(data => ({
 				...data,
 				metadata: { ...data.metadata, tools: newTools }
 			}));
 		}
-		
+
 		dispatch('ali-suggestion-applied', { category, suggestion });
 	}
 	
@@ -198,12 +228,12 @@
 			...data,
 			content: {
 				...data.content,
-				expertise_areas: [...data.content.expertise_areas, '']
+				expertise_areas: [...data.content.expertise_areas, ''] as string[]
 			}
 		}));
 	}
-	
-	function removeExpertiseArea(index) {
+
+	function removeExpertiseArea(index: number) {
 		formData.update(data => ({
 			...data,
 			content: {
@@ -212,13 +242,13 @@
 			}
 		}));
 	}
-	
-	function toggleTool(tool) {
+
+	function toggleTool(tool: string) {
 		formData.update(data => {
-			const tools = data.metadata.tools.includes(tool)
+			const tools: string[] = data.metadata.tools.includes(tool)
 				? data.metadata.tools.filter(t => t !== tool)
 				: [...data.metadata.tools, tool];
-			
+
 			return {
 				...data,
 				metadata: { ...data.metadata, tools }
@@ -227,15 +257,15 @@
 	}
 	
 	function validateForm() {
-		const errors = {};
-		
+		const errors: ValidationErrors = {};
+
 		if (!currentData.metadata.name) errors.name = 'Name is required';
 		if (!currentData.metadata.description) errors.description = 'Description is required';
 		if (!currentData.content.persona) errors.persona = 'Persona is required';
 		if (currentData.content.expertise_areas.length === 0) {
 			errors.expertise = 'At least one expertise area is required';
 		}
-		
+
 		validationErrors = errors;
 		return Object.keys(errors).length === 0;
 	}
@@ -258,35 +288,35 @@
 	}
 	
 	// Ali Real-Time Assistance Handlers
-	function handleAliSuggestion(event) {
+	function handleAliSuggestion(event: CustomEvent) {
 		const { suggestion, autoApply } = event.detail;
-		
+
 		if (autoApply) {
 			applyAliSuggestionAutomatically(suggestion);
 		} else {
 			// Show suggestion for manual review
-			aliAssistance = { 
+			aliAssistance = {
 				suggestions: { [suggestion.category]: [suggestion.suggestion] },
 				confidence_score: 0.8
 			};
 			showAliHelp = true;
 		}
-		
+
 		dispatch('ali-suggestion-applied', { suggestion });
 	}
-	
-	function applyAliSuggestionAutomatically(suggestion) {
+
+	function applyAliSuggestionAutomatically(suggestion: any) {
 		switch (suggestion.category) {
 			case 'expertise':
 				if (suggestion.title.includes('Expand Expertise')) {
-					const newAreas = [...currentData.content.expertise_areas, 'advanced analytics', 'strategic planning'];
+					const newAreas: string[] = [...currentData.content.expertise_areas, 'advanced analytics', 'strategic planning'];
 					formData.update(data => ({
 						...data,
 						content: { ...data.content, expertise_areas: newAreas }
 					}));
 				}
 				break;
-			
+
 			case 'persona':
 				if (suggestion.title.includes('Enrich Agent Persona')) {
 					const enhancement = '\n\nYou excel at collaborative problem-solving and adapt your communication style to match user preferences.';
@@ -296,10 +326,10 @@
 					}));
 				}
 				break;
-			
+
 			case 'tools':
 				if (suggestion.recommendedTools) {
-					const newTools = [...new Set([...currentData.metadata.tools, ...suggestion.recommendedTools])];
+					const newTools: string[] = [...new Set([...currentData.metadata.tools, ...suggestion.recommendedTools])];
 					formData.update(data => ({
 						...data,
 						metadata: { ...data.metadata, tools: newTools }
@@ -364,10 +394,11 @@
 					
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div>
-							<label class="block text-sm font-medium text-surface-600 mb-1">
+							<label for="agent-name" class="block text-sm font-medium text-surface-600 mb-1">
 								Agent Name *
 							</label>
 							<input
+								id="agent-name"
 								type="text"
 								bind:value={$formData.metadata.name}
 								class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -380,11 +411,12 @@
 						</div>
 						
 						<div>
-							<label class="block text-sm font-medium text-surface-600 mb-1">
+							<label for="agent-color" class="block text-sm font-medium text-surface-600 mb-1">
 								Color Theme
 							</label>
 							<div class="flex items-center space-x-2">
 								<input
+									id="agent-color"
 									type="color"
 									bind:value={$formData.metadata.color}
 									class="w-12 h-10 border border-surface-300 rounded cursor-pointer"
@@ -393,6 +425,7 @@
 									{#each colorPresets as color}
 										<button
 											type="button"
+											aria-label="Select color {color}"
 											class="w-6 h-6 rounded border border-surface-200 hover:border-gray-400 transition-colors"
 											style="background-color: {color}"
 											on:click={() => formData.update(data => ({ ...data, metadata: { ...data.metadata, color } }))}
@@ -404,10 +437,11 @@
 					</div>
 					
 					<div class="mt-4">
-						<label class="block text-sm font-medium text-surface-600 mb-1">
+						<label for="agent-description" class="block text-sm font-medium text-surface-600 mb-1">
 							Description *
 						</label>
 						<textarea
+							id="agent-description"
 							bind:value={$formData.metadata.description}
 							rows="3"
 							class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -428,10 +462,11 @@
 					</h2>
 					
 					<div>
-						<label class="block text-sm font-medium text-surface-600 mb-1">
+						<label for="agent-persona" class="block text-sm font-medium text-surface-600 mb-1">
 							Agent Persona *
 						</label>
 						<textarea
+							id="agent-persona"
 							bind:value={$formData.content.persona}
 							rows="6"
 							class="w-full px-3 py-2 border border-surface-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
@@ -610,9 +645,8 @@
 				</div>
 				
 				<!-- Ali Real-Time Assistance -->
-				<AliRealTimeAssistance 
+				<AliRealTimeAssistance
 					currentDefinition={currentData}
-					agentKey={agentKey}
 					isActive={aliRealTimeActive}
 					on:apply-suggestion={handleAliSuggestion}
 					on:activate-ali={activateAliRealTime}
@@ -626,42 +660,44 @@
 							<span class="mr-2">🤖</span>
 							Ali's Manual Assistance
 						</h3>
-						
+
 						{#if aliAssistance}
 							{#if aliAssistance.error}
 								<p class="text-red-600 text-sm">{aliAssistance.error}</p>
 							{:else}
 								<div class="space-y-4">
 									<p class="text-sm text-blue-800">
-										Confidence: {(aliAssistance.confidence_score * 100).toFixed(0)}% | 
-										Expected improvement: {aliAssistance.estimated_improvement}
+										Confidence: {((aliAssistance.confidence_score ?? 0) * 100).toFixed(0)}% |
+										Expected improvement: {aliAssistance.estimated_improvement ?? 'N/A'}
 									</p>
-									
-									{#each Object.entries(aliAssistance.suggestions) as [category, suggestions]}
-										{#if suggestions.length > 0}
-											<div>
-												<h4 class="font-medium text-blue-900 mb-2 capitalize">
-													{category.replace('_', ' ')}
-												</h4>
-												<ul class="space-y-2">
-													{#each suggestions as suggestion}
-														<li class="flex justify-between items-start">
-															<p class="text-sm text-surface-600">{suggestion}</p>
-															<button
-																type="button"
-																on:click={() => applyAliSuggestion(category, suggestion)}
-																class="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
-															>
-																Apply
-															</button>
-														</li>
-													{/each}
-												</ul>
-											</div>
-										{/if}
-									{/each}
-									
-									{#if aliAssistance.next_steps}
+
+									{#if aliAssistance.suggestions}
+										{#each Object.entries(aliAssistance.suggestions) as [category, suggestions]}
+											{#if Array.isArray(suggestions) && suggestions.length > 0}
+												<div>
+													<h4 class="font-medium text-blue-900 mb-2 capitalize">
+														{category.replace('_', ' ')}
+													</h4>
+													<ul class="space-y-2">
+														{#each suggestions as suggestion}
+															<li class="flex justify-between items-start">
+																<p class="text-sm text-surface-600">{suggestion}</p>
+																<button
+																	type="button"
+																	on:click={() => applyAliSuggestion(category, suggestion)}
+																	class="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
+																>
+																	Apply
+																</button>
+															</li>
+														{/each}
+													</ul>
+												</div>
+											{/if}
+										{/each}
+									{/if}
+
+									{#if aliAssistance.next_steps && Array.isArray(aliAssistance.next_steps)}
 										<div>
 											<h4 class="font-medium text-blue-900 mb-2">Next Steps</h4>
 											<ul class="list-disc list-inside text-sm text-surface-600 space-y-1">

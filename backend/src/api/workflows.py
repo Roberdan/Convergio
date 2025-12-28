@@ -3,21 +3,18 @@ Workflows API - GraphFlow Business Process Automation
 FastAPI endpoints for managing and executing business workflows
 """
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from typing import Dict, List, Any, Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
-import structlog
+import os
 
 from ..agents.services.graphflow_orchestrator import get_graphflow_orchestrator
 from ..agents.services.graphflow.generator import (
-    WorkflowGenerator,
-    WorkflowGenerationRequest,  # alias to payload (non-Pydantic)
     BusinessWorkflow,
     generate_workflow_from_prompt,
 )
-from ..agents.services.graphflow.registry import get_workflow_catalog
+from ..agents.services.graphflow.registry import get_workflow_catalog, search_workflows
 from ..agents.services.observability.telemetry_api import TelemetryAPIService
 from ..agents.utils.config import get_settings
 from ..core.logging import get_logger
@@ -128,7 +125,7 @@ async def execute_workflow(
                 detail=f"Workflow {request.workflow_id} not found. Available: {workflow_ids}"
             )
         
-        logger.info(f"🚀 Executing workflow", 
+        logger.info("🚀 Executing workflow", 
                    workflow_id=request.workflow_id,
                    user_id=request.user_id)
         
@@ -591,7 +588,7 @@ async def generate_workflow(request: WorkflowGenerationRequestModel):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"❌ Error generating workflow: {e}")
-    raise HTTPException(status_code=500, detail=f"Failed to generate workflow: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate workflow: {str(e)}")
 
 
 @router.get("/catalog")
@@ -616,7 +613,7 @@ async def get_workflow_catalog_endpoint():
 
 
 @router.get("/search")
-async def search_workflows(
+async def search_workflows_endpoint(
     query: Optional[str] = None,
     domain: Optional[str] = None,
     complexity: Optional[str] = None,
@@ -624,7 +621,7 @@ async def search_workflows(
 ):
     """
     Search workflows with filters
-    
+
     Parameters:
     - query: Text search in name, description, and tags
     - domain: Business domain filter (strategy, operations, finance, etc.)
@@ -633,8 +630,8 @@ async def search_workflows(
     """
     try:
         _ensure_graphflow_enabled()
-        
-        results = await search_workflows_registry(
+
+        results = await search_workflows(
             query=query or "",
             domain=domain,
             complexity=complexity,
@@ -708,131 +705,6 @@ async def create_workflow_version(request: WorkflowVersionRequest):
     except Exception as e:
         logger.error(f"❌ Error creating workflow version: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to create version: {str(e)}")
-
-
-class WorkflowUpdateRequest(BaseModel):
-    """Request model for workflow updates"""
-    workflow_id: str = Field(..., description="ID of the workflow to update")
-    name: Optional[str] = Field(None, description="New workflow name")
-    description: Optional[str] = Field(None, description="New workflow description")
-    steps: Optional[List[Dict[str, Any]]] = Field(None, description="Updated steps")
-    enabled: Optional[bool] = Field(None, description="Enable/disable workflow")
-
-
-@router.put("/update")
-async def update_workflow(request: WorkflowUpdateRequest):
-    """
-    Update an existing workflow
-    
-    This endpoint allows updating workflow metadata and structure.
-    Changes are validated before being applied.
-    """
-    try:
-        _ensure_graphflow_enabled()
-        
-        orchestrator = get_graphflow_orchestrator()
-        
-        # Check if workflow exists
-        workflow = orchestrator.workflows.get(request.workflow_id)
-        if not workflow:
-            raise HTTPException(status_code=404, detail=f"Workflow {request.workflow_id} not found")
-        
-        # Apply updates (simplified for now)
-        updates_applied = []
-        if request.name:
-            workflow.name = request.name
-            updates_applied.append("name")
-        if request.description:
-            workflow.description = request.description
-            updates_applied.append("description")
-        
-        logger.info("✏️ Updated workflow",
-                   workflow_id=request.workflow_id,
-                   updates=updates_applied)
-        
-        # Emit telemetry event
-        await telemetry.emit_event(
-            event_type="workflow_updated",
-            data={
-                "workflow_id": request.workflow_id,
-                "updates_applied": updates_applied
-            }
-        )
-        
-        return {
-            "message": "Workflow updated successfully",
-            "workflow_id": request.workflow_id,
-            "updates_applied": updates_applied
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ Error updating workflow: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to update workflow: {str(e)}")
-
-
-@router.delete("/{workflow_id}")
-async def delete_workflow(workflow_id: str, force: bool = False):
-    """
-    Delete or disable a workflow
-    
-    Parameters:
-    - workflow_id: ID of the workflow to delete
-    - force: If true, permanently delete. If false, just disable.
-    """
-    try:
-        _ensure_graphflow_enabled()
-        
-        orchestrator = get_graphflow_orchestrator()
-        
-        # Check if workflow exists
-        workflow = orchestrator.workflows.get(workflow_id)
-        if not workflow:
-            raise HTTPException(status_code=404, detail=f"Workflow {workflow_id} not found")
-        
-        # Check for active executions
-        active_executions = [
-            ex for ex in orchestrator.executions.values()
-            if ex.workflow_id == workflow_id and ex.status == "running"
-        ]
-        
-        if active_executions and not force:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Cannot delete workflow with {len(active_executions)} active executions"
-            )
-        
-        if force:
-            # Permanently delete
-            del orchestrator.workflows[workflow_id]
-            action = "deleted"
-        else:
-            # Just disable
-            workflow.enabled = False
-            action = "disabled"
-        
-        logger.info(f"🗑️ Workflow {action}",
-                   workflow_id=workflow_id,
-                   force=force)
-        
-        # Emit telemetry event
-        await telemetry.emit_event(
-            event_type=f"workflow_{action}",
-            data={"workflow_id": workflow_id}
-        )
-        
-        return {
-            "message": f"Workflow {action} successfully",
-            "workflow_id": workflow_id,
-            "action": action
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ Error deleting workflow: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to delete workflow: {str(e)}")
 
 
 @router.post("/validate")

@@ -2,24 +2,65 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 
+	// Type definitions
+	interface SwarmStatus {
+		total_agents?: number;
+		active_tasks?: number;
+		completed_tasks?: number;
+		system_status?: string;
+	}
+
+	interface SwarmAgent {
+		key: string;
+		name: string;
+		role: string;
+		is_available: boolean;
+		current_load: number;
+		success_rate: number;
+		tools_count: number;
+		coordination_score: number;
+		expertise_areas?: string[];
+	}
+
+	interface SwarmTask {
+		task_id: string;
+		description: string;
+		status: string;
+		complexity: string;
+		assigned_agents_count?: number;
+		coordination_pattern?: string;
+		priority: number;
+	}
+
+	interface CoordinationPattern {
+		description: string;
+		coordination_overhead: number;
+		best_for: string[];
+	}
+
+	interface Notification {
+		message: string;
+		type: 'info' | 'success' | 'error';
+	}
+
 	// Stores
-	let swarmStatus = writable({});
-	let swarmAgents = writable([]);
-	let swarmTasks = writable([]);
-	let coordinationPatterns = writable({});
-	
+	let swarmStatus = writable<SwarmStatus>({});
+	let swarmAgents = writable<SwarmAgent[]>([]);
+	let swarmTasks = writable<SwarmTask[]>([]);
+	let coordinationPatterns = writable<Record<string, CoordinationPattern>>({});
+
 	// UI State
 	let isLoading = true;
 	let selectedTab = 'overview';
-	let notification = null;
+	let notification: Notification | null = null;
 	let showCreateTaskModal = false;
-	
+
 	// New task form
 	let newTaskForm = {
 		description: '',
 		priority: 5,
 		required_expertise: [],
-		estimated_duration: null
+		estimated_duration: null as number | null
 	};
 
 	// Reactive computed values
@@ -49,8 +90,8 @@
 			if (tasksRes.ok) swarmTasks.set((await tasksRes.json()).tasks);
 			if (patternsRes.ok) coordinationPatterns.set((await patternsRes.json()).patterns);
 			
-		} catch (error) {
-			console.error('Failed to load swarm data:', error);
+		} catch {
+			// Silent failure
 			showNotification('Failed to load swarm data', 'error');
 		} finally {
 			isLoading = false;
@@ -69,8 +110,8 @@
 			showNotification(`Swarm initialized with ${result.agents_registered} agents`, 'success');
 			await loadSwarmData();
 			
-		} catch (error) {
-			console.error('Failed to initialize swarm:', error);
+		} catch {
+			// Silent failure
 			showNotification('Failed to initialize swarm coordination', 'error');
 		}
 	}
@@ -99,57 +140,57 @@
 			
 			await loadSwarmData();
 			
-		} catch (error) {
-			console.error('Failed to create swarm task:', error);
+		} catch {
+			// Silent failure
 			showNotification('Failed to create swarm task', 'error');
 		}
 	}
 
-	async function executeTask(taskId) {
+	async function executeTask(taskId: string) {
 		try {
 			const response = await fetch(`/api/v1/swarm/tasks/${taskId}/execute`, {
 				method: 'POST'
 			});
-			
+
 			if (!response.ok) throw new Error('Failed to execute task');
-			
+
 			const result = await response.json();
 			showNotification(result.message, 'success');
 			await loadSwarmData();
-			
-		} catch (error) {
-			console.error('Failed to execute task:', error);
+
+		} catch {
+			// Silent failure
 			showNotification('Failed to execute swarm task', 'error');
 		}
 	}
 
-	async function cancelTask(taskId) {
+	async function cancelTask(taskId: string) {
 		if (!confirm('Are you sure you want to cancel this swarm task?')) return;
-		
+
 		try {
 			const response = await fetch(`/api/v1/swarm/tasks/${taskId}`, {
 				method: 'DELETE'
 			});
-			
+
 			if (!response.ok) throw new Error('Failed to cancel task');
-			
+
 			const result = await response.json();
 			showNotification(result.message, 'success');
 			await loadSwarmData();
-			
-		} catch (error) {
-			console.error('Failed to cancel task:', error);
+
+		} catch {
+			// Silent failure
 			showNotification('Failed to cancel task', 'error');
 		}
 	}
 
-	function showNotification(message, type = 'info') {
+	function showNotification(message: string, type: 'info' | 'success' | 'error' = 'info') {
 		notification = { message, type };
 		setTimeout(() => notification = null, 5000);
 	}
 
-	function getStatusColor(status) {
-		const colors = {
+	function getStatusColor(status: string): string {
+		const colors: Record<string, string> = {
 			pending: 'bg-yellow-100 text-yellow-800',
 			assigned: 'bg-blue-100 text-blue-800',
 			in_progress: 'bg-purple-100 text-purple-800',
@@ -159,8 +200,8 @@
 		return colors[status] || 'bg-surface-100 text-surface-800';
 	}
 
-	function getRoleColor(role) {
-		const colors = {
+	function getRoleColor(role: string): string {
+		const colors: Record<string, string> = {
 			coordinator: 'bg-purple-100 text-purple-800',
 			specialist: 'bg-blue-100 text-blue-800',
 			executor: 'bg-green-100 text-green-800',
@@ -170,11 +211,14 @@
 		return colors[role] || 'bg-surface-100 text-surface-800';
 	}
 
-	function getLoadBarColor(load) {
+	function getLoadBarColor(load: number): string {
 		if (load < 0.3) return 'bg-green-500';
 		if (load < 0.7) return 'bg-yellow-500';
 		return 'bg-red-500';
 	}
+
+	// Helper to get typed pattern entries
+	$: patternEntries = Object.entries($coordinationPatterns) as [string, CoordinationPattern][];
 
 	// (removed) unused formatDuration
 </script>
@@ -612,7 +656,7 @@
 			{:else if selectedTab === 'patterns'}
 				<!-- Patterns Tab -->
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-					{#each Object.entries($coordinationPatterns) as [patternName, pattern] (patternName)}
+					{#each patternEntries as [patternName, pattern] (patternName)}
 						<div class="bg-white rounded-lg shadow-sm border p-6">
 							<div class="flex items-center justify-between mb-4">
 								<h3 class="text-lg font-semibold capitalize">{patternName.replace('_', ' ')}</h3>

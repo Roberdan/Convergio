@@ -3,14 +3,13 @@ Per-Turn Token Usage Tracking with Timeline
 Tracks token usage and costs for each turn in the conversation with detailed timeline
 """
 
-import asyncio
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Callable, Tuple
 from dataclasses import dataclass, field, asdict
 import json
 import structlog
 
-from autogen_agentchat.messages import AgentMessage, TextMessage, ToolCallMessage, ToolResultMessage
+from autogen_agentchat.messages import AgentMessage, ToolCallMessage, ToolResultMessage
 from cost_tracker import CostTracker
 from ..utils.tracing import start_span
 from ..utils.config import get_settings
@@ -156,7 +155,7 @@ class PerTurnTokenTracker:
         self.timelines[conversation_id] = timeline
         
         logger.info(
-            f"📊 Started token tracking for conversation",
+            "📊 Started token tracking for conversation",
             conversation_id=conversation_id,
             budget_limit=timeline.budget_limit_usd
         )
@@ -400,7 +399,7 @@ class PerTurnTokenTracker:
         duration_seconds = (timeline.end_time - timeline.start_time).total_seconds()
         
         logger.info(
-            f"📊 Conversation ended",
+            "📊 Conversation ended",
             conversation_id=conversation_id,
             total_turns=len(timeline.turns),
             total_tokens=timeline.total_tokens,
@@ -471,7 +470,7 @@ class PerTurnTokenTracker:
         avg_cost = timeline.avg_cost_per_turn
         
         # Simulate future turns
-        simulated_tokens = avg_tokens * turns_to_simulate
+        avg_tokens * turns_to_simulate
         simulated_cost = avg_cost * turns_to_simulate
         
         # Predict breach
@@ -525,7 +524,7 @@ async def budget_monitor_callback(
     
     if event_type == "budget_breach":
         logger.critical(
-            f"💸 BUDGET BREACHED",
+            "💸 BUDGET BREACHED",
             conversation_id=conversation_id,
             turn=turn_usage.turn_number,
             overage_usd=abs(timeline.budget_remaining_usd)

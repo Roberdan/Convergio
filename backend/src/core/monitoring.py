@@ -4,18 +4,15 @@ Comprehensive monitoring for all system components
 """
 
 import asyncio
-import json
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, Any, Optional, List
-import logging
 import os
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from enum import Enum
 
 import structlog
-from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry
-import redis.asyncio as aioredis
+from prometheus_client import Counter, Histogram, Gauge
 from sqlalchemy import text
 from .database import async_engine, get_async_session
 from .redis import get_redis_client

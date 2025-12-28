@@ -3,15 +3,15 @@
 # 🚀 Convergio — Human purpose. AI momentum.
 *"Convergio is the platform that lets solopreneurs blend human ingenuity with AI so seamlessly, it feels like magic."*
 
-> ### 🎉 **v2.1.0 Released — Ollama-First AI Provider System!**
-> Run Convergio 100% offline with **Ollama** for $0 cost, or connect to **Azure OpenAI** for enterprise-grade AI. Full provider control with 4 modes: ollama_only, azure_only, hybrid, cloud_first. [See release notes →](https://github.com/Roberdan/Convergio/releases/tag/v2.1.0)
+> ### 🎉 **v3.0.0 Released — Web App Release Manager & Codebase Cleanup!**
+> Comprehensive pre-release quality checks, BRUTAL MODE enforcement, Ollama-based testing ($0 cost), and automated version management. [See release notes →](https://github.com/Roberdan/Convergio/releases/tag/v3.0.0)
 
-> **v2.0.0** — Microsoft Agent Framework Migration Complete! [See v2.0.0 →](https://github.com/Roberdan/Convergio/releases/tag/v2.0.0)
+> **v2.1.0** — Ollama-First AI Provider System | **v2.0.0** — Microsoft Agent Framework Migration [See all releases →](https://github.com/Roberdan/Convergio/releases)
 
 Convergio is the AI‑first orchestration platform where human ingenuity converges with a coordinated crew of specialized agents. Through intelligent coordination—not just parallel processing—they plan together, execute seamlessly, and explain outcomes across your tools.
 
 [![CI/CD Pipeline](https://github.com/Roberdan/Convergio/actions/workflows/ci.yml/badge.svg)](https://github.com/Roberdan/Convergio/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/Roberdan/Convergio?style=for-the-badge&color=green)](https://github.com/Roberdan/Convergio/releases/tag/v2.0.0)
+[![Release](https://img.shields.io/github/v/release/Roberdan/Convergio?style=for-the-badge&color=green)](https://github.com/Roberdan/Convergio/releases/latest)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-teal?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![SvelteKit](https://img.shields.io/badge/Frontend-SvelteKit-orange?style=for-the-badge&logo=svelte)](https://kit.svelte.dev/)

@@ -3,258 +3,286 @@
  * Unified API client for the new backend architecture
  */
 
-import { get } from 'svelte/store';
-import { authStore } from '$lib/auth/auth.store';
-import type { User, AuthResponse } from '$lib/auth/auth.types';
+import { get } from "svelte/store";
+import { authStore } from "$lib/auth/auth.store";
+import type { User, AuthResponse } from "$lib/auth/auth.types";
 
 // API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
-const API_VERSION = 'v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:9000";
+const API_VERSION = "v1";
 
 export class ApiError extends Error {
-	constructor(
-		public status: number,
-		public message: string,
-		public details?: any
-	) {
-		super(message);
-		this.name = 'ApiError';
-	}
+  constructor(
+    public status: number,
+    public message: string,
+    public details?: any,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
 }
 
 export class ApiClient {
-	private baseUrl: string;
-	
-	constructor(baseUrl: string = API_BASE_URL) {
-		this.baseUrl = baseUrl;
-	}
+  private baseUrl: string;
 
-	/**
-	 * Make authenticated API request
-	 */
-	private async request<T>(
-		endpoint: string,
-		options: RequestInit = {}
-	): Promise<T> {
-		const url = `${this.baseUrl}${endpoint}`;
-		
-		// Get current auth token
-		const auth = get(authStore);
-		
-		const headers: Record<string, string> = {
-			'Content-Type': 'application/json',
-			...options.headers as Record<string, string>
-		};
+  constructor(baseUrl: string = API_BASE_URL) {
+    this.baseUrl = baseUrl;
+  }
 
-		// Add authorization header if token exists
-		if (auth.token) {
-			headers.Authorization = `Bearer ${auth.token}`;
-		}
+  /**
+   * Make authenticated API request
+   */
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
 
-		try {
-			const response = await fetch(url, {
-				...options,
-				headers,
-				credentials: 'include' // Include cookies for additional security
-			});
+    // Get current auth token
+    const auth = get(authStore);
 
-			// Handle 401 Unauthorized - token expired
-			if (response.status === 401) {
-				authStore.logout();
-				throw new ApiError(401, 'Authentication required');
-			}
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(options.headers as Record<string, string>),
+    };
 
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				throw new ApiError(
-					response.status,
-					errorData.detail || `HTTP ${response.status}`,
-					errorData
-				);
-			}
+    // Add authorization header if token exists
+    if (auth.token) {
+      headers.Authorization = `Bearer ${auth.token}`;
+    }
 
-			// Handle empty responses
-			const contentType = response.headers.get('content-type');
-			if (!contentType || !contentType.includes('application/json')) {
-				return null as T;
-			}
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: "include", // Include cookies for additional security
+      });
 
-			return await response.json();
-		} catch (error) {
-			if (error instanceof ApiError) {
-				throw error;
-			}
-			throw new ApiError(0, `Network error: ${error}`);
-		}
-	}
+      // Handle 401 Unauthorized - token expired
+      if (response.status === 401) {
+        authStore.logout();
+        throw new ApiError(401, "Authentication required");
+      }
 
-	// ============================================
-	// 🔐 AUTHENTICATION ENDPOINTS
-	// ============================================
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          response.status,
+          errorData.detail || `HTTP ${response.status}`,
+          errorData,
+        );
+      }
 
-	async login(username: string, password: string): Promise<AuthResponse> {
-		return this.request<AuthResponse>('/api/v1/auth/login', {
-			method: 'POST',
-			body: JSON.stringify({ username, password })
-		});
-	}
+      // Handle empty responses
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        return null as T;
+      }
 
-	async getUser(): Promise<User> {
-		return this.request<User>('/api/v1/auth/user');
-	}
+      return await response.json();
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(0, `Network error: ${error}`);
+    }
+  }
 
-	async refreshToken(): Promise<AuthResponse> {
-		return this.request<AuthResponse>('/api/v1/auth/refresh', {
-			method: 'POST'
-		});
-	}
+  // ============================================
+  // 🔐 AUTHENTICATION ENDPOINTS
+  // ============================================
 
-	async logout(): Promise<void> {
-		await this.request<void>('/api/v1/auth/logout', {
-			method: 'POST'
-		});
-	}
+  async login(username: string, password: string): Promise<AuthResponse> {
+    return this.request<AuthResponse>("/api/v1/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
+  }
 
-	// ============================================
-	// 🤖 AI AGENTS ENDPOINTS
-	// ============================================
+  async getUser(): Promise<User> {
+    return this.request<User>("/api/v1/auth/user");
+  }
 
-	async getAgents(): Promise<any[]> {
-		return this.request<any[]>('/api/v1/agents');
-	}
+  async refreshToken(): Promise<AuthResponse> {
+    return this.request<AuthResponse>("/api/v1/auth/refresh", {
+      method: "POST",
+    });
+  }
 
-	async executeAgent(agentType: string, message: string, context?: any): Promise<any> {
-		return this.request<any>(`/api/v1/agents/${agentType}/execute`, {
-			method: 'POST',
-			body: JSON.stringify({ message, context })
-		});
-	}
+  async logout(): Promise<void> {
+    await this.request<void>("/api/v1/auth/logout", {
+      method: "POST",
+    });
+  }
 
-	async getAgentExecution(executionId: string): Promise<any> {
-		return this.request<any>(`/api/v1/agents/executions/${executionId}`);
-	}
+  // ============================================
+  // 🤖 AI AGENTS ENDPOINTS
+  // ============================================
 
-	async listAgentExecutions(): Promise<any[]> {
-		return this.request<any[]>('/api/v1/agents/executions');
-	}
+  async getAgents(): Promise<any[]> {
+    return this.request<any[]>("/api/v1/agents");
+  }
 
-	// ============================================
-	// 🔍 VECTOR SEARCH ENDPOINTS  
-	// ============================================
+  async executeAgent(
+    agentType: string,
+    message: string,
+    context?: any,
+  ): Promise<any> {
+    return this.request<any>(`/api/v1/agents/${agentType}/execute`, {
+      method: "POST",
+      body: JSON.stringify({ message, context }),
+    });
+  }
 
-	async searchDocuments(query: string, filters?: any): Promise<any[]> {
-		return this.request<any[]>('/api/v1/vector/search', {
-			method: 'POST',
-			body: JSON.stringify({ query, filters })
-		});
-	}
+  async getAgentExecution(executionId: string): Promise<any> {
+    return this.request<any>(`/api/v1/agents/executions/${executionId}`);
+  }
 
-	async indexDocument(content: string, metadata?: any): Promise<any> {
-		return this.request<any>('/api/v1/vector/index', {
-			method: 'POST',
-			body: JSON.stringify({ content, metadata })
-		});
-	}
+  async listAgentExecutions(): Promise<any[]> {
+    return this.request<any[]>("/api/v1/agents/executions");
+  }
 
-	async getDocuments(): Promise<any[]> {
-		return this.request<any[]>('/api/v1/vector/documents');
-	}
+  // ============================================
+  // 🔍 VECTOR SEARCH ENDPOINTS
+  // ============================================
 
-	async deleteDocument(documentId: string): Promise<void> {
-		await this.request<void>(`/api/v1/vector/documents/${documentId}`, {
-			method: 'DELETE'
-		});
-	}
+  async searchDocuments(query: string, filters?: any): Promise<any[]> {
+    return this.request<any[]>("/api/v1/vector/search", {
+      method: "POST",
+      body: JSON.stringify({ query, filters }),
+    });
+  }
 
-	// ============================================
-	// 📊 ANALYTICS ENDPOINTS
-	// ============================================
+  async indexDocument(content: string, metadata?: any): Promise<any> {
+    return this.request<any>("/api/v1/vector/index", {
+      method: "POST",
+      body: JSON.stringify({ content, metadata }),
+    });
+  }
 
-	async getDashboardAnalytics(timeRange: string = '7d'): Promise<any> {
-		return this.request<any>(`/api/v1/analytics/dashboard?time_range=${timeRange}`);
-	}
+  async getDocuments(): Promise<any[]> {
+    return this.request<any[]>("/api/v1/vector/documents");
+  }
 
-	async getPerformanceMetrics(): Promise<any> {
-		return this.request<any>('/api/v1/analytics/performance');
-	}
+  async deleteDocument(documentId: string): Promise<void> {
+    await this.request<void>(`/api/v1/vector/documents/${documentId}`, {
+      method: "DELETE",
+    });
+  }
 
-	async getRealTimeMetrics(): Promise<any> {
-		return this.request<any>('/api/v1/analytics/real-time');
-	}
+  // ============================================
+  // 📊 ANALYTICS ENDPOINTS
+  // ============================================
 
-	async exportAnalyticsData(format: string = 'json', timeRange: string = '30d'): Promise<any> {
-		return this.request<any>(`/api/v1/analytics/export?format=${format}&time_range=${timeRange}`, {
-			method: 'POST'
-		});
-	}
+  async getDashboardAnalytics(timeRange: string = "7d"): Promise<any> {
+    return this.request<any>(
+      `/api/v1/analytics/dashboard?time_range=${timeRange}`,
+    );
+  }
 
-	// ============================================
-	// 💰 COST MANAGEMENT ENDPOINTS
-	// ============================================
+  async getPerformanceMetrics(): Promise<any> {
+    return this.request<any>("/api/v1/analytics/performance");
+  }
 
-	async getCostOverview(timeRange: string = '30d'): Promise<any> {
-		return this.request<any>(`/api/v1/cost-management/overview?time_range=${timeRange}`);
-	}
+  async getRealTimeMetrics(): Promise<any> {
+    return this.request<any>("/api/v1/analytics/real-time");
+  }
 
-	async getAgentCostSummary(agentId: string, timeRange: string = '30d'): Promise<any> {
-		return this.request<any>(`/api/v1/cost-management/agents/${agentId}/summary?time_range=${timeRange}`);
-	}
+  async exportAnalyticsData(
+    format: string = "json",
+    timeRange: string = "30d",
+  ): Promise<any> {
+    return this.request<any>(
+      `/api/v1/analytics/export?format=${format}&time_range=${timeRange}`,
+      {
+        method: "POST",
+      },
+    );
+  }
 
-	async getLLMProviders(): Promise<any[]> {
-		return this.request<any[]>('/api/v1/cost-management/providers');
-	}
+  // ============================================
+  // 💰 COST MANAGEMENT ENDPOINTS
+  // ============================================
 
-	async createAgentBudget(agentId: string, monthlyBudget: number, alertThreshold: number = 80): Promise<any> {
-		return this.request<any>('/api/v1/cost-management/budgets', {
-			method: 'POST',
-			body: JSON.stringify({
-				agent_id: agentId,
-				monthly_budget_usd: monthlyBudget,
-				alert_threshold_percentage: alertThreshold
-			})
-		});
-	}
+  async getCostOverview(timeRange: string = "30d"): Promise<any> {
+    return this.request<any>(
+      `/api/v1/cost-management/overview?time_range=${timeRange}`,
+    );
+  }
 
-	async getBudgetAlerts(agentId: string): Promise<any[]> {
-		return this.request<any[]>(`/api/v1/cost-management/agents/${agentId}/alerts`);
-	}
+  async getAgentCostSummary(
+    agentId: string,
+    timeRange: string = "30d",
+  ): Promise<any> {
+    return this.request<any>(
+      `/api/v1/cost-management/agents/${agentId}/summary?time_range=${timeRange}`,
+    );
+  }
 
-	// ============================================
-	// 🔍 HEALTH CHECK ENDPOINTS
-	// ============================================
+  async getLLMProviders(): Promise<any[]> {
+    return this.request<any[]>("/api/v1/cost-management/providers");
+  }
 
-	async getHealthStatus(): Promise<any> {
-		return this.request<any>('/health/');
-	}
+  async createAgentBudget(
+    agentId: string,
+    monthlyBudget: number,
+    alertThreshold: number = 80,
+  ): Promise<any> {
+    return this.request<any>("/api/v1/cost-management/budgets", {
+      method: "POST",
+      body: JSON.stringify({
+        agent_id: agentId,
+        monthly_budget_usd: monthlyBudget,
+        alert_threshold_percentage: alertThreshold,
+      }),
+    });
+  }
 
-	async getDetailedHealth(): Promise<any> {
-		return this.request<any>('/health/detailed');
-	}
+  async getBudgetAlerts(agentId: string): Promise<any[]> {
+    return this.request<any[]>(
+      `/api/v1/cost-management/agents/${agentId}/alerts`,
+    );
+  }
 
-	// ============================================
-	// 👥 USER MANAGEMENT ENDPOINTS
-	// ============================================
+  // ============================================
+  // 🔍 HEALTH CHECK ENDPOINTS
+  // ============================================
 
-	async getProfile(): Promise<User> {
-		return this.request<User>('/api/v1/profile');
-	}
+  async getHealthStatus(): Promise<any> {
+    return this.request<any>("/health/");
+  }
 
-	async updateProfile(data: Partial<User>): Promise<User> {
-		return this.request<User>('/api/v1/profile', {
-			method: 'PUT',
-			body: JSON.stringify(data)
-		});
-	}
+  async getDetailedHealth(): Promise<any> {
+    return this.request<any>("/health/detailed");
+  }
 
-	async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-		await this.request<void>('/api/v1/auth/change-password', {
-			method: 'POST',
-			body: JSON.stringify({
-				current_password: currentPassword,
-				new_password: newPassword
-			})
-		});
-	}
+  // ============================================
+  // 👥 USER MANAGEMENT ENDPOINTS
+  // ============================================
+
+  async getProfile(): Promise<User> {
+    return this.request<User>("/api/v1/profile");
+  }
+
+  async updateProfile(data: Partial<User>): Promise<User> {
+    return this.request<User>("/api/v1/profile", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    await this.request<void>("/api/v1/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    });
+  }
 }
 
 // Singleton instance
@@ -262,37 +290,42 @@ export const apiClient = new ApiClient();
 
 // Helper functions for common operations
 export const api = {
-	// Authentication
-	login: (username: string, password: string) => apiClient.login(username, password),
-	logout: () => apiClient.logout(),
-	getUser: () => apiClient.getUser(),
+  // Authentication
+  login: (username: string, password: string) =>
+    apiClient.login(username, password),
+  logout: () => apiClient.logout(),
+  getUser: () => apiClient.getUser(),
 
-	// Agents
-	getAgents: () => apiClient.getAgents(),
-	executeAgent: (agentType: string, message: string, context?: any) => 
-		apiClient.executeAgent(agentType, message, context),
-	getAgentExecution: (executionId: string) => apiClient.getAgentExecution(executionId),
-	
-	// Vector Search
-	searchDocuments: (query: string, filters?: any) => apiClient.searchDocuments(query, filters),
-	indexDocument: (content: string, metadata?: any) => apiClient.indexDocument(content, metadata),
-	
-	// Analytics
-	getDashboard: (timeRange?: string) => apiClient.getDashboardAnalytics(timeRange),
-	getMetrics: () => apiClient.getPerformanceMetrics(),
-	getRealTime: () => apiClient.getRealTimeMetrics(),
-	
-	// Cost Management
-	getCosts: (timeRange?: string) => apiClient.getCostOverview(timeRange),
-	getAgentCosts: (agentId: string, timeRange?: string) => 
-		apiClient.getAgentCostSummary(agentId, timeRange),
-	
-	// Health
-	getHealth: () => apiClient.getHealthStatus(),
-	
-	// Profile
-	getProfile: () => apiClient.getProfile(),
-	updateProfile: (data: Partial<User>) => apiClient.updateProfile(data)
+  // Agents
+  getAgents: () => apiClient.getAgents(),
+  executeAgent: (agentType: string, message: string, context?: any) =>
+    apiClient.executeAgent(agentType, message, context),
+  getAgentExecution: (executionId: string) =>
+    apiClient.getAgentExecution(executionId),
+
+  // Vector Search
+  searchDocuments: (query: string, filters?: any) =>
+    apiClient.searchDocuments(query, filters),
+  indexDocument: (content: string, metadata?: any) =>
+    apiClient.indexDocument(content, metadata),
+
+  // Analytics
+  getDashboard: (timeRange?: string) =>
+    apiClient.getDashboardAnalytics(timeRange),
+  getMetrics: () => apiClient.getPerformanceMetrics(),
+  getRealTime: () => apiClient.getRealTimeMetrics(),
+
+  // Cost Management
+  getCosts: (timeRange?: string) => apiClient.getCostOverview(timeRange),
+  getAgentCosts: (agentId: string, timeRange?: string) =>
+    apiClient.getAgentCostSummary(agentId, timeRange),
+
+  // Health
+  getHealth: () => apiClient.getHealthStatus(),
+
+  // Profile
+  getProfile: () => apiClient.getProfile(),
+  updateProfile: (data: Partial<User>) => apiClient.updateProfile(data),
 };
 
 export default apiClient;

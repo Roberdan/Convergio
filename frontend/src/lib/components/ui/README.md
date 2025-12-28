@@ -33,17 +33,19 @@ src/lib/components/ui/
 ## 🎯 Component Categories
 
 ### Core UI Components
+
 Essential building blocks for user interfaces.
 
 - **Button**: Action triggers with multiple variants
 - **Input**: Form inputs with icons and validation
-- **Card**: Content containers 
+- **Card**: Content containers
 - **Badge**: Status indicators
 - **Avatar**: User representation
 - **Switch**: Boolean toggle
 - **Checkbox**: Selection input
 
 ### Dashboard Layout
+
 Components for dashboard and application layouts.
 
 - **DashboardLayout**: Main application layout
@@ -53,12 +55,14 @@ Components for dashboard and application layouts.
 - **GridContainer**: Responsive grid system
 
 ### Chart & Stats
+
 Components for data visualization and metrics.
 
 - **StatsCard**: Key performance indicators
 - **ChartCard**: Chart container with controls
 
 ### Navigation
+
 Components for application navigation.
 
 - **Breadcrumbs**: Navigation trail
@@ -66,6 +70,7 @@ Components for application navigation.
 - **NotificationDropdown**: Notification center
 
 ### Utilities
+
 Helper components for common UI patterns.
 
 - **Modal**: Dialog overlays
@@ -77,7 +82,7 @@ Helper components for common UI patterns.
 ### Import Components
 
 ```typescript
-import { Button, Input, Card, StatsCard } from '$lib/components/ui';
+import { Button, Input, Card, StatsCard } from "$lib/components/ui";
 ```
 
 ### Basic Usage
@@ -102,6 +107,7 @@ import { Button, Input, Card, StatsCard } from '$lib/components/ui';
 Versatile button component with multiple variants and states.
 
 #### Props
+
 - `variant`: `'primary' | 'secondary' | 'outline' | 'ghost'`
 - `size`: `'sm' | 'md' | 'lg' | 'icon'`
 - `loading`: `boolean`
@@ -130,6 +136,7 @@ Versatile button component with multiple variants and states.
 Form input with icons, validation states, and helper text.
 
 #### Props
+
 - `value`: `string`
 - `placeholder`: `string`
 - `variant`: `'default' | 'error' | 'success'`
@@ -161,6 +168,7 @@ Form input with icons, validation states, and helper text.
 Display key metrics with optional trend indicators.
 
 #### Props
+
 - `title`: `string`
 - `value`: `string | number`
 - `subtitle`: `string`
@@ -174,9 +182,9 @@ Display key metrics with optional trend indicators.
 
 ```svelte
 <!-- Basic stats card -->
-<StatsCard 
-  title="Total Users" 
-  value={1234} 
+<StatsCard
+  title="Total Users"
+  value={1234}
   icon="users"
   iconColor="primary"
 />
@@ -200,6 +208,7 @@ Display key metrics with optional trend indicators.
 Dialog component with backdrop and focus management.
 
 #### Props
+
 - `isOpen`: `boolean`
 - `title`: `string`
 - `size`: `'sm' | 'md' | 'lg' | 'xl' | 'full'`
@@ -217,7 +226,7 @@ Dialog component with backdrop and focus management.
 
 <Modal bind:isOpen={showModal} title="Confirm Action">
   <p>Are you sure you want to delete this item?</p>
-  
+
   <svelte:fragment slot="footer">
     <Button variant="outline" on:click={() => showModal = false}>
       Cancel
@@ -234,6 +243,7 @@ Dialog component with backdrop and focus management.
 Main application layout with sidebar and header.
 
 #### Props
+
 - `sidebarCollapsed`: `boolean`
 
 #### Examples
@@ -251,14 +261,14 @@ Main application layout with sidebar and header.
   <svelte:fragment slot="sidebar">
     <Sidebar {menuItems} collapsed={sidebarCollapsed} />
   </svelte:fragment>
-  
+
   <svelte:fragment slot="header">
-    <Header 
+    <Header
       title="Dashboard"
       on:toggle-sidebar={() => sidebarCollapsed = !sidebarCollapsed}
     />
   </svelte:fragment>
-  
+
   <!-- Main content -->
   <div class="p-6">
     <h1>Welcome to the Dashboard</h1>
@@ -275,16 +285,16 @@ All components use CSS custom properties for consistent theming:
 ```css
 :root {
   /* Colors */
-  --color-primary: theme('colors.primary.600');
-  --color-surface: theme('colors.surface.white');
-  
+  --color-primary: theme("colors.primary.600");
+  --color-surface: theme("colors.surface.white");
+
   /* Typography */
-  --font-primary: 'JetBrains Mono', monospace;
-  --font-secondary: 'Inter', sans-serif;
-  
+  --font-primary: "JetBrains Mono", monospace;
+  --font-secondary: "Inter", sans-serif;
+
   /* Spacing */
   --space-unit: 0.25rem; /* 4px */
-  
+
   /* Border radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -311,21 +321,25 @@ Components automatically support dark mode through CSS classes:
 ## ♿ Accessibility Features
 
 ### Keyboard Navigation
+
 - All interactive elements support keyboard navigation
 - Logical tab order throughout components
 - Escape key closes modals and dropdowns
 
 ### Screen Reader Support
+
 - Proper ARIA labels and roles
 - Descriptive text for complex interactions
 - Live regions for dynamic content updates
 
 ### Focus Management
+
 - Visible focus indicators
 - Focus trapping in modals
 - Automatic focus return after closing
 
 ### Color Contrast
+
 - WCAG AA compliant color combinations
 - Sufficient contrast for all text
 - Alternative indicators beyond color
@@ -366,10 +380,10 @@ npm run test:a11y
   interface $$Props {
     // Define all props with proper types
   }
-  
+
   // 2. Prop declarations with defaults
   export let prop: $$Props['prop'] = defaultValue;
-  
+
   // 3. Component logic
   // 4. Event dispatchers
   // 5. Reactive statements
@@ -431,16 +445,19 @@ npm run test:a11y
 ### Common Issues
 
 **Component not rendering**
+
 - Check if component is properly imported
 - Verify all required props are provided
 - Check console for TypeScript errors
 
 **Styling issues**
+
 - Ensure Tailwind CSS is properly configured
 - Check if design tokens are available
 - Verify dark mode classes are applied
 
 **Accessibility warnings**
+
 - Add missing ARIA labels
 - Ensure proper heading hierarchy
 - Check color contrast ratios

@@ -33,7 +33,7 @@
 <div class="space-y-6">
 	<!-- Font Family -->
 	<div>
-		<label class="block text-sm font-medium text-surface-900 mb-3">Font Family</label>
+		<div class="block text-sm font-medium text-surface-900 mb-3" role="group" aria-label="Font Family">Font Family</div>
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 			{#each fontOptions as font}
 				<button

@@ -88,7 +88,7 @@
 				selectedProjectId = projects[0].id;
 			}
 		} catch (err) {
-			console.error('Error loading projects:', err);
+			// Silent failure
 			error = err instanceof Error ? err.message : 'Failed to load projects';
 		} finally {
 			loading = false;
@@ -155,8 +155,8 @@
 			const newProject = await projectsService.createEngagement({ title, description });
 			await loadProjects(); // Reload to get updated data
 			selectedProjectId = newProject.id.toString();
-		} catch (err) {
-			console.error('Error creating project:', err);
+		} catch {
+			// Silent failure
 			error = 'Failed to create project';
 		}
 	}
@@ -409,9 +409,9 @@
 						{:else if selectedView === 'kanban'}
 							<KanbanBoard projectId={selectedProjectId} />
 						{:else if selectedView === 'resources'}
-							<ResourceManagement projectId={selectedProjectId} />
+							<ResourceManagement />
 						{:else if selectedView === 'analytics'}
-							<AnalyticsDashboard projectId={selectedProjectId} />
+							<AnalyticsDashboard />
 						{:else if selectedView === 'ali'}
 							<AliAssistant projectId={selectedProjectId} />
 						{/if}

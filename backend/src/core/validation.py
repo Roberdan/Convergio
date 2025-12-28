@@ -6,7 +6,7 @@ Comprehensive validation of environment and system configuration
 import os
 import asyncio
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, Tuple
 import structlog
 import asyncpg
 import redis.asyncio as redis
@@ -185,7 +185,7 @@ class ConfigurationValidator:
             
             # Test basic operations
             await client.set("test_key", "test_value", ex=60)
-            value = await client.get("test_key")
+            await client.get("test_key")
             await client.delete("test_key")
             
             await client.aclose()
@@ -405,7 +405,7 @@ def print_validation_report(results: Dict):
         for warning in results["warnings"]:
             print(f"  • {warning}")
     
-    print(f"\n📊 COMPONENT STATUS:")
+    print("\n📊 COMPONENT STATUS:")
     for component, details in results["details"].items():
         status_emoji = "✅" if details["status"] == "passed" else "❌" if details["status"] == "failed" else "⚠️"
         print(f"  {status_emoji} {component.replace('_', ' ').title()}: {details['status']}")

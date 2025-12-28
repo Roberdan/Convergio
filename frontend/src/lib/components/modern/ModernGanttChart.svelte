@@ -81,8 +81,8 @@
           };
         });
       }
-    } catch (error) {
-      console.error('Failed to load tasks:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -96,8 +96,8 @@
       } else {
         aiSuggestions = [];
       }
-    } catch (error) {
-      console.error('Failed to get AI suggestions:', error);
+    } catch {
+      // Silent failure
       aiSuggestions = [];
     }
   }
@@ -106,10 +106,9 @@
     selectedTask = task;
     dispatch('taskSelected', task);
   }
-  
-  function handleTaskDrag(task: any) {
+
+  function handleTaskDrag(task: any, e?: MouseEvent) {
     // Implement drag functionality for task scheduling
-    console.log('Dragging task:', task.name);
   }
   
   function getPriorityColor(priority: string): string {
@@ -150,8 +149,8 @@
         const optimization = await response.json();
         alert(`🤖 Ali's Optimization:\n\n${optimization.recommendation}`);
       }
-    } catch (error) {
-      console.error('Failed to get Ali optimization:', error);
+    } catch {
+      // Silent failure
       alert('Optimization service unavailable right now.');
     }
   }

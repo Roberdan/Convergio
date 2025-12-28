@@ -298,7 +298,7 @@
 													const current = values[field.name] || [];
 													const newValue = e.currentTarget.checked
 														? [...current, option.value]
-														: current.filter(v => v !== option.value);
+														: current.filter((v: any) => v !== option.value);
 													handleChange(field, newValue);
 												}}
 											/>

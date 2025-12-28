@@ -3,19 +3,24 @@
  * Combines Talents and Agents into a unified workforce view
  */
 
-import { talentsService, type Talent, type ProjectTeam, type ResourceProjects } from './talentsService';
-import { agentsService, type Agent } from './agentsService';
+import {
+  talentsService,
+  type Talent,
+  type ProjectTeam,
+  type ResourceProjects,
+} from "./talentsService";
+import { agentsService, type Agent } from "./agentsService";
 import {
   type UnifiedResource,
   type ResourceType,
   talentToResource,
   agentToResource,
-  getResourceId
-} from '$lib/types/resource';
+  getResourceId,
+} from "$lib/types/resource";
 
 export interface WorkforceFilter {
-  type?: ResourceType | 'all';
-  status?: 'active' | 'inactive' | 'busy' | 'all';
+  type?: ResourceType | "all";
+  status?: "active" | "inactive" | "busy" | "all";
   skill?: string;
   minAvailability?: number;
   tier?: string;
@@ -35,7 +40,7 @@ export interface WorkforceSummary {
 }
 
 class WorkforceService {
-  private baseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:9000'}/api/v1`;
+  private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
   /**
    * Get all workforce resources (talents + agents)
@@ -43,7 +48,7 @@ class WorkforceService {
   async getAll(): Promise<UnifiedResource[]> {
     const [talents, agents] = await Promise.all([
       talentsService.getTalents(),
-      agentsService.getAgents()
+      agentsService.getAgents(),
     ]);
 
     const talentResources = talents.map(talentToResource);
@@ -63,28 +68,42 @@ class WorkforceService {
   /**
    * Apply filter to resources in-memory
    */
-  applyFilter(resources: UnifiedResource[], filter: WorkforceFilter): UnifiedResource[] {
-    return resources.filter(resource => {
+  applyFilter(
+    resources: UnifiedResource[],
+    filter: WorkforceFilter,
+  ): UnifiedResource[] {
+    return resources.filter((resource) => {
       // Type filter
-      if (filter.type && filter.type !== 'all' && resource.type !== filter.type) {
+      if (
+        filter.type &&
+        filter.type !== "all" &&
+        resource.type !== filter.type
+      ) {
         return false;
       }
 
       // Status filter
-      if (filter.status && filter.status !== 'all' && resource.status !== filter.status) {
+      if (
+        filter.status &&
+        filter.status !== "all" &&
+        resource.status !== filter.status
+      ) {
         return false;
       }
 
       // Skill filter
       if (filter.skill) {
-        const hasSkill = resource.skills.some(
-          s => s.name.toLowerCase().includes(filter.skill!.toLowerCase())
+        const hasSkill = resource.skills.some((s) =>
+          s.name.toLowerCase().includes(filter.skill!.toLowerCase()),
         );
         if (!hasSkill) return false;
       }
 
       // Availability filter
-      if (filter.minAvailability !== undefined && resource.availability < filter.minAvailability) {
+      if (
+        filter.minAvailability !== undefined &&
+        resource.availability < filter.minAvailability
+      ) {
         return false;
       }
 
@@ -98,7 +117,9 @@ class WorkforceService {
         const searchLower = filter.search.toLowerCase();
         const matchesName = resource.name.toLowerCase().includes(searchLower);
         const matchesRole = resource.role.toLowerCase().includes(searchLower);
-        const matchesSkill = resource.skills.some(s => s.name.toLowerCase().includes(searchLower));
+        const matchesSkill = resource.skills.some((s) =>
+          s.name.toLowerCase().includes(searchLower),
+        );
         if (!matchesName && !matchesRole && !matchesSkill) return false;
       }
 
@@ -117,7 +138,7 @@ class WorkforceService {
    * Get available resources (availability >= threshold)
    */
   async getAvailable(minAvailability: number = 50): Promise<UnifiedResource[]> {
-    return this.getFiltered({ minAvailability, status: 'active' });
+    return this.getFiltered({ minAvailability, status: "active" });
   }
 
   /**
@@ -126,29 +147,30 @@ class WorkforceService {
   async getSummary(): Promise<WorkforceSummary> {
     const all = await this.getAll();
 
-    const talents = all.filter(r => r.type === 'talent');
-    const agents = all.filter(r => r.type === 'agent');
-    const active = all.filter(r => r.status === 'active');
+    const talents = all.filter((r) => r.type === "talent");
+    const agents = all.filter((r) => r.type === "agent");
+    const active = all.filter((r) => r.status === "active");
 
-    const avgUtilization = all.length > 0
-      ? all.reduce((sum, r) => sum + r.utilization, 0) / all.length
-      : 0;
+    const avgUtilization =
+      all.length > 0
+        ? all.reduce((sum, r) => sum + r.utilization, 0) / all.length
+        : 0;
 
     const totalCapacity = all.reduce((sum, r) => sum + 100, 0);
     const availableCapacity = all.reduce((sum, r) => sum + r.availability, 0);
 
     // Calculate skill distribution
     const skillDistribution: Record<string, number> = {};
-    all.forEach(r => {
-      r.skills.forEach(s => {
+    all.forEach((r) => {
+      r.skills.forEach((s) => {
         skillDistribution[s.name] = (skillDistribution[s.name] || 0) + 1;
       });
     });
 
     // Calculate tier distribution
     const tierDistribution: Record<string, number> = {};
-    all.forEach(r => {
-      const tier = r.tier || 'unspecified';
+    all.forEach((r) => {
+      const tier = r.tier || "unspecified";
       tierDistribution[tier] = (tierDistribution[tier] || 0) + 1;
     });
 
@@ -161,7 +183,7 @@ class WorkforceService {
       totalCapacity,
       availableCapacity,
       skillDistribution,
-      tierDistribution
+      tierDistribution,
     };
   }
 
@@ -170,7 +192,7 @@ class WorkforceService {
    */
   async getById(id: string): Promise<UnifiedResource | null> {
     const all = await this.getAll();
-    return all.find(r => r.id === id) || null;
+    return all.find((r) => r.id === id) || null;
   }
 
   /**
@@ -184,43 +206,53 @@ class WorkforceService {
     const team = await talentsService.getProjectTeam(projectId);
     const allResources = await this.getAll();
 
-    const talents = team.talents.map(assignment => {
-      const resource = allResources.find(r =>
-        r.type === 'talent' && getResourceId(r) === assignment.resource_id
-      );
-      return resource;
-    }).filter(Boolean) as UnifiedResource[];
+    const talents = team.talents
+      .map((assignment) => {
+        const resource = allResources.find(
+          (r) =>
+            r.type === "talent" && getResourceId(r) === assignment.resource_id,
+        );
+        return resource;
+      })
+      .filter(Boolean) as UnifiedResource[];
 
-    const agents = team.agents.map(assignment => {
-      const resource = allResources.find(r =>
-        r.type === 'agent' && getResourceId(r) === assignment.resource_id
-      );
-      return resource;
-    }).filter(Boolean) as UnifiedResource[];
+    const agents = team.agents
+      .map((assignment) => {
+        const resource = allResources.find(
+          (r) =>
+            r.type === "agent" && getResourceId(r) === assignment.resource_id,
+        );
+        return resource;
+      })
+      .filter(Boolean) as UnifiedResource[];
 
     return {
       talents,
       agents,
-      totalAllocation: team.total_allocation
+      totalAllocation: team.total_allocation,
     };
   }
 
   /**
    * Get resource's project assignments
    */
-  async getResourceProjects(resource: UnifiedResource): Promise<ResourceProjects | null> {
-    if (resource.type === 'talent') {
+  async getResourceProjects(
+    resource: UnifiedResource,
+  ): Promise<ResourceProjects | null> {
+    if (resource.type === "talent") {
       const talentId = getResourceId(resource) as number;
       return talentsService.getTalentProjects(talentId);
     }
-    // TODO: Implement agent projects when API is available
     return null;
   }
 
   /**
    * Calculate team cost estimate
    */
-  calculateTeamCost(resources: UnifiedResource[], allocations: Record<string, number>): {
+  calculateTeamCost(
+    resources: UnifiedResource[],
+    allocations: Record<string, number>,
+  ): {
     hourly: number;
     daily: number;
     monthly: number;
@@ -228,7 +260,7 @@ class WorkforceService {
     let hourly = 0;
     let daily = 0;
 
-    resources.forEach(resource => {
+    resources.forEach((resource) => {
       const allocation = (allocations[resource.id] || 100) / 100;
       if (resource.hourlyRate) {
         hourly += resource.hourlyRate * allocation;
@@ -243,14 +275,17 @@ class WorkforceService {
     return {
       hourly: Math.round(hourly * 100) / 100,
       daily: Math.round(daily * 100) / 100,
-      monthly: Math.round(daily * 20 * 100) / 100 // 20 working days
+      monthly: Math.round(daily * 20 * 100) / 100, // 20 working days
     };
   }
 
   /**
    * Get skill coverage analysis
    */
-  analyzeSkillCoverage(resources: UnifiedResource[], requiredSkills: string[]): {
+  analyzeSkillCoverage(
+    resources: UnifiedResource[],
+    requiredSkills: string[],
+  ): {
     covered: string[];
     missing: string[];
     coverage: number;
@@ -261,38 +296,41 @@ class WorkforceService {
       bestLevel: string;
     }>;
   } {
-    const skillDetails = requiredSkills.map(skill => {
-      const matchingResources = resources.filter(r =>
-        r.skills.some(s => s.name.toLowerCase() === skill.toLowerCase())
+    const skillDetails = requiredSkills.map((skill) => {
+      const matchingResources = resources.filter((r) =>
+        r.skills.some((s) => s.name.toLowerCase() === skill.toLowerCase()),
       );
 
       const bestLevel = matchingResources.reduce((best, r) => {
-        const skillEntry = r.skills.find(s => s.name.toLowerCase() === skill.toLowerCase());
+        const skillEntry = r.skills.find(
+          (s) => s.name.toLowerCase() === skill.toLowerCase(),
+        );
         if (!skillEntry) return best;
-        const levels = ['beginner', 'intermediate', 'advanced', 'expert'];
+        const levels = ["beginner", "intermediate", "advanced", "expert"];
         const currentIndex = levels.indexOf(skillEntry.level);
         const bestIndex = levels.indexOf(best);
         return currentIndex > bestIndex ? skillEntry.level : best;
-      }, 'beginner');
+      }, "beginner");
 
       return {
         skill,
         covered: matchingResources.length > 0,
-        resources: matchingResources.map(r => r.name),
-        bestLevel
+        resources: matchingResources.map((r) => r.name),
+        bestLevel,
       };
     });
 
-    const covered = skillDetails.filter(s => s.covered).map(s => s.skill);
-    const missing = skillDetails.filter(s => !s.covered).map(s => s.skill);
+    const covered = skillDetails.filter((s) => s.covered).map((s) => s.skill);
+    const missing = skillDetails.filter((s) => !s.covered).map((s) => s.skill);
 
     return {
       covered,
       missing,
-      coverage: requiredSkills.length > 0
-        ? Math.round((covered.length / requiredSkills.length) * 100)
-        : 100,
-      skillDetails
+      coverage:
+        requiredSkills.length > 0
+          ? Math.round((covered.length / requiredSkills.length) * 100)
+          : 100,
+      skillDetails,
     };
   }
 }

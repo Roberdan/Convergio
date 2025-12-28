@@ -2,11 +2,10 @@
 WebSocket connection management for agents
 """
 
-import json
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 import structlog
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 
 logger = structlog.get_logger()
 

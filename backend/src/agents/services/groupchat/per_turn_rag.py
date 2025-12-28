@@ -3,7 +3,6 @@ Per-Turn RAG Injection - Injects context at every conversation turn
 Ensures RAG context is updated and injected before each agent turn, not just at conversation start.
 """
 
-import asyncio
 from typing import Dict, Any, Optional, List, AsyncGenerator
 from datetime import datetime
 import hashlib
@@ -22,7 +21,6 @@ except ImportError:
     AUTOGEN_AVAILABLE = False
 
 from .rag import AdvancedRAGProcessor
-from src.agents.utils.config import get_settings
 from src.agents.utils.tracing import start_span
 from .conflict_detector import detect_conflicts
 

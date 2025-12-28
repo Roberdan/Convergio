@@ -33,7 +33,7 @@ Dependencies: Agent definition standardization, advanced UI components
 	let selectedTier = '';
 	let sortBy = 'name';
 	let sortOrder = 'asc';
-	let notification = null;
+	let notification: { message: string; type: 'success' | 'error' | 'info' } | null = null;
 	
 	// Reactive filtered agents
 	$: filteredAgents = $agents
@@ -65,8 +65,8 @@ Dependencies: Agent definition standardization, advanced UI components
 			
 			const data = await response.json();
 			agents.set(data.agents);
-		} catch (error) {
-			console.error('Failed to load agents:', error);
+		} catch {
+			// Silent failure
 			showNotification('Failed to load agents', 'error');
 		} finally {
 			isLoading = false;
@@ -78,20 +78,20 @@ Dependencies: Agent definition standardization, advanced UI components
 		isNewAgent.set(true);
 		showEditor.set(true);
 	}
-	
-	async function editAgent(agent) {
+
+	async function editAgent(agent: Agent) {
 		selectedAgent.set(agent);
 		isNewAgent.set(false);
 		showEditor.set(true);
 	}
-	
-	async function deleteAgent(agent) {
+
+	async function deleteAgent(agent: Agent) {
 		if (!confirm(`Are you sure you want to delete agent "${agent.name}"? This action cannot be undone.`)) {
 			return;
 		}
 		
 		try {
-			const response = await fetch(`/api/v1/agent-management/agents/${agent.key}`, {
+			const response = await fetch(`/api/v1/agent-management/agents/${agent.agent_key}`, {
 				method: 'DELETE'
 			});
 			
@@ -100,8 +100,8 @@ Dependencies: Agent definition standardization, advanced UI components
 			const result = await response.json();
 			showNotification(result.message, 'success');
 			await loadAgents();
-		} catch (error) {
-			console.error('Failed to delete agent:', error);
+		} catch {
+			// Silent failure
 			showNotification('Failed to delete agent', 'error');
 		}
 	}
@@ -117,19 +117,19 @@ Dependencies: Agent definition standardization, advanced UI components
 			const result = await response.json();
 			showNotification(`${result.message} (${result.agent_count} agents)`, 'success');
 			await loadAgents();
-		} catch (error) {
-			console.error('Failed to reload agents:', error);
+		} catch {
+			// Silent failure
 			showNotification('Failed to reload agents', 'error');
 		}
 	}
 	
-	function handleEditorSaved(event) {
+	function handleEditorSaved(event: CustomEvent<{ message: string }>) {
 		showNotification(event.detail.message, 'success');
 		showEditor.set(false);
 		loadAgents();
 	}
-	
-	function handleEditorError(event) {
+
+	function handleEditorError(event: CustomEvent<{ message: string }>) {
 		showNotification(event.detail.message, 'error');
 	}
 	
@@ -138,13 +138,13 @@ Dependencies: Agent definition standardization, advanced UI components
 		selectedAgent.set(null);
 	}
 	
-	function showNotification(message, type = 'info') {
+	function showNotification(message: string, type: 'success' | 'error' | 'info' = 'info') {
 		notification = { message, type };
 		setTimeout(() => notification = null, 5000);
 	}
-	
-	function getTierColor(tier) {
-		const colors = {
+
+	function getTierColor(tier: string): string {
+		const colors: Record<string, string> = {
 			'Strategic Leadership': 'bg-purple-100 text-purple-800',
 			'Technology & Engineering': 'bg-blue-100 text-blue-800',
 			'User Experience & Design': 'bg-green-100 text-green-800',
@@ -157,7 +157,7 @@ Dependencies: Agent definition standardization, advanced UI components
 		return colors[tier] || 'bg-surface-100 text-surface-800';
 	}
 	
-	function getAgentInitials(name) {
+	function getAgentInitials(name: string) {
 		return name.split('-')
 			.map(word => word[0]?.toUpperCase())
 			.join('')
@@ -342,8 +342,8 @@ Dependencies: Agent definition standardization, advanced UI components
 			</div>
 		{:else}
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-				{#each filteredAgents as agent (agent.key)}
-					<article class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow" aria-labelledby="agent-{agent.key}-name">
+				{#each filteredAgents as agent (agent.agent_key)}
+					<article class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow" aria-labelledby="agent-{agent.agent_key}-name">
 						<!-- Agent Header -->
 						<div class="p-4 border-b">
 							<div class="flex items-center space-x-3 mb-3">
@@ -357,7 +357,7 @@ Dependencies: Agent definition standardization, advanced UI components
 								</div>
 								<div class="flex-1 min-w-0">
 									<h3 id="agent-{agent.agent_key}-name" class="font-semibold text-surface-900 truncate" title={agent.name}>
-										{agent.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+										{agent.name.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
 									</h3>
 									<p class="text-sm text-surface-500 truncate" title={agent.description || 'No description available'}>
 										{agent.description || 'No description available'}

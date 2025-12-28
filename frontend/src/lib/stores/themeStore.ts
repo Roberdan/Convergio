@@ -3,16 +3,16 @@
  * Dark theme removed per user request
  */
 
-import { writable } from 'svelte/store';
-import { browser } from '$app/environment';
+import { writable } from "svelte/store";
+import { browser } from "$app/environment";
 
-export type Theme = 'light';
+export type Theme = "light";
 
 // Store per il tema corrente - sempre light
-export const theme = writable<Theme>('light');
+export const theme = writable<Theme>("light");
 
 // Store per il tema effettivo applicato - sempre light
-export const resolvedTheme = writable<'light'>('light');
+export const resolvedTheme = writable<"light">("light");
 
 /**
  * Inizializza il sistema temi - forza sempre light
@@ -21,10 +21,10 @@ export function initializeTheme() {
   if (!browser) return;
 
   // Rimuovi classe dark se presente
-  document.documentElement.classList.remove('dark');
+  document.documentElement.classList.remove("dark");
 
   // Forza tema chiaro
-  localStorage.setItem('theme', 'light');
+  localStorage.setItem("theme", "light");
 
   // Aggiorna meta theme-color per mobile
   updateMetaThemeColor();
@@ -35,13 +35,13 @@ export function initializeTheme() {
  */
 function updateMetaThemeColor() {
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-  const color = '#ffffff';
+  const color = "#ffffff";
 
   if (metaThemeColor) {
-    metaThemeColor.setAttribute('content', color);
+    metaThemeColor.setAttribute("content", color);
   } else {
-    const meta = document.createElement('meta');
-    meta.name = 'theme-color';
+    const meta = document.createElement("meta");
+    meta.name = "theme-color";
     meta.content = color;
     document.head.appendChild(meta);
   }
@@ -65,7 +65,7 @@ export const themeUtils = {
 
   isDark(): boolean {
     return false; // Sempre false
-  }
+  },
 };
 
 // Auto-inizializzazione se in browser

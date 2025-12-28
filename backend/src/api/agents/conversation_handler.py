@@ -2,7 +2,6 @@
 Conversation handlers for agent interactions
 """
 
-import asyncio
 import json
 from datetime import datetime
 from typing import Any, Dict, Optional
@@ -14,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...agents.orchestrator import get_agent_orchestrator
 from ...agents.services.streaming_orchestrator import get_streaming_orchestrator
-from ...agents.services.groupchat.selection_metrics import get_selection_metrics
 from ...core.redis import cache_get, cache_set
 from ...api.user_keys import get_user_api_key
 from ...services.unified_cost_tracker import UnifiedCostTracker
@@ -45,7 +43,7 @@ async def handle_conversation(
     user_id = request.user_id or "anonymous"
     
     logger.info(
-        f"📝 Starting conversation",
+        "📝 Starting conversation",
         conversation_id=conversation_id,
         user_id=user_id,
         mode=request.mode
@@ -176,7 +174,7 @@ async def handle_conversation(
                 logger.warning(f"⚠️ Failed to track conversation cost: {e}")
         
         logger.info(
-            f"✅ Conversation completed",
+            "✅ Conversation completed",
             conversation_id=conversation_id,
             agents_used=result.get("agents_used"),
             turn_count=result.get("turn_count"),
@@ -279,7 +277,7 @@ async def handle_streaming_conversation(
     user_id = request.user_id or "anonymous"
     
     logger.info(
-        f"🔄 Starting streaming conversation",
+        "🔄 Starting streaming conversation",
         conversation_id=conversation_id,
         user_id=user_id
     )

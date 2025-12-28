@@ -254,7 +254,7 @@ class RedisApprovalStore:
         )
         
         logger.info(
-            f"🔐 Approval requested",
+            "🔐 Approval requested",
             approval_id=approval_id,
             risk_level=risk_level.value,
             action=action_type

@@ -4,8 +4,7 @@ Unified streaming implementation supporting both Agent Framework and AutoGen.
 """
 
 import asyncio
-import json
-from typing import AsyncGenerator, Dict, Any, Optional, Set, Union
+from typing import AsyncGenerator, Dict, Any, Optional, Set
 from datetime import datetime
 from uuid import uuid4
 from dataclasses import dataclass
@@ -33,7 +32,6 @@ except ImportError:
     AssistantAgent = None
     AutoGenTextMessage = None
 
-from .response_types import StreamingResponse
 
 logger = structlog.get_logger()
 

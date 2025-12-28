@@ -60,7 +60,6 @@
         apiKeyConfigured = true;
       }
     } catch (error) {
-      console.log('Could not check environment/API key status, assuming development');
       apiKeyConfigured = true;
     }
     
@@ -122,7 +121,6 @@
 
         if (response.ok) {
           const result = await response.json();
-          console.log('✅ Ali Response SUCCESS:', result);
           const aiResponse = {
             id: Date.now() + 1,
             type: 'ai',
@@ -132,9 +130,7 @@
           };
           messages = [...messages, aiResponse];
         } else {
-          // Log the actual error for debugging
           const errorText = await response.text();
-          console.error('❌ Ali API Error:', response.status, response.statusText, errorText);
           const aiResponse = {
             id: Date.now() + 1,
             type: 'ai',
@@ -143,8 +139,8 @@
           };
           messages = [...messages, aiResponse];
         }
-    } catch (error) {
-      console.error('Ali communication error:', error);
+    } catch {
+      // Silent failure
       const errorResponse = {
         id: Date.now() + 1,
         type: 'ai',

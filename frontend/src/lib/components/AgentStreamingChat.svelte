@@ -63,7 +63,6 @@
       ws = new WebSocket(wsUrl);
       
       ws.onopen = () => {
-        console.log('WebSocket connected to agent:', agentName);
         connectionState.set('connected');
         reconnectAttempts = 0;
         
@@ -79,13 +78,12 @@
         handleWebSocketMessage(event.data);
       };
       
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+      ws.onerror = () => {
+        // Silent failure
         connectionState.set('error');
       };
       
       ws.onclose = () => {
-        console.log('WebSocket disconnected');
         connectionState.set('disconnected');
         
         // Attempt reconnection with exponential backoff
@@ -97,8 +95,8 @@
           }, delay);
         }
       };
-    } catch (error) {
-      console.error('Failed to connect WebSocket:', error);
+    } catch {
+      // Silent failure
       connectionState.set('error');
     }
   }
@@ -111,7 +109,6 @@
       switch (message.type) {
         case 'system':
           // System message (like connection confirmation)
-          console.log('System message:', message.message);
           break;
           
         case 'typing':
@@ -187,8 +184,8 @@
           isTyping = false;
           break;
       }
-    } catch (error) {
-      console.error('Failed to parse WebSocket message:', error);
+    } catch {
+      // Silent failure
     }
   }
   

@@ -4,7 +4,6 @@ Agent Compatibility Validation Script
 Validates all agent .md files for Microsoft Agent Framework compatibility
 """
 
-import os
 import re
 import yaml
 from pathlib import Path
@@ -76,7 +75,7 @@ def extract_frontmatter(content: str) -> Tuple[Dict[str, Any], str]:
         frontmatter = yaml.safe_load(match.group(1))
         body = match.group(2)
         return frontmatter, body
-    except yaml.YAMLError as e:
+    except yaml.YAMLError:
         return {}, content
 
 
@@ -427,7 +426,7 @@ def main():
     output_path = backend_dir.parent / "docs" / "AGENT_COMPATIBILITY_REPORT.md"
     output_path.parent.mkdir(exist_ok=True)
 
-    print(f"📝 Generating compatibility report...")
+    print("📝 Generating compatibility report...")
     generate_compatibility_report(validations, output_path)
 
     print(f"✅ Report generated: {output_path}")

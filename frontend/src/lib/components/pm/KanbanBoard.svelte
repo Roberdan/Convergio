@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { projectsService } from '$lib/services/projectsService';
+	import { projectsService, type Activity } from '$lib/services/projectsService';
 
 	// Props
 	export let projectId: string;
@@ -38,7 +38,7 @@
 	let draggedTask: Task | null = null;
 	let showTaskModal = false;
 	let newTask: Partial<Task> = {};
-	let activities: any[] = [];
+	let activities: Activity[] = [];
 
 	onMount(async () => {
 		await loadKanbanData();
@@ -181,8 +181,8 @@
 					}
 				];
 			}
-		} catch (error) {
-			console.error('Error loading kanban data:', error);
+		} catch {
+			// Silent failure
 			// Set empty state on error instead of mock data
 			columns = [
 				{
@@ -363,8 +363,10 @@
 		<div class="kanban-columns p-6">
 			<div class="flex space-x-6 overflow-x-auto">
 				{#each columns as column}
-					<div 
+					<div
 						class="kanban-column flex-shrink-0 w-80"
+						role="region"
+						aria-label="Kanban column: {column.title}"
 						on:dragover={handleDragOver}
 						on:drop={event => handleDrop(event, column.id)}
 					>
@@ -388,8 +390,11 @@
 						<!-- Tasks -->
 						<div class="tasks-container min-h-[400px] max-h-[600px] overflow-y-auto p-2 space-y-3 bg-surface-50  rounded-b-lg">
 							{#each column.tasks as task}
-								<div 
+								<div
 									class="task-card card p-4 cursor-move border-l-4 {getPriorityColor(task.priority)} hover:shadow-md transition-all duration-200"
+									role="button"
+									tabindex="0"
+									aria-label="Task: {task.title}"
 									draggable="true"
 									on:dragstart={event => handleDragStart(event, task)}
 								>
@@ -481,11 +486,11 @@
 
 <!-- Task Creation Modal -->
 {#if showTaskModal}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" on:click={() => showTaskModal = false}>
-		<div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 p-6" on:click|stopPropagation>
+	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="button" tabindex="0" on:click={() => showTaskModal = false} on:keydown={e => e.key === 'Escape' && (showTaskModal = false)}>
+		<div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 p-6" role="dialog" aria-modal="true" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
 			<div class="flex items-center justify-between mb-6">
 				<h4 class="text-lg font-semibold text-surface-900 ">Create New Task</h4>
-				<button on:click={() => showTaskModal = false} class="text-surface-500 hover:text-surface-700">
+				<button aria-label="Close modal" on:click={() => showTaskModal = false} class="text-surface-500 hover:text-surface-700">
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 					</svg>
@@ -494,19 +499,19 @@
 			
 			<form class="space-y-4">
 				<div>
-					<label class="block text-sm font-medium text-surface-700  mb-2">Task Title</label>
-					<input type="text" bind:value={newTask.title} class="input" placeholder="Enter task title...">
+					<label for="task-title" class="block text-sm font-medium text-surface-700  mb-2">Task Title</label>
+					<input id="task-title" type="text" bind:value={newTask.title} class="input" placeholder="Enter task title...">
 				</div>
-				
+
 				<div>
-					<label class="block text-sm font-medium text-surface-700  mb-2">Description</label>
-					<textarea bind:value={newTask.description} class="input" rows="3" placeholder="Describe the task..."></textarea>
+					<label for="task-description" class="block text-sm font-medium text-surface-700  mb-2">Description</label>
+					<textarea id="task-description" bind:value={newTask.description} class="input" rows="3" placeholder="Describe the task..."></textarea>
 				</div>
 				
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label class="block text-sm font-medium text-surface-700  mb-2">Priority</label>
-						<select bind:value={newTask.priority} class="input">
+						<label for="task-priority" class="block text-sm font-medium text-surface-700  mb-2">Priority</label>
+						<select id="task-priority" bind:value={newTask.priority} class="input">
 							<option value="low">Low</option>
 							<option value="medium">Medium</option>
 							<option value="high">High</option>
@@ -514,14 +519,14 @@
 						</select>
 					</div>
 					<div>
-						<label class="block text-sm font-medium text-surface-700  mb-2">Due Date</label>
-						<input type="date" bind:value={newTask.dueDate} class="input">
+						<label for="task-due-date" class="block text-sm font-medium text-surface-700  mb-2">Due Date</label>
+						<input id="task-due-date" type="date" bind:value={newTask.dueDate} class="input">
 					</div>
 				</div>
-				
+
 				<div>
-					<label class="block text-sm font-medium text-surface-700  mb-2">Estimated Hours</label>
-					<input type="number" bind:value={newTask.estimatedHours} class="input" min="0" placeholder="0">
+					<label for="task-estimated-hours" class="block text-sm font-medium text-surface-700  mb-2">Estimated Hours</label>
+					<input id="task-estimated-hours" type="number" bind:value={newTask.estimatedHours} class="input" min="0" placeholder="0">
 				</div>
 				
 				<div class="flex justify-end space-x-3 pt-4">

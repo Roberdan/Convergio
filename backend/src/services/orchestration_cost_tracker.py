@@ -3,21 +3,17 @@ Orchestration Cost Tracking Service
 Integrates cost tracking with AI orchestration activities for budget management and optimization
 """
 
-import asyncio
-import json
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 from uuid import UUID
-from decimal import Decimal
 import structlog
 
-from sqlalchemy import select, update, delete, and_, or_, func, desc
+from sqlalchemy import select, func, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_async_session
 from ..models.project_orchestration import (
-    ProjectOrchestration, ProjectAgentAssignment, ProjectConversation,
-    ProjectTouchpoint, OrchestrationStatus
+    ProjectOrchestration, ProjectAgentAssignment
 )
 from ..services.unified_cost_tracker import unified_cost_tracker
 from ..services.realtime_streaming_service import publish_orchestration_update
@@ -475,7 +471,7 @@ class OrchestrationCostTracker:
         
         try:
             completed_stages = await db.scalar(stmt) or 0
-        except:
+        except Exception:
             completed_stages = 0
         
         total_stages = 6  # Default journey stages

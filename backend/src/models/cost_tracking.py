@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Optional
 
 from sqlalchemy import (
-    DECIMAL, JSON, Boolean, DateTime, Float, ForeignKey, Index, Integer,
+    DECIMAL, JSON, Boolean, DateTime, Float, Index, Integer,
     String, Text, UniqueConstraint, func
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship

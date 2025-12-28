@@ -3,11 +3,9 @@
 Real AI-powered responses for individual autonomous agents
 """
 
-import logging
 from typing import Dict, Any, Optional
 from datetime import datetime
 import httpx
-import json
 import os
 
 import structlog
@@ -123,7 +121,7 @@ class AgentIntelligence:
                     web_result = await web_tool.run(search_args)
                     
                     if '"error"' not in web_result:
-                        data_sources.append(f"🌐 Perplexity: Real-time web search completed")
+                        data_sources.append("🌐 Perplexity: Real-time web search completed")
                 except Exception as e:
                     logger.debug(f"Perplexity search failed: {e}")
             
@@ -231,7 +229,7 @@ class AgentIntelligence:
             "• Is this about our internal metrics or market analysis?",
             "• Would you like strategic recommendations or just data?",
             "",
-            f"With more context, I can leverage both our internal data and AI analysis to give you comprehensive insights."
+            "With more context, I can leverage both our internal data and AI analysis to give you comprehensive insights."
         ]
         
         return "\n".join(clarifications)
@@ -306,7 +304,7 @@ Be organized, proactive, and detail-oriented."""
             base_prompt = agent_prompts[agent_id]
         else:
             base_prompt = f"""You are {name}, a specialized AI agent for platform.Convergio.io.
-{description if description else f'You are an expert specialist in your domain.'}
+{description if description else 'You are an expert specialist in your domain.'}
 {f'Operating at the {tier} tier of the organization.' if tier else ''}
 {f'Your tools include: {", ".join(tools)}' if tools else ''}
 {f'Your areas of expertise: {", ".join(expertise)}' if expertise else ''}"""
@@ -337,9 +335,9 @@ Respond naturally and intelligently to the user's query, leveraging your specifi
         # Smart responses based on agent type and message content
         if 'amy' in agent_id or 'cfo' in agent_id:
             if any(word in message_lower for word in ['msft', 'microsoft', 'stock', 'market']):
-                return f"As CFO, I need to analyze the latest financial data for Microsoft (MSFT). The stock has shown significant volatility this year. For accurate trend analysis, I would need to access real-time market data and perform a comprehensive financial review including revenue growth, profit margins, and market positioning."
+                return "As CFO, I need to analyze the latest financial data for Microsoft (MSFT). The stock has shown significant volatility this year. For accurate trend analysis, I would need to access real-time market data and perform a comprehensive financial review including revenue growth, profit margins, and market positioning."
             elif any(word in message_lower for word in ['budget', 'cost', 'expense']):
-                return f"From a financial perspective, budget optimization is critical. I recommend conducting a detailed cost analysis across all departments, identifying areas for efficiency improvements, and implementing strategic cost controls while maintaining growth investments."
+                return "From a financial perspective, budget optimization is critical. I recommend conducting a detailed cost analysis across all departments, identifying areas for efficiency improvements, and implementing strategic cost controls while maintaining growth investments."
             else:
                 return f"As Chief Financial Officer, I'll provide you with comprehensive financial analysis. {message} requires careful evaluation of financial metrics, market conditions, and strategic implications. Let me analyze the financial aspects and provide data-driven recommendations."
         

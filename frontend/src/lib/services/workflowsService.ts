@@ -21,7 +21,7 @@ export interface WorkflowStep {
 export interface WorkflowExecution {
   execution_id: string;
   workflow_id: string;
-  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+  status: "pending" | "running" | "completed" | "failed" | "cancelled";
   started_at: string;
   completed_at?: string;
   duration_seconds?: number;
@@ -41,89 +41,99 @@ export interface RecentExecution {
 }
 
 class WorkflowsService {
-  private baseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:9000'}/api/v1`;
+  private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
   async getWorkflows(): Promise<Workflow[]> {
     try {
       const response = await fetch(`${this.baseUrl}/workflows/`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return data.workflows || [];
     } catch (error) {
-      console.error('Failed to fetch workflows:', error);
+      // Silent failure
       throw error;
     }
   }
 
   async getWorkflowExecution(executionId: string): Promise<WorkflowExecution> {
     try {
-      const response = await fetch(`${this.baseUrl}/workflows/execution/${executionId}`);
-      
+      const response = await fetch(
+        `${this.baseUrl}/workflows/execution/${executionId}`,
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch workflow execution:', error);
+      // Silent failure
       throw error;
     }
   }
 
   async getRecentExecutions(): Promise<RecentExecution[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/workflows/executions/recent`);
-      
+      const response = await fetch(
+        `${this.baseUrl}/workflows/executions/recent`,
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return data.executions || [];
     } catch (error) {
-      console.error('Failed to fetch recent executions:', error);
+      // Silent failure
       throw error;
     }
   }
 
   async getWorkflowDetails(workflowId: string): Promise<any> {
     try {
-      const response = await fetch(`${this.baseUrl}/workflows/${workflowId}/details`);
-      
+      const response = await fetch(
+        `${this.baseUrl}/workflows/${workflowId}/details`,
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch workflow details:', error);
+      // Silent failure
       throw error;
     }
   }
-  
-  async executeWorkflow(workflowId: string, userRequest: string, userId: string = 'dashboard-user'): Promise<any> {
+
+  async executeWorkflow(
+    workflowId: string,
+    userRequest: string,
+    userId: string = "dashboard-user",
+  ): Promise<any> {
     try {
       const response = await fetch(`${this.baseUrl}/workflows/execute`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workflow_id: workflowId,
           user_request: userRequest,
-          user_id: userId
-        })
+          user_id: userId,
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Failed to execute workflow:', error);
+      // Silent failure
       throw error;
     }
   }

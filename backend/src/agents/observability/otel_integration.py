@@ -5,8 +5,7 @@ Comprehensive observability with spans export and metrics collection
 
 import os
 import json
-from datetime import datetime
-from typing import Dict, Any, Optional, List, Callable
+from typing import Dict, Any, Optional
 from contextlib import contextmanager
 import structlog
 
@@ -15,7 +14,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
-from opentelemetry.sdk.metrics import MeterProvider, Counter, Histogram, UpDownCounter
+from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.trace import Status, StatusCode
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
@@ -39,6 +38,13 @@ try:
     REDIS_INSTRUMENTATION_AVAILABLE = True
 except ImportError:
     REDIS_INSTRUMENTATION_AVAILABLE = False
+
+try:
+    from opentelemetry.exporter.prometheus import PrometheusMetricReader
+    PROMETHEUS_AVAILABLE = True
+except ImportError:
+    PROMETHEUS_AVAILABLE = False
+    PrometheusMetricReader = None
 
 from ..utils.config import get_settings
 
@@ -162,10 +168,12 @@ class OTELManager:
             logger.info(f"📊 OTLP metric exporter configured: {otlp_endpoint}")
         
         # Add Prometheus exporter
-        if enable_prometheus:
+        if enable_prometheus and PROMETHEUS_AVAILABLE:
             prometheus_reader = PrometheusMetricReader()
             readers.append(prometheus_reader)
             logger.info("📈 Prometheus metric exporter enabled on :9090/metrics")
+        elif enable_prometheus:
+            logger.warning("⚠️ Prometheus requested but not available - install opentelemetry-exporter-prometheus")
         
         # Create meter provider
         provider = MeterProvider(

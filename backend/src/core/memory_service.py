@@ -6,22 +6,20 @@ Redis is used only as a cache layer with 15-minute TTL
 
 import json
 import hashlib
-import asyncio
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 from enum import Enum
 import uuid
 
 import structlog
 import redis.asyncio as redis
-from sqlalchemy import text, select, and_, or_
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
 
 from ai_clients import batch_create_embeddings, get_embedding
 from vector_utils import VectorOperations
-from database import get_async_session
 
 logger = structlog.get_logger()
 

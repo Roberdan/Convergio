@@ -3,15 +3,14 @@ Multi-Agent Routing Fix
 Ensures proper multi-agent conversation with turn_count > 1
 """
 
-import asyncio
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 import structlog
 
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.teams import RoundRobinGroupChat, SelectorGroupChat
-from autogen_agentchat.messages import TextMessage, ToolCallMessage, ToolCallResultMessage
-from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermination
+from autogen_agentchat.messages import TextMessage
+from autogen_agentchat.conditions import MaxMessageTermination
 
 from .intelligent_router import IntelligentAgentRouter
 from .metrics import extract_agents_used
@@ -415,7 +414,7 @@ class MultiAgentConversationFixer:
         }
         
         logger.info(
-            f"✅ Multi-agent conversation completed",
+            "✅ Multi-agent conversation completed",
             turn_count=turn_count,
             agents_used=agents_used,
             duration=f"{duration:.2f}s"

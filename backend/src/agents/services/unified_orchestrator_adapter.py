@@ -8,7 +8,6 @@ from typing import Dict, List, Any, Optional, AsyncGenerator
 from datetime import datetime
 from .redis_state_manager import RedisStateManager
 from src.services.unified_cost_tracker import unified_cost_tracker
-from uuid import UUID
 import structlog
 
 logger = structlog.get_logger()

@@ -16,7 +16,7 @@ except ImportError:
     OpenAIChatCompletionClient = None
     AUTOGEN_AVAILABLE = False
 
-from ..agent_loader import DynamicAgentLoader, AgentMetadata
+from ..agent_loader import DynamicAgentLoader
 from .agent_instructions import optimize_agent_prompt
 
 

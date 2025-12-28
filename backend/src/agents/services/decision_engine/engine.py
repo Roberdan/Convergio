@@ -36,7 +36,6 @@ class DecisionEngine:
 
     def plan(self, message: str, context: Optional[Dict[str, Any]] = None) -> DecisionPlan:
         start = time.time()
-        ctx = context or {}
 
         # Analyze message using existing SmartToolSelector (regex + heuristics)
         analysis = SmartToolSelector.analyze_query(message)

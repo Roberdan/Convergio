@@ -64,7 +64,7 @@
 			<input
 				{...$$restProps}
 				bind:this={checkboxElement}
-				{id}
+				id={checkboxId}
 				type="checkbox"
 				bind:checked
 				{disabled}
@@ -126,7 +126,7 @@
 		@apply flex items-center justify-center border-2 border-gray-300 rounded transition-all duration-200 bg-white cursor-pointer;
 	}
 
-	.dark .checkbox-visual {
+	:global(.dark) .checkbox-visual {
 		@apply border-gray-600 bg-gray-800;
 	}
 
@@ -134,7 +134,7 @@
 		@apply ring-2 ring-primary-500 ring-offset-2;
 	}
 
-	.dark .checkbox:focus + .checkbox-visual {
+	:global(.dark) .checkbox:focus + .checkbox-visual {
 		@apply ring-offset-gray-800;
 	}
 
@@ -155,7 +155,7 @@
 		@apply opacity-50 cursor-not-allowed bg-gray-100 border-gray-200;
 	}
 
-	.dark .checkbox-disabled + .checkbox-visual {
+	:global(.dark) .checkbox-disabled + .checkbox-visual {
 		@apply bg-gray-900 border-gray-700;
 	}
 
@@ -163,7 +163,7 @@
 		@apply border-gray-400;
 	}
 
-	.dark .checkbox-visual:hover {
+	:global(.dark) .checkbox-visual:hover {
 		@apply border-gray-500;
 	}
 
@@ -176,7 +176,7 @@
 		@apply border-gray-200;
 	}
 
-	.dark .checkbox-disabled + .checkbox-visual:hover {
+	:global(.dark) .checkbox-disabled + .checkbox-visual:hover {
 		@apply border-gray-700;
 	}
 
@@ -231,7 +231,7 @@
 		font-family: var(--font-primary);
 	}
 
-	.dark .checkbox-label {
+	:global(.dark) .checkbox-label {
 		@apply text-gray-300;
 	}
 
@@ -240,7 +240,7 @@
 		font-family: var(--font-primary);
 	}
 
-	.dark .checkbox-description {
+	:global(.dark) .checkbox-description {
 		@apply text-gray-400;
 	}
 
@@ -249,7 +249,7 @@
 		font-family: var(--font-primary);
 	}
 
-	.dark .checkbox-error-text {
+	:global(.dark) .checkbox-error-text {
 		@apply text-error-400;
 	}
 </style>

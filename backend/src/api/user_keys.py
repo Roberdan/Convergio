@@ -4,12 +4,10 @@ Secure handling of user-provided API keys for AI services
 """
 
 import logging
-from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Depends, Request
+from typing import Dict, Optional
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
-import json
 import hashlib
-import base64
 from cryptography.fernet import Fernet
 import os
 

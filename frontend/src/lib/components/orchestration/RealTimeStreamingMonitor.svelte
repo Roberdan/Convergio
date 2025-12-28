@@ -6,7 +6,6 @@
   
   export let orchestrationId: string = '';
   export let websocketConnection: WebSocket | null = null;
-  export let realTimeMetrics: any = {};
   
   interface StreamingUpdate {
     id: string;
@@ -32,7 +31,7 @@
     connected: false,
     latency: 0,
     messages_received: 0,
-    last_heartbeat: null
+    last_heartbeat: null as string | null
   });
   
   let selectedFilter = 'all';
@@ -104,8 +103,8 @@
         if (originalOnMessage) {
           originalOnMessage.call(websocketConnection, event);
         }
-      } catch (error) {
-        console.error('Error parsing streaming update:', error);
+      } catch {
+        // Silent failure
       }
     };
     
@@ -140,8 +139,8 @@
             timestamp: new Date().toISOString()
           });
         }
-      } catch (error) {
-        console.error('Polling error:', error);
+      } catch {
+        // Silent failure
       }
     }, 5000);
   }

@@ -2,12 +2,11 @@
 Agent Management API - CRUD operations for AI agents
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from pathlib import Path
 import json
-import yaml
 
 from ..agents.services.agent_loader import DynamicAgentLoader
 from pydantic import BaseModel
@@ -15,8 +14,6 @@ from pydantic import BaseModel
 router = APIRouter(tags=["Agent Management"])
 
 # Initialize agent loader
-import os
-from pathlib import Path
 
 # Get absolute path to agent definitions
 current_dir = Path(__file__).parent.parent  # Go up to src/

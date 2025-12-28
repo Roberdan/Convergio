@@ -188,12 +188,13 @@ def get_vector_client() -> VectorSearchClient:
     """Get a vector search client instance, falling back gracefully in dev."""
     try:
         return VectorSearchClient()
-    except Exception as e:
+    except Exception:
         # Fallback client shim when config/env isn't available
         class _DevClient:
             def embed_text(self, text: str, metadata: dict = None) -> dict:
                 # Deterministic mock embedding based on text hash for stability
-                import hashlib, random
+                import hashlib
+                import random
                 h = hashlib.sha256((text or "").encode()).hexdigest()
                 rnd = random.Random(int(h[:8], 16))
                 return {

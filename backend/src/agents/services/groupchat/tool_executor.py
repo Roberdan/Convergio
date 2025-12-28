@@ -136,7 +136,7 @@ class GroupChatToolExecutor:
                 # Parse arguments
                 try:
                     args = json.loads(raw_args) if isinstance(raw_args, str) else raw_args
-                except:
+                except Exception:
                     args = {}
                 
                 # Execute based on tool name

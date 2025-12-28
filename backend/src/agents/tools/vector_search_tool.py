@@ -5,9 +5,7 @@ Enables agents to perform semantic search on the vector database
 
 from typing import Any, Dict, List, Optional, Literal
 import json
-import asyncio
 from datetime import datetime
-import os
 
 import structlog
 from pydantic import BaseModel
@@ -162,7 +160,7 @@ class DocumentEmbeddingTool(BaseTool):
             JSON string with embedding result
         """
         try:
-            logger.info(f"🔢 Creating embedding", text_length=len(args.text), doc_id=args.document_id)
+            logger.info("🔢 Creating embedding", text_length=len(args.text), doc_id=args.document_id)
             
             async with httpx.AsyncClient() as client:
                 response = await client.post(

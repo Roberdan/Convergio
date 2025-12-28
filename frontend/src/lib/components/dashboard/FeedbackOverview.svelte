@@ -53,8 +53,8 @@
       
       feedback = feedbackData || [];
       stats = statsData;
-    } catch (err) {
-      console.error('Failed to load feedback data:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load feedback data';
     } finally {
       loading = false;

@@ -56,8 +56,8 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
         throw new Error(result.error || 'Failed to load timeline');
       }
     } catch (err) {
+      // Silent failure
       error = err instanceof Error ? err.message : 'Unknown error occurred';
-      console.error('Error loading timeline:', err);
     } finally {
       loading = false;
     }

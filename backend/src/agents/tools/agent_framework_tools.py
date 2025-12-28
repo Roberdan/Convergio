@@ -3,9 +3,8 @@ Agent Framework Tools - Decorated with @ai_function
 Migrates from AutoGen FunctionTool/BaseTool to Agent Framework decorator pattern
 """
 
-from typing import Any, Dict, List, Optional, Literal
+from typing import Any, Dict, List, Literal
 import json
-import asyncio
 import os
 from datetime import datetime
 import structlog
@@ -20,7 +19,6 @@ except ImportError:
         return func
     AGENT_FRAMEWORK_AVAILABLE = False
 
-from sqlalchemy import text
 from src.core.database import get_async_session
 from src.models.talent import Talent
 
@@ -401,7 +399,7 @@ async def get_engagement_analytics(
         JSON string with engagement analytics data
     """
     try:
-        logger.info(f"Fetching engagement analytics", analysis_type=analysis_type)
+        logger.info("Fetching engagement analytics", analysis_type=analysis_type)
         base_url = os.getenv("BACKEND_URL", "http://localhost:9000")
 
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -461,7 +459,7 @@ async def get_business_intelligence(
         JSON string with business intelligence data
     """
     try:
-        logger.info(f"Generating business intelligence", focus_area=focus_area)
+        logger.info("Generating business intelligence", focus_area=focus_area)
         base_url = os.getenv("BACKEND_URL", "http://localhost:9000")
 
         report = {

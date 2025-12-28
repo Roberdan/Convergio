@@ -34,8 +34,8 @@
       handleStreamMessage(data);
     };
     
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+    ws.onerror = () => {
+      // Silent failure
       addSystemMessage('Connection error occurred');
     };
     

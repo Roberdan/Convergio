@@ -3,7 +3,7 @@
   import { writable } from 'svelte/store';
   import { Card, Badge, Button, Avatar } from '$lib/components/ui';
   import { slide, scale } from 'svelte/transition';
-  
+
   export let agentAssignments: any[] = [];
   export let orchestrationId: string = '550e8400-e29b-41d4-a716-446655440000'; // Default UUID format
   
@@ -56,7 +56,7 @@
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
       const response = await fetch(`${apiUrl}/api/v1/pm/orchestration/projects/${orchestrationId}/collaboration`);
-      
+
       if (response.ok) {
         const data = await response.json();
         collaborationMatrix = data.collaboration_matrix || {};
@@ -64,8 +64,8 @@
         // Fallback to mock data
         collaborationMatrix = generateMockCollaborationMatrix();
       }
-    } catch (error) {
-      console.error('Error loading collaboration data:', error);
+    } catch {
+      // Silent failure
       collaborationMatrix = generateMockCollaborationMatrix();
     }
   }
@@ -194,13 +194,13 @@
           optimization_goals: ['efficiency', 'collaboration']
         })
       });
-      
+
       if (response.ok) {
         // Reload data to show optimization results
         window.location.reload();
       }
-    } catch (error) {
-      console.error('Error optimizing collaboration:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -441,44 +441,45 @@
     <div transition:scale>
       <Card>
         <div class="p-4">
-        <div class="flex items-center justify-between mb-4">
-          <h4 class="font-medium text-surface-900 ">
-            🔗 {selectedAgent} Collaboration Matrix
-          </h4>
-          <button
-            on:click={() => selectedAgent = null}
-            class="text-surface-400 hover:text-surface-600"
-          >
-            ✕
-          </button>
-        </div>
-        
-        <div class="space-y-2">
-          {#each agentAssignments as otherAgent}
-            {#if otherAgent.agent_name !== selectedAgent}
-              {@const strength = getCollaborationStrength(selectedAgent, otherAgent.agent_name)}
-              <div class="flex items-center justify-between py-2">
-                <div class="flex items-center space-x-3">
-                  <span class="text-xl">{getAgentProfile(otherAgent.agent_name).avatar}</span>
-                  <span class="text-sm font-medium text-surface-900 ">
-                    {otherAgent.agent_name}
-                  </span>
-                </div>
-                
-                <div class="flex items-center space-x-2">
-                  <div class="w-24 bg-gray-200 rounded-full h-2">
-                    <div 
-                      class="h-2 rounded-full transition-all duration-500 {getPerformanceColor(strength, 'bg')}"
-                      style="width: {strength * 100}%"
-                    ></div>
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-medium text-surface-900 ">
+              🔗 {selectedAgent} Collaboration Matrix
+            </h4>
+            <button
+              on:click={() => selectedAgent = null}
+              class="text-surface-400 hover:text-surface-600"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            {#each agentAssignments as otherAgent}
+              {#if otherAgent.agent_name !== selectedAgent}
+                {@const strength = getCollaborationStrength(selectedAgent, otherAgent.agent_name)}
+                <div class="flex items-center justify-between py-2">
+                  <div class="flex items-center space-x-3">
+                    <span class="text-xl">{getAgentProfile(otherAgent.agent_name).avatar}</span>
+                    <span class="text-sm font-medium text-surface-900 ">
+                      {otherAgent.agent_name}
+                    </span>
                   </div>
-                  <span class="text-xs font-medium {getPerformanceColor(strength, 'text')} w-10">
-                    {Math.round(strength * 100)}%
-                  </span>
+
+                  <div class="flex items-center space-x-2">
+                    <div class="w-24 bg-gray-200 rounded-full h-2">
+                      <div
+                        class="h-2 rounded-full transition-all duration-500 {getPerformanceColor(strength, 'bg')}"
+                        style="width: {strength * 100}%"
+                      ></div>
+                    </div>
+                    <span class="text-xs font-medium {getPerformanceColor(strength, 'text')} w-10">
+                      {Math.round(strength * 100)}%
+                    </span>
+                  </div>
                 </div>
-              </div>
-            {/if}
-          {/each}
+              {/if}
+            {/each}
+          </div>
         </div>
       </Card>
     </div>

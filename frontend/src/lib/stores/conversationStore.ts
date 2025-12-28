@@ -3,8 +3,9 @@
  * Manages persistent conversations for each agent with AutoGen Memory integration
  */
 
-import { writable, derived } from 'svelte/store';
-import type { Writable, Readable } from 'svelte/store';
+import { writable, derived, get } from "svelte/store";
+import type { Writable, Readable } from "svelte/store";
+import { authStore } from "$lib/auth/auth.store";
 
 export interface ConversationMessage {
   id: string;
@@ -12,8 +13,8 @@ export interface ConversationMessage {
   agentName: string;
   content: string;
   timestamp: Date;
-  type: 'user' | 'agent';
-  status: 'sending' | 'sent' | 'error';
+  type: "user" | "agent";
+  status: "sending" | "sent" | "error";
 }
 
 export interface AgentConversation {
@@ -21,7 +22,7 @@ export interface AgentConversation {
   agentName: string;
   messages: ConversationMessage[];
   lastActivity: Date;
-  status: 'active' | 'waiting' | 'idle' | 'error';
+  status: "active" | "waiting" | "idle" | "error";
   conversationId: string;
   summary?: string;
 }
@@ -29,20 +30,24 @@ export interface AgentConversation {
 export interface AgentStatus {
   id: string;
   name: string;
-  status: 'active' | 'waiting' | 'idle' | 'error';
+  status: "active" | "waiting" | "idle" | "error";
   lastActivity: Date;
   conversationCount: number;
 }
 
 // Main conversation store
-const conversationsStore: Writable<Map<string, AgentConversation>> = writable(new Map());
+const conversationsStore: Writable<Map<string, AgentConversation>> = writable(
+  new Map(),
+);
 export const conversations = conversationsStore;
 
 // Current active agent
 export const currentAgentId: Writable<string | null> = writable(null);
 
 // Agent status tracking
-const agentStatusStore: Writable<Map<string, AgentStatus>> = writable(new Map());
+const agentStatusStore: Writable<Map<string, AgentStatus>> = writable(
+  new Map(),
+);
 export const agentStatuses = agentStatusStore;
 
 // Derived store for current conversation
@@ -51,33 +56,33 @@ export const currentConversation: Readable<AgentConversation | null> = derived(
   ([$conversations, $currentAgentId]) => {
     if (!$currentAgentId) return null;
     return $conversations.get($currentAgentId) || null;
-  }
+  },
 );
 
 // Conversation management functions
 export const conversationManager = {
   // Initialize conversation for an agent
   initializeConversation(agentId: string, agentName: string): void {
-    conversationsStore.update(conversations => {
+    conversationsStore.update((conversations) => {
       if (!conversations.has(agentId)) {
         const newConversation: AgentConversation = {
           agentId,
           agentName,
           messages: [],
           lastActivity: new Date(),
-          status: 'idle',
+          status: "idle",
           conversationId: `conv_${agentId}_${Date.now()}`,
         };
         conversations.set(agentId, newConversation);
-        
+
         // Initialize agent status
-        agentStatusStore.update(statuses => {
+        agentStatusStore.update((statuses) => {
           statuses.set(agentId, {
             id: agentId,
             name: agentName,
-            status: 'idle',
+            status: "idle",
             lastActivity: new Date(),
-            conversationCount: 0
+            conversationCount: 0,
           });
           return statuses;
         });
@@ -92,32 +97,32 @@ export const conversationManager = {
   },
 
   // Add message to conversation
-  addMessage(agentId: string, message: Omit<ConversationMessage, 'id'>): void {
+  addMessage(agentId: string, message: Omit<ConversationMessage, "id">): void {
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    conversationsStore.update(conversations => {
+
+    conversationsStore.update((conversations) => {
       const conversation = conversations.get(agentId);
       if (conversation) {
         const newMessage: ConversationMessage = {
           ...message,
-          id: messageId
+          id: messageId,
         };
-        
+
         conversation.messages.push(newMessage);
         conversation.lastActivity = new Date();
-        conversation.status = message.type === 'user' ? 'waiting' : 'active';
-        
+        conversation.status = message.type === "user" ? "waiting" : "active";
+
         conversations.set(agentId, conversation);
       }
       return conversations;
     });
 
     // Update agent status
-    agentStatusStore.update(statuses => {
+    agentStatusStore.update((statuses) => {
       const status = statuses.get(agentId);
       if (status) {
         status.lastActivity = new Date();
-        status.status = message.type === 'user' ? 'waiting' : 'active';
+        status.status = message.type === "user" ? "waiting" : "active";
         status.conversationCount = status.conversationCount + 1;
         statuses.set(agentId, status);
       }
@@ -126,11 +131,15 @@ export const conversationManager = {
   },
 
   // Update message status
-  updateMessageStatus(agentId: string, messageId: string, status: 'sending' | 'sent' | 'error'): void {
-    conversationsStore.update(conversations => {
+  updateMessageStatus(
+    agentId: string,
+    messageId: string,
+    status: "sending" | "sent" | "error",
+  ): void {
+    conversationsStore.update((conversations) => {
       const conversation = conversations.get(agentId);
       if (conversation) {
-        const message = conversation.messages.find(m => m.id === messageId);
+        const message = conversation.messages.find((m) => m.id === messageId);
         if (message) {
           message.status = status;
         }
@@ -141,8 +150,11 @@ export const conversationManager = {
   },
 
   // Update agent status
-  updateAgentStatus(agentId: string, status: 'active' | 'waiting' | 'idle' | 'error'): void {
-    agentStatusStore.update(statuses => {
+  updateAgentStatus(
+    agentId: string,
+    status: "active" | "waiting" | "idle" | "error",
+  ): void {
+    agentStatusStore.update((statuses) => {
       const agentStatus = statuses.get(agentId);
       if (agentStatus) {
         agentStatus.status = status;
@@ -153,7 +165,7 @@ export const conversationManager = {
     });
 
     // Also update conversation status
-    conversationsStore.update(conversations => {
+    conversationsStore.update((conversations) => {
       const conversation = conversations.get(agentId);
       if (conversation) {
         conversation.status = status;
@@ -165,13 +177,13 @@ export const conversationManager = {
 
   // Reset conversation (start new)
   resetConversation(agentId: string): void {
-    conversationsStore.update(conversations => {
+    conversationsStore.update((conversations) => {
       const conversation = conversations.get(agentId);
       if (conversation) {
         conversation.messages = [];
         conversation.conversationId = `conv_${agentId}_${Date.now()}`;
         conversation.lastActivity = new Date();
-        conversation.status = 'idle';
+        conversation.status = "idle";
         conversation.summary = undefined;
         conversations.set(agentId, conversation);
       }
@@ -179,30 +191,30 @@ export const conversationManager = {
     });
 
     // Reset agent status
-    this.updateAgentStatus(agentId, 'idle');
+    this.updateAgentStatus(agentId, "idle");
   },
 
   // Delete conversation
   deleteConversation(agentId: string): void {
-    conversationsStore.update(conversations => {
+    conversationsStore.update((conversations) => {
       conversations.delete(agentId);
       return conversations;
     });
 
-    agentStatusStore.update(statuses => {
+    agentStatusStore.update((statuses) => {
       statuses.delete(agentId);
       return statuses;
     });
 
     // If this was the current agent, clear selection
-    currentAgentId.update(current => current === agentId ? null : current);
+    currentAgentId.update((current) => (current === agentId ? null : current));
   },
 
   // Get conversation history
   getConversationHistory(agentId: string): ConversationMessage[] {
     let conversation: AgentConversation | undefined;
-    
-    conversations.subscribe(convs => {
+
+    conversations.subscribe((convs) => {
       conversation = convs.get(agentId);
     })();
 
@@ -212,7 +224,7 @@ export const conversationManager = {
   // Get full conversation object (helper for UI components)
   getConversation(agentId: string): AgentConversation | null {
     let conversation: AgentConversation | null = null;
-    conversations.subscribe(convs => {
+    conversations.subscribe((convs) => {
       conversation = convs.get(agentId) || null;
     })();
     return conversation;
@@ -221,77 +233,92 @@ export const conversationManager = {
   // Save conversation to backend (AutoGen Memory integration)
   async saveConversationToMemory(agentId: string): Promise<void> {
     let conversation: AgentConversation | undefined;
-    
-    conversations.subscribe(convs => {
+
+    conversations.subscribe((convs) => {
       conversation = convs.get(agentId);
     })();
 
-    if (!conversation || !conversation.messages || conversation.messages.length === 0) return;
+    if (
+      !conversation ||
+      !conversation.messages ||
+      conversation.messages.length === 0
+    )
+      return;
 
     try {
+      // Get current user from auth store
+      const auth = get(authStore);
+      const userId = auth.user?.id ?? "anonymous";
+
       // Save to AutoGen Memory system
-      const response = await fetch('http://localhost:9000/api/v1/agents/conversation/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          conversation_id: conversation.conversationId,
-          agent_id: agentId,
-          messages: conversation.messages,
-          user_id: 'user_default', // TODO: Get from auth
-          summary: conversation.summary
-        })
-      });
+      const response = await fetch(
+        "http://localhost:9000/api/v1/agents/conversation/save",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            conversation_id: conversation.conversationId,
+            agent_id: agentId,
+            messages: conversation.messages,
+            user_id: userId,
+            summary: conversation.summary,
+          }),
+        },
+      );
 
       if (!response.ok) {
-        console.error('Failed to save conversation to memory');
+        // Silent failure - conversation will be saved on next attempt
       }
-    } catch (error) {
-      console.error('Error saving conversation:', error);
+    } catch {
+      // Silent failure - network issues are handled by retry
     }
   },
 
   // Load conversation from backend (AutoGen Memory)
-  async loadConversationFromMemory(agentId: string, conversationId?: string): Promise<void> {
+  async loadConversationFromMemory(
+    agentId: string,
+    conversationId?: string,
+  ): Promise<void> {
     try {
-      const url = conversationId 
+      const url = conversationId
         ? `http://localhost:9000/api/v1/agents/conversation/load/${conversationId}`
         : `http://localhost:9000/api/v1/agents/conversation/load/latest/${agentId}`;
-        
+
       const response = await fetch(url);
-      
+
       if (response.ok) {
         const data = await response.json();
-        
+
         // Restore conversation from memory
-        conversationsStore.update(conversations => {
+        conversationsStore.update((conversations) => {
           const restoredConversation: AgentConversation = {
             agentId,
             agentName: data.agent_name,
             messages: data.messages.map((msg: any) => ({
               ...msg,
-              timestamp: new Date(msg.timestamp)
+              timestamp: new Date(msg.timestamp),
             })),
             lastActivity: new Date(data.last_activity),
-            status: 'idle',
+            status: "idle",
             conversationId: data.conversation_id,
-            summary: data.summary
+            summary: data.summary,
           };
-          
+
           conversations.set(agentId, restoredConversation);
           return conversations;
         });
       }
-    } catch (error) {
-      console.error('Error loading conversation:', error);
+    } catch {
+      // Silent failure - will use empty conversation
     }
-  }
+  },
 };
 
 // Initialize on page load
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   // Auto-save conversations periodically
   setInterval(() => {
-    conversations.subscribe(convs => {
+    conversations.subscribe((convs) => {
       convs.forEach((conv, agentId) => {
         if (conv.messages.length > 0) {
           conversationManager.saveConversationToMemory(agentId);

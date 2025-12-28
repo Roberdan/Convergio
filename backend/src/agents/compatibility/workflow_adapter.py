@@ -2,7 +2,7 @@
 Workflow Adapter - Provides compatibility between AutoGen teams and Agent Framework workflows
 """
 
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any, Dict, List, Optional
 import structlog
 
 logger = structlog.get_logger()

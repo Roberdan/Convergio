@@ -4,29 +4,169 @@
 	import Chart from 'chart.js/auto';
 	import 'chartjs-adapter-date-fns';
 
-	// === 🚀 CEO DASHBOARD SUPREME - DATA STORES === 
-	let systemHealth = writable({});
-	let agentMetrics = writable({});
-	let swarmStatus = writable({});
-	let costMetrics = writable({});
-	let taskMetrics = writable({});
-	let performanceMetrics = writable({});
-	let recentActivities = writable([]);
-	
+	// Type definitions
+	interface SystemHealth {
+		[key: string]: any;
+	}
+
+	interface AgentMetrics {
+		total_agents?: number;
+		available_agents?: number;
+		success_rate?: number;
+		efficiency_score?: number;
+		coordination_factor?: number;
+	}
+
+	interface SwarmStatus {
+		active_tasks?: number;
+		[key: string]: any;
+	}
+
+	interface CostMetrics {
+		total_cost?: number;
+		optimization_potential?: number;
+		cost_per_task?: number;
+		monthly_projection?: number;
+		[key: string]: any;
+	}
+
+	interface TaskMetrics {
+		completed_today?: number;
+		pending_tasks?: number;
+		success_rate?: number;
+		avg_completion_time?: number;
+		complex_tasks_ratio?: number;
+		agent_collaboration_index?: number;
+		user_satisfaction_score?: number;
+		[key: string]: any;
+	}
+
+	interface PerformanceMetrics {
+		uptime_percentage?: number;
+		[key: string]: any;
+	}
+
+	interface Activity {
+		id: number;
+		type: string;
+		description: string;
+		agent: string;
+		time: string;
+		status: string;
+		impact: string;
+		confidence?: number;
+	}
+
+	interface PredictiveAnalytics {
+		growth_rate?: number;
+		[key: string]: any;
+	}
+
+	interface Recommendation {
+		type?: string;
+		priority?: string;
+		impact?: number;
+		description?: string;
+		action?: string;
+	}
+
+	interface MLInsights {
+		confidence_score?: number;
+		recommendations?: Recommendation[];
+		[key: string]: any;
+	}
+
+	interface ExecutiveInsight {
+		category: string;
+		insight: string;
+		impact: string;
+		trend: string;
+	}
+
+	interface BusinessIntelligence {
+		overall_score?: number;
+		executive_insights?: ExecutiveInsight[];
+		[key: string]: any;
+	}
+
+	interface FinancialKPIs {
+		roi_on_ai?: number;
+		revenue_impact?: number;
+		[key: string]: any;
+	}
+
+	interface StrategicKPIs {
+		digital_transformation_index?: number;
+		innovation_pipeline?: number;
+		competitive_advantage?: number;
+		[key: string]: any;
+	}
+
+	interface OperationalKPIs {
+		process_automation?: number;
+		[key: string]: any;
+	}
+
+	interface AdvancedKPIs {
+		financial_kpis?: FinancialKPIs;
+		strategic_kpis?: StrategicKPIs;
+		operational_kpis?: OperationalKPIs;
+		[key: string]: any;
+	}
+
+	interface AutomatedReport {
+		id: number;
+		type: string;
+		title: string;
+		status: string;
+		generated: string;
+		insights: number;
+		recommendations: number;
+		confidenceScore: number;
+	}
+
+	interface NextQuarter {
+		growth_projection?: number;
+		cost_forecast?: number;
+		efficiency_gain?: number;
+		new_capabilities?: number;
+	}
+
+	interface ExecutiveForecast {
+		next_quarter?: NextQuarter;
+		strategic_opportunities?: string[];
+		risk_mitigation?: string[];
+		[key: string]: any;
+	}
+
+	interface Notification {
+		message: string;
+		type: 'success' | 'error' | 'info';
+	}
+
+	// === 🚀 CEO DASHBOARD SUPREME - DATA STORES ===
+	let systemHealth = writable<SystemHealth>({});
+	let agentMetrics = writable<AgentMetrics>({});
+	let swarmStatus = writable<SwarmStatus>({});
+	let costMetrics = writable<CostMetrics>({});
+	let taskMetrics = writable<TaskMetrics>({});
+	let performanceMetrics = writable<PerformanceMetrics>({});
+	let recentActivities = writable<Activity[]>([]);
+
 	// === 🧠 PREDICTIVE ANALYTICS STORES ===
-	let predictiveAnalytics = writable({});
-	let mlInsights = writable({});
-	let businessIntelligence = writable({});
-	let advancedKPIs = writable({});
-	let automatedReports = writable([]);
-	let executiveForecast = writable({});
+	let predictiveAnalytics = writable<PredictiveAnalytics>({});
+	let mlInsights = writable<MLInsights>({});
+	let businessIntelligence = writable<BusinessIntelligence>({});
+	let advancedKPIs = writable<AdvancedKPIs>({});
+	let automatedReports = writable<AutomatedReport[]>([]);
+	let executiveForecast = writable<ExecutiveForecast>({});
 
 	// === 🎨 UI STATE ===
 	let isLoading = true;
 	let selectedTimeRange = '24h';
 	let selectedView = 'overview';
 	let autoRefresh = true;
-	let notification = null;
+	let notification: Notification | null = null;
 	let isDarkMode = false;
 	let aiAssistantActive = false;
 
@@ -43,11 +183,11 @@
 	$: aiConfidence = $mlInsights.confidence_score || 0;
 	$: businessScore = $businessIntelligence.overall_score || 0;
 
-	onMount(async () => {
-		await loadSupremeDashboardData();
+	onMount(() => {
+		loadSupremeDashboardData();
 		initializeCharts();
 		startAIAnalysis();
-		
+
 		// Auto-refresh with intelligent intervals
 		const refreshInterval = setInterval(() => {
 			if (autoRefresh) {
@@ -55,7 +195,7 @@
 				updatePredictiveModels();
 			}
 		}, selectedTimeRange === '1h' ? 10000 : 30000); // Faster refresh for short intervals
-		
+
 		return () => clearInterval(refreshInterval);
 	});
 
@@ -328,8 +468,8 @@
 				}
 			]);
 
-		} catch (error) {
-			console.error('Failed to load supreme dashboard data:', error);
+		} catch {
+			// Silent failure
 			showNotification('Failed to load advanced dashboard data', 'error');
 		} finally {
 			isLoading = false;
@@ -339,7 +479,7 @@
 	// === 📈 INITIALIZE ADVANCED CHARTS ===
 	function initializeCharts() {
 		// Performance Trend Chart
-		const perfCtx = document.getElementById('performanceChart');
+		const perfCtx = document.getElementById('performanceChart') as HTMLCanvasElement | null;
 		if (perfCtx) {
 			new Chart(perfCtx, {
 				type: 'line',
@@ -375,8 +515,8 @@
 			});
 		}
 
-		// Cost Optimization Chart  
-		const costCtx = document.getElementById('costTrendChart');
+		// Cost Optimization Chart
+		const costCtx = document.getElementById('costTrendChart') as HTMLCanvasElement | null;
 		if (costCtx) {
 			new Chart(costCtx, {
 				type: 'bar',
@@ -402,7 +542,7 @@
 		}
 
 		// Predictive Analytics Chart
-		const predCtx = document.getElementById('predictiveChart');
+		const predCtx = document.getElementById('predictiveChart') as HTMLCanvasElement | null;
 		if (predCtx) {
 			new Chart(predCtx, {
 				type: 'line',
@@ -469,12 +609,12 @@
 	}
 
 	// === 🎨 UI HELPER FUNCTIONS ===
-	function showNotification(message, type = 'info') {
+	function showNotification(message: string, type: 'success' | 'error' | 'info' = 'info') {
 		notification = { message, type };
 		setTimeout(() => notification = null, 8000);
 	}
 
-	function formatCurrency(amount) {
+	function formatCurrency(amount: number) {
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
 			currency: 'USD',
@@ -482,12 +622,12 @@
 		}).format(amount);
 	}
 
-	function formatPercentage(value) {
+	function formatPercentage(value: number) {
 		return `${value.toFixed(1)}%`;
 	}
 
-	function getStatusColor(status) {
-		const colors = {
+	function getStatusColor(status: string) {
+		const colors: Record<string, string> = {
 			success: 'text-green-600',
 			in_progress: 'text-blue-600',
 			warning: 'text-yellow-600',
@@ -497,8 +637,8 @@
 		return colors[status] || 'text-surface-600';
 	}
 
-	function getStatusIcon(status) {
-		const icons = {
+	function getStatusIcon(status: string) {
+		const icons: Record<string, string> = {
 			success: '✅',
 			in_progress: '⏳',
 			warning: '⚠️',
@@ -513,10 +653,10 @@
 		return icons[status] || '📋';
 	}
 
-	function getImpactBadge(impact) {
-		const badges = {
+	function getImpactBadge(impact: string) {
+		const badges: Record<string, string> = {
 			high: 'bg-red-100 text-red-800',
-			medium: 'bg-yellow-100 text-yellow-800', 
+			medium: 'bg-yellow-100 text-yellow-800',
 			low: 'bg-green-100 text-green-800'
 		};
 		return badges[impact] || 'bg-surface-100 text-surface-800';
@@ -582,10 +722,10 @@
 {/if}
 
 <!-- ===== 🏆 CEO DASHBOARD SUPREME MAIN CONTAINER ===== -->
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 transition-all duration-300" class:={isDarkMode} class:={isDarkMode}>
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 transition-all duration-300" class:dark={isDarkMode}>
 	
 	<!-- ===== 🎯 SUPREME HEADER ===== -->
-	<div class="bg-white shadow-lg border-b border-surface-200" class:={isDarkMode} class:={isDarkMode}>
+	<div class="bg-white shadow-lg border-b border-surface-200" class:dark={isDarkMode}>
 		<div class="max-w-7xl mx-auto px-6 py-6">
 			<div class="flex justify-between items-center">
 				<div>
@@ -593,7 +733,7 @@
 						👑 CEO Dashboard Supreme
 					</h1>
 					<div class="flex items-center space-x-4">
-						<p class="text-surface-600" class:={isDarkMode}>Convergio AI Platform - Strategic Command Center</p>
+						<p class="text-surface-600" class:dark={isDarkMode}>Convergio AI Platform - Strategic Command Center</p>
 						{#if aiAssistantActive}
 							<div class="flex items-center space-x-2 px-3 py-1 bg-blue-100 rounded-full animate-pulse">
 								<div class="w-2 h-2 bg-blue-600 rounded-full"></div>
@@ -608,7 +748,7 @@
 					<!-- View Selector -->
 					<select 
 						bind:value={selectedView}
-						class="px-4 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" class:={isDarkMode} class:={isDarkMode}>
+						class="px-4 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" class:dark={isDarkMode}>
 						<option value="overview">Executive Overview</option>
 						<option value="predictive">Predictive Analytics</option>
 						<option value="intelligence">Business Intelligence</option>
@@ -618,7 +758,7 @@
 					<!-- Time Range Selector -->
 					<select 
 						bind:value={selectedTimeRange}
-						class="px-4 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" class:={isDarkMode} class:={isDarkMode}>
+						class="px-4 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" class:dark={isDarkMode}>
 						<option value="1h">Last Hour</option>
 						<option value="24h">Last 24 Hours</option>
 						<option value="7d">Last 7 Days</option>
@@ -629,18 +769,18 @@
 					<!-- Dark Mode Toggle -->
 					<button
 						on:click={toggleDarkMode}
-						class="p-2 rounded-lg border border-surface-300 hover:bg-surface-50 transition-colors" class:={isDarkMode} class:={isDarkMode}>
+						class="p-2 rounded-lg border border-surface-300 hover:bg-surface-50 transition-colors" class:dark={isDarkMode}>
 						{isDarkMode ? '☀️' : '🌙'}
 					</button>
 					
 					<!-- Auto Refresh Toggle -->
-					<label class="flex items-center space-x-2 px-3 py-2 bg-surface-50 rounded-lg" class:={isDarkMode}>
+					<label class="flex items-center space-x-2 px-3 py-2 bg-surface-50 rounded-lg" class:dark={isDarkMode}>
 						<input 
 							type="checkbox" 
 							bind:checked={autoRefresh}
 							class="rounded text-blue-600 focus:ring-blue-500"
 						/>
-						<span class="text-sm text-surface-600 font-medium" class:={isDarkMode}>Auto Refresh</span>
+						<span class="text-sm text-surface-600 font-medium" class:dark={isDarkMode}>Auto Refresh</span>
 					</label>
 					
 					<!-- Manual Refresh Button -->
@@ -675,10 +815,10 @@
 					<div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
 					<div class="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-t-2 border-purple-600"></div>
 				</div>
-				<span class="mt-6 text-2xl text-surface-600 font-medium" class:={isDarkMode}>Loading Supreme Dashboard...</span>
-				<div class="mt-4 flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full" class:={isDarkMode}>
+				<span class="mt-6 text-2xl text-surface-600 font-medium" class:dark={isDarkMode}>Loading Supreme Dashboard...</span>
+				<div class="mt-4 flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full" class:dark={isDarkMode}>
 					<div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-					<span class="text-sm text-blue-800 font-medium" class:={isDarkMode}>AI Analytics Engine Initializing</span>
+					<span class="text-sm text-blue-800 font-medium" class:dark={isDarkMode}>AI Analytics Engine Initializing</span>
 				</div>
 			</div>
 		{:else}
@@ -716,12 +856,12 @@
 				<!-- ===== 🎯 EXECUTIVE KPIS ROW ===== -->
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
 					<!-- System Health -->
-					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>System Health</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:dark={isDarkMode}>System Health</p>
 								<p class="text-3xl font-bold text-green-600 mt-2">{formatPercentage(systemUptime)}</p>
-								<p class="text-xs text-surface-500 mt-1 flex items-center" class:={isDarkMode}>
+								<p class="text-xs text-surface-500 mt-1 flex items-center" class:dark={isDarkMode}>
 									<span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
 									Operational
 								</p>
@@ -735,12 +875,12 @@
 					</div>
 
 					<!-- AI Agents Status -->
-					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>AI Agents</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:dark={isDarkMode}>AI Agents</p>
 								<p class="text-3xl font-bold text-blue-600 mt-2">{availableAgents}/{totalAgents}</p>
-								<p class="text-xs text-green-600 mt-1 font-semibold">+{formatPercentage($agentMetrics.efficiency_score)} Efficiency</p>
+								<p class="text-xs text-green-600 mt-1 font-semibold">+{formatPercentage($agentMetrics.efficiency_score ?? 0)} Efficiency</p>
 							</div>
 							<div class="p-4 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl">
 								<svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -751,12 +891,12 @@
 					</div>
 
 					<!-- Swarm Intelligence -->
-					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>Swarm Tasks</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:dark={isDarkMode}>Swarm Tasks</p>
 								<p class="text-3xl font-bold text-purple-600 mt-2">{swarmTasks}</p>
-								<p class="text-xs text-purple-600 mt-1 font-semibold">Coordination: {formatPercentage($agentMetrics.coordination_factor * 100)}</p>
+								<p class="text-xs text-purple-600 mt-1 font-semibold">Coordination: {formatPercentage(($agentMetrics.coordination_factor ?? 0) * 100)}</p>
 							</div>
 							<div class="p-4 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl">
 								<svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -767,12 +907,12 @@
 					</div>
 
 					<!-- Cost Intelligence -->
-					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>Smart Costs</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:dark={isDarkMode}>Smart Costs</p>
 								<p class="text-3xl font-bold text-green-600 mt-2">{formatCurrency(totalCosts)}</p>
-								<p class="text-xs text-green-600 mt-1 font-semibold">-{formatPercentage($costMetrics.optimization_potential)}% Optimized</p>
+								<p class="text-xs text-green-600 mt-1 font-semibold">-{formatPercentage($costMetrics.optimization_potential ?? 0)}% Optimized</p>
 							</div>
 							<div class="p-4 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl">
 								<svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -783,12 +923,12 @@
 					</div>
 
 					<!-- Task Success Rate -->
-					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>Success Rate</p>
-								<p class="text-3xl font-bold text-indigo-600 mt-2">{formatPercentage($taskMetrics.success_rate)}</p>
-								<p class="text-xs text-indigo-600 mt-1 font-semibold">User Satisfaction: {$taskMetrics.user_satisfaction_score}/5</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:dark={isDarkMode}>Success Rate</p>
+								<p class="text-3xl font-bold text-indigo-600 mt-2">{formatPercentage($taskMetrics.success_rate ?? 0)}</p>
+								<p class="text-xs text-indigo-600 mt-1 font-semibold">User Satisfaction: {$taskMetrics.user_satisfaction_score ?? 0}/5</p>
 							</div>
 							<div class="p-4 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-2xl">
 								<svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -799,10 +939,10 @@
 					</div>
 
 					<!-- ROI Intelligence -->
-					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:={isDarkMode} class:={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" class:dark={isDarkMode}>
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:={isDarkMode}>ROI on AI</p>
+								<p class="text-sm font-bold text-surface-500 uppercase tracking-wider" class:dark={isDarkMode}>ROI on AI</p>
 								<p class="text-3xl font-bold text-yellow-600 mt-2">{formatPercentage($advancedKPIs.financial_kpis?.roi_on_ai || 342.7)}</p>
 								<p class="text-xs text-yellow-600 mt-1 font-semibold">Revenue Impact: +{formatPercentage($advancedKPIs.financial_kpis?.revenue_impact || 156.2)}</p>
 							</div>
@@ -820,8 +960,8 @@
 					<!-- Left Column: Advanced Analytics -->
 					<div class="space-y-8">
 						<!-- Performance Trend Chart -->
-						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-900 mb-6 flex items-center" class:={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:dark={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6 flex items-center" class:dark={isDarkMode}>
 								📈 Performance Trends
 								<div class="ml-auto flex items-center space-x-2">
 									<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -834,8 +974,8 @@
 						</div>
 
 						<!-- Advanced Task Analytics -->
-						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-900 mb-6" class:={isDarkMode}>🎯 Task Intelligence</h3>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:dark={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6" class:dark={isDarkMode}>🎯 Task Intelligence</h3>
 							<div class="space-y-4">
 								<div class="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl">
 									<span class="text-sm font-semibold text-surface-600">Completed Today</span>
@@ -843,11 +983,11 @@
 								</div>
 								<div class="flex justify-between items-center p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl">
 									<span class="text-sm font-semibold text-surface-600">Complex Tasks Ratio</span>
-									<span class="text-2xl font-bold text-yellow-600">{formatPercentage($taskMetrics.complex_tasks_ratio * 100)}</span>
+									<span class="text-2xl font-bold text-yellow-600">{formatPercentage(($taskMetrics.complex_tasks_ratio ?? 0) * 100)}</span>
 								</div>
 								<div class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
 									<span class="text-sm font-semibold text-surface-600">Collaboration Index</span>
-									<span class="text-2xl font-bold text-blue-600">{formatPercentage($taskMetrics.agent_collaboration_index * 100)}</span>
+									<span class="text-2xl font-bold text-blue-600">{formatPercentage(($taskMetrics.agent_collaboration_index ?? 0) * 100)}</span>
 								</div>
 								<div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
 									<span class="text-sm font-semibold text-surface-600">Avg Completion</span>
@@ -860,9 +1000,9 @@
 					<!-- Center Column: ML Insights & Activities -->
 					<div class="space-y-8">
 						<!-- AI-Powered Insights -->
-						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:dark={isDarkMode}>
 							<div class="flex justify-between items-center mb-6">
-								<h3 class="text-xl font-bold text-surface-900 flex items-center" class:={isDarkMode}>
+								<h3 class="text-xl font-bold text-surface-900 flex items-center" class:dark={isDarkMode}>
 									🧠 AI Insights
 								</h3>
 								<div class="flex items-center space-x-2 px-3 py-1 bg-blue-100 rounded-full">
@@ -872,16 +1012,16 @@
 							</div>
 							<div class="space-y-4">
 								{#each $mlInsights.recommendations || [] as recommendation}
-									<div class="p-4 border border-surface-200 rounded-xl hover:bg-surface-50 transition-colors" class:={isDarkMode} class:={isDarkMode}>
+									<div class="p-4 border border-surface-200 rounded-xl hover:bg-surface-50 transition-colors" class:dark={isDarkMode}>
 										<div class="flex items-start justify-between mb-2">
-											<span class="text-sm font-bold text-surface-900 capitalize" class:={isDarkMode}>
+											<span class="text-sm font-bold text-surface-900 capitalize" class:dark={isDarkMode}>
 												{recommendation.type?.replace('_', ' ')}
 											</span>
-											<span class="text-xs font-semibold px-2 py-1 rounded-full {getImpactBadge(recommendation.priority)}">
+											<span class="text-xs font-semibold px-2 py-1 rounded-full {getImpactBadge(recommendation.priority ?? 'low')}">
 												{recommendation.priority} Priority
 											</span>
 										</div>
-										<p class="text-sm text-surface-600 mb-3" class:={isDarkMode}>{recommendation.description}</p>
+										<p class="text-sm text-surface-600 mb-3" class:dark={isDarkMode}>{recommendation.description}</p>
 										<div class="flex justify-between items-center">
 											<span class="text-xs text-green-600 font-semibold">Impact: +{recommendation.impact}%</span>
 											<button class="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors">
@@ -894,22 +1034,22 @@
 						</div>
 
 						<!-- Real-Time Activities -->
-						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:dark={isDarkMode}>
 							<div class="flex justify-between items-center mb-6">
-								<h3 class="text-xl font-bold text-surface-900" class:={isDarkMode}>🔥 Live Intelligence</h3>
+								<h3 class="text-xl font-bold text-surface-900" class:dark={isDarkMode}>🔥 Live Intelligence</h3>
 								<span class="text-sm text-blue-600 font-semibold animate-pulse">Real-Time Updates</span>
 							</div>
 							<div class="space-y-3 max-h-80 overflow-y-auto">
 								{#each $recentActivities as activity (activity.id)}
-									<div class="flex items-start space-x-3 p-4 rounded-xl hover:bg-surface-50 border border-gray-100 transition-all duration-200" class:={isDarkMode} class:={isDarkMode}>
+									<div class="flex items-start space-x-3 p-4 rounded-xl hover:bg-surface-50 border border-gray-100 transition-all duration-200" class:dark={isDarkMode}>
 										<div class="flex-shrink-0">
 											<span class="text-xl">{getStatusIcon(activity.type)}</span>
 										</div>
 										<div class="flex-1 min-w-0">
-											<p class="text-sm font-semibold text-surface-900 mb-1" class:={isDarkMode}>
+											<p class="text-sm font-semibold text-surface-900 mb-1" class:dark={isDarkMode}>
 												{activity.description}
 											</p>
-											<p class="text-xs text-surface-500 mb-2" class:={isDarkMode}>
+											<p class="text-xs text-surface-500 mb-2" class:dark={isDarkMode}>
 												{activity.agent} • {activity.time}
 											</p>
 											{#if activity.confidence}
@@ -932,11 +1072,11 @@
 					<!-- Right Column: Strategic Intelligence -->
 					<div class="space-y-8">
 						<!-- Cost Optimization Chart -->
-						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-900 mb-6 flex items-center" class:={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:dark={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6 flex items-center" class:dark={isDarkMode}>
 								💰 Cost Intelligence
 								<div class="ml-auto text-sm text-green-600 font-semibold">
-									-${($costMetrics.optimization_potential * totalCosts / 100).toFixed(2)} Saved
+									-${(($costMetrics.optimization_potential ?? 0) * totalCosts / 100).toFixed(2)} Saved
 								</div>
 							</h3>
 							<div class="h-48">
@@ -955,31 +1095,31 @@
 						</div>
 
 						<!-- Business Intelligence KPIs -->
-						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-900 mb-6" class:={isDarkMode}>📊 Business Intelligence</h3>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:dark={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6" class:dark={isDarkMode}>📊 Business Intelligence</h3>
 							<div class="space-y-4">
 								<div class="flex justify-between items-center">
-									<span class="text-sm font-semibold text-surface-600" class:={isDarkMode}>Digital Transformation</span>
+									<span class="text-sm font-semibold text-surface-600" class:dark={isDarkMode}>Digital Transformation</span>
 									<span class="text-lg font-bold text-blue-600">{formatPercentage($advancedKPIs.strategic_kpis?.digital_transformation_index || 94.2)}</span>
 								</div>
 								<div class="flex justify-between items-center">
-									<span class="text-sm font-semibold text-surface-600" class:={isDarkMode}>Process Automation</span>
+									<span class="text-sm font-semibold text-surface-600" class:dark={isDarkMode}>Process Automation</span>
 									<span class="text-lg font-bold text-green-600">{formatPercentage($advancedKPIs.operational_kpis?.process_automation || 89.3)}</span>
 								</div>
 								<div class="flex justify-between items-center">
-									<span class="text-sm font-semibold text-surface-600" class:={isDarkMode}>Innovation Pipeline</span>
+									<span class="text-sm font-semibold text-surface-600" class:dark={isDarkMode}>Innovation Pipeline</span>
 									<span class="text-lg font-bold text-purple-600">{formatPercentage($advancedKPIs.strategic_kpis?.innovation_pipeline || 85.4)}</span>
 								</div>
 								<div class="flex justify-between items-center">
-									<span class="text-sm font-semibold text-surface-600" class:={isDarkMode}>Competitive Advantage</span>
+									<span class="text-sm font-semibold text-surface-600" class:dark={isDarkMode}>Competitive Advantage</span>
 									<span class="text-lg font-bold text-yellow-600">{formatPercentage($advancedKPIs.strategic_kpis?.competitive_advantage || 91.7)}</span>
 								</div>
 							</div>
 						</div>
 
 						<!-- Quick Actions Enhanced -->
-						<div class="bg-white rounded-2xl shadow-lg border p-6" class:={isDarkMode} class:={isDarkMode}>
-							<h3 class="text-xl font-bold text-surface-900 mb-6" class:={isDarkMode}>⚡ Strategic Actions</h3>
+						<div class="bg-white rounded-2xl shadow-lg border p-6" class:dark={isDarkMode}>
+							<h3 class="text-xl font-bold text-surface-900 mb-6" class:dark={isDarkMode}>⚡ Strategic Actions</h3>
 							<div class="grid grid-cols-2 gap-3">
 								<button 
 									class="p-4 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 text-sm font-bold text-center transform hover:scale-105"
@@ -1015,8 +1155,8 @@
 				<!-- ===== 🔮 PREDICTIVE ANALYTICS VIEW ===== -->
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<!-- Predictive Performance Chart -->
-					<div class="bg-white rounded-2xl shadow-lg border p-8" class:={isDarkMode} class:={isDarkMode}>
-						<h3 class="text-2xl font-bold text-surface-900 mb-6 flex items-center" class:={isDarkMode}>
+					<div class="bg-white rounded-2xl shadow-lg border p-8" class:dark={isDarkMode}>
+						<h3 class="text-2xl font-bold text-surface-900 mb-6 flex items-center" class:dark={isDarkMode}>
 							🔮 Predictive Performance
 							<div class="ml-auto text-sm font-semibold px-3 py-1 bg-purple-100 text-purple-800 rounded-full">
 								{formatPercentage(aiConfidence)} Accuracy
@@ -1028,8 +1168,8 @@
 					</div>
 
 					<!-- Executive Forecast -->
-					<div class="bg-white rounded-2xl shadow-lg border p-8" class:={isDarkMode} class:={isDarkMode}>
-						<h3 class="text-2xl font-bold text-surface-900 mb-6" class:={isDarkMode}>📈 Executive Forecast</h3>
+					<div class="bg-white rounded-2xl shadow-lg border p-8" class:dark={isDarkMode}>
+						<h3 class="text-2xl font-bold text-surface-900 mb-6" class:dark={isDarkMode}>📈 Executive Forecast</h3>
 						<div class="space-y-6">
 							<div class="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
 								<h4 class="font-bold text-blue-900 mb-3">Next Quarter Projection</h4>
@@ -1046,7 +1186,7 @@
 							</div>
 
 							<div>
-								<h4 class="font-bold text-surface-900 mb-4" class:={isDarkMode}>🚀 Strategic Opportunities</h4>
+								<h4 class="font-bold text-surface-900 mb-4" class:dark={isDarkMode}>🚀 Strategic Opportunities</h4>
 								<div class="space-y-2">
 									{#each $executiveForecast.strategic_opportunities || [] as opportunity}
 										<div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
@@ -1058,7 +1198,7 @@
 							</div>
 
 							<div>
-								<h4 class="font-bold text-surface-900 mb-4" class:={isDarkMode}>⚠️ Risk Mitigation</h4>
+								<h4 class="font-bold text-surface-900 mb-4" class:dark={isDarkMode}>⚠️ Risk Mitigation</h4>
 								<div class="space-y-2">
 									{#each $executiveForecast.risk_mitigation || [] as risk}
 										<div class="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
@@ -1077,14 +1217,14 @@
 				<!-- ===== 📊 BUSINESS INTELLIGENCE VIEW ===== -->
 				<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 					{#each $businessIntelligence.executive_insights || [] as insight}
-						<div class="bg-white rounded-2xl shadow-lg border p-8 hover:shadow-xl transition-all duration-300" class:={isDarkMode} class:={isDarkMode}>
+						<div class="bg-white rounded-2xl shadow-lg border p-8 hover:shadow-xl transition-all duration-300" class:dark={isDarkMode}>
 							<div class="flex items-center justify-between mb-4">
-								<h4 class="font-bold text-lg text-surface-900" class:={isDarkMode}>{insight.category}</h4>
+								<h4 class="font-bold text-lg text-surface-900" class:dark={isDarkMode}>{insight.category}</h4>
 								<span class="text-xs font-semibold px-3 py-1 rounded-full {getImpactBadge(insight.impact)}">
 									{insight.impact} Impact
 								</span>
 							</div>
-							<p class="text-surface-600 mb-4 leading-relaxed" class:={isDarkMode}>{insight.insight}</p>
+							<p class="text-surface-600 mb-4 leading-relaxed" class:dark={isDarkMode}>{insight.insight}</p>
 							<div class="flex items-center space-x-2">
 								<span class="text-2xl">{insight.trend === 'positive' ? '📈' : '📉'}</span>
 								<span class="text-sm font-semibold text-green-600">{insight.trend === 'positive' ? 'Trending Up' : 'Needs Attention'}</span>
@@ -1099,14 +1239,14 @@
 				<div class="space-y-8">
 					<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 						{#each $automatedReports as report}
-							<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300" class:={isDarkMode} class:={isDarkMode}>
+							<div class="bg-white rounded-2xl shadow-lg border p-6 hover:shadow-xl transition-all duration-300" class:dark={isDarkMode}>
 								<div class="flex items-center justify-between mb-4">
-									<h4 class="font-bold text-lg text-surface-900" class:={isDarkMode}>{report.title}</h4>
+									<h4 class="font-bold text-lg text-surface-900" class:dark={isDarkMode}>{report.title}</h4>
 									<span class="text-xs font-semibold px-3 py-1 rounded-full {getStatusColor(report.status)} bg-opacity-20">
 										{report.status}
 									</span>
 								</div>
-								<p class="text-sm text-surface-600 mb-4" class:={isDarkMode}>{report.type}</p>
+								<p class="text-sm text-surface-600 mb-4" class:dark={isDarkMode}>{report.type}</p>
 								<div class="grid grid-cols-3 gap-4 mb-4">
 									<div class="text-center">
 										<p class="text-xl font-bold text-blue-600">{report.insights}</p>
@@ -1121,7 +1261,7 @@
 										<p class="text-xs text-surface-500">Confidence</p>
 									</div>
 								</div>
-								<p class="text-xs text-surface-500 mb-4" class:={isDarkMode}>{report.generated}</p>
+								<p class="text-xs text-surface-500 mb-4" class:dark={isDarkMode}>{report.generated}</p>
 								<button class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
 									View Report
 								</button>

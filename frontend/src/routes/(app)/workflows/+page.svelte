@@ -71,8 +71,8 @@
 				const data = await response.json();
 				workflows = data.catalog || [];
 			}
-		} catch (error) {
-			console.error('Failed to load workflows:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -83,8 +83,8 @@
 				const data = await response.json();
 				executions = data.executions || [];
 			}
-		} catch (error) {
-			console.error('Failed to load executions:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -100,8 +100,8 @@
 				const data = await response.json();
 				workflows = data.results || [];
 			}
-		} catch (error) {
-			console.error('Failed to search workflows:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -118,8 +118,8 @@
 			if (response.ok) {
 				validationResult = await response.json();
 			}
-		} catch (error) {
-			console.error('Failed to validate prompt:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -150,8 +150,8 @@
 				const error = await response.json();
 				alert(`Generation failed: ${error.detail}`);
 			}
-		} catch (error) {
-			console.error('Failed to generate workflow:', error);
+		} catch {
+			// Silent failure
 			alert('Failed to generate workflow');
 		} finally {
 			isGenerating = false;
@@ -181,8 +181,8 @@
 				const error = await response.json();
 				alert(`Execution failed: ${error.detail}`);
 			}
-		} catch (error) {
-			console.error('Failed to execute workflow:', error);
+		} catch {
+			// Silent failure
 			alert('Failed to execute workflow');
 		}
 	}
@@ -198,8 +198,8 @@
 			if (response.ok) {
 				await loadExecutions();
 			}
-		} catch (error) {
-			console.error('Failed to cancel execution:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	

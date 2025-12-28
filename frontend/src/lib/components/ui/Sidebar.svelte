@@ -76,7 +76,7 @@
 	}
 
 	// Default menu items if none provided
-	$: defaultMenuItems = [
+	const defaultMenuItems: MenuItem[] = [
 		{
 			id: 'dashboard',
 			label: 'Dashboard',
@@ -116,27 +116,27 @@
 		}
 	];
 
-	$: items = menuItems.length > 0 ? menuItems : defaultMenuItems;
+	$: items = (menuItems?.length ?? 0) > 0 ? (menuItems ?? []) : defaultMenuItems;
 </script>
 
 <div class="sidebar" class:collapsed>
 	<!-- Brand/Logo -->
 	<div class="sidebar-header">
-		{#if brand.logo}
-			<img src={brand.logo} alt={brand.name} class="brand-logo" />
+		{#if brand?.logo}
+			<img src={brand.logo} alt={brand?.name ?? ''} class="brand-logo" />
 		{:else}
 			<div class="brand-logo-placeholder">
 				<span class="icon-logo" aria-hidden="true"></span>
 			</div>
 		{/if}
-		
+
 		{#if !collapsed}
-			<span class="brand-name">{brand.name}</span>
+			<span class="brand-name">{brand?.name ?? 'Convergio'}</span>
 		{/if}
 	</div>
 
 	<!-- Navigation Menu -->
-	<nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+	<nav class="sidebar-nav" aria-label="Main navigation">
 		<ul class="nav-list" role="list">
 			{#each items as item (item.id)}
 				<li class="nav-item" role="listitem">
@@ -226,14 +226,14 @@
 				aria-label="User profile"
 			>
 				<Avatar
-					src={userInfo.avatar}
-					fallback={userInfo.name}
+					src={userInfo?.avatar}
+					fallback={userInfo?.name ?? 'User'}
 					size="sm"
 				/>
 				<div class="user-details">
-					<span class="user-name">{userInfo.name}</span>
-					<span class="user-email">{userInfo.email}</span>
-					{#if userInfo.role}
+					<span class="user-name">{userInfo?.name ?? 'User Name'}</span>
+					<span class="user-email">{userInfo?.email ?? 'user@example.com'}</span>
+					{#if userInfo?.role}
 						<Badge variant="gray" size="sm" class="user-role">
 							{userInfo.role}
 						</Badge>
@@ -259,12 +259,20 @@
 		width: 16rem; /* 256px */
 	}
 
+	:global(.dark) .sidebar {
+		@apply bg-gray-900 border-gray-800;
+	}
+
 	.sidebar.collapsed {
 		width: 5rem; /* 80px */
 	}
 
 	.sidebar-header {
 		@apply flex items-center gap-3 px-6 py-6 border-b border-gray-200;
+	}
+
+	:global(.dark) .sidebar-header {
+		@apply border-gray-800;
 	}
 
 	.collapsed .sidebar-header {
@@ -283,6 +291,10 @@
 	.brand-name {
 		@apply text-lg font-bold text-gray-900 truncate;
 		font-family: var(--font-primary);
+	}
+
+	:global(.dark) .brand-name {
+		@apply text-gray-100;
 	}
 
 	.sidebar-nav {
@@ -319,6 +331,14 @@
 		background-color: var(--color-surface-100);
 	}
 
+	:global(.dark) .nav-link {
+		@apply text-gray-400;
+	}
+
+	:global(.dark) .nav-link:hover {
+		@apply bg-gray-800;
+	}
+
 	.nav-link:focus {
 		box-shadow: 0 0 0 2px var(--color-primary-500);
 	}
@@ -327,8 +347,8 @@
 		background-color: var(--color-primary-100);
 		color: var(--color-primary-700);
 	}
-	
-	.dark .nav-link.active {
+
+	:global(.dark) .nav-link.active {
 		background-color: var(--color-primary-900);
 		color: var(--color-primary-300);
 	}
@@ -390,8 +410,16 @@
 		@apply px-4 py-4 border-t border-gray-200;
 	}
 
+	:global(.dark) .sidebar-user {
+		@apply border-gray-800;
+	}
+
 	.user-info-button {
 		@apply w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+	}
+
+	:global(.dark) .user-info-button {
+		@apply hover:bg-gray-800;
 	}
 
 	.user-details {
@@ -403,9 +431,17 @@
 		font-family: var(--font-primary);
 	}
 
+	:global(.dark) .user-name {
+		@apply text-gray-100;
+	}
+
 	.user-email {
 		@apply block text-xs text-gray-500 truncate;
 		font-family: var(--font-primary);
+	}
+
+	:global(.dark) .user-email {
+		@apply text-gray-400;
 	}
 
 	.user-role {
@@ -414,6 +450,10 @@
 
 	.sidebar-footer {
 		@apply px-6 py-4 border-t border-gray-200;
+	}
+
+	:global(.dark) .sidebar-footer {
+		@apply border-gray-800;
 	}
 
 	.footer-text {

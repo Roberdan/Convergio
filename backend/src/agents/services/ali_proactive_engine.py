@@ -6,10 +6,9 @@ Based on Claude Sonnet 4 August 2025 optimization patterns
 
 import asyncio
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 import structlog
 from dataclasses import dataclass, asdict
-import json
 import uuid
 from enum import Enum
 
@@ -496,7 +495,7 @@ class AliProactiveEngine:
                 if team_structure:
                     # Analyze management structure
                     managers = [person for person in team_structure if person.get("subordinates_count", 0) > 0]
-                    manager_ratio = len(managers) / max(total_people, 1)
+                    len(managers) / max(total_people, 1)
                     
                     # Check for management bottlenecks
                     overloaded_managers = [m for m in managers if m.get("subordinates_count", 0) > 10]

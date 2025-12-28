@@ -4,11 +4,10 @@ Allows extending any entity with custom fields
 """
 
 from datetime import datetime
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, Dict, Any, Tuple
 from enum import Enum
 from sqlalchemy import (
-    Column, String, Integer, Text, DateTime, Boolean, Float,
-    ForeignKey, JSON, Enum as SQLEnum, Index, UniqueConstraint
+    Column, String, Integer, Text, DateTime, Boolean, ForeignKey, JSON, Enum as SQLEnum, Index, UniqueConstraint
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID

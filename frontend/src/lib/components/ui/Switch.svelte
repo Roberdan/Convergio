@@ -66,7 +66,7 @@
 		<!-- Hidden input for form submission -->
 		<input
 			{...$$restProps}
-			{id}
+			id={switchId}
 			type="checkbox"
 			bind:checked
 			{disabled}
@@ -108,7 +108,7 @@
 		@apply ring-2 ring-primary-500 ring-offset-2;
 	}
 
-	.dark .switch:focus {
+	:global(.dark) .switch:focus {
 		@apply ring-offset-gray-800;
 	}
 
@@ -120,7 +120,7 @@
 		@apply relative inline-block bg-gray-200 border-2 border-transparent rounded-full transition-colors duration-200 ease-in-out;
 	}
 
-	.dark .switch-track {
+	:global(.dark) .switch-track {
 		@apply bg-gray-700;
 	}
 
@@ -182,7 +182,7 @@
 		font-family: var(--font-primary);
 	}
 
-	.dark .switch-label {
+	:global(.dark) .switch-label {
 		@apply text-gray-300;
 	}
 
@@ -191,7 +191,7 @@
 		font-family: var(--font-primary);
 	}
 
-	.dark .switch-description {
+	:global(.dark) .switch-description {
 		@apply text-gray-400;
 	}
 </style>

@@ -2,7 +2,7 @@
   "agents": {
     "ali_chief_of_staff": {
       "name": "Ali",
-      "role": "Chief of Staff", 
+      "role": "Chief of Staff",
       "specialties": ["strategic analysis", "coordination", "leadership"],
       "test_queries": [
         "Ali, analizza la strategia di crescita per Q4 2024 e fornisci raccomandazioni specifiche",
@@ -16,14 +16,18 @@
       "specialties": ["financial analysis", "budgeting", "ROI assessment"],
       "test_queries": [
         "Amy, analizza il budget per il progetto Q4 e calcola il ROI previsto",
-        "Amy, valuta la sostenibilità finanziaria dell'espansione europea", 
+        "Amy, valuta la sostenibilità finanziaria dell'espansione europea",
         "Amy, crea un'analisi di costo-beneficio per l'investimento in AI"
       ]
     },
     "marcus_pm": {
       "name": "Marcus",
       "role": "Project Manager",
-      "specialties": ["project planning", "timeline management", "resource allocation"],
+      "specialties": [
+        "project planning",
+        "timeline management",
+        "resource allocation"
+      ],
       "test_queries": [
         "Marcus, crea una roadmap dettagliata per il lancio prodotto in 6 mesi",
         "Marcus, pianifica le risorse necessarie per il team di sviluppo",
@@ -31,7 +35,7 @@
       ]
     },
     "baccio_tech_architect": {
-      "name": "Baccio", 
+      "name": "Baccio",
       "role": "Tech Architect",
       "specialties": ["system architecture", "scalability", "technology stack"],
       "test_queries": [
@@ -42,7 +46,7 @@
     },
     "sara_ux_ui_designer": {
       "name": "Sara",
-      "role": "UX/UI Designer", 
+      "role": "UX/UI Designer",
       "specialties": ["user experience", "interface design", "usability"],
       "test_queries": [
         "Sara, progetta l'interfaccia per una dashboard executive intuitiva",
@@ -70,7 +74,11 @@
         "target_markets": ["Germany", "France", "UK"],
         "budget_range": "$2M-$5M",
         "timeline": "Q1-Q3 2025",
-        "constraints": ["GDPR compliance", "local partnerships", "currency fluctuation"]
+        "constraints": [
+          "GDPR compliance",
+          "local partnerships",
+          "currency fluctuation"
+        ]
       },
       "expected_agents": ["ali_chief_of_staff", "amy_cfo", "marcus_pm"],
       "success_criteria": {
@@ -81,17 +89,26 @@
       }
     },
     "product_launch": {
-      "title": "AI-Powered Analytics Platform Launch", 
+      "title": "AI-Powered Analytics Platform Launch",
       "description": "Launch of new SaaS analytics platform with AI capabilities",
       "context": {
         "product_type": "B2B SaaS Analytics",
         "target_audience": "Enterprise customers",
-        "key_features": ["Real-time analytics", "AI insights", "Custom dashboards"],
+        "key_features": [
+          "Real-time analytics",
+          "AI insights",
+          "Custom dashboards"
+        ],
         "timeline": "6 months",
         "budget": "$3M",
         "competition": ["Tableau", "PowerBI", "Looker"]
       },
-      "expected_agents": ["ali_chief_of_staff", "marcus_pm", "baccio_tech_architect", "sara_ux_ui_designer"],
+      "expected_agents": [
+        "ali_chief_of_staff",
+        "marcus_pm",
+        "baccio_tech_architect",
+        "sara_ux_ui_designer"
+      ],
       "success_criteria": {
         "go_to_market_strategy": true,
         "technical_architecture": true,
@@ -110,7 +127,12 @@
         "timeline": "18 months",
         "budget": "$10M+"
       },
-      "expected_agents": ["ali_chief_of_staff", "baccio_tech_architect", "giulia_hr_talent_acquisition", "marcus_pm"],
+      "expected_agents": [
+        "ali_chief_of_staff",
+        "baccio_tech_architect",
+        "giulia_hr_talent_acquisition",
+        "marcus_pm"
+      ],
       "success_criteria": {
         "transformation_roadmap": true,
         "technology_migration": true,
@@ -129,8 +151,18 @@
     "validation_criteria": {
       "min_response_length": 100,
       "max_response_time": 30000,
-      "required_structure_elements": ["analysis", "recommendations", "next steps"],
-      "forbidden_patterns": ["error", "cannot", "unable", "fallback", "try again"]
+      "required_structure_elements": [
+        "analysis",
+        "recommendations",
+        "next steps"
+      ],
+      "forbidden_patterns": [
+        "error",
+        "cannot",
+        "unable",
+        "fallback",
+        "try again"
+      ]
     },
     "retry_settings": {
       "max_retries": 2,
@@ -157,7 +189,12 @@
   },
   "validation_scenarios": {
     "ali_strategic_thinking": {
-      "must_contain": ["strategic", "analysis", "recommendation", "opportunity"],
+      "must_contain": [
+        "strategic",
+        "analysis",
+        "recommendation",
+        "opportunity"
+      ],
       "must_have_structure": true,
       "min_length": 200,
       "business_criteria": {
@@ -191,7 +228,11 @@
       "must_have_urls": true,
       "must_have_structure": true,
       "min_length": 200,
-      "must_not_contain": ["unable to search", "no internet access", "cannot access"]
+      "must_not_contain": [
+        "unable to search",
+        "no internet access",
+        "cannot access"
+      ]
     }
   }
 }

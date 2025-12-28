@@ -3,7 +3,6 @@
 Advanced agent coordination with swarm intelligence patterns and self-organizing capabilities
 """
 
-import asyncio
 from typing import Dict, List, Any, Optional
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
@@ -11,9 +10,6 @@ import structlog
 
 from ..agents.services.swarm_coordinator import (
     swarm_coordinator, 
-    SwarmTask, 
-    SwarmAgent,
-    TaskComplexity,
     SwarmRole
 )
 try:

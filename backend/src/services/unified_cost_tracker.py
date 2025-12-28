@@ -8,26 +8,20 @@ Replaces:
 - services/real_cost_tracker.py
 """
 
-import asyncio
-import json
-import hashlib
 from datetime import datetime, timedelta
-from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 
 import httpx
 import structlog
 # Use absolute imports so pytest with python_paths=backend/src can import correctly
 from src.agents.utils.config import get_settings
-from sqlalchemy import and_, func, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import and_, func, select
 
 from src.agents.services.redis_state_manager import RedisStateManager
 from src.core.database import get_async_session, get_async_read_session
 from src.models.cost_tracking import (
-    CostAlert, CostSession, CostStatus, CostTracking,
-    DailyCostSummary, Provider, ProviderPricing
+    CostTracking
 )
 
 logger = structlog.get_logger()
@@ -567,7 +561,7 @@ class UnifiedCostTracker:
         try:
             session_key = f"{self.cache_prefix}session:{session_id}"
             return await self.redis_manager.get_counter(session_key) or 0.0
-        except:
+        except Exception:
             return 0.0
     
     async def _get_daily_total(self) -> float:
@@ -578,7 +572,7 @@ class UnifiedCostTracker:
         try:
             today_key = f"{self.cache_prefix}daily:{datetime.utcnow().strftime('%Y-%m-%d')}"
             return await self.redis_manager.get_counter(today_key) or 0.0
-        except:
+        except Exception:
             return 0.0
     
     async def get_session_details(self, session_id: str) -> Dict[str, Any]:

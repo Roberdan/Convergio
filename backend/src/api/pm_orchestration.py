@@ -16,11 +16,9 @@ from ..core.database import get_db_session
 from ..services.pm_orchestrator_service import PMOrchestratorService
 from ..services.project_journey_service import ProjectJourneyService
 from ..api.schemas.project_orchestration import (
-    EnhancedProjectCreateRequest, ProjectOrchestrationResponse,
-    ProjectOrchestrationDetailResponse, OrchestrationMetricsResponse,
-    AgentAssignmentRequest, JourneyStageUpdateRequest, TouchpointCreateRequest,
-    ConversationCreateRequest, OptimizationRequest, OptimizationResponse,
-    ProjectJourneyAnalyticsResponse, StreamingUpdateResponse
+    EnhancedProjectCreateRequest, ProjectOrchestrationDetailResponse, AgentAssignmentRequest, JourneyStageUpdateRequest, TouchpointCreateRequest,
+    OptimizationRequest, OptimizationResponse,
+    ProjectJourneyAnalyticsResponse
 )
 from ..models.project_orchestration import JourneyStage, TouchpointType
 
@@ -244,7 +242,7 @@ async def update_journey_stage(
     notes, deliverables, and blocker information.
     """
     try:
-        result = await pm_orchestrator.update_journey_stage(
+        await pm_orchestrator.update_journey_stage(
             orchestration_id=orchestration_id,
             stage_name=request.stage_name,
             status=request.status,

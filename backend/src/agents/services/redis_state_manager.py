@@ -5,7 +5,7 @@ AutoGen conversation state management with Redis
 
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import redis.asyncio as redis

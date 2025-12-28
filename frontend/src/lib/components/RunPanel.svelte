@@ -71,8 +71,8 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
         throw new Error(result.error || 'Failed to load metrics');
       }
     } catch (err) {
+      // Silent failure
       error = err instanceof Error ? err.message : 'Unknown error occurred';
-      console.error('Error loading metrics:', err);
     } finally {
       loading = false;
     }
@@ -93,7 +93,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
     for (const turn of timeline) {
       totalCost += turn.total_cost || 0;
       totalTokens += turn.total_tokens || 0;
-      allAgents.add(...(turn.agents_involved || []));
+      (turn.agents_involved || []).forEach((agent: string) => allAgents.add(agent));
       
       // Conta errori e tempi di esecuzione
       for (const event of turn.events || []) {

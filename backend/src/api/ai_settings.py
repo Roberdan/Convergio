@@ -15,11 +15,10 @@ from datetime import datetime
 from typing import Dict, Any, Optional, List
 
 import structlog
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ..core.ai_providers import (
-    AIConfig,
     AIProvider,
     ProviderMode,
     FeatureCapability,
@@ -28,9 +27,6 @@ from ..core.ai_providers import (
     get_ai_config_from_env,
 )
 from ..core.ollama_service import (
-    OllamaService,
-    OllamaStatus,
-    OllamaModel,
     get_ollama_service,
 )
 from ..core.provider_router import get_provider_router

@@ -1,12 +1,12 @@
 // CRM-Style PM Orchestration Components
 // AI-orchestrated project management with real-time monitoring
 
-export { default as PMOrchestrationDashboard } from './PMOrchestrationDashboard.svelte';
-export { default as ProjectJourneyVisualization } from './ProjectJourneyVisualization.svelte';
-export { default as AgentCollaborationPanel } from './AgentCollaborationPanel.svelte';
-export { default as OrchestrationMetricsCard } from './OrchestrationMetricsCard.svelte';
-export { default as RealTimeStreamingMonitor } from './RealTimeStreamingMonitor.svelte';
-export { default as TouchpointTimeline } from './TouchpointTimeline.svelte';
+export { default as PMOrchestrationDashboard } from "./PMOrchestrationDashboard.svelte";
+export { default as ProjectJourneyVisualization } from "./ProjectJourneyVisualization.svelte";
+export { default as AgentCollaborationPanel } from "./AgentCollaborationPanel.svelte";
+export { default as OrchestrationMetricsCard } from "./OrchestrationMetricsCard.svelte";
+export { default as RealTimeStreamingMonitor } from "./RealTimeStreamingMonitor.svelte";
+export { default as TouchpointTimeline } from "./TouchpointTimeline.svelte";
 
 // Component Types and Interfaces
 export interface OrchestrationData {
@@ -59,5 +59,5 @@ export interface StreamingUpdate {
   timestamp: string;
   data: any;
   agent?: string;
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
 }

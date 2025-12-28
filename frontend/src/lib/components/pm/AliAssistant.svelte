@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { aliService, type AliResponse } from '$lib/services/aliService';
-	import { projectsService, type Engagement } from '$lib/services/projectsService';
+	import { projectsService, type Engagement, type ProjectTeam, type ProjectTask } from '$lib/services/projectsService';
 
 	// Props
 	export let projectId: string;
@@ -82,23 +82,41 @@ What would you like to know about your project?`,
 		try {
 			// Load real project data
 			if (projectId) {
-				const engagement = await projectsService.getEngagement(parseInt(projectId));
+				const projectIdNum = parseInt(projectId);
+				const engagement = await projectsService.getEngagement(projectIdNum);
 				const activities = await projectsService.getActivities();
-				
+
+				// Fetch real team, budget, and tasks data
+				const [team, budget, tasks] = await Promise.all([
+					projectsService.getProjectTeam(projectIdNum),
+					projectsService.getProjectBudget(projectIdNum),
+					projectsService.getProjectTasks(projectIdNum)
+				]);
+
+				// Extract team member names from real data
+				const teamMemberNames = [
+					...team.talents.map(t => t.resource_name),
+					...team.agents.map(a => a.resource_name)
+				];
+
+				// Get blocked tasks as blockers
+				const blockedTasks = projectsService.getBlockedTasks(tasks);
+				const blockerTitles = blockedTasks.map(t => t.title);
+
 				// Build project context from real data
 				projectContext = {
 					projectName: engagement.title,
-					currentPhase: engagement.status === 'planning' ? 'Planning' : 
-									 engagement.status === 'in-progress' ? 'Development' : 
+					currentPhase: engagement.status === 'planning' ? 'Planning' :
+									 engagement.status === 'in-progress' ? 'Development' :
 									 engagement.status === 'review' ? 'Review' : 'Completed',
-					teamMembers: ['Alice Chen', 'Bob Wilson', 'Carol Davis'], // TODO: Get from real team data
+					teamMembers: teamMemberNames.length > 0 ? teamMemberNames : ['No team assigned'],
 					recentActivity: activities.slice(0, 4).map(a => a.title),
-					blockers: [], // TODO: Determine from task status
+					blockers: blockerTitles,
 					engagement,
 					metrics: {
 						progress: engagement.progress || 0,
-						budget: 180000, // TODO: Get from real budget data
-						timeline: 'On track'
+						budget: budget.budget,
+						timeline: budget.cost_variance <= 0 ? 'On track' : 'Over budget'
 					}
 				};
 			} else {
@@ -116,8 +134,7 @@ What would you like to know about your project?`,
 					}
 				};
 			}
-		} catch (error) {
-			console.error('Error loading project context:', error);
+		} catch {
 			// Use fallback context on error
 			projectContext = {
 				projectName: 'Project Dashboard',
@@ -180,7 +197,6 @@ What would you like to know about your project?`,
 			
 			messages = [...messages, assistantMessage];
 		} catch (error) {
-			console.error('Error communicating with Ali:', error);
 			const errorMessage: Message = {
 				id: (Date.now() + 1).toString(),
 				type: 'assistant',

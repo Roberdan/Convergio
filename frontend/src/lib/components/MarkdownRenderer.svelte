@@ -8,24 +8,38 @@
 
   let renderedHtml = '';
 
-  // Configure marked with syntax highlighting
-  marked.setOptions({
-    highlight: function(code: string, lang: string) {
-      if (lang && hljs.getLanguage(lang)) {
-        try {
-          return hljs.highlight(code, { language: lang }).value;
-        } catch (err) {
-          console.error('Highlight error:', err);
-        }
-      }
-      return code;
-    },
+  // Configure marked with syntax highlighting using hooks
+  marked.use({
+    async: false,
     breaks: true,
-    gfm: true
+    gfm: true,
+    hooks: {
+      postprocess(html: string) {
+        return html;
+      }
+    }
   });
 
+  // Set up custom renderer for code blocks
+  const renderer = new marked.Renderer();
+
+  renderer.code = function({ text, lang }: { text: string; lang?: string }): string {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        const highlighted = hljs.highlight(text, { language: lang }).value;
+        return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+      } catch {
+        // Silent failure
+      }
+    }
+    return `<pre><code>${text}</code></pre>`;
+  };
+
+  marked.use({ renderer });
+
   $: if (content) {
-    renderedHtml = marked.parse(content);
+    const parsed = marked.parse(content);
+    renderedHtml = typeof parsed === 'string' ? parsed : '';
   }
 </script>
 

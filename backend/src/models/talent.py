@@ -7,11 +7,11 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any
 
 from decimal import Decimal
-from sqlalchemy import Integer, String, DateTime, func, Boolean, ForeignKey, Numeric, CheckConstraint
+from sqlalchemy import Integer, String, DateTime, func, Boolean, Numeric
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from pgvector.sqlalchemy import Vector
 
 from ..core.database import Base

@@ -5,16 +5,14 @@ Comprehensive system health monitoring
 
 import asyncio
 from datetime import datetime
-from typing import Dict, Any
 
 import structlog
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter
 
-from ..core.database import get_db_session, check_database_health
+from ..core.database import check_database_health
 from ..core.redis import get_redis_client
 from ..core.config import get_settings
-from ..core.monitoring import health_checker, HealthStatus
+from ..core.monitoring import health_checker
 
 logger = structlog.get_logger()
 router = APIRouter(tags=["Health"])
@@ -153,7 +151,7 @@ async def agents_health():
         from ..agents.services.agent_loader import DynamicAgentLoader
         
         try:
-            orchestrator = await get_agent_orchestrator()
+            await get_agent_orchestrator()
             loader = DynamicAgentLoader("src/agents/definitions")
             agents_metadata = loader.scan_and_load_agents()
             
@@ -299,7 +297,7 @@ async def ai_services_health():
             from anthropic import AsyncAnthropic
             client = AsyncAnthropic(api_key=anthropic_key)
             # Test minimal request
-            response = await client.messages.create(
+            await client.messages.create(
                 model="claude-3-haiku-20240307",
                 max_tokens=1,
                 messages=[{"role": "user", "content": "Hi"}]

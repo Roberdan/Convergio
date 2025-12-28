@@ -10,7 +10,6 @@ Architecture: Single Python service replacing 4 microservices
 """
 
 import asyncio
-import logging
 import os
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -22,9 +21,8 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import make_asgi_app
 # Enhanced rate limiting system
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 from .core.rate_limiting_enhanced import create_enhanced_rate_limiter, get_slowapi_limiter, ProductionRateLimitMiddleware
 
 from .core.config_enhanced import initialize_configuration
@@ -32,7 +30,7 @@ from .core.database import init_db, close_db
 from .core.redis import init_redis, close_redis
 from .core.logging_utils import setup_async_logging
 from .core.security_middleware import SecurityHeadersMiddleware, RateLimitMiddleware
-from .core.error_handling_enhanced import error_handler, handle_startup_validation, validate_service_connectivity, ErrorContext
+from .core.error_handling_enhanced import error_handler, handle_startup_validation
 from .core.security_config import initialize_secure_defaults, validate_security_config
 from .core.config_validator import ConfigValidator
 
@@ -112,13 +110,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     try:
         # Initialize database
         logger.info("📊 Initializing database connection pool...")
-        async with error_handler.error_context("database", "initialization") as ctx:
+        async with error_handler.error_context("database", "initialization"):
             await init_db()
             logger.info("✅ Database connection pool initialized")
         # Auto-create tables in development for smoother E2E/dev experience
         try:
-            if settings.ENVIRONMENT == "development" and not os.getenv("SKIP_AUTO_MIGRATIONS", "false").lower() in ("true", "1", "yes"):
-                from sqlalchemy import text as _sql_text
+            if settings.ENVIRONMENT == "development" and os.getenv("SKIP_AUTO_MIGRATIONS", "false").lower() not in ("true", "1", "yes"):
                 from .core.database import async_engine
                 async with async_engine.begin() as conn:
                     # Create tables if not exist
@@ -135,7 +132,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         
         # Initialize Redis with enhanced error handling
         logger.info("🚀 Initializing Redis connection pool...")  
-        async with error_handler.error_context("redis", "initialization") as ctx:
+        async with error_handler.error_context("redis", "initialization"):
             await init_redis()
             logger.info("✅ Redis connection pool initialized")
         

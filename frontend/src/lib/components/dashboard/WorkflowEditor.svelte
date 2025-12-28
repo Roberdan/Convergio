@@ -109,8 +109,8 @@
           }
         });
       }
-    } catch (err) {
-      console.error('Failed to load workflow:', err);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -418,21 +418,27 @@
             </div>
             <div>
               <label class="text-xs text-surface-600" for="node-inputs">Inputs (comma-separated)</label>
-              <input 
+              <input
                 id="node-inputs"
                 type="text"
                 value={selectedNode.inputs?.join(', ')}
-                on:input={(e) => selectedNode.inputs = e.target.value.split(',').map(s => s.trim())}
+                on:input={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  selectedNode.inputs = target.value.split(',').map((s: string) => s.trim());
+                }}
                 class="w-full px-2 py-1 border rounded text-sm"
               />
             </div>
             <div>
               <label class="text-xs text-surface-600" for="node-outputs">Outputs (comma-separated)</label>
-              <input 
+              <input
                 id="node-outputs"
                 type="text"
                 value={selectedNode.outputs?.join(', ')}
-                on:input={(e) => selectedNode.outputs = e.target.value.split(',').map(s => s.trim())}
+                on:input={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  selectedNode.outputs = target.value.split(',').map((s: string) => s.trim());
+                }}
                 class="w-full px-2 py-1 border rounded text-sm"
               />
             </div>

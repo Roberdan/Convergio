@@ -21,7 +21,7 @@
 
 	export let title: $$Props['title'];
 	export let subtitle: $$Props['subtitle'] = '';
-	export let breadcrumbs: $$Props['breadcrumbs'] = [];
+	export let breadcrumbs: BreadcrumbItem[] = [];
 	export let showBackButton: $$Props['showBackButton'] = false;
 	export let backHref: $$Props['backHref'] = '';
 	export let badge: $$Props['badge'] = undefined;
@@ -132,6 +132,10 @@
 		@apply pb-6 border-b border-gray-200;
 	}
 
+	:global(.dark) .page-header {
+		@apply border-gray-700;
+	}
+
 	.breadcrumbs {
 		@apply mb-4;
 	}
@@ -149,13 +153,25 @@
 		font-family: var(--font-primary);
 	}
 
-	.dark .breadcrumb-link:focus {
+	:global(.dark) .breadcrumb-link {
+		@apply text-gray-400 hover:text-gray-300;
+	}
+
+	:global(.dark) .breadcrumb-link:focus {
 		@apply ring-offset-gray-900;
+	}
+
+	:global(.dark) .breadcrumb-separator {
+		@apply text-gray-600;
 	}
 
 	.breadcrumb-current {
 		@apply text-sm font-medium text-gray-900;
 		font-family: var(--font-primary);
+	}
+
+	:global(.dark) .breadcrumb-current {
+		@apply text-gray-100;
 	}
 
 	.breadcrumb-separator {
@@ -174,7 +190,11 @@
 		@apply flex items-center justify-center w-10 h-10 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 mt-1;
 	}
 
-	.dark .back-button:focus {
+	:global(.dark) .back-button {
+		@apply text-gray-400 hover:text-gray-300 hover:bg-gray-800;
+	}
+
+	:global(.dark) .back-button:focus {
 		@apply ring-offset-gray-900;
 	}
 
@@ -191,7 +211,11 @@
 		font-family: var(--font-primary);
 	}
 
-	.title-badge {
+	:global(.dark) .page-title {
+		@apply text-gray-100;
+	}
+
+	:global(.title-badge) {
 		@apply flex-shrink-0;
 	}
 
@@ -200,12 +224,20 @@
 		font-family: var(--font-primary);
 	}
 
+	:global(.dark) .page-subtitle {
+		@apply text-gray-400;
+	}
+
 	.header-actions {
 		@apply flex items-center gap-3 flex-shrink-0;
 	}
 
 	.header-additional {
 		@apply mt-6 pt-6 border-t border-gray-200;
+	}
+
+	:global(.dark) .header-additional {
+		@apply border-gray-700;
 	}
 
 	/* Icon styles */

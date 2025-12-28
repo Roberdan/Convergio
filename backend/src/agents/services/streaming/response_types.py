@@ -2,7 +2,7 @@
 Streaming response data types extracted for file size hygiene.
 """
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, Dict, Any
 

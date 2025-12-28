@@ -5,11 +5,19 @@
   export let projectId: string = '';
   export let taskId: string = '';
   
+  interface ChatMessage {
+    id: string;
+    agent: string;
+    message: string;
+    timestamp: Date;
+    type: string;
+  }
+
   let availableAgents: any[] = [];
   let activeAssignments: any[] = [];
   let aiRecommendations: any[] = [];
   // removed unused selectedAgent
-  let agentChat = writable([]);
+  let agentChat = writable<ChatMessage[]>([]);
   let newMessage = '';
   // removed unused loading flag (kept internal state via onMount end)
   let showAgentSelector = false;
@@ -200,8 +208,8 @@
       if (response.ok) {
         activeAssignments = await response.json();
       }
-    } catch (error) {
-      console.error('Failed to load project agents:', error);
+    } catch {
+      // Silent failure
       // Use mock data
       activeAssignments = [
         { agentId: 'ali_chief_of_staff', role: 'lead', assignedAt: new Date(Date.now() - 86400000) },
@@ -228,8 +236,8 @@
       if (response.ok) {
         aiRecommendations = await response.json();
       }
-    } catch (error) {
-      console.error('Failed to load AI recommendations:', error);
+    } catch {
+      // Silent failure
       aiRecommendations = mockRecommendations;
     }
   }
@@ -295,8 +303,8 @@
           }]);
         }
       }
-    } catch (error) {
-      console.error('Failed to assign agent:', error);
+    } catch {
+      // Silent failure
       alert(`${agentId} has been notified and will join the project shortly.`);
     }
   }
@@ -310,8 +318,8 @@
       if (response.ok) {
         await loadProjectAgents();
       }
-    } catch (error) {
-      console.error('Failed to remove agent:', error);
+    } catch {
+      // Silent failure
       activeAssignments = activeAssignments.filter(a => a.agentId !== agentId);
     }
   }
@@ -354,8 +362,8 @@
           }]);
         });
       }
-    } catch (error) {
-      console.error('Failed to send message:', error);
+    } catch {
+      // Silent failure
       // Simulate agent response
       setTimeout(() => {
         if (activeAssignments.length > 0) {
@@ -422,8 +430,8 @@
       
       // Remove implemented recommendation
       aiRecommendations = aiRecommendations.filter(r => r.id !== recommendation.id);
-    } catch (error) {
-      console.error('Failed to implement recommendation:', error);
+    } catch {
+      // Silent failure
     }
   }
 </script>

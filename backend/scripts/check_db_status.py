@@ -56,7 +56,7 @@ async def check_status():
         
         # Summary
         print("\n" + "="*60)
-        print(f"SUMMARY:")
+        print("SUMMARY:")
         print(f"  Total tables: {len(tables)}")
         print(f"  Populated: {len(populated_tables)} ({len(populated_tables)*100//len(tables)}%)")
         print(f"  Empty: {len(empty_tables)} ({len(empty_tables)*100//len(tables)}%)")

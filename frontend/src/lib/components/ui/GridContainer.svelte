@@ -44,10 +44,10 @@
 	};
 
 	$: responsiveClasses = [
-		responsive.sm ? `sm:${colsClasses[responsive.sm]}` : '',
-		responsive.md ? `md:${colsClasses[responsive.md]}` : '',
-		responsive.lg ? `lg:${colsClasses[responsive.lg]}` : '',
-		responsive.xl ? `xl:${colsClasses[responsive.xl]}` : ''
+		responsive?.sm ? `sm:${colsClasses[responsive.sm]}` : '',
+		responsive?.md ? `md:${colsClasses[responsive.md]}` : '',
+		responsive?.lg ? `lg:${colsClasses[responsive.lg]}` : '',
+		responsive?.xl ? `xl:${colsClasses[responsive.xl]}` : ''
 	].filter(Boolean);
 
 	$: alignItemsClasses = {
@@ -66,10 +66,10 @@
 
 	$: classes = [
 		'grid',
-		colsClasses[cols],
+		colsClasses[cols ?? 12],
 		gapClasses[gap],
-		alignItemsClasses[alignItems],
-		justifyItemsClasses[justifyItems],
+		alignItems ? alignItemsClasses[alignItems] : '',
+		justifyItems ? justifyItemsClasses[justifyItems] : '',
 		...responsiveClasses
 	].filter(Boolean).join(' ');
 

@@ -6,11 +6,13 @@
   export let maxEvents: number = 100;
   export let wsEndpoint: string = 'ws://localhost:9000/ws/activity';
   export let autoScroll: boolean = true;
-  
+
+  type EventType = 'agent' | 'user' | 'system' | 'api' | 'workflow' | 'error';
+
   interface ActivityEvent {
     id: string;
     timestamp: Date;
-    type: 'agent' | 'user' | 'system' | 'api' | 'workflow' | 'error';
+    type: EventType;
     category: string;
     title: string;
     description?: string;
@@ -50,8 +52,8 @@
       end: null
     }
   };
-  
-  const eventIcons = {
+
+  const eventIcons: Record<EventType, string> = {
     agent: '🤖',
     user: '👤',
     system: '⚙️',
@@ -59,8 +61,8 @@
     workflow: '🔄',
     error: '❌'
   };
-  
-  const eventColors = {
+
+  const eventColors: Record<EventType, string> = {
     agent: '#4f46e5',
     user: '#10b981',
     system: '#6b7280',
@@ -76,7 +78,6 @@
     
     ws.onopen = () => {
       isConnected = true;
-      console.log('Activity timeline connected');
     };
     
     ws.onmessage = (event) => {
@@ -84,14 +85,14 @@
         try {
           const data = JSON.parse(event.data);
           handleActivityEvent(data);
-        } catch (error) {
-          console.error('Failed to parse activity event:', error);
+        } catch {
+          // Silent failure
         }
       }
     };
     
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+    ws.onerror = () => {
+      // Silent failure
     };
     
     ws.onclose = () => {
@@ -244,8 +245,8 @@
         })));
         applyFilters();
       }
-    } catch (error) {
-      console.error('Failed to load activity history:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -303,7 +304,7 @@
           <button
             class="filter-chip"
             class:active={filter.types.has(type)}
-            style="--chip-color: {eventColors[type]}"
+            style="--chip-color: {eventColors[type as EventType]}"
             on:click={() => toggleTypeFilter(type)}
           >
             {icon} {type}
@@ -343,7 +344,7 @@
           <div class="time-relative">{getRelativeTime(event.timestamp)}</div>
         </div>
         
-        <div 
+        <div
           class="event-marker"
           style="background: {eventColors[event.type]}"
         >

@@ -13,7 +13,6 @@ from pydantic import BaseModel
 import openai
 import json
 import random
-import colorsys
 
 from ..agents.tools.web_search_tool import WebSearchTool
 from ..agents.tools.convergio_tools import VectorSearchTool
@@ -66,7 +65,7 @@ async def get_ecosystem_health() -> Dict[str, Any]:
         
         # Check vector search tool
         try:
-            vector_tool = VectorSearchTool()
+            VectorSearchTool()
             health_report["tools"]["vector_search"] = {
                 "available": True,
                 "status": "healthy"
@@ -504,7 +503,7 @@ def create_agent_markdown_definition(agent_data: Dict[str, Any]) -> str:
     
     # Add role-specific tools
     role_lower = agent_data.get("role", "").lower()
-    specialty_lower = agent_data.get("specialty", "").lower()
+    agent_data.get("specialty", "").lower()
     
     if "data" in role_lower or "analyst" in role_lower:
         agent_tools.extend(["Bash", "Glob", "Grep", "Edit"])

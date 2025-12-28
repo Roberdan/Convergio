@@ -30,8 +30,8 @@
 			if (projectId) {
 				await pmRealtimeService.subscribeToProject(projectId);
 			}
-		} catch (error) {
-			console.error('Failed to connect to real-time service:', error);
+		} catch {
+			// Silent failure
 		}
 	});
 
@@ -42,8 +42,8 @@
 		// Unsubscribe from project
 		try {
 			await pmRealtimeService.unsubscribeFromProject();
-		} catch (error) {
-			console.error('Failed to unsubscribe from project:', error);
+		} catch {
+			// Silent failure
 		}
 	});
 

@@ -4,15 +4,12 @@ Automatically updates API pricing using Perplexity web search and validates agai
 """
 
 import asyncio
-import json
-import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 import structlog
-from sqlalchemy import and_, func, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import and_, select, update
 
 from ..core.database import get_async_session
 from ..models.cost_tracking import ProviderPricing
@@ -373,7 +370,7 @@ class PricingUpdaterService:
                             and_(
                                 ProviderPricing.provider == provider,
                                 ProviderPricing.model == model_data["model"],
-                                ProviderPricing.is_active == True
+                                ProviderPricing.is_active
                             )
                         )
                         .values(
@@ -423,7 +420,7 @@ class PricingUpdaterService:
             # Get all current pricing
             current_result = await db.execute(
                 select(ProviderPricing)
-                .where(ProviderPricing.is_active == True)
+                .where(ProviderPricing.is_active)
                 .order_by(ProviderPricing.provider, ProviderPricing.model)
             )
             current_pricing = current_result.scalars().all()

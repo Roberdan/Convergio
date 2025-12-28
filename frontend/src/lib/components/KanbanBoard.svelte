@@ -60,8 +60,8 @@
 					tasks: tasks.filter((t: Task) => t.status === col.id)
 				}));
 			}
-		} catch (error) {
-			console.error('Failed to load tasks:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -100,8 +100,8 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status })
 			});
-		} catch (error) {
-			console.error('Failed to update task status:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -130,8 +130,8 @@
 				columns = [...columns];
 				showAgentDialog = false;
 			}
-		} catch (error) {
-			console.error('Failed to attach agent:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	

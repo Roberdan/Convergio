@@ -7,10 +7,10 @@ from datetime import datetime, date
 from decimal import Decimal
 from typing import List, Optional, Dict, Any
 
-from sqlalchemy import Integer, String, DateTime, Date, Boolean, ForeignKey, Numeric, Enum, CheckConstraint
+from sqlalchemy import Integer, String, DateTime, Date, Boolean, ForeignKey, Numeric, CheckConstraint
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import func
 
 from ..core.database import Base

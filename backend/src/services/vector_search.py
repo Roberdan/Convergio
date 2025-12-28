@@ -5,7 +5,7 @@ This minimal service offers embed() and search() no-op behaviors suitable for te
 """
 
 from __future__ import annotations
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 
 class VectorSearchService:

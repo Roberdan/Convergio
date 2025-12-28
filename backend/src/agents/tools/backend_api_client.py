@@ -5,7 +5,7 @@ Provides authenticated access to Convergio backend APIs for data queries
 
 import requests
 import json
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -241,7 +241,7 @@ def query_dashboard_stats() -> str:
                 stats.append(f"{key}: {value}")
         
         if stats:
-            return f"✅ Dashboard Statistics:\n" + "\n".join(stats)
+            return "✅ Dashboard Statistics:\n" + "\n".join(stats)
         else:
             return f"✅ Dashboard data retrieved: {json.dumps(result, indent=2)}"
 

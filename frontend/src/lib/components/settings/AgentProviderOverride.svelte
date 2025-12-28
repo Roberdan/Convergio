@@ -44,8 +44,8 @@
           category: a.category
         }));
       }
-    } catch (e) {
-      console.error('Failed to load agents:', e);
+    } catch {
+      // Silent failure
     } finally {
       loading = false;
     }

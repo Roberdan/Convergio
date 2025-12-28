@@ -3,23 +3,18 @@ Insight Engine - Intelligent pattern recognition and recommendations
 Ali's proactive intelligence system
 """
 
-from typing import Dict, List, Any, Optional, Callable, Set, Tuple
+from typing import Dict, List, Any, Optional, Callable
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from enum import Enum
-import json
+from collections import deque
 import uuid
-from collections import defaultdict
 import asyncio
-import re
 
 import structlog
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 
 from ..event_bus import Event, EventType, EventPriority, event_bus
 from ..telemetry import TelemetryService
-from ...models.project import Task, Project, TaskStatus
 
 logger = structlog.get_logger()
 

@@ -4,14 +4,13 @@ Environment-based configuration with validation
 """
 
 import os
-import json
 import subprocess
 from functools import lru_cache
 from typing import List
 from pathlib import Path
 
 from pydantic_settings import BaseSettings
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, model_validator
 
 def _get_agent_default_cors_origins() -> str:
     """Get default CORS origins for agent configuration with configurable host and ports"""
@@ -55,13 +54,13 @@ def get_version_info():
                 stderr=subprocess.DEVNULL,
                 cwd=current
             ).decode().strip()
-            
+
             build_number = f"{commit_count}-{commit_hash}"
-        except:
+        except Exception:
             build_number = "dev-build"
-            
+
         return version, build_number
-    except:
+    except Exception:
         return "1.0.0", "unknown"
 
 
@@ -241,7 +240,7 @@ def load_env_from_root():
         backend_root = Path(__file__).parent.parent.parent.parent
         env_file = backend_root / ".env"
         if not env_file.exists():
-            raise FileNotFoundError(f"Could not find .env file in project root")
+            raise FileNotFoundError("Could not find .env file in project root")
     
     # Load .env file manually - force overwrite any existing env vars
     with open(env_file, 'r') as f:

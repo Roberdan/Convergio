@@ -122,8 +122,8 @@
         const data = await response.json();
         config = { ...config, ...data };
       }
-    } catch (error) {
-      console.error('Failed to load RAG configuration:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -146,8 +146,8 @@
       } else {
         throw new Error('Failed to save configuration');
       }
-    } catch (error) {
-      console.error('Save error:', error);
+    } catch {
+      // Silent failure
       errors.update(e => ({ ...e, save: 'Failed to save configuration' }));
     } finally {
       isSaving = false;

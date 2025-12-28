@@ -195,7 +195,7 @@ async def handle_project_request(
     user_id = request.user_id or "anonymous"
     
     logger.info(
-        f"📋 Starting project planning",
+        "📋 Starting project planning",
         project_id=project_id,
         project_type=request.project_type,
         user_id=user_id
@@ -290,7 +290,7 @@ async def handle_project_request(
         )
         
         logger.info(
-            f"✅ Project planning completed",
+            "✅ Project planning completed",
             project_id=project_id,
             agents_used=result.get("agents_used")
         )

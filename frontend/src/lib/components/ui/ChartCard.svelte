@@ -203,7 +203,14 @@
 
 <!-- Fullscreen backdrop -->
 {#if fullscreen}
-	<div class="fullscreen-backdrop" on:click={toggleFullscreen}></div>
+	<div
+		class="fullscreen-backdrop"
+		role="button"
+		tabindex="0"
+		on:click={toggleFullscreen}
+		on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? toggleFullscreen() : null}
+		aria-label="Exit fullscreen"
+	></div>
 {/if}
 
 <style>

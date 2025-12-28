@@ -49,7 +49,7 @@
     { id: 'escalation', label: 'Escalation', icon: '🚨', color: 'red' }
   ];
   
-  const agentProfiles = {
+  const agentProfiles: Record<string, { avatar: string; color: string }> = {
     'Marcus PM': { avatar: '👨‍💼', color: 'blue' },
     'Sara UX Designer': { avatar: '👩‍🎨', color: 'purple' },
     'Baccio Tech Architect': { avatar: '👨‍💻', color: 'green' },
@@ -80,8 +80,8 @@
         // Fallback to mock data
         allTouchpoints = generateMockTouchpoints();
       }
-    } catch (error) {
-      console.error('Error loading touchpoints:', error);
+    } catch {
+      // Silent failure
       allTouchpoints = generateMockTouchpoints();
     } finally {
       loading = false;
@@ -221,7 +221,7 @@
         case 'satisfaction':
           return (b.satisfaction_score || 0) - (a.satisfaction_score || 0);
         case 'impact':
-          const impactOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+          const impactOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
           return (impactOrder[b.impact_level] || 0) - (impactOrder[a.impact_level] || 0);
         default:
           return 0;
@@ -248,8 +248,8 @@
         showCreateForm = false;
         resetForm();
       }
-    } catch (error) {
-      console.error('Error creating touchpoint:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -322,10 +322,11 @@
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-surface-700  mb-1">Type</label>
-            <select 
+            <label for="touchpoint-type" class="block text-sm font-medium text-surface-700  mb-1">Type</label>
+            <select
+              id="touchpoint-type"
               bind:value={newTouchpoint.touchpoint_type}
-              class="w-full border border-surface-300  rounded-md px-3 py-2 
+              class="w-full border border-surface-300  rounded-md px-3 py-2
                      bg-surface-50  text-surface-900 "
             >
               {#each touchpointTypes.slice(1) as type}
@@ -333,35 +334,38 @@
               {/each}
             </select>
           </div>
-          
+
           <div>
-            <label class="block text-sm font-medium text-surface-700  mb-1">Duration (minutes)</label>
-            <input 
-              type="number" 
+            <label for="touchpoint-duration" class="block text-sm font-medium text-surface-700  mb-1">Duration (minutes)</label>
+            <input
+              id="touchpoint-duration"
+              type="number"
               bind:value={newTouchpoint.duration_minutes}
-              class="w-full border border-surface-300  rounded-md px-3 py-2 
+              class="w-full border border-surface-300  rounded-md px-3 py-2
                      bg-surface-50  text-surface-900 "
             />
           </div>
-          
+
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-surface-700  mb-1">Title</label>
-            <input 
-              type="text" 
+            <label for="touchpoint-title" class="block text-sm font-medium text-surface-700  mb-1">Title</label>
+            <input
+              id="touchpoint-title"
+              type="text"
               bind:value={newTouchpoint.title}
               placeholder="Touchpoint title..."
-              class="w-full border border-surface-300  rounded-md px-3 py-2 
+              class="w-full border border-surface-300  rounded-md px-3 py-2
                      bg-surface-50  text-surface-900 "
             />
           </div>
-          
+
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-surface-700  mb-1">Summary</label>
-            <textarea 
+            <label for="touchpoint-summary" class="block text-sm font-medium text-surface-700  mb-1">Summary</label>
+            <textarea
+              id="touchpoint-summary"
               bind:value={newTouchpoint.summary}
               placeholder="Brief summary of the interaction..."
               rows="2"
-              class="w-full border border-surface-300  rounded-md px-3 py-2 
+              class="w-full border border-surface-300  rounded-md px-3 py-2
                      bg-surface-50  text-surface-900 "
             ></textarea>
           </div>

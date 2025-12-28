@@ -3,7 +3,6 @@
 	 * Skip to Content Link (WS5-C2)
 	 * Provides keyboard-accessible skip links for screen reader users
 	 */
-	export let mainContentId = 'main-content';
 	export let links: { href: string; label: string }[] = [
 		{ href: '#main-content', label: 'Skip to main content' },
 		{ href: '#navigation', label: 'Skip to navigation' }

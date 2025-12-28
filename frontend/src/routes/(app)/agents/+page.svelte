@@ -110,13 +110,12 @@
         const result = await response.json();
         generatedAgent = result.agent;
         showPreview = true;
-        console.log('Agent generated:', generatedAgent);
       } else {
         const errorData = await response.json();
         throw new Error(errorData.message || `Failed to generate agent: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Failed to generate agent:', error);
+      // Silent failure
       creationError = error instanceof Error ? error.message : 'Failed to generate agent with AI';
     } finally {
       isGeneratingAgent = false;
@@ -143,8 +142,7 @@
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Agent created successfully:', result);
-        
+
         creationSuccess = true;
         
         // Reload agents to include the new one
@@ -160,7 +158,7 @@
         throw new Error(errorData.message || `Failed to create agent: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Failed to create final agent:', error);
+      // Silent failure
       creationError = error instanceof Error ? error.message : 'Failed to create agent';
     } finally {
       isCreatingAgent = false;
@@ -359,19 +357,17 @@
           // Then by alphabetical order of display name
           return a.name.localeCompare(b.name);
         });
-        
+
         allAgents = transformedAgents;
-        console.log(`✅ Loaded ${allAgents.length} agents from API (Ali first)`);
       } else {
         throw new Error(`API returned ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Failed to load agents from API:', error);
+      // Silent failure
       loadingError = error instanceof Error ? error.message : 'Unknown error';
-      
+
       // Fallback to static agents
       allAgents = fallbackAgents;
-      console.log('📋 Using fallback agents');
     } finally {
       isLoadingAgents = false;
     }
@@ -531,8 +527,8 @@
           timestamp: new Date()
         }];
       }
-    } catch (error) {
-      console.error('Agent conversation error:', error);
+    } catch {
+      // Silent failure
       messages = [...messages, {
         id: Date.now() + 1,
         type: 'ai', 
@@ -569,9 +565,8 @@
       const wsUrl = `ws://localhost:9000/api/v1/agents/ws/conversation/${conversationId}`;
       
       websocket = new WebSocket(wsUrl);
-      
+
       websocket.onopen = () => {
-        console.log('WebSocket connected for oversight mode');
         // Send conversation start message
         websocket?.send(JSON.stringify({
           type: 'start_conversation',
@@ -587,15 +582,12 @@
       
       websocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('WebSocket message:', data);
-        
+
         switch (data.type) {
           case 'connection_established':
-            console.log('Oversight mode connection established');
             break;
-            
+
           case 'conversation_started':
-            console.log('Oversight conversation started');
             break;
             
           case 'agent_status':
@@ -618,7 +610,7 @@
             break;
             
           case 'error':
-            console.error('WebSocket error:', data.message);
+            // Silent failure
             isLoading = false;
             messages = [...messages, {
               id: Date.now() + 1,
@@ -630,8 +622,8 @@
         }
       };
       
-      websocket.onerror = (error) => {
-        console.error('WebSocket error:', error);
+      websocket.onerror = () => {
+        // Silent failure
         isLoading = false;
         messages = [...messages, {
           id: Date.now() + 1,
@@ -641,8 +633,8 @@
         }];
       };
       
-    } catch (error) {
-      console.error('Oversight mode error:', error);
+    } catch {
+      // Silent failure
       isLoading = false;
       // Fallback to executive mode
       await sendExecutiveModeMessage(messageToSend);
@@ -680,7 +672,6 @@
         if (aliAgent) {
           selectedAgent = aliAgent;
           selectAgent(aliAgent);
-          console.log('✅ Ali set as default agent');
         } else if (featuredAgents.length > 0) {
           selectedAgent = featuredAgents[0];
           selectAgent(featuredAgents[0]);

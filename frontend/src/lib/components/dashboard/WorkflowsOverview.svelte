@@ -49,8 +49,8 @@
       
       workflows = workflowsData || [];
       recentExecutions = executionsData || [];
-    } catch (err) {
-      console.error('Failed to load workflows data:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load workflows data';
     } finally {
       loading = false;
@@ -64,8 +64,8 @@
       const details = await workflowsService.getWorkflowDetails(workflowId);
       selectedWorkflow = details;
       showDetails = true;
-    } catch (err) {
-      console.error('Failed to load workflow details:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load workflow details';
     }
   }
@@ -91,8 +91,8 @@
         alert(`✅ Workflow started! Execution ID: ${data.execution_id}`);
         loadWorkflowsData();
       }
-    } catch (err) {
-      console.error('Failed to execute workflow:', err);
+    } catch {
+      // Silent failure
       alert('Failed to start workflow');
     } finally {
       executingWorkflow = false;
@@ -120,8 +120,8 @@
       } else {
         alert('Failed to save workflow');
       }
-    } catch (err) {
-      console.error('Failed to save workflow:', err);
+    } catch {
+      // Silent failure
       alert('Failed to save workflow');
     }
   }
@@ -307,9 +307,10 @@
           <h2 class="text-lg font-medium text-surface-900">{selectedWorkflow.name}</h2>
           <p class="text-sm text-surface-500 mt-1">{selectedWorkflow.description}</p>
         </div>
-        <button 
+        <button
           on:click={() => { showDetails = false; selectedWorkflow = null; }}
           class="text-surface-600 hover:text-surface-300"
+          aria-label="Close workflow details"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

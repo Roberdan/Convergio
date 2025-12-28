@@ -3,7 +3,7 @@ Custom Field Model - Dynamic fields for projects, tasks, and resources
 Supports JSONB storage for flexible schema
 """
 
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, JSON, ForeignKey, Enum, Index
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey, Enum, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from datetime import datetime

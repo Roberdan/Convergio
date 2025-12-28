@@ -4,9 +4,8 @@ Request/Response models for AI-orchestrated project management
 """
 
 from datetime import datetime
-from typing import Optional, List, Dict, Any, Union
-from pydantic import BaseModel, Field, validator
-from enum import Enum
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field
 
 from ...models.project_orchestration import (
     OrchestrationStatus, CoordinationPattern, JourneyStage,

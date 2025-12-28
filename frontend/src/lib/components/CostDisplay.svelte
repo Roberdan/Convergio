@@ -2,8 +2,45 @@
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
 
+  interface ServiceDetails {
+    cost_usd: number;
+    calls: number;
+    tokens: number;
+    avg_cost_per_call: number;
+  }
+
+  interface SessionProviderStats {
+    cost: number;
+    calls: number;
+  }
+
+  interface SessionSummary {
+    total_cost_usd: number;
+    total_calls: number;
+    total_tokens: number;
+    by_provider?: Record<string, SessionProviderStats>;
+  }
+
+  interface CostData {
+    total_cost_usd: number;
+    today_cost_usd: number;
+    total_interactions: number;
+    total_tokens: number;
+    active_sessions: number;
+    budget_utilization: number;
+    status: string;
+    provider_breakdown: Record<string, unknown>;
+    model_breakdown: Record<string, number>;
+    hourly_breakdown: Record<string, unknown>;
+    last_updated: string;
+    service_details?: Record<string, ServiceDetails>;
+    session_summary?: SessionSummary;
+    today_interactions?: number;
+    today_tokens?: number;
+  }
+
   // Cost data store with provider breakdown
-  const costData = writable({
+  const costData = writable<CostData>({
     total_cost_usd: 0.0,
     today_cost_usd: 0.0,
     total_interactions: 0,
@@ -32,7 +69,6 @@
         const data = await response.json();
         costData.set(data);
       } else {
-        console.warn('Cost API unavailable, using fallback');
         costData.set({
           total_cost_usd: 0.0,
           today_cost_usd: 0.0,
@@ -47,8 +83,8 @@
           last_updated: new Date().toISOString()
         });
       }
-    } catch (error) {
-      console.warn('Cost tracking unavailable:', error);
+    } catch {
+      // Silent failure
       costData.set({
         total_cost_usd: 0.0,
         today_cost_usd: 0.0,

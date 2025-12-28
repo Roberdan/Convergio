@@ -6,16 +6,12 @@ Implements sophisticated decision trees, risk assessment, and multi-agent coordi
 
 import asyncio
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Dict, List, Any, Optional, Tuple
 import structlog
-from dataclasses import dataclass, asdict
-import json
+from dataclasses import dataclass
 import uuid
 from enum import Enum
 import numpy as np
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.preprocessing import LabelEncoder
-import pickle
 
 logger = structlog.get_logger()
 
@@ -947,7 +943,7 @@ class AutonomousDecisionEngine:
         
         # Add risk considerations
         if risk_analysis["risk_level"] in [RiskLevel.HIGH, RiskLevel.CRITICAL]:
-            reasoning_parts.append(f"High risk level requires careful monitoring and mitigation strategies")
+            reasoning_parts.append("High risk level requires careful monitoring and mitigation strategies")
         
         return ". ".join(reasoning_parts) + "."
     

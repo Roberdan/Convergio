@@ -4,10 +4,8 @@ Chooses the next speaker based on message intent, agent capabilities, conversati
 mission phase, and dynamic expertise scoring.
 """
 
-import asyncio
 import hashlib
-import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict, Optional, Tuple, Any, Set
 from dataclasses import dataclass
 from enum import Enum
@@ -24,7 +22,7 @@ except ImportError:
     TextMessage = None
     AUTOGEN_AVAILABLE = False
 
-from .selection_metrics import record_selection_metrics, get_selection_history
+from .selection_metrics import record_selection_metrics
 from ...tools.vector_search_client import embed_text, calculate_similarity
 
 logger = structlog.get_logger()

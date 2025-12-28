@@ -3,8 +3,8 @@ Telemetry API - Fornisce eventi per-turn per il frontend operational UX
 Include speaker, tools, fonti, costi, razionali per ogni turn della conversazione
 """
 
-from fastapi import APIRouter, HTTPException, Query, Depends
-from typing import List, Dict, Any, Optional
+from fastapi import APIRouter, HTTPException, Query
+from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 import structlog
 

@@ -3,9 +3,9 @@ export interface Agent {
   name: string;
   role?: string;
   description?: string;
-  status: 'active' | 'inactive' | 'busy' | 'error';
+  status: "active" | "inactive" | "busy" | "error";
   capabilities: string[];
-  tier?: 'junior' | 'mid' | 'senior' | 'lead' | 'specialist';
+  tier?: "junior" | "mid" | "senior" | "lead" | "specialist";
   tools_count?: number;
   expertise_count?: number;
   performance_metrics?: {
@@ -34,29 +34,29 @@ export interface AgentTask {
   task_id: string;
   title: string;
   description: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'failed';
+  status: "pending" | "in-progress" | "completed" | "failed";
   assigned_to: string[];
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   created_at: string;
   updated_at: string;
   estimated_completion?: string;
 }
 
 class AgentsService {
-  private baseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:9000'}/api/v1`;
+  private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
   async getAgents(): Promise<Agent[]> {
     try {
       const response = await fetch(`${this.baseUrl}/agents/list`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return data.agents || [];
     } catch (error) {
-      console.error('Failed to fetch agents:', error);
+      // Silent failure
       throw error;
     }
   }
@@ -64,14 +64,14 @@ class AgentsService {
   async getSwarmStatus(): Promise<SwarmStatus> {
     try {
       const response = await fetch(`${this.baseUrl}/swarm/status`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Failed to fetch swarm status:', error);
+      // Silent failure
       throw error;
     }
   }
@@ -79,15 +79,15 @@ class AgentsService {
   async getAgentTasks(): Promise<AgentTask[]> {
     try {
       const response = await fetch(`${this.baseUrl}/swarm/tasks`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return data.tasks || [];
     } catch (error) {
-      console.error('Failed to fetch agent tasks:', error);
+      // Silent failure
       throw error;
     }
   }
@@ -95,15 +95,15 @@ class AgentsService {
   async getAgentProjects(): Promise<any[]> {
     try {
       const response = await fetch(`${this.baseUrl}/agents/projects`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return data.projects || [];
     } catch (error) {
-      console.error('Failed to fetch agent projects:', error);
+      // Silent failure
       throw error;
     }
   }

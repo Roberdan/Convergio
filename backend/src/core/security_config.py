@@ -7,7 +7,7 @@ import os
 import secrets
 import string
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 import structlog

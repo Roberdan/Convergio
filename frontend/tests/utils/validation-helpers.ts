@@ -3,8 +3,8 @@
  * Utilities for validating AI responses and system behavior
  */
 
-import { expect } from '@playwright/test';
-import type { AgentResponse } from './agent-helpers';
+import { expect } from "@playwright/test";
+import type { AgentResponse } from "./agent-helpers";
 
 export interface ValidationCriteria {
   minLength?: number;
@@ -21,8 +21,8 @@ export interface ValidationCriteria {
  * Comprehensive AI response validation
  */
 export function validateAIResponse(
-  response: AgentResponse, 
-  criteria: ValidationCriteria = {}
+  response: AgentResponse,
+  criteria: ValidationCriteria = {},
 ): boolean {
   const { message } = response;
   const {
@@ -33,12 +33,14 @@ export function validateAIResponse(
     mustHaveStructure = false,
     mustHaveNumbers = false,
     mustHaveDates = false,
-    mustHaveUrls = false
+    mustHaveUrls = false,
   } = criteria;
 
   // Basic length validation
   if (message.length < minLength || message.length > maxLength) {
-    console.log(`Response length ${message.length} outside range ${minLength}-${maxLength}`);
+    console.log(
+      `Response length ${message.length} outside range ${minLength}-${maxLength}`,
+    );
     return false;
   }
 
@@ -50,7 +52,7 @@ export function validateAIResponse(
     }
   }
 
-  // Content prohibitions  
+  // Content prohibitions
   for (const forbidden of mustNotContain) {
     if (message.toLowerCase().includes(forbidden.toLowerCase())) {
       console.log(`Response contains forbidden content: ${forbidden}`);
@@ -60,14 +62,15 @@ export function validateAIResponse(
 
   // Structure validation
   if (mustHaveStructure) {
-    const hasStructure = message.includes('\n') || 
-                        message.includes('•') || 
-                        message.includes('-') ||
-                        /\d+\./.test(message) ||
-                        message.includes('**') ||
-                        message.includes('##');
+    const hasStructure =
+      message.includes("\n") ||
+      message.includes("•") ||
+      message.includes("-") ||
+      /\d+\./.test(message) ||
+      message.includes("**") ||
+      message.includes("##");
     if (!hasStructure) {
-      console.log('Response lacks required structure');
+      console.log("Response lacks required structure");
       return false;
     }
   }
@@ -76,7 +79,7 @@ export function validateAIResponse(
   if (mustHaveNumbers) {
     const hasNumbers = /\d/.test(message);
     if (!hasNumbers) {
-      console.log('Response lacks required numbers');
+      console.log("Response lacks required numbers");
       return false;
     }
   }
@@ -87,11 +90,11 @@ export function validateAIResponse(
       /\d{4}/, // Year
       /\d{1,2}\/\d{1,2}/, // Date
       /(january|february|march|april|may|june|july|august|september|october|november|december)/i,
-      /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i
+      /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i,
     ];
-    const hasDates = datePatterns.some(pattern => pattern.test(message));
+    const hasDates = datePatterns.some((pattern) => pattern.test(message));
     if (!hasDates) {
-      console.log('Response lacks required dates');
+      console.log("Response lacks required dates");
       return false;
     }
   }
@@ -100,7 +103,7 @@ export function validateAIResponse(
   if (mustHaveUrls) {
     const hasUrls = /https?:\/\//.test(message);
     if (!hasUrls) {
-      console.log('Response lacks required URLs');
+      console.log("Response lacks required URLs");
       return false;
     }
   }
@@ -115,7 +118,7 @@ export function validateAliResponse(response: AgentResponse): boolean {
   return validateAIResponse(response, {
     minLength: 150,
     mustHaveStructure: true,
-    mustNotContain: ['error', 'cannot', 'unable', 'fallback']
+    mustNotContain: ["error", "cannot", "unable", "fallback"],
   });
 }
 
@@ -127,19 +130,21 @@ export function validateAmyFinancialResponse(response: AgentResponse): boolean {
     minLength: 200,
     mustHaveNumbers: true,
     mustHaveStructure: true,
-    mustContain: ['budget', 'cost', 'revenue', 'ROI'],
+    mustContain: ["budget", "cost", "revenue", "ROI"],
   });
 }
 
 /**
  * Validate Marcus PM project response
  */
-export function validateMarcusProjectResponse(response: AgentResponse): boolean {
+export function validateMarcusProjectResponse(
+  response: AgentResponse,
+): boolean {
   return validateAIResponse(response, {
     minLength: 150,
     mustHaveStructure: true,
-    mustContain: ['timeline', 'milestone', 'deliverable'],
-    mustHaveDates: true
+    mustContain: ["timeline", "milestone", "deliverable"],
+    mustHaveDates: true,
   });
 }
 
@@ -151,7 +156,7 @@ export function validateResearchResponse(response: AgentResponse): boolean {
     minLength: 200,
     mustHaveStructure: true,
     mustHaveUrls: true,
-    mustNotContain: ['I cannot access', 'no internet', 'unable to search']
+    mustNotContain: ["I cannot access", "no internet", "unable to search"],
   });
 }
 
@@ -160,7 +165,7 @@ export function validateResearchResponse(response: AgentResponse): boolean {
  */
 export function validateOrchestration(responses: AgentResponse[]): boolean {
   if (responses.length < 2) {
-    console.log('Orchestration must involve at least 2 agents');
+    console.log("Orchestration must involve at least 2 agents");
     return false;
   }
 
@@ -173,17 +178,26 @@ export function validateOrchestration(responses: AgentResponse[]): boolean {
   }
 
   // Responses should be related/coherent
-  const allContent = responses.map(r => r.message).join(' ').toLowerCase();
-  const hasCoherence = responses.length < 3 || 
-    responses.some((r, i) => 
-      i > 0 && responses.slice(0, i).some(prev => 
-        r.message.toLowerCase().includes(prev.agent.toLowerCase()) ||
-        prev.message.toLowerCase().includes(r.agent.toLowerCase())
-      )
+  const allContent = responses
+    .map((r) => r.message)
+    .join(" ")
+    .toLowerCase();
+  const hasCoherence =
+    responses.length < 3 ||
+    responses.some(
+      (r, i) =>
+        i > 0 &&
+        responses
+          .slice(0, i)
+          .some(
+            (prev) =>
+              r.message.toLowerCase().includes(prev.agent.toLowerCase()) ||
+              prev.message.toLowerCase().includes(r.agent.toLowerCase()),
+          ),
     );
 
   if (!hasCoherence) {
-    console.log('Orchestration responses lack coherence');
+    console.log("Orchestration responses lack coherence");
     return false;
   }
 
@@ -204,7 +218,7 @@ export interface BusinessValidation {
 
 export function validateBusinessResponse(
   response: AgentResponse,
-  criteria: BusinessValidation = {}
+  criteria: BusinessValidation = {},
 ): boolean {
   const { message } = response;
   const {
@@ -213,37 +227,65 @@ export function validateBusinessResponse(
     hasDataDriven = false,
     hasRisksConsideration = false,
     hasTimeframes = false,
-    hasMetrics = false
+    hasMetrics = false,
   } = criteria;
 
   if (hasStrategicThinking) {
-    const strategicTerms = ['strategy', 'strategic', 'opportunity', 'competitive', 'market', 'growth'];
-    const hasStrategy = strategicTerms.some(term => 
-      message.toLowerCase().includes(term)
+    const strategicTerms = [
+      "strategy",
+      "strategic",
+      "opportunity",
+      "competitive",
+      "market",
+      "growth",
+    ];
+    const hasStrategy = strategicTerms.some((term) =>
+      message.toLowerCase().includes(term),
     );
     if (!hasStrategy) return false;
   }
 
   if (hasActionableInsights) {
-    const actionTerms = ['recommend', 'suggest', 'should', 'action', 'implement', 'execute'];
-    const hasActions = actionTerms.some(term => 
-      message.toLowerCase().includes(term)
+    const actionTerms = [
+      "recommend",
+      "suggest",
+      "should",
+      "action",
+      "implement",
+      "execute",
+    ];
+    const hasActions = actionTerms.some((term) =>
+      message.toLowerCase().includes(term),
     );
     if (!hasActions) return false;
   }
 
   if (hasDataDriven) {
-    const dataTerms = ['data', 'metric', 'measurement', 'analysis', 'insight', 'trend'];
-    const hasData = dataTerms.some(term => 
-      message.toLowerCase().includes(term)
+    const dataTerms = [
+      "data",
+      "metric",
+      "measurement",
+      "analysis",
+      "insight",
+      "trend",
+    ];
+    const hasData = dataTerms.some((term) =>
+      message.toLowerCase().includes(term),
     );
     if (!hasData) return false;
   }
 
   if (hasRisksConsideration) {
-    const riskTerms = ['risk', 'challenge', 'concern', 'mitigation', 'threat', 'obstacle'];
-    const hasRisks = riskTerms.some(term => 
-      message.toLowerCase().includes(term)
+    const riskTerms = [
+      "risk",
+      "challenge",
+      "concern",
+      "mitigation",
+      "threat",
+      "obstacle",
+    ];
+    const hasRisks = riskTerms.some((term) =>
+      message.toLowerCase().includes(term),
     );
     if (!hasRisks) return false;
   }
@@ -253,9 +295,9 @@ export function validateBusinessResponse(
       /\d+\s+(days?|weeks?|months?|quarters?|years?)/i,
       /(q[1-4]|quarter)/i,
       /(short|medium|long).term/i,
-      /\d{4}/
+      /\d{4}/,
     ];
-    const hasTime = timePatterns.some(pattern => pattern.test(message));
+    const hasTime = timePatterns.some((pattern) => pattern.test(message));
     if (!hasTime) return false;
   }
 
@@ -264,9 +306,9 @@ export function validateBusinessResponse(
       /\d+%/,
       /\$[\d,]+/,
       /\d+[km]?\s*(users?|customers?|revenue)/i,
-      /(roi|roas|ltv|cac|mrr|arr)/i
+      /(roi|roas|ltv|cac|mrr|arr)/i,
     ];
-    const hasMetrics = metricPatterns.some(pattern => pattern.test(message));
+    const hasMetrics = metricPatterns.some((pattern) => pattern.test(message));
     if (!hasMetrics) return false;
   }
 
@@ -285,15 +327,19 @@ export interface PerformanceMetrics {
 export function validatePerformance(
   metrics: PerformanceMetrics,
   maxResponseTime: number = 30000,
-  minContentLength: number = 100
+  minContentLength: number = 100,
 ): boolean {
   if (metrics.responseTime > maxResponseTime) {
-    console.log(`Response time ${metrics.responseTime}ms exceeds ${maxResponseTime}ms`);
+    console.log(
+      `Response time ${metrics.responseTime}ms exceeds ${maxResponseTime}ms`,
+    );
     return false;
   }
 
   if (metrics.contentLength < minContentLength) {
-    console.log(`Content length ${metrics.contentLength} below minimum ${minContentLength}`);
+    console.log(
+      `Content length ${metrics.contentLength} below minimum ${minContentLength}`,
+    );
     return false;
   }
 
@@ -308,20 +354,29 @@ export function validatePerformance(
 /**
  * Playwright assertion helpers for better test readability
  */
-export async function expectAIResponse(response: AgentResponse, criteria: ValidationCriteria = {}) {
-  expect(validateAIResponse(response, criteria), 
-    `AI response validation failed for ${response.agent}: ${response.message.substring(0, 100)}...`
+export async function expectAIResponse(
+  response: AgentResponse,
+  criteria: ValidationCriteria = {},
+) {
+  expect(
+    validateAIResponse(response, criteria),
+    `AI response validation failed for ${response.agent}: ${response.message.substring(0, 100)}...`,
   ).toBe(true);
 }
 
-export async function expectBusinessResponse(response: AgentResponse, criteria: BusinessValidation = {}) {
-  expect(validateBusinessResponse(response, criteria),
-    `Business validation failed for ${response.agent}: ${response.message.substring(0, 100)}...`
+export async function expectBusinessResponse(
+  response: AgentResponse,
+  criteria: BusinessValidation = {},
+) {
+  expect(
+    validateBusinessResponse(response, criteria),
+    `Business validation failed for ${response.agent}: ${response.message.substring(0, 100)}...`,
   ).toBe(true);
 }
 
 export async function expectOrchestration(responses: AgentResponse[]) {
-  expect(validateOrchestration(responses),
-    `Orchestration validation failed for ${responses.length} agent responses`
+  expect(
+    validateOrchestration(responses),
+    `Orchestration validation failed for ${responses.length} agent responses`,
   ).toBe(true);
 }

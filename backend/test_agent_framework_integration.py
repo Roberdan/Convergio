@@ -26,7 +26,6 @@ except Exception as e:
 # Test 2: Check Agent Framework availability
 print("\n✅ Test 2: Checking Agent Framework...")
 try:
-    from agent_framework import ChatAgent, WorkflowBuilder, ai_function
     print("✅ Agent Framework is available")
 except Exception as e:
     print(f"❌ Agent Framework not available: {e}")

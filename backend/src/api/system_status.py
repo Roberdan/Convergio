@@ -84,11 +84,11 @@ async def get_detailed_health(db: AsyncSession = Depends(get_db_session)) -> Dic
     
     # Check database
     try:
-        result = await db.execute("SELECT 1")
+        await db.execute("SELECT 1")
         db_connected = True
-    except:
+    except Exception:
         db_connected = False
-    
+
     # Check Redis
     try:
         from ..core.redis import redis_client
@@ -97,7 +97,7 @@ async def get_detailed_health(db: AsyncSession = Depends(get_db_session)) -> Dic
             redis_connected = True
         else:
             redis_connected = False
-    except:
+    except Exception:
         redis_connected = False
     
     return {

@@ -16,19 +16,13 @@ from typing import Any, Dict, Optional, List
 from src.core.config import get_settings
 from src.core.redis import get_redis_client
 from src.agents.orchestrators.base import OrchestratorRegistry
-from src.agents.services.redis_state_manager import RedisStateManager
-from src.services.unified_cost_tracker import unified_cost_tracker
 
 # AI Provider imports
 from src.core.ai_providers import (
-    AIConfig,
-    AIProvider,
     ProviderMode,
     get_ai_config_from_env,
 )
 from src.core.multi_provider_chat_client import (
-    MultiProviderChatClient,
-    AgentFrameworkCompatibleClient,
     get_agent_framework_compatible_client,
 )
 from src.core.provider_router import (
@@ -288,13 +282,13 @@ class RealAgentOrchestrator:
         """Initialize with fallback UnifiedOrchestrator."""
         # Ensure Redis is initialized
         try:
-            redis_client = get_redis_client()
+            get_redis_client()
         except RuntimeError as e:
             if "Redis not initialized" in str(e):
                 logger.info("🔄 Redis not initialized, initializing now...")
                 from core.redis import init_redis
                 await init_redis()
-                redis_client = get_redis_client()
+                get_redis_client()
             else:
                 raise
 

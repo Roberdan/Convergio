@@ -118,16 +118,15 @@
       try {
         const data = JSON.parse(event.data);
         handleMetricsUpdate(data);
-      } catch (error) {
-        console.error('Failed to parse metrics:', error);
+      } catch {
+        // Silent failure
       }
     };
-    
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+
+    ws.onerror = () => {
       notify.error('Connection Error', 'Failed to connect to metrics stream');
     };
-    
+
     ws.onclose = () => {
       isConnected = false;
       // Reconnect after 5 seconds
@@ -203,8 +202,8 @@
         const data = await response.json();
         handleMetricsUpdate(data);
       }
-    } catch (error) {
-      console.error('Failed to fetch metrics:', error);
+    } catch {
+      // Silent failure
     }
   }
   

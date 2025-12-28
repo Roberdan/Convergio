@@ -6,7 +6,7 @@ Provides comprehensive project management capabilities including
 CRUD operations, analytics, and workflow management.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional, Any
 import fastapi
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -449,12 +449,11 @@ async def get_clients(
 ):
     """
     👥 Get all clients
-    
+
     Returns a list of clients for the projects overview.
     For now, returns mock data until client model is implemented.
     """
     try:
-        # TODO: Replace with actual client model when available
         mock_clients = [
             {"id": 1, "name": "Acme Corporation", "email": "contact@acme.com"},
             {"id": 2, "name": "TechStart Inc", "email": "hello@techstart.com"},
@@ -525,12 +524,6 @@ async def get_activities(
 
 # ====== Activity CRUD for Kanban/Gantt (minimal) ======
 
-class ActivityCreate(BaseModel):
-    title: str
-    description: Optional[str] = None
-    status: Optional[str] = Field(default=None, description="planning|in_progress|review|completed")
-
-
 @router.post("/engagements/{engagement_id}/activities", response_model=ActivityResponse, summary="Create activity for an engagement")
 async def create_activity(
     engagement_id: int,
@@ -586,8 +579,6 @@ async def update_activity(activity_id: int, payload: ActivityUpdate, db: AsyncSe
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to update activity: {e}")
 
-
-from datetime import timedelta
 
 @router.post("/engagements/{engagement_id}/activities/seed", summary="Seed sample activities for an engagement (development only)")
 async def seed_activities(

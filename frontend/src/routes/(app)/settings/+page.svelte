@@ -55,8 +55,8 @@
       if (response.ok) {
         keyStatus = await response.json();
       }
-    } catch (error) {
-      console.error('Failed to load API key status:', error);
+    } catch {
+      // Silent failure
     }
   }
 
@@ -67,8 +67,8 @@
         const data = await response.json();
         aiSettings = { ...aiSettings, ...data };
       }
-    } catch (error) {
-      console.error('Failed to load AI settings:', error);
+    } catch {
+      // Silent failure
     }
   }
 
@@ -91,8 +91,8 @@
       } else {
         alert('Failed to save API keys');
       }
-    } catch (error) {
-      console.error('Failed to save API keys:', error);
+    } catch {
+      // Silent failure
       alert('Failed to save API keys');
     } finally {
       saving = false;
@@ -114,8 +114,8 @@
       } else {
         alert('Failed to save AI settings');
       }
-    } catch (error) {
-      console.error('Failed to save AI settings:', error);
+    } catch {
+      // Silent failure
       alert('Failed to save AI settings');
     } finally {
       savingAiSettings = false;
@@ -138,8 +138,8 @@
       }
 
       await loadKeyStatus();
-    } catch (error) {
-      console.error(`Failed to test ${service} API key:`, error);
+    } catch {
+      // Silent failure
       alert(`Failed to test ${service} API key`);
     } finally {
       testing = false;
@@ -162,8 +162,8 @@
       } else {
         alert('Failed to clear API keys');
       }
-    } catch (error) {
-      console.error('Failed to clear API keys:', error);
+    } catch {
+      // Silent failure
       alert('Failed to clear API keys');
     }
   }

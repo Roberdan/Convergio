@@ -3,14 +3,13 @@
 Production-ready rate limiting with Redis backend and configurable limits
 """
 
-import asyncio
 import time
-from typing import Dict, Optional, List, Tuple
+from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
 import structlog
 import redis.asyncio as redis
-from fastapi import Request, HTTPException, Response
+from fastapi import Request, HTTPException
 try:
     from slowapi import Limiter, _rate_limit_exceeded_handler  # type: ignore
     from slowapi.errors import RateLimitExceeded  # type: ignore
@@ -114,7 +113,7 @@ class EnhancedRateLimitEngine:
         
         limits = self.default_limits.get(endpoint_type, self.default_limits["public"])
         per_minute_limit = limits["per_minute"]
-        burst_limit = limits["burst"]
+        limits["burst"]
         
         # Use sliding window rate limiting
         current_time = time.time()

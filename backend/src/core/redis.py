@@ -4,7 +4,7 @@ High-performance async Redis with connection pooling
 """
 
 import json
-from typing import Any, Optional, Union
+from typing import Any, Optional
 import structlog
 import redis.asyncio as redis
 
@@ -116,7 +116,7 @@ async def cache_get(key: str) -> Optional[Any]:
         if value:
             try:
                 return json.loads(value)
-            except:
+            except Exception:
                 return value
         return None
     except Exception as e:

@@ -4,7 +4,7 @@ Implements circuit breaker, budget alarms, and rate limiting for cost management
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, Optional, Any, List, Callable, Tuple
 from dataclasses import dataclass, field
 from enum import Enum

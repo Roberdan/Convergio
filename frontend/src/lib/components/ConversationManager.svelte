@@ -15,7 +15,7 @@ Provides conversation management UI: reset, history, resume, delete
   let showConfirmDelete = false;
 
   $: conversation = $currentConversation;
-  $: hasMessages = conversation?.messages.length > 0;
+  $: hasMessages = conversation?.messages && conversation.messages.length > 0;
 
   function handleReset() {
     conversationManager.resetConversation(agentId);
@@ -150,7 +150,7 @@ Provides conversation management UI: reset, history, resume, delete
     </div>
 
     <!-- Conversation history -->
-    {#if showHistory && conversation?.messages.length > 0}
+    {#if showHistory && conversation?.messages && conversation.messages.length > 0}
       <div class="border-t pt-4">
         <h4 id="conversation-history-title" class="text-xs font-medium text-surface-600 mb-2">Conversation History</h4>
         <div class="space-y-2 max-h-64 overflow-y-auto" role="log" aria-labelledby="conversation-history-title">

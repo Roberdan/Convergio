@@ -97,9 +97,9 @@ class ToolConverter:
 
         # Get AutoGen tools
         try:
-            from src.agents.tools.web_search_tool import WebSearchTool, get_web_tools
+            from src.agents.tools.web_search_tool import get_web_tools
             from src.agents.tools.database_tools import get_database_tools
-            from src.agents.tools.vector_search_tool import VectorSearchTool, get_vector_tools
+            from src.agents.tools.vector_search_tool import get_vector_tools
 
             result["autogen"].extend(get_web_tools())
             result["autogen"].extend(get_database_tools())

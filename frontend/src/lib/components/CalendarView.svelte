@@ -52,8 +52,8 @@
 			if (response.ok) {
 				tasks = await response.json();
 			}
-		} catch (error) {
-			console.error('Failed to load tasks:', error);
+		} catch {
+			// Silent failure
 		}
 	}
 	
@@ -396,7 +396,7 @@
 				
 				<div class="dialog-footer">
 					<button
-						on:click={() => createTask(selectedDay.date)}
+						on:click={() => selectedDay && createTask(selectedDay.date)}
 						class="btn-primary"
 					>
 						Add New Task

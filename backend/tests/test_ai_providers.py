@@ -42,15 +42,12 @@ from src.core.provider_router import (
     ChatResponse,
     ToolCall,
     StrictModeViolation,
-    ProviderUnavailable,
     reset_provider_router,
 )
 from src.core.ollama_service import (
     OllamaService,
     OllamaStatus,
-    OllamaModel,
     OllamaModelCapability,
-    get_ollama_service,
 )
 
 

@@ -19,8 +19,17 @@
     blockers?: string[];
   }
   
+  type StageColor = 'blue' | 'yellow' | 'green' | 'purple' | 'indigo' | 'gray';
+  type StageName = 'discovery' | 'planning' | 'execution' | 'validation' | 'delivery' | 'closure';
+
   // Stage definitions with icons and descriptions
-  const stageDefinitions = {
+  const stageDefinitions: Record<StageName, {
+    icon: string;
+    title: string;
+    description: string;
+    color: StageColor;
+    expectedDuration: string;
+  }> = {
     discovery: {
       icon: '🔍',
       title: 'Discovery',
@@ -73,11 +82,11 @@
   });
   
   function buildStageTimeline() {
-    const stages = Object.keys(stageDefinitions);
+    const stages = Object.keys(stageDefinitions) as StageName[];
     stageTimeline = stages.map(stageName => {
       const stageData = journeyStages.find(s => s.stage_name === stageName);
       const definition = stageDefinitions[stageName];
-      
+
       return {
         name: stageName,
         ...definition,
@@ -98,7 +107,7 @@
   }
   
   function getStageColorClasses(stage: any, type: 'bg' | 'border' | 'text' = 'bg') {
-    const baseColors = {
+    const baseColors: Record<StageColor, { bg: string; border: string; text: string }> = {
       blue: { bg: 'bg-blue-500', border: 'border-blue-500', text: 'text-blue-600' },
       yellow: { bg: 'bg-yellow-500', border: 'border-yellow-500', text: 'text-yellow-600' },
       green: { bg: 'bg-green-500', border: 'border-green-500', text: 'text-green-600' },
@@ -106,19 +115,19 @@
       indigo: { bg: 'bg-indigo-500', border: 'border-indigo-500', text: 'text-indigo-600' },
       gray: { bg: 'bg-gray-500', border: 'border-gray-500', text: 'text-gray-600' }
     };
-    
+
     if (stage.isBlocked) {
       return type === 'bg' ? 'bg-red-500' : type === 'border' ? 'border-red-500' : 'text-red-600';
     }
-    
+
     if (stage.isCompleted) {
-      return baseColors[stage.color][type];
+      return baseColors[stage.color as StageColor][type];
     }
-    
+
     if (stage.isActive) {
-      return type === 'bg' ? `${baseColors[stage.color][type]} animate-pulse` : baseColors[stage.color][type];
+      return type === 'bg' ? `${baseColors[stage.color as StageColor][type]} animate-pulse` : baseColors[stage.color as StageColor][type];
     }
-    
+
     return type === 'bg' ? 'bg-gray-300' : type === 'border' ? 'border-gray-300' : 'text-gray-500';
   }
   

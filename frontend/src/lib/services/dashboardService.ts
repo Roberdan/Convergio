@@ -42,12 +42,12 @@ export interface Project {
   id: number;
   name: string;
   progress: number;
-  status: 'planning' | 'in-progress' | 'review' | 'completed';
+  status: "planning" | "in-progress" | "review" | "completed";
   dueDate: string;
   type: string;
   description: string;
   assigned_agents: string[];
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   budget: number;
   revenue_target: number;
   // Backend compatibility fields
@@ -59,20 +59,24 @@ export interface Project {
 }
 
 class DashboardService {
-  private baseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:9000'}/api/v1`;
+  private baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:9000"}/api/v1`;
 
-  async getDashboardMetrics(timeRange: string = '7d'): Promise<DashboardMetrics> {
+  async getDashboardMetrics(
+    timeRange: string = "7d",
+  ): Promise<DashboardMetrics> {
     try {
-      const response = await fetch(`${this.baseUrl}/analytics/dashboard?time_range=${timeRange}`);
-      
+      const response = await fetch(
+        `${this.baseUrl}/analytics/dashboard?time_range=${timeRange}`,
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return data as DashboardMetrics;
     } catch (error) {
-      console.error('Failed to fetch dashboard metrics:', error);
+      // Silent failure
       throw error;
     }
   }
@@ -80,37 +84,41 @@ class DashboardService {
   async getProjects(): Promise<Project[]> {
     try {
       const response = await fetch(`${this.baseUrl}/agents/projects`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       if (!data?.projects) {
-        throw new Error('Projects payload missing');
+        throw new Error("Projects payload missing");
       }
       return data.projects as Project[];
     } catch (error) {
-      console.error('Failed to fetch projects:', error);
+      // Silent failure
       throw error;
     }
   }
 
-  async getRevenueTrend(timeRange: string = '7d'): Promise<{ labels: string[]; data: number[] }> {
+  async getRevenueTrend(
+    timeRange: string = "7d",
+  ): Promise<{ labels: string[]; data: number[] }> {
     try {
-      const response = await fetch(`${this.baseUrl}/analytics/revenue?time_range=${timeRange}`);
-      
+      const response = await fetch(
+        `${this.baseUrl}/analytics/revenue?time_range=${timeRange}`,
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return {
         labels: data.labels,
-        data: data.data
+        data: data.data,
       };
     } catch (error) {
-      console.error('Failed to fetch revenue trend:', error);
+      // Silent failure
       throw error;
     }
   }

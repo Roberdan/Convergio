@@ -4,12 +4,12 @@ Enhanced endpoints for approval management with filtering and audit trail
 """
 
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Query, Body
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 import structlog
 
 from ..agents.services.hitl.approval_store_redis import (
-    RedisApprovalStore, ApprovalStatus, RiskLevel
+    RedisApprovalStore, ApprovalStatus
 )
 from ..core.redis import get_redis_client
 from ..core.config import get_settings

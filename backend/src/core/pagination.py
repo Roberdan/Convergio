@@ -4,7 +4,6 @@ Implements keyset pagination for efficient large dataset navigation
 """
 
 from typing import Dict, Any, List, Optional, Tuple, TypeVar, Generic
-from datetime import datetime
 import base64
 import json
 import structlog

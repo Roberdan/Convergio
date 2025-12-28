@@ -6,9 +6,7 @@ Auto-discovery system for MyConvergio agents from MD files with file watching
 import os
 import re
 import yaml
-import asyncio
 import threading
-import time
 import hashlib
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Callable
@@ -278,7 +276,7 @@ class DynamicAgentLoader:
     
     def _determine_tier(self, name: str, description: str, content: str) -> str:
         """Determine agent tier based on content analysis."""
-        content_lower = content.lower()
+        content.lower()
         desc_lower = description.lower()
         
         # Tier classification rules
@@ -487,6 +485,5 @@ ROUTING INTELLIGENCE:
 
 
 # Global agent loader instance - use absolute path
-import os
 _backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 agent_loader = DynamicAgentLoader(os.path.join(_backend_dir, "agents", "definitions"))

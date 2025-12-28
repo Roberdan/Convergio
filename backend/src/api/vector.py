@@ -3,16 +3,15 @@
 Integrated vector embeddings and similarity search with pgvector
 """
 
-import json
 from typing import Any, Dict, List, Optional
 from datetime import datetime
+import os
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 import httpx
-import numpy as np
 
 from ..core.database import get_db_session
 from ..core.config import get_settings
@@ -268,8 +267,7 @@ async def similarity_search(
             query_embedding = data['data'][0]['embedding']
         
         # Perform similarity search using pgvector
-        from sqlalchemy import select, text
-        import numpy as np
+        from sqlalchemy import text
         
         # Convert query embedding to PostgreSQL vector format
         query_vector_str = '[' + ','.join(str(x) for x in query_embedding) + ']'
@@ -443,7 +441,7 @@ async def delete_document(
         # Delete document (embeddings will be cascade deleted)
         await document.delete(db)
         
-        logger.info("✅ Document deleted", document_id=document_id, user_id=current_user.id)
+        logger.info("✅ Document deleted", document_id=document_id)
         
         return {"message": "Document deleted successfully"}
         

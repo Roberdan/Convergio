@@ -104,7 +104,7 @@ class ImportValidator:
                 
             # Try to import main
             try:
-                from src.main import app
+                from src.main import app  # noqa: F401
                 print("✅ Main module imports successfully")
                 return True
             except ImportError as e:
@@ -135,7 +135,7 @@ class ImportValidator:
             content = re.sub(r'^(\s*)from (core|api|agents|models|services)\.', r'\1from .\2.', content, flags=re.MULTILINE)
             
             if content != original_content:
-                fixes.append(f"sed -i 's/^from \\(core\\|api\\|agents\\|models\\|services\\)\\./from .\\1./g' src/main.py")
+                fixes.append("sed -i 's/^from \\(core\\|api\\|agents\\|models\\|services\\)\\./from .\\1./g' src/main.py")
                 
         # Fix models without extend_existing
         model_files = glob.glob(str(self.backend_src / "models" / "*.py"))
@@ -148,7 +148,7 @@ class ImportValidator:
                 
             if '__tablename__' in content and '__table_args__' not in content:
                 fixes.append(f"# Add to {model_file} after __tablename__ line:")
-                fixes.append(f"#     __table_args__ = {{'extend_existing': True}}")
+                fixes.append("#     __table_args__ = {'extend_existing': True}")
                 
         return fixes
         
@@ -186,7 +186,7 @@ class ImportValidator:
             for fix in fixes:
                 print(f"  {fix}")
                 
-            print(f"\n📖 For detailed guidance, see: IMPORT_PATH_CONSISTENCY_GUIDE.md")
+            print("\n📖 For detailed guidance, see: IMPORT_PATH_CONSISTENCY_GUIDE.md")
             
         success = len(self.errors) == 0 and import_success
         print(f"\n{'✅ VALIDATION PASSED' if success else '❌ VALIDATION FAILED'}")

@@ -4,7 +4,6 @@ Orchestrates agent execution using Microsoft Agent Framework patterns.
 Provides dual-framework support for gradual migration from AutoGen.
 """
 
-import asyncio
 from typing import Dict, List, Any, Optional, AsyncGenerator, Callable
 from datetime import datetime
 from dataclasses import dataclass
@@ -34,8 +33,7 @@ except ImportError:
 
 from ..services.agent_framework_loader import (
     AgentFrameworkLoader,
-    agent_framework_loader,
-    AGENT_FRAMEWORK_AVAILABLE as LOADER_AF_AVAILABLE
+    agent_framework_loader
 )
 from ..tools.tools_registry import get_tools_registry
 

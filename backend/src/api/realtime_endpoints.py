@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_db_session
-from ..services.realtime_streaming_service import get_realtime_service, RealtimeStreamingService
+from ..services.realtime_streaming_service import get_realtime_service
 from ..models.project_orchestration import ProjectOrchestration
 
 logger = structlog.get_logger()
@@ -67,7 +67,7 @@ async def websocket_orchestration_updates(
         logger.error("WebSocket error", error=str(e), orchestration_id=str(orchestration_id))
         try:
             await websocket.close(code=5000, reason="Internal server error")
-        except:
+        except Exception:
             pass
 
 
@@ -87,7 +87,7 @@ async def websocket_conversation_stream(
     - Conversation metadata
     """
     
-    streaming_service = await get_realtime_service()
+    await get_realtime_service()
     
     try:
         await websocket.accept()
@@ -130,7 +130,7 @@ async def websocket_conversation_stream(
         logger.error("Failed to establish conversation WebSocket", error=str(e))
         try:
             await websocket.close(code=5000, reason="Internal server error")
-        except:
+        except Exception:
             pass
 
 

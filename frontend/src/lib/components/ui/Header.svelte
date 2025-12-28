@@ -116,13 +116,13 @@
 					aria-label="Notifications"
 				>
 					<span class="icon-bell" aria-hidden="true"></span>
-					{#if notificationCount > 0}
+					{#if (notificationCount ?? 0) > 0}
 						<Badge
 							variant="error"
 							size="sm"
 							class="notification-badge"
 						>
-							{notificationCount > 99 ? '99+' : notificationCount}
+							{(notificationCount ?? 0) > 99 ? '99+' : (notificationCount ?? 0)}
 						</Badge>
 					{/if}
 				</Button>
@@ -190,7 +190,14 @@
 
 <!-- Click outside to close user menu -->
 {#if showUserMenu}
-	<div class="fixed inset-0 z-10" on:click={() => showUserMenu = false}></div>
+	<div
+		class="fixed inset-0 z-10"
+		on:click={() => showUserMenu = false}
+		on:keydown={(e) => e.key === 'Escape' && (showUserMenu = false)}
+		role="button"
+		tabindex="-1"
+		aria-label="Close menu"
+	></div>
 {/if}
 
 <style>
@@ -215,6 +222,10 @@
 		font-family: var(--font-primary);
 	}
 
+	:global(.dark) .header-title {
+		@apply text-gray-100;
+	}
+
 	.search-container {
 		@apply w-full;
 	}
@@ -223,7 +234,7 @@
 		@apply w-full;
 	}
 
-	.notification-badge {
+	:global(.notification-badge) {
 		@apply absolute -top-1 -right-1 min-w-[1.25rem] h-5 flex items-center justify-center;
 	}
 
@@ -235,7 +246,11 @@
 		@apply flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
 	}
 
-	.dark .user-menu-trigger:focus {
+	:global(.dark) .user-menu-trigger {
+		@apply hover:bg-gray-800;
+	}
+
+	:global(.dark) .user-menu-trigger:focus {
 		@apply ring-offset-gray-800;
 	}
 
@@ -253,6 +268,10 @@
 		animation: fadeInDown 0.2s ease-out;
 	}
 
+	:global(.dark) .user-menu-dropdown {
+		@apply bg-gray-800 border-gray-700;
+	}
+
 	.user-info {
 		@apply flex items-center gap-3 px-4 py-3;
 	}
@@ -266,9 +285,17 @@
 		font-family: var(--font-primary);
 	}
 
+	:global(.dark) .user-name {
+		@apply text-gray-100;
+	}
+
 	.user-email {
 		@apply text-xs text-gray-500;
 		font-family: var(--font-primary);
+	}
+
+	:global(.dark) .user-email {
+		@apply text-gray-400;
 	}
 
 	.menu-divider {
@@ -278,6 +305,14 @@
 	.menu-item {
 		@apply w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:bg-gray-100;
 		font-family: var(--font-primary);
+	}
+
+	:global(.dark) .menu-item {
+		@apply text-gray-300 hover:bg-gray-700 focus:bg-gray-700;
+	}
+
+	:global(.dark) .menu-divider {
+		@apply border-gray-700;
 	}
 
 	/* Icon styles */

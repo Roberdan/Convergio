@@ -3,7 +3,6 @@ Database Maintenance and Optimization
 Handles scheduled VACUUM ANALYZE and query performance monitoring
 """
 
-import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 import structlog
@@ -301,19 +300,6 @@ class DatabaseMaintenance:
                 })
             
             # Find duplicate indexes (simplified check)
-            duplicate_query = """
-                SELECT 
-                    idx1.indexname AS index1,
-                    idx2.indexname AS index2,
-                    idx1.tablename,
-                    pg_size_pretty(pg_relation_size(idx1.indexrelid)) AS size1,
-                    pg_size_pretty(pg_relation_size(idx2.indexrelid)) AS size2
-                FROM pg_stat_user_indexes idx1
-                JOIN pg_stat_user_indexes idx2 
-                    ON idx1.tablename = idx2.tablename
-                    AND idx1.indexname < idx2.indexname
-                    AND idx1.indkey = idx2.indkey
-            """
             
             # Note: This is a simplified check. In production, you'd want
             # a more sophisticated duplicate detection

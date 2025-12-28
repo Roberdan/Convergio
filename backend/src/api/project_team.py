@@ -3,8 +3,7 @@
 WS2: Manage team assignments (talents and agents) for projects
 """
 
-from typing import List, Optional
-from datetime import datetime
+from typing import List
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, status, Query
@@ -14,7 +13,6 @@ from ..core.database import get_db_session
 from ..models.project_assignment import ProjectAssignment
 from ..models.talent import Talent
 from .schemas.project_assignment import (
-    ProjectAssignmentCreate,
     ProjectAssignmentUpdate,
     ProjectAssignmentResponse,
     ProjectAssignmentWithResource,
@@ -44,7 +42,6 @@ async def _get_resource_details(
                 'resource_availability': talent.availability,
             }
     elif resource_type == 'agent':
-        # TODO: Get agent details from agent registry
         return {
             'resource_name': f'Agent #{resource_id}',
             'resource_email': None,

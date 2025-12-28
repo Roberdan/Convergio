@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Callable
 
 # Agent Framework import with fallback
 try:
-    from agent_framework import ai_function
+    from agent_framework import ai_function  # noqa: F401
     AGENT_FRAMEWORK_AVAILABLE = True
 except ImportError:
     AGENT_FRAMEWORK_AVAILABLE = False

@@ -73,8 +73,8 @@
         const data = await response.json();
         tenants.set(data.tenants);
       }
-    } catch (error) {
-      console.error('Failed to load tenants:', error);
+    } catch {
+      // Silent failure
     } finally {
       loading = false;
     }
@@ -87,8 +87,8 @@
         const data = await response.json();
         usageMetrics.set(data.metrics);
       }
-    } catch (error) {
-      console.error('Failed to load tenant usage:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -105,8 +105,8 @@
         showCreateModal = false;
         resetForm();
       }
-    } catch (error) {
-      console.error('Failed to create tenant:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -125,8 +125,8 @@
         showEditModal = false;
         resetForm();
       }
-    } catch (error) {
-      console.error('Failed to update tenant:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -141,8 +141,8 @@
       if (response.ok) {
         await loadTenants();
       }
-    } catch (error) {
-      console.error('Failed to suspend tenant:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -155,8 +155,8 @@
       if (response.ok) {
         await loadTenants();
       }
-    } catch (error) {
-      console.error('Failed to activate tenant:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -562,10 +562,11 @@
         
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-surface-600 mb-1">
+            <label for="tenant-name" class="block text-sm font-medium text-surface-600 mb-1">
               Tenant Name
             </label>
             <input
+              id="tenant-name"
               type="text"
               bind:value={formData.name}
               class="w-full px-3 py-2 border rounded-lg"
@@ -574,10 +575,10 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-surface-600 mb-1">
+            <label for="tenant-status" class="block text-sm font-medium text-surface-600 mb-1">
               Status
             </label>
-            <select bind:value={formData.status} class="w-full px-3 py-2 border rounded-lg">
+            <select id="tenant-status" bind:value={formData.status} class="w-full px-3 py-2 border rounded-lg">
               <option value="trial">Trial</option>
               <option value="active">Active</option>
               <option value="suspended">Suspended</option>
@@ -586,10 +587,10 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-surface-600 mb-1">
+            <label for="subscription-plan" class="block text-sm font-medium text-surface-600 mb-1">
               Subscription Plan
             </label>
-            <select bind:value={formData.subscription_plan} class="w-full px-3 py-2 border rounded-lg">
+            <select id="subscription-plan" bind:value={formData.subscription_plan} class="w-full px-3 py-2 border rounded-lg">
               <option value="free">Free</option>
               <option value="professional">Professional</option>
               <option value="enterprise">Enterprise</option>
@@ -597,10 +598,10 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-surface-600 mb-1">
+            <label for="billing-period" class="block text-sm font-medium text-surface-600 mb-1">
               Billing Period
             </label>
-            <select bind:value={formData.billing_period} class="w-full px-3 py-2 border rounded-lg">
+            <select id="billing-period" bind:value={formData.billing_period} class="w-full px-3 py-2 border rounded-lg">
               <option value="monthly">Monthly</option>
               <option value="yearly">Yearly</option>
             </select>
@@ -608,21 +609,23 @@
           
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-surface-600 mb-1">
+              <label for="max-users" class="block text-sm font-medium text-surface-600 mb-1">
                 Max Users
               </label>
               <input
+                id="max-users"
                 type="number"
                 bind:value={formData.max_users}
                 class="w-full px-3 py-2 border rounded-lg"
               />
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-surface-600 mb-1">
+              <label for="max-projects" class="block text-sm font-medium text-surface-600 mb-1">
                 Max Projects
               </label>
               <input
+                id="max-projects"
                 type="number"
                 bind:value={formData.max_projects}
                 class="w-full px-3 py-2 border rounded-lg"
@@ -632,21 +635,23 @@
           
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-surface-600 mb-1">
+              <label for="max-api-calls" class="block text-sm font-medium text-surface-600 mb-1">
                 Max API Calls
               </label>
               <input
+                id="max-api-calls"
                 type="number"
                 bind:value={formData.max_api_calls}
                 class="w-full px-3 py-2 border rounded-lg"
               />
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-surface-600 mb-1">
+              <label for="max-ai-tokens" class="block text-sm font-medium text-surface-600 mb-1">
                 Max AI Tokens
               </label>
               <input
+                id="max-ai-tokens"
                 type="number"
                 bind:value={formData.max_ai_tokens}
                 class="w-full px-3 py-2 border rounded-lg"

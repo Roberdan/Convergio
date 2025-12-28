@@ -4,13 +4,12 @@ Advanced agent coordination with self-organizing patterns and intelligent task d
 """
 
 import asyncio
-import json
 import time
-from typing import Dict, List, Any, Optional, Set, Tuple
-from dataclasses import dataclass, asdict
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass
 from enum import Enum
 import structlog
-from datetime import datetime, timedelta
+from datetime import datetime
 
 logger = structlog.get_logger()
 
@@ -137,7 +136,7 @@ class SwarmCoordinator:
         """Intelligently determine agent's role in swarm coordination"""
         name = agent_data.get('name', '').lower()
         expertise = agent_data.get('expertise_areas', [])
-        description = agent_data.get('description', '').lower()
+        agent_data.get('description', '').lower()
         
         # Ali is always the coordinator
         if 'ali' in name or 'chief' in name:

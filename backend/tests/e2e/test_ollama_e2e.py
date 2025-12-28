@@ -33,7 +33,6 @@ os.environ["OLLAMA_HOST"] = "http://localhost:11434"
 @pytest.fixture
 def ollama_available():
     """Check if Ollama is available for real E2E tests."""
-    import httpx
     try:
         response = httpx.get("http://localhost:11434/api/version", timeout=5.0)
         return response.status_code == 200
@@ -134,7 +133,7 @@ class TestAgentChatE2E:
                     ChatMessage(role="user", content="What is my name?"),
                 ]
 
-                response = await router.chat_completion(messages=messages)
+                await router.chat_completion(messages=messages)
 
                 # Verify the call was made with all messages
                 # chat() is called with positional args: (model, messages)
@@ -369,7 +368,7 @@ class TestFunctionCallingE2E:
             return "Sunny, 22°C"
 
         with patch.object(service, 'chat_with_tools', side_effect=mock_chat_with_tools):
-            result = await service.execute_tool_loop(
+            await service.execute_tool_loop(
                 model="llama3.2:latest",
                 messages=[{"role": "user", "content": "What's the weather in Rome?"}],
                 tools=weather_tools,
@@ -519,7 +518,7 @@ class TestProviderRoutingE2E:
 
         service = OllamaService()
 
-        mock_status = OllamaStatus(
+        OllamaStatus(
             available=True,
             version="0.4.0",
             models=[],

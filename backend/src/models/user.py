@@ -3,7 +3,7 @@
 Compatibility wrapper around Talent model for backward compatibility
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # Import the actual model

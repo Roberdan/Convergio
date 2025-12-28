@@ -3,7 +3,7 @@ Convergio Workflow - Main workflow implementation for the platform
 Advanced graph-based workflow with checkpointing, parallel execution, and human-in-the-loop
 """
 
-from typing import Dict, List, Any, Optional, Callable
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 import asyncio
 import structlog

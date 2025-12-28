@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, Request, status
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, Request
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 

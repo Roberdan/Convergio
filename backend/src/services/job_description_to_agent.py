@@ -14,7 +14,6 @@ Senior Level Hierarchy:
 - CEO/CTO/CFO (C-level executives)
 """
 
-import os
 import re
 import json
 import logging
@@ -307,9 +306,9 @@ Focus on high-level strategy, organizational transformation, and cross-functiona
         """Save agent definition to a Python file in Convergio format."""
         file_name = f"{agent_def['name'].lower()}.py"
         file_path = self.output_dir / file_name
-        
+
         # Generate Python code for the agent
-    code = f'''"""
+        code = f'''"""
 {agent_def['name']} - {agent_def['role']}
 Generated from: {agent_def['source_file']}
 Created: {agent_def['created_at']}
@@ -399,7 +398,7 @@ class JobDescription2Agent:
         self.parser = JobDescriptionParser(self.job_desc_dir, self.senior_dir)
         self.generator = AgentGenerator(self.agents_dir)
         
-        logger.info(f"JobDescription2Agent initialized")
+        logger.info("JobDescription2Agent initialized")
         logger.info(f"Input: {self.job_desc_dir}")
         logger.info(f"Senior output: {self.senior_dir}")
         logger.info(f"Agents output: {self.agents_dir}")
@@ -492,18 +491,18 @@ class JobDescription2Agent:
         print("\n" + "="*60)
         print("🎉 JobDescription2Agent Conversion Complete!")
         print("="*60)
-        print(f"📊 Summary:")
+        print("📊 Summary:")
         print(f"  • Job descriptions analyzed: {len(list(self.job_desc_dir.glob('*.md')))}")
         print(f"  • Senior positions found: {results['senior_jobs_found']}")
         print(f"  • Agents created: {results['agents_created']}")
         print(f"  • Errors: {len(results['errors'])}")
-        print(f"\n📁 Output locations:")
+        print("\n📁 Output locations:")
         print(f"  • Senior job descriptions: {self.senior_dir}")
         print(f"  • New agents: {self.agents_dir}")
-        print(f"\n✅ Next steps:")
+        print("\n✅ Next steps:")
         print(f"  1. Review generated agents in {self.agents_dir}")
-        print(f"  2. Run integration script to add agents to Convergio")
-        print(f"  3. Verify agents with Ali orchestrator")
+        print("  2. Run integration script to add agents to Convergio")
+        print("  3. Verify agents with Ali orchestrator")
         print("="*60)
 
 

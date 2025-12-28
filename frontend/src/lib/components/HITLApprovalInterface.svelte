@@ -133,8 +133,8 @@
         })));
         updateStats();
       }
-    } catch (error) {
-      console.error('Failed to load approvals:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -169,11 +169,11 @@
         decisionReason = '';
         modifiedAction = '';
         selectedApproval = null;
-        
+
         updateStats();
       }
-    } catch (error) {
-      console.error('Failed to submit decision:', error);
+    } catch {
+      // Silent failure
     }
   }
   
@@ -479,13 +479,13 @@
             <div class="decision-actions">
               <button
                 class="btn btn-reject"
-                on:click={() => handleDecision(selectedApproval.id, false)}
+                on:click={() => selectedApproval && handleDecision(selectedApproval.id, false)}
               >
                 ❌ Reject
               </button>
               <button
                 class="btn btn-approve"
-                on:click={() => handleDecision(selectedApproval.id, true)}
+                on:click={() => selectedApproval && handleDecision(selectedApproval.id, true)}
               >
                 ✅ Approve
               </button>

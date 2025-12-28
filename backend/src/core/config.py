@@ -26,7 +26,7 @@ except Exception:
 from functools import lru_cache
 from typing import List, Optional
 
-from pydantic import Field, validator, field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 def _get_default_cors_origins() -> str:

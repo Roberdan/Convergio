@@ -3,16 +3,25 @@
   import { dndzone } from 'svelte-dnd-action';
   
   export let projectId: string;
-  
+
   const dispatch = createEventDispatcher();
-  
+
+  interface NewTaskData {
+    title: string;
+    description: string;
+    priority: string;
+    assignedAgent: string;
+    dueDate: string;
+    tags: string[];
+  }
+
   let loading = true;
   let error = '';
   let columns: any[] = [];
   let tasks: any[] = [];
   let availableAgents: any[] = [];
   let showNewTaskForm = false;
-  let newTaskData = {
+  let newTaskData: NewTaskData = {
     title: '',
     description: '',
     priority: 'medium',
@@ -80,8 +89,8 @@
         columns = [];
         tasks = [];
       }
-    } catch (err) {
-      console.error('Error loading project data:', err);
+    } catch {
+      // Silent failure
       error = 'Failed to load project data';
       columns = [];
       tasks = [];
@@ -99,11 +108,11 @@
         const data = await response.json();
         availableAgents = data.agents || data || [];
       } else {
-        console.error('Failed to load agents');
+        // Silent failure
         availableAgents = [];
       }
-    } catch (err) {
-      console.error('Error loading agents:', err);
+    } catch {
+      // Silent failure
       availableAgents = [];
     }
   }
@@ -126,8 +135,8 @@
         const data = await response.json();
         return data.recommended_agent || data.agent_id;
       }
-    } catch (err) {
-      console.error('Error getting AI recommendation:', err);
+    } catch {
+      // Silent failure
     }
     return null;
   }
@@ -182,7 +191,7 @@
         throw new Error(errorData.detail || 'Failed to create task');
       }
     } catch (err) {
-      console.error('Error creating task:', err);
+      // Silent failure
       alert(`Failed to create task: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   }
@@ -223,8 +232,8 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ activities: updatedTasks })
       });
-    } catch (err) {
-      console.error('Failed to save task updates:', err);
+    } catch {
+      // Silent failure
       // Reload data to revert changes
       await loadProjectData();
     }

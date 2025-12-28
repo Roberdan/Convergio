@@ -1,40 +1,61 @@
 /**
- * Performance & Stress Testing E2E Tests  
+ * Performance & Stress Testing E2E Tests
  * Tests concurrent multi-agent sessions and complex orchestration workflows
  * Scenario 5 from testsAug17.md - Performance validation
  */
 
-import { test, expect } from '@playwright/test';
-import { 
-  loginTestUser, 
+import { test, expect } from "@playwright/test";
+import {
+  loginTestUser,
   sendAgentQuery,
   sendAliQuery,
-  getLatestAgentResponse, 
+  getLatestAgentResponse,
   waitForOrchestration,
   clearConversation,
   navigateToAgent,
-  debugScreenshot
-} from '../utils/agent-helpers';
-import { 
-  expectAIResponse, 
-  expectBusinessResponse
-} from '../utils/validation-helpers';
-import testData from '../fixtures/test-data.json' with { type: 'json' };
+  debugScreenshot,
+} from "../utils/agent-helpers";
+import {
+  expectAIResponse,
+  expectBusinessResponse,
+} from "../utils/validation-helpers";
+import testData from "../fixtures/test-data.json" with { type: "json" };
 
-test.describe('Performance & Stress Testing', () => {
+test.describe("Performance & Stress Testing", () => {
   test.beforeEach(async ({ page }) => {
     await loginTestUser(page);
     await clearConversation(page);
   });
 
-  test('Concurrent Multi-Agent Sessions - 5 Simultaneous Queries', async ({ page }) => {
+  test("Concurrent Multi-Agent Sessions - 5 Simultaneous Queries", async ({
+    page,
+  }) => {
     // Test concurrent processing capabilities
     const queries = [
-      { agent: 'ali_chief_of_staff', query: 'Ali, analizza velocemente il market sizing per SaaS analytics in Europa.' },
-      { agent: 'amy_cfo', query: 'Amy, calcola ROI per investimento $500K in marketing con 25% conversion rate.' },
-      { agent: 'baccio_tech_architect', query: 'Baccio, consiglia stack tecnologico per MVP di marketplace B2B.' },
-      { agent: 'sara_ux_ui_designer', query: 'Sara, progetta user flow per onboarding di app mobile fintech.' },
-      { agent: 'marcus_pm', query: 'Marcus, crea timeline per lancio prodotto con team di 8 persone in 12 settimane.' }
+      {
+        agent: "ali_chief_of_staff",
+        query:
+          "Ali, analizza velocemente il market sizing per SaaS analytics in Europa.",
+      },
+      {
+        agent: "amy_cfo",
+        query:
+          "Amy, calcola ROI per investimento $500K in marketing con 25% conversion rate.",
+      },
+      {
+        agent: "baccio_tech_architect",
+        query:
+          "Baccio, consiglia stack tecnologico per MVP di marketplace B2B.",
+      },
+      {
+        agent: "sara_ux_ui_designer",
+        query: "Sara, progetta user flow per onboarding di app mobile fintech.",
+      },
+      {
+        agent: "marcus_pm",
+        query:
+          "Marcus, crea timeline per lancio prodotto con team di 8 persone in 12 settimane.",
+      },
     ];
 
     const startTime = Date.now();
@@ -67,36 +88,48 @@ test.describe('Performance & Stress Testing', () => {
       // Each response should be relevant to its query
       const queryKeywords = queries[i].query.toLowerCase();
       const responseContent = response.message.toLowerCase();
-      
-      if (queryKeywords.includes('market')) {
-        expect(responseContent).toMatch(/(market|sizing|europa|analytics|saas)/);
-      } else if (queryKeywords.includes('roi')) {
-        expect(responseContent).toMatch(/(roi|return|invest|marketing|conversion)/);
-      } else if (queryKeywords.includes('stack')) {
+
+      if (queryKeywords.includes("market")) {
+        expect(responseContent).toMatch(
+          /(market|sizing|europa|analytics|saas)/,
+        );
+      } else if (queryKeywords.includes("roi")) {
+        expect(responseContent).toMatch(
+          /(roi|return|invest|marketing|conversion)/,
+        );
+      } else if (queryKeywords.includes("stack")) {
         expect(responseContent).toMatch(/(stack|technolog|mvp|marketplace)/);
-      } else if (queryKeywords.includes('user flow')) {
+      } else if (queryKeywords.includes("user flow")) {
         expect(responseContent).toMatch(/(user|flow|onboard|mobile|fintech)/);
-      } else if (queryKeywords.includes('timeline')) {
-        expect(responseContent).toMatch(/(timeline|settimana|team|lancio|prodotto)/);
+      } else if (queryKeywords.includes("timeline")) {
+        expect(responseContent).toMatch(
+          /(timeline|settimana|team|lancio|prodotto)/,
+        );
       }
     }
 
     // Performance validation
     expect(totalTime).toBeLessThan(90000); // Max 90 seconds for 5 concurrent queries
-    
+
     // Calculate average response time
     const avgResponseTime = totalTime / 5;
     expect(avgResponseTime).toBeLessThan(20000); // Average under 20 seconds per query
 
-    console.log(`✅ Concurrent multi-agent sessions completed in ${totalTime}ms`);
+    console.log(
+      `✅ Concurrent multi-agent sessions completed in ${totalTime}ms`,
+    );
     console.log(`⚡ Average response time: ${avgResponseTime}ms per agent`);
-    console.log(`🔄 All 5 agents responded successfully with quality responses`);
+    console.log(
+      `🔄 All 5 agents responded successfully with quality responses`,
+    );
   });
 
-  test('Complex Orchestration Workflow - End-to-End Agent Chain', async ({ page }) => {
+  test("Complex Orchestration Workflow - End-to-End Agent Chain", async ({
+    page,
+  }) => {
     // Test complex workflow: Ali → Marcus → Amy → Baccio → Sara
-    await navigateToAgent(page, 'ali_chief_of_staff');
-    
+    await navigateToAgent(page, "ali_chief_of_staff");
+
     const complexQuery = `Ali, coordina un workflow complesso per il progetto "FinanceFlow SaaS":
 
     1. Marcus (PM): Crea roadmap dettagliata per 6 mesi di sviluppo
@@ -111,7 +144,7 @@ test.describe('Performance & Stress Testing', () => {
     await sendAliQuery(page, complexQuery);
 
     // Wait for complex orchestration (extended timeout)
-    const responses = await waitForOrchestration(page, ['ali'], 240000); // 4 minutes max
+    const responses = await waitForOrchestration(page, ["ali"], 240000); // 4 minutes max
     const totalTime = Date.now() - startTime;
 
     expect(responses.length).toBeGreaterThanOrEqual(1);
@@ -122,15 +155,28 @@ test.describe('Performance & Stress Testing', () => {
     // Should demonstrate complex workflow coordination
     expect(content).toMatch(/(workflow|orchestrat|coordinat|handoff)/);
     expect(content).toMatch(/(marcus|amy|baccio|sara)/); // Agent references
-    expect(content).toMatch(/(roadmap.*budget|budget.*architect|architect.*ux|pm.*cfo.*tech.*ux)/); // Sequential workflow
+    expect(content).toMatch(
+      /(roadmap.*budget|budget.*architect|architect.*ux|pm.*cfo.*tech.*ux)/,
+    ); // Sequential workflow
 
     // Should include elements from each domain
-    const hasProjectManagement = /roadmap|timeline|milestone|sviluppo|6.mesi/.test(content);
-    const hasFinancialAnalysis = /budget|revenue|financial|proiezion|cost/.test(content);
-    const hasTechnicalArchitecture = /architect|scalab|100k|technical|infrastructure/.test(content);
-    const hasUXDesign = /ux|user.experience|dashboard|executive|design/.test(content);
+    const hasProjectManagement =
+      /roadmap|timeline|milestone|sviluppo|6.mesi/.test(content);
+    const hasFinancialAnalysis = /budget|revenue|financial|proiezion|cost/.test(
+      content,
+    );
+    const hasTechnicalArchitecture =
+      /architect|scalab|100k|technical|infrastructure/.test(content);
+    const hasUXDesign = /ux|user.experience|dashboard|executive|design/.test(
+      content,
+    );
 
-    const workflowSteps = [hasProjectManagement, hasFinancialAnalysis, hasTechnicalArchitecture, hasUXDesign].filter(Boolean).length;
+    const workflowSteps = [
+      hasProjectManagement,
+      hasFinancialAnalysis,
+      hasTechnicalArchitecture,
+      hasUXDesign,
+    ].filter(Boolean).length;
     expect(workflowSteps).toBeGreaterThanOrEqual(3); // Should cover most workflow steps
 
     // Should demonstrate integration and coherence
@@ -141,21 +187,27 @@ test.describe('Performance & Stress Testing', () => {
       hasStrategicThinking: true,
       hasActionableInsights: true,
       hasTimeframes: true,
-      hasDataDriven: true
+      hasDataDriven: true,
     });
 
     // Performance validation for complex workflow
     expect(totalTime).toBeLessThan(300000); // Max 5 minutes for complex orchestration
     expect(orchestrationResponse.length).toBeGreaterThan(600);
 
-    console.log(`✅ Complex orchestration workflow completed in ${totalTime}ms`);
-    console.log(`🔗 Workflow steps: PM=${hasProjectManagement}, Finance=${hasFinancialAnalysis}, Tech=${hasTechnicalArchitecture}, UX=${hasUXDesign}`);
+    console.log(
+      `✅ Complex orchestration workflow completed in ${totalTime}ms`,
+    );
+    console.log(
+      `🔗 Workflow steps: PM=${hasProjectManagement}, Finance=${hasFinancialAnalysis}, Tech=${hasTechnicalArchitecture}, UX=${hasUXDesign}`,
+    );
     console.log(`🎯 Integrated workflow with handoff coordination successful`);
   });
 
-  test('High-Complexity Business Scenario - Fortune 500 Digital Transformation', async ({ page }) => {
+  test("High-Complexity Business Scenario - Fortune 500 Digital Transformation", async ({
+    page,
+  }) => {
     // Test handling of extremely complex business scenarios
-    await navigateToAgent(page, 'ali_chief_of_staff');
+    await navigateToAgent(page, "ali_chief_of_staff");
 
     const megaComplexQuery = `Ali, siamo una Fortune 500 manufacturing company che deve eseguire 
     una digital transformation completa. Coordina tutto il tuo ecosystem per questo mega-progetto:
@@ -182,7 +234,7 @@ test.describe('Performance & Stress Testing', () => {
 
     await sendAliQuery(page, megaComplexQuery);
 
-    const responses = await waitForOrchestration(page, ['ali'], 300000); // 5 minutes max for mega complexity
+    const responses = await waitForOrchestration(page, ["ali"], 300000); // 5 minutes max for mega complexity
     const totalTime = Date.now() - startTime;
 
     expect(responses.length).toBeGreaterThanOrEqual(1);
@@ -191,19 +243,33 @@ test.describe('Performance & Stress Testing', () => {
     const content = megaResponse.message.toLowerCase();
 
     // Should handle Fortune 500 complexity
-    expect(content).toMatch(/(fortune.500|enterprise|digital.transformation|manufacturing)/);
+    expect(content).toMatch(
+      /(fortune.500|enterprise|digital.transformation|manufacturing)/,
+    );
     expect(content).toMatch(/(50000|50,000|15.paesi|50m|24.mesi)/); // Scale references
     expect(content).toMatch(/(legacy|sap|erp|moderniz)/);
 
     // Should address major transformation areas
     const hasStrategy = /strateg|transformation|digital|vision/.test(content);
-    const hasTechnology = /cloud|azure|aws|architect|ai|ml|data.platform/.test(content);
+    const hasTechnology = /cloud|azure|aws|architect|ai|ml|data.platform/.test(
+      content,
+    );
     const hasFinancial = /budget|50m|cost|roi|investment/.test(content);
-    const hasSecurity = /security|cybersecurity|compliance|gdpr|sox/.test(content);
-    const hasChangeManagement = /change.management|resistance|adoption|cultural/.test(content);
+    const hasSecurity = /security|cybersecurity|compliance|gdpr|sox/.test(
+      content,
+    );
+    const hasChangeManagement =
+      /change.management|resistance|adoption|cultural/.test(content);
     const hasCompliance = /compliance|multi.country|gdpr|sox|fda/.test(content);
 
-    const transformationAreas = [hasStrategy, hasTechnology, hasFinancial, hasSecurity, hasChangeManagement, hasCompliance].filter(Boolean).length;
+    const transformationAreas = [
+      hasStrategy,
+      hasTechnology,
+      hasFinancial,
+      hasSecurity,
+      hasChangeManagement,
+      hasCompliance,
+    ].filter(Boolean).length;
     expect(transformationAreas).toBeGreaterThanOrEqual(4); // Should cover most transformation areas
 
     // Should demonstrate enterprise-level thinking
@@ -217,31 +283,35 @@ test.describe('Performance & Stress Testing', () => {
       hasActionableInsights: true,
       hasTimeframes: true,
       hasRisksConsideration: true,
-      hasDataDriven: true
+      hasDataDriven: true,
     });
 
     // Performance validation for mega complexity
     expect(totalTime).toBeLessThan(360000); // Max 6 minutes for Fortune 500 digital transformation
     expect(megaResponse.length).toBeGreaterThan(800);
 
-    console.log(`✅ Fortune 500 digital transformation planning completed in ${totalTime}ms`);
-    console.log(`🏢 Transformation areas: Strategy=${hasStrategy}, Tech=${hasTechnology}, Finance=${hasFinancial}, Security=${hasSecurity}, Change=${hasChangeManagement}, Compliance=${hasCompliance}`);
+    console.log(
+      `✅ Fortune 500 digital transformation planning completed in ${totalTime}ms`,
+    );
+    console.log(
+      `🏢 Transformation areas: Strategy=${hasStrategy}, Tech=${hasTechnology}, Finance=${hasFinancial}, Security=${hasSecurity}, Change=${hasChangeManagement}, Compliance=${hasCompliance}`,
+    );
     console.log(`🌍 Enterprise-scale complexity handled successfully`);
   });
 
-  test('Stress Test - Rapid-Fire Query Sequence', async ({ page }) => {
+  test("Stress Test - Rapid-Fire Query Sequence", async ({ page }) => {
     // Test system resilience with rapid consecutive queries
-    await navigateToAgent(page, 'ali_chief_of_staff');
+    await navigateToAgent(page, "ali_chief_of_staff");
 
     const rapidQueries = [
-      'Ali, quick market analysis per SaaS analytics.',
-      'Ali, recommend pricing strategy per competitor a $99/month.',
-      'Ali, evaluate acquisition target: revenue $2M, growth 50%.',
-      'Ali, assess technical debt impact on product roadmap.',
-      'Ali, prioritize feature backlog per customer feedback.',
-      'Ali, calculate team scaling needs per 200% growth target.',
-      'Ali, evaluate partnership opportunity con Microsoft.',
-      'Ali, assess compliance requirements per EU expansion.'
+      "Ali, quick market analysis per SaaS analytics.",
+      "Ali, recommend pricing strategy per competitor a $99/month.",
+      "Ali, evaluate acquisition target: revenue $2M, growth 50%.",
+      "Ali, assess technical debt impact on product roadmap.",
+      "Ali, prioritize feature backlog per customer feedback.",
+      "Ali, calculate team scaling needs per 200% growth target.",
+      "Ali, evaluate partnership opportunity con Microsoft.",
+      "Ali, assess compliance requirements per EU expansion.",
     ];
 
     const startTime = Date.now();
@@ -250,10 +320,10 @@ test.describe('Performance & Stress Testing', () => {
     // Send queries in rapid succession
     for (let i = 0; i < rapidQueries.length; i++) {
       const queryStart = Date.now();
-      
+
       await sendAliQuery(page, rapidQueries[i]);
       const response = await getLatestAgentResponse(page, 30000);
-      
+
       const queryTime = Date.now() - queryStart;
       responseTimes.push(queryTime);
 
@@ -268,29 +338,35 @@ test.describe('Performance & Stress Testing', () => {
     const totalTime = Date.now() - startTime;
 
     // Performance validation
-    const avgResponseTime = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+    const avgResponseTime =
+      responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
     const maxResponseTime = Math.max(...responseTimes);
-    
+
     expect(avgResponseTime).toBeLessThan(25000); // Average under 25 seconds
     expect(maxResponseTime).toBeLessThan(40000); // No single query over 40 seconds
     expect(totalTime).toBeLessThan(300000); // Total under 5 minutes
 
     // Consistency validation - no degradation over time
-    const firstHalfAvg = responseTimes.slice(0, 4).reduce((a, b) => a + b, 0) / 4;
+    const firstHalfAvg =
+      responseTimes.slice(0, 4).reduce((a, b) => a + b, 0) / 4;
     const secondHalfAvg = responseTimes.slice(4).reduce((a, b) => a + b, 0) / 4;
     const degradationRatio = secondHalfAvg / firstHalfAvg;
-    
+
     expect(degradationRatio).toBeLessThan(1.5); // No more than 50% performance degradation
 
     console.log(`✅ Stress test completed in ${totalTime}ms`);
     console.log(`⚡ Average response time: ${avgResponseTime.toFixed(0)}ms`);
-    console.log(`📊 Performance consistency: ${(degradationRatio * 100).toFixed(1)}% degradation ratio`);
-    console.log(`🔥 ${rapidQueries.length} rapid-fire queries handled successfully`);
+    console.log(
+      `📊 Performance consistency: ${(degradationRatio * 100).toFixed(1)}% degradation ratio`,
+    );
+    console.log(
+      `🔥 ${rapidQueries.length} rapid-fire queries handled successfully`,
+    );
   });
 
-  test('Memory and Context Persistence Under Load', async ({ page }) => {
+  test("Memory and Context Persistence Under Load", async ({ page }) => {
     // Test memory persistence during intensive operations
-    await navigateToAgent(page, 'ali_chief_of_staff');
+    await navigateToAgent(page, "ali_chief_of_staff");
 
     // Set context
     const contextQuery = `Ali, ricorda questi dettagli del nostro progetto "Phoenix":
@@ -303,14 +379,16 @@ test.describe('Performance & Stress Testing', () => {
 
     await sendAliQuery(page, contextQuery);
     const contextResponse = await getLatestAgentResponse(page, 20000);
-    expect(contextResponse.message.toLowerCase()).toMatch(/(phoenix|ricord|understand|noted)/);
+    expect(contextResponse.message.toLowerCase()).toMatch(
+      /(phoenix|ricord|understand|noted)/,
+    );
 
     // Perform intensive operations
     const intensiveQueries = [
-      'Ali, analizza 5 competitors nel supply chain management.',
-      'Ali, calcola complex financial projections per 3 anni.',
-      'Ali, crea detailed technical architecture per scalabilità.',
-      'Ali, sviluppa comprehensive go-to-market strategy.'
+      "Ali, analizza 5 competitors nel supply chain management.",
+      "Ali, calcola complex financial projections per 3 anni.",
+      "Ali, crea detailed technical architecture per scalabilità.",
+      "Ali, sviluppa comprehensive go-to-market strategy.",
     ];
 
     // Execute intensive operations
@@ -329,8 +407,12 @@ test.describe('Performance & Stress Testing', () => {
     const memoryContent = memoryResponse.message.toLowerCase();
 
     // Should recall project context correctly
-    expect(memoryContent).toMatch(/(phoenix|2\.5m|2\.5.milioni|12.developer|18.mesi)/);
-    expect(memoryContent).toMatch(/(budget|cost.per.developer|sufficient|sufficiente)/);
+    expect(memoryContent).toMatch(
+      /(phoenix|2\.5m|2\.5.milioni|12.developer|18.mesi)/,
+    );
+    expect(memoryContent).toMatch(
+      /(budget|cost.per.developer|sufficient|sufficiente)/,
+    );
     expect(memoryContent).toMatch(/(\$|budget|financial|calculation)/);
 
     // Should perform calculations based on remembered context
@@ -338,16 +420,18 @@ test.describe('Performance & Stress Testing', () => {
 
     await expectAIResponse(memoryResponse, {
       minLength: 150,
-      mustContain: ['phoenix', 'budget']
+      mustContain: ["phoenix", "budget"],
     });
 
     console.log(`✅ Memory and context persistence test passed`);
     console.log(`🧠 Context retained accurately through intensive operations`);
-    console.log(`📝 Complex calculations performed with remembered project details`);
+    console.log(
+      `📝 Complex calculations performed with remembered project details`,
+    );
   });
 
   test.afterEach(async ({ page }) => {
-    if (test.info().status === 'failed') {
+    if (test.info().status === "failed") {
       await debugScreenshot(page, `performance-stress-${test.info().title}`);
     }
   });

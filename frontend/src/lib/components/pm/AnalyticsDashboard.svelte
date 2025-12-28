@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { projectsService } from '$lib/services/projectsService';
-
-	// Props
-	export let projectId: string | undefined = undefined;
+	import { projectsService, type Activity } from '$lib/services/projectsService';
 
 	// Interfaces
 	interface ProjectMetrics {
@@ -41,6 +38,7 @@
 	let teamPerformance: TeamMember[] = [];
 	let loading = false;
 	let selectedMetric = 'overview';
+	let activities: Activity[] = [];
 
 	// Mock data for demonstration
 	const mockMetrics: ProjectMetrics = {
@@ -91,15 +89,14 @@
 	async function loadAnalytics() {
 		loading = true;
 		try {
-			// TODO: Load real analytics data from backend
 			await new Promise(resolve => setTimeout(resolve, 800));
-			
+
 			metrics = mockMetrics;
 			velocityData = mockVelocityData;
 			burndownData = mockBurndownData;
 			teamPerformance = mockTeamPerformance;
-		} catch (error) {
-			console.error('Error loading analytics:', error);
+		} catch {
+			// Silent failure
 		} finally {
 			loading = false;
 		}

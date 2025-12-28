@@ -64,11 +64,11 @@
 		'transition-all duration-200'
 	].filter(Boolean).join(' ');
 
-	function handleClick(event: MouseEvent) {
+	function handleClick(event: MouseEvent | KeyboardEvent) {
 		if (href) {
 			window.location.href = href;
 		}
-		dispatch('click', event);
+		dispatch('click', event as MouseEvent);
 	}
 
 	function formatValue(val: string | number): string {
@@ -87,12 +87,11 @@
 	}
 </script>
 
-<div 
+<div
 	class={cardClasses}
 	on:click={handleClick}
 	on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick(e)}
-	role={clickable || href ? 'button' : undefined}
-	tabindex={clickable || href ? 0 : undefined}
+	{...(clickable || href ? { role: 'button', tabindex: 0 } : {})}
 >
 	{#if loading}
 		<!-- Loading State -->
@@ -165,6 +164,10 @@
 		box-shadow: var(--shadow-sm);
 	}
 
+	:global(.dark) .stats-card {
+		@apply bg-gray-800 border-gray-700;
+	}
+
 	.stats-card:hover {
 		box-shadow: var(--shadow-md);
 	}
@@ -206,6 +209,10 @@
 		font-family: var(--font-primary);
 	}
 
+	:global(.dark) .stats-title {
+		@apply text-gray-400;
+	}
+
 	.stats-subtitle {
 		@apply mt-1 text-xs text-gray-500;
 		font-family: var(--font-primary);
@@ -222,6 +229,10 @@
 	.stats-value {
 		@apply text-3xl font-bold text-gray-900 leading-none;
 		font-family: var(--font-primary);
+	}
+
+	:global(.dark) .stats-value {
+		@apply text-gray-100;
 	}
 
 	.stats-card-compact .stats-value {
@@ -249,9 +260,17 @@
 		@apply mt-6 pt-4 border-t border-gray-200;
 	}
 
+	:global(.dark) .stats-footer {
+		@apply border-gray-700;
+	}
+
 	.footer-subtitle {
 		@apply text-sm text-gray-600;
 		font-family: var(--font-primary);
+	}
+
+	:global(.dark) .footer-subtitle {
+		@apply text-gray-400;
 	}
 
 	/* Icon styles */

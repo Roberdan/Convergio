@@ -6,10 +6,10 @@ For analytics, reports, and data portability
 import csv
 import json
 import io
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from datetime import datetime
 import pandas as pd
-from fastapi import HTTPException
+from fastapi import HTTPException, APIRouter, Query
 from fastapi.responses import StreamingResponse
 
 class ExportService:
@@ -238,8 +238,6 @@ class ExportService:
 
 
 # Export API endpoints to be added to routers
-
-from fastapi import APIRouter, Query
 
 export_router = APIRouter(prefix="/api/v1/export", tags=["Export"])
 
