@@ -218,6 +218,140 @@ Currently, most endpoints do not require authentication to support development a
 **Description**: Index new content for search  
 **Tags**: Vector Search
 
+### AI Provider Settings (v2.1.0)
+
+The AI Provider Settings endpoints allow you to configure how Convergio routes requests between Ollama (local) and Azure OpenAI (cloud) providers.
+
+#### GET /api/v1/settings/ai/mode
+**Description**: Get the current AI provider mode configuration
+**Tags**: AI Settings
+**Response**:
+```json
+{
+  "mode": "ollama_only",
+  "strict_mode": true,
+  "fallback_enabled": false,
+  "primary_provider": "ollama",
+  "fallback_provider": null,
+  "description": "All AI requests use local Ollama for $0 cost"
+}
+```
+
+**Provider Modes**:
+| Mode | Primary | Fallback | Description |
+|------|---------|----------|-------------|
+| `ollama_only` | Ollama | None | Local-only, $0 cost |
+| `azure_only` | Azure OpenAI | None | Cloud-only, pay-per-use |
+| `hybrid` | Ollama | Azure OpenAI | Local-first with cloud fallback |
+| `cloud_first` | Azure OpenAI | Ollama | Cloud-first with local fallback |
+
+#### POST /api/v1/settings/ai/mode
+**Description**: Update the AI provider mode
+**Tags**: AI Settings
+**Request Body**:
+```json
+{
+  "mode": "hybrid",
+  "strict_mode": false
+}
+```
+**Response**:
+```json
+{
+  "success": true,
+  "previous_mode": "ollama_only",
+  "new_mode": "hybrid",
+  "message": "Provider mode updated successfully"
+}
+```
+
+#### GET /api/v1/settings/ai/costs
+**Description**: Get AI provider cost tracking metrics
+**Tags**: AI Settings
+**Response**:
+```json
+{
+  "period": "2025-12-28",
+  "providers": {
+    "ollama": {
+      "requests": 1234,
+      "tokens": 567890,
+      "cost": 0.00,
+      "currency": "USD"
+    },
+    "azure_openai": {
+      "requests": 0,
+      "tokens": 0,
+      "cost": 0.00,
+      "currency": "USD"
+    }
+  },
+  "total_cost": 0.00,
+  "savings": {
+    "estimated_cloud_cost": 45.67,
+    "actual_cost": 0.00,
+    "saved": 45.67
+  }
+}
+```
+
+#### GET /api/v1/settings/ai/capabilities
+**Description**: Get provider capability matrix
+**Tags**: AI Settings
+**Response**:
+```json
+{
+  "ollama": {
+    "available": true,
+    "version": "0.4.0",
+    "models": ["llama3.2", "codellama", "mistral"],
+    "capabilities": {
+      "chat": true,
+      "function_calling": true,
+      "embeddings": true,
+      "streaming": true,
+      "vision": false
+    }
+  },
+  "azure_openai": {
+    "available": true,
+    "deployment": "gpt-4o",
+    "capabilities": {
+      "chat": true,
+      "function_calling": true,
+      "embeddings": true,
+      "streaming": true,
+      "vision": true
+    }
+  }
+}
+```
+
+#### GET /api/v1/settings/ai/health
+**Description**: Check health status of all AI providers
+**Tags**: AI Settings
+**Response**:
+```json
+{
+  "status": "healthy",
+  "providers": {
+    "ollama": {
+      "status": "healthy",
+      "latency_ms": 12,
+      "last_check": "2025-12-28T12:00:00Z"
+    },
+    "azure_openai": {
+      "status": "healthy",
+      "latency_ms": 145,
+      "last_check": "2025-12-28T12:00:00Z"
+    }
+  },
+  "active_provider": "ollama"
+}
+```
+
+---
+
 ### Cost Management & Analytics
 
 #### GET /api/v1/cost-management/usage

@@ -5,11 +5,15 @@
   import AliAssistant from '$lib/components/AliAssistant.svelte';
   import CostDisplay from '$lib/components/CostDisplay.svelte';
   import ApiStatusDropdown from '$lib/components/ApiStatusDropdown.svelte';
+  import { SkipToContent } from '$lib/components/accessibility';
+  import { accessibilityStore } from '$lib/stores/accessibilityStore';
   import '$lib/styles/unified-design-system.css';
+  import '$lib/styles/accessibility.css';
   
   // MVP navigation items (simplified for initial release)
   const navItems = [
     { href: '/agents', label: 'AI Team', iconPath: '/convergio_icons/users.svg' },
+    { href: '/workforce', label: 'Workforce', iconPath: '/convergio_icons/talent_directory.svg' },
     { href: '/pm', label: 'Projects', iconPath: '/convergio_icons/projects.svg' },
     { href: '/dashboard', label: 'Analytics', iconPath: '/convergio_icons/analytics.svg' },
     { href: '/settings', label: 'Settings', iconPath: '/convergio_icons/settings.svg' }
@@ -25,17 +29,20 @@
   const APP_VERSION: string = (typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : (typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0')) as unknown as string;
   
   onMount(async () => {
+    // Initialize accessibility settings
+    accessibilityStore.init();
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
-      
+
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:9000';
       const response = await fetch(`${apiUrl}/health`, {
         signal: controller.signal
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (response.ok) {
         healthStatus = await response.json();
       }
@@ -60,6 +67,9 @@
   }
 </script>
 
+<!-- Skip to Content Links (WS5-C2) -->
+<SkipToContent />
+
 <!-- Clean Professional Layout -->
 <div class="min-h-screen bg-surface-50 font-sans text-base">
   <!-- Clean Professional Top Navigation -->
@@ -80,7 +90,7 @@
         </div>
 
         <!-- Clean Navigation -->
-        <nav class="hidden md:flex items-center space-x-2">
+        <nav id="navigation" class="hidden md:flex items-center space-x-2" aria-label="Main navigation">
           {#each navItems as item}
             <a
               href={item.href}
@@ -109,7 +119,7 @@
   </div>
   
   <!-- Content Area -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <main id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" tabindex="-1">
     <slot />
   </main>
   

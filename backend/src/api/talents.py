@@ -1,14 +1,16 @@
 """
 👥 Convergio - Talents Management API (No Auth Version)
 Complete talent management with hierarchy and profiles - no authentication required
+WS2: Enhanced with People Data Model fields
 """
 
 from typing import List, Optional
 from datetime import datetime
+from decimal import Decimal
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_db_session
@@ -18,12 +20,30 @@ logger = structlog.get_logger()
 router = APIRouter(tags=["Talent Management"])
 
 
-# Request/Response models
+# Request/Response models - WS2 Enhanced
+class SkillItem(BaseModel):
+    """Individual skill with proficiency level"""
+    name: str
+    level: str = "intermediate"  # beginner, intermediate, advanced, expert
+    years: Optional[int] = None
+
+
 class TalentCreateRequest(BaseModel):
     email: EmailStr
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    password_hash: Optional[str] = None
+    department: Optional[str] = None
+    role: Optional[str] = Field(default=None, description="Job title/role")
+    tier: Optional[str] = Field(default=None, description="Seniority: junior, mid, senior, lead, principal")
+    skills: Optional[List[SkillItem]] = Field(default_factory=list)
+    hourly_rate: Optional[Decimal] = None
+    daily_rate: Optional[Decimal] = None
+    availability: Optional[int] = Field(default=100, ge=0, le=100)
+    timezone: Optional[str] = "UTC"
+    phone: Optional[str] = None
+    location: Optional[str] = None
+    experience_years: Optional[int] = Field(default=0, ge=0)
+    bio: Optional[str] = None
     is_admin: Optional[bool] = False
 
 
@@ -31,6 +51,18 @@ class TalentUpdateRequest(BaseModel):
     email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    department: Optional[str] = None
+    role: Optional[str] = None
+    tier: Optional[str] = None
+    skills: Optional[List[SkillItem]] = None
+    hourly_rate: Optional[Decimal] = None
+    daily_rate: Optional[Decimal] = None
+    availability: Optional[int] = Field(default=None, ge=0, le=100)
+    timezone: Optional[str] = None
+    phone: Optional[str] = None
+    location: Optional[str] = None
+    experience_years: Optional[int] = Field(default=None, ge=0)
+    bio: Optional[str] = None
     is_admin: Optional[bool] = None
 
 
@@ -38,13 +70,64 @@ class TalentResponse(BaseModel):
     id: int
     email: str
     username: str  # Computed from email
-    first_name: Optional[str]
-    last_name: Optional[str]
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     full_name: str
-    is_admin: Optional[bool]
-    is_active: bool  # Computed from deleted_at
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
+    department: Optional[str] = None
+    role: Optional[str] = None
+    tier: Optional[str] = None
+    skills: Optional[List[SkillItem]] = None
+    hourly_rate: Optional[Decimal] = None
+    daily_rate: Optional[Decimal] = None
+    availability: Optional[int] = 100
+    timezone: Optional[str] = "UTC"
+    phone: Optional[str] = None
+    location: Optional[str] = None
+    experience_years: Optional[int] = 0
+    bio: Optional[str] = None
+    rating: Optional[Decimal] = None
+    is_admin: Optional[bool] = False
+    is_active: bool = True  # Computed from deleted_at
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+def _talent_to_response(talent: Talent) -> TalentResponse:
+    """Convert Talent model to TalentResponse"""
+    skills = None
+    if talent.skills:
+        try:
+            skills = [SkillItem(**s) if isinstance(s, dict) else s for s in talent.skills]
+        except Exception:
+            skills = None
+
+    return TalentResponse(
+        id=talent.id,
+        email=talent.email,
+        username=talent.username,
+        first_name=talent.first_name,
+        last_name=talent.last_name,
+        full_name=talent.full_name,
+        department=talent.department,
+        role=talent.role,
+        tier=talent.tier,
+        skills=skills,
+        hourly_rate=talent.hourly_rate,
+        daily_rate=talent.daily_rate,
+        availability=talent.availability or 100,
+        timezone=talent.timezone or "UTC",
+        phone=talent.phone,
+        location=talent.location,
+        experience_years=talent.experience_years or 0,
+        bio=talent.bio,
+        rating=talent.rating,
+        is_admin=talent.is_admin,
+        is_active=talent.is_active,
+        created_at=talent.created_at,
+        updated_at=talent.updated_at,
+    )
 
 
 @router.get("", response_model=List[TalentResponse])
@@ -68,21 +151,7 @@ async def get_all_talents(
             is_active=is_active
         )
         
-        return [
-            TalentResponse(
-                id=talent.id,
-                username=talent.username,
-                email=talent.email,
-                first_name=talent.first_name,
-                last_name=talent.last_name,
-                full_name=talent.full_name,
-                is_admin=talent.is_admin,
-                is_active=talent.is_active,
-                created_at=talent.created_at,
-                updated_at=talent.updated_at,
-            )
-            for talent in talents
-        ]
+        return [_talent_to_response(talent) for talent in talents]
         
     except Exception as e:
         logger.error("❌ Failed to get talents", error=str(e))
@@ -112,21 +181,8 @@ async def get_talent_by_id(
                 detail="Talent not found"
             )
         
-        return TalentResponse(
-            id=talent.id,
-            username=talent.username,
-            email=talent.email,
-            first_name=talent.first_name,
-            last_name=talent.last_name,
-            full_name=talent.full_name,
-            position=talent.position,
-            department=talent.department,
-            manager_id=talent.manager_id,
-            is_active=talent.is_active,
-            created_at=talent.created_at,
-            updated_at=talent.updated_at,
-        )
-        
+        return _talent_to_response(talent)
+
     except HTTPException:
         raise
     except Exception as e:
@@ -149,43 +205,26 @@ async def create_talent(
     """
     
     try:
-        # Check if username already exists
-        existing_talent = await Talent.get_by_username(db, request.username)
-        if existing_talent:
+        # Check if email already exists
+        existing_email = await Talent.get_by_email(db, request.email)
+        if existing_email:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Username already exists"
+                detail="Email already exists"
             )
-        
-        # Check if email already exists
-        if request.email:
-            existing_email = await Talent.get_by_email(db, request.email)
-            if existing_email:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Email already exists"
-                )
-        
+
+        # Convert skills to dict format for storage
+        data = request.model_dump(exclude_unset=True)
+        if 'skills' in data and data['skills']:
+            data['skills'] = [s.model_dump() if hasattr(s, 'model_dump') else s for s in data['skills']]
+
         # Create talent
-        talent = await Talent.create(db, **request.dict())
-        
-        logger.info("✅ Talent created", talent_id=talent.id, username=request.username)
-        
-        return TalentResponse(
-            id=talent.id,
-            username=talent.username,
-            email=talent.email,
-            first_name=talent.first_name,
-            last_name=talent.last_name,
-            full_name=talent.full_name,
-            position=talent.position,
-            department=talent.department,
-            manager_id=talent.manager_id,
-            is_active=talent.is_active,
-            created_at=talent.created_at,
-            updated_at=talent.updated_at,
-        )
-        
+        talent = await Talent.create(db, **data)
+
+        logger.info("✅ Talent created", talent_id=talent.id, email=request.email)
+
+        return _talent_to_response(talent)
+
     except HTTPException:
         raise
     except Exception as e:
@@ -217,26 +256,18 @@ async def update_talent(
                 detail="Talent not found"
             )
         
+        # Convert skills to dict format for storage
+        data = request.model_dump(exclude_unset=True)
+        if 'skills' in data and data['skills']:
+            data['skills'] = [s.model_dump() if hasattr(s, 'model_dump') else s for s in data['skills']]
+
         # Update talent
-        await talent.update(db, request.dict(exclude_unset=True))
-        
+        await talent.update(db, data)
+
         logger.info("✅ Talent updated", talent_id=talent_id)
-        
-        return TalentResponse(
-            id=talent.id,
-            username=talent.username,
-            email=talent.email,
-            first_name=talent.first_name,
-            last_name=talent.last_name,
-            full_name=talent.full_name,
-            position=talent.position,
-            department=talent.department,
-            manager_id=talent.manager_id,
-            is_active=talent.is_active,
-            created_at=talent.created_at,
-            updated_at=talent.updated_at,
-        )
-        
+
+        return _talent_to_response(talent)
+
     except HTTPException:
         raise
     except Exception as e:
@@ -299,24 +330,8 @@ async def get_subordinates(
     try:
         subordinates = await Talent.get_subordinates(db, talent_id)
         
-        return [
-            TalentResponse(
-                id=talent.id,
-                username=talent.username,
-                email=talent.email,
-                first_name=talent.first_name,
-                last_name=talent.last_name,
-                full_name=talent.full_name,
-                position=talent.position,
-                department=talent.department,
-                manager_id=talent.manager_id,
-                is_active=talent.is_active,
-                created_at=talent.created_at,
-                updated_at=talent.updated_at,
-            )
-            for talent in subordinates
-        ]
-        
+        return [_talent_to_response(talent) for talent in subordinates]
+
     except Exception as e:
         logger.error("❌ Failed to get subordinates", error=str(e), talent_id=talent_id)
         raise HTTPException(

@@ -79,6 +79,25 @@ AFTER all auto-fixes:
 - We don't make exceptions. Period.
 - We don't say "fix it later". There is no later.
 
+## Cost-Free Testing Strategy
+
+**ALL E2E TESTS USE OLLAMA = $0 COST**
+
+| Test Type | Tool | Cost |
+|-----------|------|------|
+| Frontend Unit | Vitest | $0 |
+| Frontend E2E | Playwright | $0 |
+| Backend Unit | pytest | $0 |
+| Backend Integration | pytest | $0 |
+| Backend E2E | pytest + Ollama | $0 |
+| AI Agent Tests | Ollama (local) | $0 |
+
+**Requirements for E2E:**
+- Ollama must be running: `ollama serve`
+- Model installed: `ollama pull llama3.2:latest`
+- Backend running: `cd backend && uvicorn src.main:app --port 9000`
+- Environment: `AI_PROVIDER_MODE=ollama_only`
+
 ## First Action: BLOCK or FIX
 
 When you find ANY issue:
@@ -109,20 +128,21 @@ Phase 1: FRONTEND CHECKS (spawn ALL at once)
 ├── Sub-agent F1: npm run build
 ├── Sub-agent F2: npm run check (svelte-check)
 ├── Sub-agent F3: npm run lint
-├── Sub-agent F4: npm test (vitest)
-└── Sub-agent F5: npm audit --audit-level=high
+├── Sub-agent F4: npm test (vitest unit tests)
+├── Sub-agent F5: npm audit --audit-level=high
+└── Sub-agent F6: Playwright E2E (if backend running)
 
 Phase 2: BACKEND CHECKS (spawn ALL at once)
 ├── Sub-agent B1: ruff check backend/
-├── Sub-agent B2: mypy backend/ --strict (if configured)
-├── Sub-agent B3: pytest backend/tests/
-├── Sub-agent B4: pip-audit (if available)
+├── Sub-agent B2: pytest unit tests (tests/ excluding e2e/)
+├── Sub-agent B3: pytest integration tests
+├── Sub-agent B4: pytest E2E with Ollama (LOCAL = $0 COST)
 └── Sub-agent B5: Check for debug prints
 
-Phase 3: INTEGRATION CHECKS
-├── Sub-agent I1: Docker build (if Dockerfile exists)
-├── Sub-agent I2: Health endpoint check
-└── Sub-agent I3: E2E tests (Playwright)
+Phase 3: AI/INTEGRATION CHECKS
+├── Sub-agent I1: Verify Ollama is running (ollama serve)
+├── Sub-agent I2: Health endpoint check (localhost:9000/health)
+└── Sub-agent I3: AI_PROVIDER_MODE=ollama_only E2E tests
 
 Phase 4: DOCUMENTATION CHECKS
 ├── Sub-agent D1: CHANGELOG.md updated

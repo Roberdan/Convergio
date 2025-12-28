@@ -38,6 +38,7 @@ from .core.config_validator import ConfigValidator
 
 # Import routers
 from .api.talents import router as talents_router
+from .api.project_team import router as project_team_router
 from .api.agents import router as agents_router
 from .api.vector import router as vector_router
 from .api.health import router as health_router
@@ -59,6 +60,7 @@ from .api.telemetry import router as telemetry_router
 from .api.governance import router as governance_router
 from .api.pm_orchestration import router as pm_orchestration_router
 from .api.realtime_endpoints import router as realtime_router
+from .api.ai_settings import router as ai_settings_router
 
 # Setup non-blocking structured logging for asyncio
 setup_async_logging()
@@ -325,10 +327,14 @@ def create_app() -> FastAPI:
     
     # Health checks (public)
     app.include_router(health_router, prefix="/health", tags=["Health"])
-    
+
+    # AI Provider Settings (no auth required)
+    app.include_router(ai_settings_router, prefix="/api/v1/settings/ai", tags=["AI Settings"])
+
     # Business logic APIs (no auth required)
     app.include_router(talents_router, prefix="/api/v1/talents", tags=["Talents"])
-    
+    app.include_router(project_team_router, prefix="/api/v1", tags=["Project Team"])
+
     # AI orchestration APIs (no auth required)
     app.include_router(agents_router, prefix="/api/v1/agents", tags=["AI Agents"])
     

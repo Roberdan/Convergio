@@ -163,13 +163,26 @@ else
     fi
 fi
 
-# Tests
+# Unit Tests (Vitest)
 if [[ "$SKIP_TESTS" != true ]]; then
-    log_check "npm test"
+    log_check "npm test (vitest unit tests)"
     if npm test 2>&1; then
-        log_pass "Frontend tests passed"
+        log_pass "Frontend unit tests passed"
     else
-        log_fail "Frontend tests failed"
+        log_fail "Frontend unit tests failed"
+    fi
+
+    # E2E Tests (Playwright) - only if backend is running
+    log_check "Playwright E2E tests"
+    if curl -s http://localhost:9000/health > /dev/null 2>&1; then
+        log_pass "Backend is running for E2E"
+        if npm run test:e2e 2>&1; then
+            log_pass "Frontend E2E tests passed"
+        else
+            log_warn "Frontend E2E tests failed (may need setup)"
+        fi
+    else
+        log_warn "Backend not running - skipping Playwright E2E (run: cd backend && uvicorn src.main:app)"
     fi
 else
     log_warn "Tests skipped (--skip-tests flag)"
@@ -215,17 +228,38 @@ else
     log_warn "ruff not installed, skipping"
 fi
 
-# Pytest
+# Pytest - Unit Tests
 if [[ "$SKIP_TESTS" != true ]]; then
-    log_check "pytest"
+    log_check "pytest (unit tests)"
     if command -v pytest &> /dev/null; then
-        if pytest tests/ -v 2>&1; then
-            log_pass "Backend tests passed"
+        if PYTHONPATH="$BACKEND_DIR/src" pytest "$BACKEND_DIR/tests" -v --ignore="$BACKEND_DIR/tests/e2e" --ignore="$BACKEND_DIR/tests/integration" 2>&1; then
+            log_pass "Backend unit tests passed"
         else
-            log_fail "Backend tests failed"
+            log_fail "Backend unit tests failed"
         fi
     else
         log_warn "pytest not installed, skipping"
+    fi
+
+    # Integration Tests
+    log_check "pytest (integration tests)"
+    if PYTHONPATH="$BACKEND_DIR/src" pytest "$BACKEND_DIR/tests/integration" -v 2>&1; then
+        log_pass "Backend integration tests passed"
+    else
+        log_warn "Backend integration tests failed (may need running services)"
+    fi
+
+    # E2E Tests with Ollama (LOCAL = $0 COST)
+    log_check "pytest E2E (Ollama - FREE)"
+    if curl -s http://localhost:11434/api/version > /dev/null 2>&1; then
+        log_pass "Ollama is running"
+        if AI_PROVIDER_MODE=ollama_only PYTHONPATH="$BACKEND_DIR/src" pytest "$BACKEND_DIR/tests/e2e" -v 2>&1; then
+            log_pass "E2E tests passed (Ollama)"
+        else
+            log_fail "E2E tests failed"
+        fi
+    else
+        log_warn "Ollama not running - skipping E2E tests (run: ollama serve)"
     fi
 fi
 

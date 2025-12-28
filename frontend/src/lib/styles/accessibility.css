@@ -1,0 +1,283 @@
+/**
+ * WS5: Accessibility Styles
+ * Global CSS for accessibility features
+ */
+
+/* CSS Custom Properties for Accessibility */
+:root {
+	--a11y-font-size: 100%;
+	--a11y-line-height: 1.5;
+	--a11y-letter-spacing: 0em;
+	--a11y-max-line-width: 80ch;
+	--a11y-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Apply accessibility font settings */
+body {
+	font-family: var(--a11y-font-family);
+	font-size: var(--a11y-font-size);
+	line-height: var(--a11y-line-height);
+	letter-spacing: var(--a11y-letter-spacing);
+}
+
+/* Max line width for readability (DY03) */
+.a11y-text,
+article,
+.prose {
+	max-width: var(--a11y-max-line-width);
+}
+
+/* ===============================================
+   Color Themes (DY04)
+   =============================================== */
+
+/* Light Theme (default) */
+.theme-light {
+	--a11y-bg: #ffffff;
+	--a11y-text: #1f2937;
+	--a11y-text-secondary: #6b7280;
+	--a11y-border: #e5e7eb;
+}
+
+/* Dark Theme */
+.theme-dark {
+	--a11y-bg: #1f2937;
+	--a11y-text: #f9fafb;
+	--a11y-text-secondary: #9ca3af;
+	--a11y-border: #374151;
+}
+
+/* Cream Theme for Dyslexia (DY04) */
+.theme-cream {
+	--a11y-bg: #FFF8DC;
+	--a11y-text: #1f2937;
+	--a11y-text-secondary: #4b5563;
+	--a11y-border: #d4c9a8;
+}
+
+/* High Contrast */
+.theme-high-contrast {
+	--a11y-bg: #000000;
+	--a11y-text: #ffffff;
+	--a11y-text-secondary: #ffffff;
+	--a11y-border: #ffffff;
+}
+
+/* Blue Light Filter */
+.theme-blue-light {
+	--a11y-bg: #fef3e2;
+	--a11y-text: #1f2937;
+	--a11y-text-secondary: #4b5563;
+	--a11y-border: #e5d9c9;
+}
+
+/* ===============================================
+   Reduced Motion (AU04)
+   =============================================== */
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+	animation-duration: 0.01ms !important;
+	animation-iteration-count: 1 !important;
+	transition-duration: 0.01ms !important;
+	scroll-behavior: auto !important;
+}
+
+/* Respect system preference */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* ===============================================
+   Large Click Targets (CP03)
+   =============================================== */
+
+.large-targets button,
+.large-targets a,
+.large-targets input,
+.large-targets select,
+.large-targets [role="button"] {
+	min-width: 44px;
+	min-height: 44px;
+}
+
+.large-targets input[type="checkbox"],
+.large-targets input[type="radio"] {
+	width: 24px;
+	height: 24px;
+}
+
+/* ===============================================
+   Focus Mode (AD04)
+   =============================================== */
+
+.focus-mode .non-essential {
+	display: none !important;
+}
+
+.focus-mode .sidebar {
+	transform: translateX(-100%);
+}
+
+.focus-mode .notifications-badge {
+	display: none;
+}
+
+/* ===============================================
+   Enhanced Focus Indicators
+   =============================================== */
+
+*:focus-visible {
+	outline: 2px solid var(--color-primary-500, #3b82f6);
+	outline-offset: 2px;
+}
+
+/* High contrast focus for theme */
+.theme-high-contrast *:focus-visible {
+	outline: 3px solid #ffffff;
+	outline-offset: 3px;
+}
+
+/* ===============================================
+   OpenDyslexic Font (DY01)
+   =============================================== */
+
+@font-face {
+	font-family: 'OpenDyslexic';
+	src: url('/fonts/OpenDyslexic-Regular.woff2') format('woff2'),
+		 url('/fonts/OpenDyslexic-Regular.woff') format('woff');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'OpenDyslexic';
+	src: url('/fonts/OpenDyslexic-Bold.woff2') format('woff2'),
+		 url('/fonts/OpenDyslexic-Bold.woff') format('woff');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* ===============================================
+   Text-to-Speech Highlighting (DY06)
+   =============================================== */
+
+.tts-speaking {
+	background-color: rgba(59, 130, 246, 0.2);
+	border-radius: 2px;
+}
+
+.tts-word-highlight {
+	background-color: rgba(59, 130, 246, 0.4);
+	border-radius: 2px;
+}
+
+/* ===============================================
+   Reading Ruler Styles
+   =============================================== */
+
+.reading-ruler-overlay {
+	position: fixed;
+	left: 0;
+	right: 0;
+	pointer-events: none;
+	z-index: 9999;
+	background: linear-gradient(
+		to bottom,
+		transparent 0%,
+		rgba(255, 255, 0, 0.1) 20%,
+		rgba(255, 255, 0, 0.2) 50%,
+		rgba(255, 255, 0, 0.1) 80%,
+		transparent 100%
+	);
+	border-top: 1px solid rgba(255, 200, 0, 0.3);
+	border-bottom: 1px solid rgba(255, 200, 0, 0.3);
+}
+
+/* ===============================================
+   Progress Bars for ADHD (AD02)
+   =============================================== */
+
+.a11y-progress {
+	width: 100%;
+	height: 8px;
+	background-color: var(--a11y-border, #e5e7eb);
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.a11y-progress-bar {
+	height: 100%;
+	background-color: var(--color-primary-500, #3b82f6);
+	transition: width 0.3s ease;
+}
+
+/* ===============================================
+   Extended Timeouts (CP02)
+   =============================================== */
+
+/* Applied via JavaScript - these are marker classes */
+.extended-timeout {
+	/* Timeout multiplier applied in JS */
+}
+
+/* ===============================================
+   Keyboard Navigation Enhancement (CP04)
+   =============================================== */
+
+.keyboard-nav-mode *:focus {
+	outline: 3px solid var(--color-primary-500, #3b82f6);
+	outline-offset: 3px;
+	box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2);
+}
+
+/* Tab index indicators for development */
+[tabindex]:not([tabindex="-1"]):focus-visible {
+	position: relative;
+}
+
+[tabindex]:not([tabindex="-1"]):focus-visible::after {
+	content: attr(tabindex);
+	position: absolute;
+	top: -8px;
+	right: -8px;
+	background: var(--color-primary-500);
+	color: white;
+	font-size: 10px;
+	padding: 2px 4px;
+	border-radius: 4px;
+}
+
+/* ===============================================
+   Micro-celebrations (AD03)
+   =============================================== */
+
+@keyframes celebration-pop {
+	0% { transform: scale(1); }
+	50% { transform: scale(1.1); }
+	100% { transform: scale(1); }
+}
+
+@keyframes celebration-confetti {
+	0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+	100% { opacity: 0; transform: translateY(-50px) rotate(360deg); }
+}
+
+.micro-celebration {
+	animation: celebration-pop 0.3s ease-in-out;
+}
+
+/* Only show if not in reduced motion */
+:not(.reduce-motion) .celebration-confetti {
+	animation: celebration-confetti 1s ease-out forwards;
+}

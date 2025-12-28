@@ -6,7 +6,9 @@ SQLAlchemy 2.0 Talent model with organizational hierarchy - no authentication re
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 
-from sqlalchemy import Integer, String, DateTime, func, Boolean, ForeignKey
+from decimal import Decimal
+from sqlalchemy import Integer, String, DateTime, func, Boolean, ForeignKey, Numeric, CheckConstraint
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -35,7 +37,21 @@ class Talent(Base):
     password_hash: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # Legacy field
     is_admin: Mapped[Optional[bool]] = mapped_column(Boolean, default=False)      # Legacy field
     deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))  # Legacy field
-    
+
+    # WS2: New People Data Model fields
+    role: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)  # Job title/role
+    tier: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)  # Seniority: junior, mid, senior, lead, principal
+    skills: Mapped[Optional[Dict]] = mapped_column(JSONB, default=list, nullable=True)  # Skills array
+    hourly_rate: Mapped[Optional[Decimal]] = mapped_column(Numeric(10, 2), nullable=True)  # USD
+    daily_rate: Mapped[Optional[Decimal]] = mapped_column(Numeric(10, 2), nullable=True)  # USD
+    availability: Mapped[Optional[int]] = mapped_column(Integer, default=100, nullable=True)  # 0-100%
+    timezone: Mapped[Optional[str]] = mapped_column(String(100), default='UTC', nullable=True)
+    phone: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    experience_years: Mapped[Optional[int]] = mapped_column(Integer, default=0, nullable=True)
+    bio: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    rating: Mapped[Optional[Decimal]] = mapped_column(Numeric(3, 2), default=0.00, nullable=True)
+
     # Vector embeddings - existing in DB (pgvector)
     # Use explicit pgvector type to avoid BYTEA casts on NULL that break inserts
     skills_embedding: Mapped[Optional[list]] = mapped_column(Vector(1536), nullable=True)

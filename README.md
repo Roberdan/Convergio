@@ -3,8 +3,10 @@
 # 🚀 Convergio — Human purpose. AI momentum.
 *"Convergio is the platform that lets solopreneurs blend human ingenuity with AI so seamlessly, it feels like magic."*
 
-> ### 🎉 **v2.0.0 Released — Microsoft Agent Framework Migration Complete!**
-> We've completed a major migration from AutoGen to **Microsoft Agent Framework 1.0**, bringing modern orchestration patterns, enhanced streaming, and improved performance. [See release notes →](https://github.com/Roberdan/Convergio/releases/tag/v2.0.0)
+> ### 🎉 **v2.1.0 Released — Ollama-First AI Provider System!**
+> Run Convergio 100% offline with **Ollama** for $0 cost, or connect to **Azure OpenAI** for enterprise-grade AI. Full provider control with 4 modes: ollama_only, azure_only, hybrid, cloud_first. [See release notes →](https://github.com/Roberdan/Convergio/releases/tag/v2.1.0)
+
+> **v2.0.0** — Microsoft Agent Framework Migration Complete! [See v2.0.0 →](https://github.com/Roberdan/Convergio/releases/tag/v2.0.0)
 
 Convergio is the AI‑first orchestration platform where human ingenuity converges with a coordinated crew of specialized agents. Through intelligent coordination—not just parallel processing—they plan together, execute seamlessly, and explain outcomes across your tools.
 
@@ -18,7 +20,45 @@ Convergio is the AI‑first orchestration platform where human ingenuity converg
 
 ---
 
-## 🆕 What's New in v2.0.0 (December 2025)
+## 🆕 What's New in v2.1.0 (December 2025)
+
+### Ollama-First AI Provider System
+
+Run Convergio with **full control** over your AI providers. Choose privacy, cost, or quality based on your needs:
+
+| Mode | Description | Cost | Privacy |
+|------|-------------|------|---------|
+| **Ollama-Only** | 100% local, works offline | FREE ($0) | Maximum |
+| **Azure-Only** | Enterprise cloud with SLA | $$$ | Enterprise |
+| **Hybrid** | Local for simple, cloud for complex | $ - $$$ | Configurable |
+| **Cloud-First** | Best quality (OpenAI/Anthropic) | $$$ | Cloud |
+
+**Key Features:**
+- **Strict Mode** — Block all cloud API calls when using ollama_only (no surprise costs)
+- **Per-Agent Override** — Configure specific agents to use different providers
+- **Per-Feature Override** — Route chat, code review, embeddings to different providers
+- **Real-time Cost Tracking** — See exactly what each provider costs ($0 for Ollama)
+- **Azure Cost Management API** — Integrate with Azure's billing APIs for exact cost monitoring
+- **GPU Detection** — Automatic detection of GPU availability for optimal model selection
+
+**Quick Start with Ollama:**
+```bash
+# Install Ollama (macOS/Linux)
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull recommended models
+ollama pull llama3.2:latest       # General chat (3B, fast)
+ollama pull qwen2.5-coder:7b      # Code review (7B)
+ollama pull nomic-embed-text      # Embeddings
+
+# Start Convergio in Ollama-only mode
+export AI_PROVIDER_MODE=ollama_only
+export AI_STRICT_MODE=true
+```
+
+---
+
+## What's New in v2.0.0 (December 2025)
 
 This major release represents a complete architectural evolution:
 
@@ -183,7 +223,7 @@ convergio/
 
 ### 🔑 Key Directories
 
-- **`backend/src/agents/definitions/`** - 48 specialized AI agent definitions
+- **`backend/src/agents/definitions/`** - 54 specialized AI agent definitions (synced from ConvergioCLI)
 - **`backend/src/api/`** - FastAPI routers for all endpoints
 - **`frontend/src/lib/components/`** - Reusable Svelte components
 - **`docs/`** - Comprehensive documentation (organized and updated)
@@ -196,7 +236,7 @@ convergio/
 ### Core Documentation
 - **Implementation Report**: [docs/IMPLEMENTATION_COMPLETE.md](docs/IMPLEMENTATION_COMPLETE.md) - Complete implementation details
 - **System Verification**: [docs/COMPREHENSIVE_VERIFICATION_REPORT_AUG2025.md](docs/COMPREHENSIVE_VERIFICATION_REPORT_AUG2025.md)
-- **Agent Definitions**: [docs/AGENTS.md](docs/AGENTS.md) - All 48 agents documented
+- **Agent Definitions**: [docs/AGENTS.md](docs/AGENTS.md) - All 54 agents documented (synced from ConvergioCLI)
 - **Database Schema**: [docs/DataBaseSchema.md](docs/DataBaseSchema.md)
 - **Security System**: [docs/SECURE_COST_SYSTEM_VERIFICATION.md](docs/SECURE_COST_SYSTEM_VERIFICATION.md)
 - **Import Path Guide**: [docs/IMPORT_PATH_CONSISTENCY_GUIDE.md](docs/IMPORT_PATH_CONSISTENCY_GUIDE.md) - Import standards (organized)
@@ -244,13 +284,19 @@ Convergio features a comprehensive multi‑agent system of specialized agents or
 - **Dave** - Change Management Specialist
 - **Xavier** - Coordination Patterns Expert
 
-### Technology & Engineering (6 agents)
+### Technology & Engineering (12 agents)
 - **Dan** - Engineering General Manager
 - **Baccio** - Tech Architect
 - **Marco** - DevOps Engineer
 - **Luca** - Security Expert
 - **Guardian** - AI Security Validator
 - **Thor** - Quality Assurance Guardian
+- **Rex** - Code Reviewer (NEW - synced from ConvergioCLI)
+- **Paolo** - Best Practices Enforcer (NEW - synced from ConvergioCLI)
+- **Otto** - Performance Optimizer (NEW - synced from ConvergioCLI)
+- **Dario** - Systematic Debugger (NEW - synced from ConvergioCLI)
+- **Fiona** - Market Analyst (NEW - synced from ConvergioCLI)
+- **Anna** - Executive Assistant (NEW - synced from ConvergioCLI)
 
 ### Data & Analytics (6 agents)
 - **Angela** - Data Analyst
@@ -311,7 +357,9 @@ Each agent is powered by advanced AI capabilities including:
 #### Backend Tests
 - **Unit Tests**: 431+ passing ✅
 - **Integration Tests**: All passing ✅
-- **E2E Tests**: Core tests passing (12 E2E infra-dependent tests require specific setup) ✅
+- **E2E Tests**: Core tests passing ✅
+- **AI Provider Tests**: 41 passing, 2 skipped ✅
+- **Ollama E2E Tests**: 24 passing ($0 cost) ✅ NEW
 - **Security Tests**: All core security validations passing ✅
 - **Performance Tests**: Load testing and metrics collection working ✅
 
@@ -460,7 +508,19 @@ REFERENCE_AGENT_TRUNCATE_LENGTH=3000
 RATE_LIMIT_ENABLED=true
 RATE_LIMIT_PER_MINUTE_API=100
 
-# AI providers
+# AI Provider Configuration (NEW in v2.1.0)
+AI_PROVIDER_MODE=ollama_only       # ollama_only | azure_only | hybrid | cloud_first
+AI_STRICT_MODE=true                 # Block cloud calls in ollama_only mode
+OLLAMA_HOST=http://localhost:11434 # Ollama server URL
+OLLAMA_DEFAULT_MODEL=llama3.2:latest
+
+# Azure OpenAI (for enterprise)
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_KEY=your-key
+AZURE_OPENAI_DEPLOYMENT=gpt-4o-deployment
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+
+# Direct Cloud AI (for cloud_first mode)
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 GRAPHFLOW=true
@@ -527,17 +587,32 @@ After the change date (2027-01-01), this software will be available under the Ap
 
 ## 🚀 Roadmap
 
-### Q4 2025
+### Q4 2025 (Current)
+- [x] Agent Sync from ConvergioCLI (54 agents with enhanced prompts)
+- [x] Anti-Hallucination Protocol for all agents
+- [x] Delegation Pattern [DELEGATE:] support
+- [x] **WS6: Ollama-First AI Provider System** — 100% offline with $0 cost
+- [x] **Azure OpenAI Enterprise Integration** — SLA-backed cloud AI
+- [x] **4 Provider Modes** — ollama_only, azure_only, hybrid, cloud_first
+- [x] **Strict Mode** — No surprise cloud costs
+- [x] **Per-Agent/Feature Provider Override** — Fine-grained control
+- [x] **24 E2E Tests** — Full test coverage for AI providers
 - [ ] Advanced AI agents marketplace
 - [ ] Mobile applications (iOS/Android)
-- [ ] Advanced workflow templates library
-- [ ] Enhanced multi-language support
 
-### Q1 2026
+### Q1 2026 - Unified Workforce (see [2026Plan.md](2026Plan.md))
+- [ ] **WS2: Enhanced People Model** - Skills, rates, availability tracking
+- [ ] **WS3: Unified Workforce UI** - People + AI agents as one team
+- [ ] **WS6-G6: Azure Cost Management API** - Exact cost monitoring via Azure APIs
+- [ ] Project team composition (assign people + agents to projects)
+- [ ] Resource allocation with real data (no more mock data)
+- [ ] Skill matrix and capacity planning
+
+### Q2 2026
+- [ ] Workflow Engine (DAG-based from ConvergioCLI)
+- [ ] Group Chat consensus building
 - [ ] AI model fine-tuning capabilities
-- [ ] Advanced analytics dashboard
 - [ ] Enterprise SSO integration
-- [ ] Compliance certifications (SOC2, ISO)
 
 ---
 

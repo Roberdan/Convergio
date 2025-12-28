@@ -454,19 +454,9 @@ dev-debug.log
 *.sw?
 # OS specific
 
-# IDE stuff
+# IDE stuff (allow .claude/agents/ for release manager)
 .claude/*
 !.claude/agents/
-.cursor/
-.taskmaster
-.windsurf
-.roberdan
 
-# Task files
-# tasks.json
-# tasks/ 
-
+# Unused
 .github/instructions/
-jobDescriptions/
-AutogenRepo-ToBeDeleted/
-.qoder/
