@@ -63,6 +63,8 @@ from .api.realtime_endpoints import router as realtime_router
 from .api.ai_settings import router as ai_settings_router
 from .api.auth import router as auth_router
 from .api.webhooks import router as webhooks_router
+from .api.teams import router as teams_router
+from .api.waitlist import router as waitlist_router
 
 # Setup non-blocking structured logging for asyncio
 setup_async_logging()
@@ -339,7 +341,9 @@ def create_app() -> FastAPI:
     # AI Provider Settings (no auth required)
     app.include_router(ai_settings_router, prefix="/api/v1/settings/ai", tags=["AI Settings"])
     app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
+    app.include_router(teams_router, prefix="/api/v1", tags=["Teams"])
     app.include_router(webhooks_router, prefix="/api/v1/webhooks", tags=["Webhooks"])
+    app.include_router(waitlist_router, tags=["Waitlist"])
 
     # Business logic APIs (no auth required)
     app.include_router(talents_router, prefix="/api/v1/talents", tags=["Talents"])

@@ -1,168 +1,222 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import {
-		workforceStore,
-		filteredResources,
-		workforceSummary
-	} from '$lib/stores/workforceStore';
-	import {
-		WorkforceOverview,
-		WorkforceFilters,
-		WorkforceList,
-		SkillMatrix,
-		CapacityGauge,
-		ResourceDetail
-	} from '$lib/components/workforce';
-	import type { UnifiedResource } from '$lib/types/resource';
+import { onMount } from 'svelte';
 
-	let loading = $state(true);
-	let error: string | null = $state(null);
-	let selectedResource: UnifiedResource | null = $state(null);
-	let showDetailModal = $state(false);
+type MemberType = 'human' | 'agent';
+type MemberStatus = 'active' | 'invited' | 'offline';
 
-	onMount(async () => {
-		try {
-			await workforceStore.loadAll();
-		} catch (e) {
-			error = e instanceof Error ? e.message : 'Failed to load workforce';
-		} finally {
-			loading = false;
-		}
-	});
+interface TeamMember {
+id: string;
+name: string;
+type: MemberType;
+role: string;
+status: MemberStatus;
+capabilities: string[];
+}
 
-	function handleResourceSelect(event: CustomEvent<UnifiedResource>) {
-		selectedResource = event.detail;
-		showDetailModal = true;
-	}
+let loading = $state(true);
+let error: string | null = $state(null);
+let teamMembers = $state<TeamMember[]>([]);
+let teamId = $state('');
 
-	function handleCloseDetail() {
-		showDetailModal = false;
-		selectedResource = null;
-	}
+const statusStyles: Record<MemberStatus, string> = {
+active: 'bg-green-100 text-green-700',
+invited: 'bg-amber-100 text-amber-700',
+offline: 'bg-surface-100 text-surface-700'
+};
 
-	async function handleRefresh() {
-		loading = true;
-		error = null;
-		try {
-			await workforceStore.refresh();
-		} catch (e) {
-			error = e instanceof Error ? e.message : 'Failed to refresh';
-		} finally {
-			loading = false;
-		}
-	}
+function normalizeType(value: unknown): MemberType {
+return String(value ?? '')
+.trim()
+.toLowerCase() === 'agent'
+? 'agent'
+: 'human';
+}
+
+function normalizeStatus(value: unknown): MemberStatus {
+const normalized = String(value ?? '')
+.trim()
+.toLowerCase();
+
+if (normalized === 'invited' || normalized === 'pending') return 'invited';
+if (normalized === 'offline' || normalized === 'inactive') return 'offline';
+return 'active';
+}
+
+function resolveCapabilities(source: Record<string, unknown>): string[] {
+if (Array.isArray(source.capabilities)) {
+return source.capabilities.map((item) => String(item)).filter(Boolean);
+}
+if (Array.isArray(source.skills)) {
+return source.skills.map((item) => String(item)).filter(Boolean);
+}
+return [];
+}
+
+function resolveName(member: Record<string, unknown>, type: MemberType): string {
+const nameCandidate =
+member.name ?? member.fullName ?? member.displayName ?? member.email ?? member.agentName;
+
+if (nameCandidate) return String(nameCandidate);
+if (type === 'agent') return String(member.agentId ?? member.id ?? 'AI Agent');
+return String(member.userId ?? member.id ?? 'Team Member');
+}
+
+function getTeamIdFromContext(): string {
+const fromQuery = new URL(window.location.href).searchParams.get('teamId');
+if (fromQuery) return fromQuery;
+const fromStorage = localStorage.getItem('activeTeamId');
+if (fromStorage) return fromStorage;
+return 'team-1';
+}
+
+async function loadTeamView() {
+loading = true;
+error = null;
+
+try {
+teamId = getTeamIdFromContext();
+
+const [teamResponse, invitesResponse] = await Promise.all([
+fetch(`/api/v1/teams/${teamId}`, { credentials: 'include' }),
+fetch(`/api/v1/invites?teamId=${teamId}`, { credentials: 'include' })
+]);
+
+if (!teamResponse.ok) {
+throw new Error('Failed to load team members');
+}
+
+const teamPayload = (await teamResponse.json()) as Record<string, unknown>;
+const invitePayload = invitesResponse.ok
+? ((await invitesResponse.json()) as unknown)
+: [];
+
+const teamItems = Array.isArray(teamPayload.members)
+? (teamPayload.members as Record<string, unknown>[])
+: [];
+
+const inviteItems = Array.isArray(invitePayload)
+? (invitePayload as Record<string, unknown>[])
+: Array.isArray((invitePayload as Record<string, unknown>).items)
+? (((invitePayload as Record<string, unknown>).items as unknown[]) as Record<string, unknown>[])
+: [];
+
+const normalizedMembers: TeamMember[] = teamItems.map((member) => {
+const type = normalizeType(member.type);
+return {
+id: String(member.id ?? `${type}-${member.userId ?? member.agentId ?? crypto.randomUUID()}`),
+name: resolveName(member, type),
+type,
+role: String(member.role ?? 'member'),
+status: normalizeStatus(member.status),
+capabilities: resolveCapabilities(member)
+};
+});
+
+const normalizedInvites: TeamMember[] = inviteItems.map((invite) => {
+const type = normalizeType(invite.type);
+return {
+id: String(invite.id ?? `${type}-invite-${crypto.randomUUID()}`),
+name: String(invite.email ?? invite.name ?? (type === 'agent' ? 'Invited AI Agent' : 'Invited Member')),
+type,
+role: String(invite.role ?? 'member'),
+status: 'invited',
+capabilities: resolveCapabilities(invite)
+};
+});
+
+teamMembers = [...normalizedMembers, ...normalizedInvites];
+} catch (loadError) {
+error = loadError instanceof Error ? loadError.message : 'Unable to load workforce';
+teamMembers = [];
+} finally {
+loading = false;
+}
+}
+
+onMount(async () => {
+await loadTeamView();
+});
 </script>
 
 <svelte:head>
-	<title>Workforce - Convergio</title>
+<title>Workforce - Convergio</title>
 </svelte:head>
 
-<div class="workforce-page min-h-screen bg-surface-50">
-	<!-- Page Header -->
-	<div class="bg-white border-b border-surface-200">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-			<div class="flex items-center justify-between">
-				<div>
-					<h1 class="text-2xl font-bold text-surface-900">Workforce Management</h1>
-					<p class="mt-1 text-sm text-surface-600">
-						Manage your unified workforce of talents and AI agents
-					</p>
-				</div>
-				<div class="flex items-center gap-3">
-					<button
-						onclick={handleRefresh}
-						disabled={loading}
-						class="inline-flex items-center px-4 py-2 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 disabled:opacity-50 transition-colors"
-					>
-						<svg class="w-4 h-4 mr-2 {loading ? 'animate-spin' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-						</svg>
-						Refresh
-					</button>
-					<a
-						href="/talents"
-						class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
-					>
-						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-						</svg>
-						Add Talent
-					</a>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Main Content -->
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-		{#if error}
-			<div class="mb-6 p-4 bg-error-50 border border-error-200 rounded-lg">
-				<div class="flex items-center">
-					<svg class="w-5 h-5 text-error-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-					</svg>
-					<span class="text-error-700">{error}</span>
-				</div>
-			</div>
-		{/if}
-
-		<!-- Overview Stats -->
-		<WorkforceOverview {loading} />
-
-		<!-- Filters -->
-		<WorkforceFilters />
-
-		<!-- Main Grid -->
-		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-			<!-- Resource List (2 columns) -->
-			<div class="lg:col-span-2">
-				<div class="bg-white rounded-xl shadow-sm border border-surface-200 p-6">
-					<div class="flex items-center justify-between mb-4">
-						<h2 class="text-lg font-semibold text-surface-900">
-							Resources
-							<span class="text-sm font-normal text-surface-500 ml-2">
-								({$filteredResources.length} of {$workforceSummary.totalResources})
-							</span>
-						</h2>
-						<div class="flex items-center gap-2">
-							<button class="p-2 text-surface-500 hover:text-surface-700 hover:bg-surface-100 rounded-lg transition-colors" title="Grid view" aria-label="Switch to grid view">
-								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-								</svg>
-							</button>
-							<button class="p-2 text-surface-500 hover:text-surface-700 hover:bg-surface-100 rounded-lg transition-colors" title="List view" aria-label="Switch to list view">
-								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-								</svg>
-							</button>
-						</div>
-					</div>
-					<WorkforceList
-						resources={$filteredResources}
-						{loading}
-						{selectedResource}
-						on:select={handleResourceSelect}
-					/>
-				</div>
-			</div>
-
-			<!-- Sidebar (1 column) -->
-			<div class="space-y-6">
-				<!-- Capacity Gauge -->
-				<CapacityGauge resources={$filteredResources} />
-
-				<!-- Skill Matrix -->
-				<SkillMatrix resources={$filteredResources} />
-			</div>
-		</div>
-	</div>
+<div class="min-h-screen bg-surface-50">
+<div class="border-b border-surface-200 bg-white">
+<div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8">
+<div>
+<h1 class="text-2xl font-bold text-surface-900">Workforce</h1>
+<p class="mt-1 text-sm text-surface-600">Unified team view for human members and AI agents.</p>
+</div>
+<div class="flex items-center gap-3">
+<button
+onclick={loadTeamView}
+disabled={loading}
+class="inline-flex items-center rounded-lg border border-surface-300 bg-white px-4 py-2 text-sm font-medium text-surface-700 transition-colors hover:bg-surface-50 disabled:opacity-50"
+>
+Refresh
+</button>
+<button class="inline-flex items-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700">
+Invite Member
+</button>
+<button class="inline-flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700">
+Add Agent
+</button>
+</div>
+</div>
 </div>
 
-<!-- Resource Detail Modal -->
-{#if selectedResource}
-	<ResourceDetail
-		resource={selectedResource}
-		open={showDetailModal}
-		on:close={handleCloseDetail}
-	/>
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+{#if error}
+<div class="mb-6 rounded-lg border border-error-200 bg-error-50 p-4 text-error-700">{error}</div>
 {/if}
+
+<div class="overflow-hidden rounded-xl border border-surface-200 bg-white shadow-sm">
+<div class="overflow-x-auto">
+<table class="min-w-full divide-y divide-surface-200">
+<thead class="bg-surface-50">
+<tr>
+<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-surface-600">Name</th>
+<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-surface-600">Type</th>
+<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-surface-600">Role</th>
+<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-surface-600">Status</th>
+<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-surface-600">Capabilities</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-100 bg-white">
+{#if loading}
+<tr>
+<td colspan="5" class="px-4 py-8 text-center text-sm text-surface-500">Loading workforce...</td>
+</tr>
+{:else if teamMembers.length === 0}
+<tr>
+<td colspan="5" class="px-4 py-8 text-center text-sm text-surface-500">No team members found for this workspace.</td>
+</tr>
+{:else}
+{#each teamMembers as member (member.id)}
+<tr>
+<td class="px-4 py-3 text-sm font-medium text-surface-900">{member.name}</td>
+<td class="px-4 py-3 text-sm text-surface-700">{member.type}</td>
+<td class="px-4 py-3 text-sm text-surface-700">{member.role}</td>
+<td class="px-4 py-3 text-sm">
+<span class={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[member.status]}`}>
+{member.status}
+</span>
+</td>
+<td class="px-4 py-3 text-sm text-surface-700">
+{#if member.capabilities.length === 0}
+<span class="text-surface-400">—</span>
+{:else}
+{member.capabilities.join(', ')}
+{/if}
+</td>
+</tr>
+{/each}
+{/if}
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>

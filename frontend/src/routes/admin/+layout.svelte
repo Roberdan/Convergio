@@ -11,7 +11,8 @@
     { href: '/admin/users', label: 'Users' },
     { href: '/admin/audit', label: 'Audit Log' },
     { href: '/admin/tiers', label: 'Tiers' },
-    { href: '/admin/agents', label: 'Agents' }
+    { href: '/admin/agents', label: 'Agents' },
+    { href: '/admin/waitlist', label: 'Waitlist' }
   ];
 
   function isActive(href: string): boolean {
