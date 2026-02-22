@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tier {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String   @unique
+  maxAgents        Int?
+  maxConversations Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  features      TierFeature[]
+  subscriptions Subscription[]
+  trialSessions TrialSession[]
+}
+
+model TierFeature {
+  id        String   @id @default(uuid()) @db.Uuid
+  tierId    String   @db.Uuid
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+
+  tier Tier @relation(fields: [tierId], references: [id], onDelete: Cascade)
+
+  @@unique([tierId, key])
+}
+
+model Subscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  tierId    String   @db.Uuid
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tier Tier @relation(fields: [tierId], references: [id], onDelete: Restrict)
+}
+
+model TrialSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  tierId    String   @db.Uuid
+  email     String
+  startedAt DateTime @default(now())
+  endsAt    DateTime
+
+  tier Tier @relation(fields: [tierId], references: [id], onDelete: Restrict)
+
+  @@unique([tierId, email])
+}
+
+model Team {
+  id        String       @id @default(uuid()) @db.Uuid
+  name      String
+  createdAt DateTime     @default(now())
+  members   TeamMember[]
+  invites   Invite[]
+}
+
+model TeamMember {
+  id        String   @id @default(uuid()) @db.Uuid
+  teamId    String   @db.Uuid
+  email     String
+  role      String
+  createdAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, email])
+}
+
+model Invite {
+  id        String   @id @default(uuid()) @db.Uuid
+  teamId    String   @db.Uuid
+  email     String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model AdminAuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  action    String
+  actor     String
+  payload   Json?
+  createdAt DateTime @default(now())
+}
+
+model ComplianceAuditEntry {
+  id         String   @id @default(uuid()) @db.Uuid
+  category   String
+  status     String
+  payload    Json?
+  occurredAt DateTime @default(now())
+}
+
+model WaitlistRequest {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}

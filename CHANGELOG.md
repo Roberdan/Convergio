@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### W1: Database Schema & Prisma Migration
+
+- Added: Prisma ORM with full database schema (Tier, Team, Invite, Session, etc.)
+- Added: Initial migration applied to PostgreSQL (convergio_db)
+- Added: Seed script for default tiers (Trial: 10 agents/50 convos, Pro: unlimited)
+- Added: SQLAlchemy models aligned with Prisma schema for backend read access
+
 ## [v4.0.0] - 2026-02-22
 
 ### Added
