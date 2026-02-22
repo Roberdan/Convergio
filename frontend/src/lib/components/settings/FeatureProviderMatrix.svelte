@@ -1,9 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
-  export let overrides: Record<string, { provider: string; model: string }> = {};
-  export let currentMode: string = 'ollama_only';
-  export let disabled: boolean = false;
+  interface Props {
+    overrides?: Record<string, { provider: string; model: string }>;
+    currentMode?: string;
+    disabled?: boolean;
+  }
+
+  let { overrides = $bindable({}), currentMode = 'ollama_only', disabled = false }: Props = $props();
 
   const dispatch = createEventDispatcher();
 
@@ -93,7 +97,7 @@
             <td class="px-4 py-3">
               <select
                 value={override.provider}
-                on:change={(e) => updateOverride(feature.id, 'provider', e.currentTarget.value)}
+                onchange={(e) => updateOverride(feature.id, 'provider', e.currentTarget.value)}
                 disabled={disabled}
                 class="w-full px-2 py-1.5 text-sm border border-surface-300 rounded focus:ring-1 focus:ring-gray-900 focus:border-gray-900 disabled:opacity-50 disabled:bg-surface-100"
               >
@@ -114,7 +118,7 @@
               {#if override.provider !== 'default' && modelsByProvider[override.provider]}
                 <select
                   value={override.model}
-                  on:change={(e) => updateOverride(feature.id, 'model', e.currentTarget.value)}
+                  onchange={(e) => updateOverride(feature.id, 'model', e.currentTarget.value)}
                   disabled={disabled}
                   class="w-full px-2 py-1.5 text-sm border border-surface-300 rounded focus:ring-1 focus:ring-gray-900 focus:border-gray-900 disabled:opacity-50 disabled:bg-surface-100"
                 >

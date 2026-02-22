@@ -2,7 +2,9 @@
 	import { createEventDispatcher } from 'svelte';
 	import { Button, Input, Avatar, Badge } from './index';
 
-	interface $$Props {
+	
+
+	interface Props {
 		title?: string;
 		showSearch?: boolean;
 		showNotifications?: boolean;
@@ -13,14 +15,16 @@
 		sidebarCollapsed?: boolean;
 	}
 
-	export let title: $$Props['title'] = '';
-	export let showSearch: $$Props['showSearch'] = true;
-	export let showNotifications: $$Props['showNotifications'] = true;
-	export let notificationCount: $$Props['notificationCount'] = 0;
-	export let userAvatar: $$Props['userAvatar'] = '';
-	export let userName: $$Props['userName'] = 'User';
-	export let showMobileMenuButton: $$Props['showMobileMenuButton'] = true;
-	export let sidebarCollapsed: $$Props['sidebarCollapsed'] = false;
+	let {
+		title = '',
+		showSearch = true,
+		showNotifications = true,
+		notificationCount = 0,
+		userAvatar = '',
+		userName = 'User',
+		showMobileMenuButton = true,
+		sidebarCollapsed = false
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		'toggle-sidebar': void;
@@ -29,8 +33,8 @@
 		'user-menu-click': void;
 	}>();
 
-	let searchQuery = '';
-	let showUserMenu = false;
+	let searchQuery = $state('');
+	let showUserMenu = $state(false);
 
 	function handleSearch() {
 		dispatch('search', { query: searchQuery });
@@ -134,7 +138,7 @@
 			<button
 				type="button"
 				class="user-menu-trigger"
-				on:click={toggleUserMenu}
+				onclick={toggleUserMenu}
 				aria-expanded={showUserMenu}
 				aria-haspopup="true"
 				aria-label="User menu"
@@ -161,7 +165,7 @@
 
 					<div class="menu-divider" role="none"></div>
 
-					<button type="button" class="menu-item" role="menuitem" on:click={handleUserMenuClick}>
+					<button type="button" class="menu-item" role="menuitem" onclick={handleUserMenuClick}>
 						<span class="icon-user" aria-hidden="true"></span>
 						Profile
 					</button>
@@ -192,8 +196,8 @@
 {#if showUserMenu}
 	<div
 		class="fixed inset-0 z-10"
-		on:click={() => showUserMenu = false}
-		on:keydown={(e) => e.key === 'Escape' && (showUserMenu = false)}
+		onclick={() => showUserMenu = false}
+		onkeydown={(e) => e.key === 'Escape' && (showUserMenu = false)}
 		role="button"
 		tabindex="-1"
 		aria-label="Close menu"

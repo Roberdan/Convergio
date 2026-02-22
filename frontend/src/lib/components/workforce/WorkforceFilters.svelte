@@ -1,13 +1,15 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { workforceStore, allSkills } from '$lib/stores/workforceStore';
 	import type { ResourceType } from '$lib/types/resource';
 
 	// Local state
-	let searchQuery = '';
-	let selectedType: ResourceType | 'all' = 'all';
-	let selectedStatus: 'active' | 'inactive' | 'busy' | 'all' = 'all';
-	let selectedTier: string = '';
-	let minAvailability: number = 0;
+	let searchQuery = $state('');
+	let selectedType: ResourceType | 'all' = $state('all');
+	let selectedStatus: 'active' | 'inactive' | 'busy' | 'all' = $state('all');
+	let selectedTier: string = $state('');
+	let minAvailability: number = $state(0);
 
 	const tiers = ['junior', 'mid', 'senior', 'lead', 'principal'];
 
@@ -31,14 +33,14 @@
 	}
 
 	// Auto-apply filters on change
-	$: {
+	run(() => {
 		searchQuery;
 		selectedType;
 		selectedStatus;
 		selectedTier;
 		minAvailability;
 		applyFilters();
-	}
+	});
 </script>
 
 <div class="workforce-filters bg-white rounded-xl shadow-sm border border-surface-200 p-4 mb-6">
@@ -124,7 +126,7 @@
 
 		<!-- Clear Filters -->
 		<button
-			on:click={clearFilters}
+			onclick={clearFilters}
 			class="px-4 py-2 text-sm text-surface-600 hover:text-surface-900 hover:bg-surface-100 rounded-lg transition-colors"
 		>
 			Clear Filters
@@ -138,7 +140,7 @@
 			<div class="flex flex-wrap gap-2">
 				{#each $allSkills.slice(0, 10) as skill}
 					<button
-						on:click={() => { searchQuery = skill; applyFilters(); }}
+						onclick={() => { searchQuery = skill; applyFilters(); }}
 						class="px-3 py-1 text-sm bg-surface-100 text-surface-700 rounded-full hover:bg-primary-100 hover:text-primary-700 transition-colors"
 					>
 						{skill}

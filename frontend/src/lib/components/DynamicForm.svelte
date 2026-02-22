@@ -1,12 +1,25 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { createEventDispatcher } from 'svelte';
 	
-	export let fields: FieldDefinition[] = [];
-	export let values: Record<string, any> = {};
-	export let errors: Record<string, string> = {};
-	export let readonly = false;
-	export let showLabels = true;
-	export let columns = 1;
+	interface Props {
+		fields?: FieldDefinition[];
+		values?: Record<string, any>;
+		errors?: Record<string, string>;
+		readonly?: boolean;
+		showLabels?: boolean;
+		columns?: number;
+	}
+
+	let {
+		fields = [],
+		values = $bindable({}),
+		errors = $bindable({}),
+		readonly = false,
+		showLabels = true,
+		columns = 1
+	}: Props = $props();
 	
 	const dispatch = createEventDispatcher();
 	
@@ -28,16 +41,18 @@
 	}
 	
 	// Group fields by group_name
-	$: groupedFields = fields.reduce((groups, field) => {
+	let groupedFields = $derived(fields.reduce((groups, field) => {
 		const group = field.group_name || 'Default';
 		if (!groups[group]) groups[group] = [];
 		groups[group].push(field);
 		return groups;
-	}, {} as Record<string, FieldDefinition[]>);
+	}, {} as Record<string, FieldDefinition[]>));
 	
 	// Sort fields within groups by display_order
-	$: Object.keys(groupedFields).forEach(group => {
-		groupedFields[group].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+	run(() => {
+		Object.keys(groupedFields).forEach(group => {
+			groupedFields[group].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+		});
 	});
 	
 	function handleChange(field: FieldDefinition, value: any) {
@@ -206,7 +221,7 @@
 									value={values[field.name] || field.default_value || ''}
 									placeholder={field.placeholder}
 									disabled={readonly || field.is_editable === false}
-									on:input={(e) => handleChange(field, e.currentTarget.value)}
+									oninput={(e) => handleChange(field, e.currentTarget.value)}
 									class="form-input"
 									class:error={errors[field.name]}
 								/>
@@ -222,7 +237,7 @@
 										value={values[field.name] || field.default_value || 0}
 										placeholder={field.placeholder}
 										disabled={readonly || field.is_editable === false}
-										on:input={(e) => handleChange(field, parseFloat(e.currentTarget.value))}
+										oninput={(e) => handleChange(field, parseFloat(e.currentTarget.value))}
 										class="form-input"
 										class:error={errors[field.name]}
 										step={field.field_type === 'currency' ? '0.01' : '1'}
@@ -240,7 +255,7 @@
 										type="checkbox"
 										checked={values[field.name] || field.default_value || false}
 										disabled={readonly || field.is_editable === false}
-										on:change={(e) => handleChange(field, e.currentTarget.checked)}
+										onchange={(e) => handleChange(field, e.currentTarget.checked)}
 										class="form-checkbox"
 									/>
 									<span>{field.placeholder || 'Yes'}</span>
@@ -252,7 +267,7 @@
 									type="date"
 									value={values[field.name] || field.default_value || ''}
 									disabled={readonly || field.is_editable === false}
-									on:change={(e) => handleChange(field, e.currentTarget.value)}
+									onchange={(e) => handleChange(field, e.currentTarget.value)}
 									class="form-input"
 									class:error={errors[field.name]}
 								/>
@@ -263,7 +278,7 @@
 									type="datetime-local"
 									value={values[field.name] || field.default_value || ''}
 									disabled={readonly || field.is_editable === false}
-									on:change={(e) => handleChange(field, e.currentTarget.value)}
+									onchange={(e) => handleChange(field, e.currentTarget.value)}
 									class="form-input"
 									class:error={errors[field.name]}
 								/>
@@ -273,7 +288,7 @@
 									id={field.name}
 									value={values[field.name] || field.default_value || ''}
 									disabled={readonly || field.is_editable === false}
-									on:change={(e) => handleChange(field, e.currentTarget.value)}
+									onchange={(e) => handleChange(field, e.currentTarget.value)}
 									class="form-select"
 									class:error={errors[field.name]}
 								>
@@ -294,7 +309,7 @@
 												value={option.value}
 												checked={(values[field.name] || []).includes(option.value)}
 												disabled={readonly || field.is_editable === false}
-												on:change={(e) => {
+												onchange={(e) => {
 													const current = values[field.name] || [];
 													const newValue = e.currentTarget.checked
 														? [...current, option.value]
@@ -318,7 +333,7 @@
 									value={values[field.name] || field.default_value || ''}
 									placeholder={field.placeholder}
 									disabled={readonly || field.is_editable === false}
-									on:input={(e) => handleChange(field, e.currentTarget.value)}
+									oninput={(e) => handleChange(field, e.currentTarget.value)}
 									class="form-textarea"
 									class:error={errors[field.name]}
 									rows="4"
@@ -330,7 +345,7 @@
 									type="color"
 									value={values[field.name] || field.default_value || '#000000'}
 									disabled={readonly || field.is_editable === false}
-									on:change={(e) => handleChange(field, e.currentTarget.value)}
+									onchange={(e) => handleChange(field, e.currentTarget.value)}
 									class="form-color"
 								/>
 								
@@ -342,7 +357,7 @@
 											class="rating-star"
 											class:filled={i < (values[field.name] || 0)}
 											disabled={readonly || field.is_editable === false}
-											on:click={() => handleChange(field, i + 1)}
+											onclick={() => handleChange(field, i + 1)}
 										>
 											★
 										</button>
@@ -354,7 +369,7 @@
 									id={field.name}
 									type="file"
 									disabled={readonly || field.is_editable === false}
-									on:change={(e) => {
+									onchange={(e) => {
 										const file = e.currentTarget.files?.[0];
 										if (file) {
 											handleChange(field, file);
@@ -492,7 +507,7 @@
 		border-radius: 0 6px 6px 0;
 	}
 	
-	.number-input .form-input:has(+ .suffix) {
+	.number-input .form-input:has(:global(+ .suffix)) {
 		border-radius: 6px 0 0 6px;
 	}
 	

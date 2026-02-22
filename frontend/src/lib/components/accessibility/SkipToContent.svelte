@@ -1,12 +1,17 @@
 <script lang="ts">
-	/**
+	
+	interface Props {
+		/**
 	 * Skip to Content Link (WS5-C2)
 	 * Provides keyboard-accessible skip links for screen reader users
 	 */
-	export let links: { href: string; label: string }[] = [
+		links?: { href: string; label: string }[];
+	}
+
+	let { links = [
 		{ href: '#main-content', label: 'Skip to main content' },
 		{ href: '#navigation', label: 'Skip to navigation' }
-	];
+	] }: Props = $props();
 </script>
 
 <div class="skip-links">

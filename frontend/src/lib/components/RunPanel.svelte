@@ -4,21 +4,28 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
 -->
 
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { onMount, onDestroy } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import { elasticOut } from 'svelte/easing';
   
-  // Props
-  export let conversationId: string;
-  export let autoRefresh: boolean = true;
-  export let showAdvanced: boolean = false;
+  
+  interface Props {
+    // Props
+    conversationId: string;
+    autoRefresh?: boolean;
+    showAdvanced?: boolean;
+  }
+
+  let { conversationId, autoRefresh = true, showAdvanced = false }: Props = $props();
   
   // State
-  let metrics: any = {};
-  let loading = false;
-  let error: string | null = null;
+  let metrics: any = $state({});
+  let loading = $state(false);
+  let error: string | null = $state(null);
   let refreshInterval: number | null = null;
-  let lastUpdate: Date | null = null;
+  let lastUpdate: Date | null = $state(null);
   
   // Types
   interface RunMetrics {
@@ -193,9 +200,11 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
   });
   
   // Reactive statements
-  $: if (conversationId) {
-    loadMetrics();
-  }
+  run(() => {
+    if (conversationId) {
+      loadMetrics();
+    }
+  });
 </script>
 
 <div class="run-panel-container">
@@ -210,7 +219,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
     
     <div class="panel-controls">
       <button 
-        on:click={loadMetrics}
+        onclick={loadMetrics}
         disabled={loading}
         class="btn-refresh"
         aria-label="Refresh metrics"
@@ -243,7 +252,7 @@ Include budget, tokens, errori, partecipanti e altre metriche operative
     <div class="error-state" transition:fade>
       <div class="error-icon">⚠️</div>
       <p class="error-message">{error}</p>
-      <button on:click={loadMetrics} class="btn-retry">
+      <button onclick={loadMetrics} class="btn-retry">
         Try Again
       </button>
     </div>

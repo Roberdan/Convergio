@@ -7,17 +7,17 @@
   import { createConnection, disconnectAll } from '$lib/services/websocket-manager';
   import { MessageQueue, Priority, getGlobalQueue } from '$lib/services/message-queue';
   
-  let activeTab = 'notifications';
-  let connections: any[] = [];
-  let connectionStats = {
+  let activeTab = $state('notifications');
+  let connections: any[] = $state([]);
+  let connectionStats = $state({
     total: 0,
     connected: 0,
     disconnected: 0,
     errors: 0
-  };
+  });
   
-  let messageQueue: MessageQueue;
-  let queueStats: any = {};
+  let messageQueue: MessageQueue = $state()!;
+  let queueStats: any = $state({});
   
   const tabs = [
     { id: 'notifications', label: '🔔 Notifications' },
@@ -226,7 +226,7 @@
         <button
           class="tab"
           class:active={activeTab === tab.id}
-          on:click={() => activeTab = tab.id}
+          onclick={() => activeTab = tab.id}
         >
           {tab.label}
         </button>
@@ -240,19 +240,19 @@
           <p>Test different types of notifications with various configurations</p>
           
           <div class="button-grid">
-            <button class="test-btn success" on:click={testSuccessNotification}>
+            <button class="test-btn success" onclick={testSuccessNotification}>
               ✅ Success Notification
             </button>
-            <button class="test-btn error" on:click={testErrorNotification}>
+            <button class="test-btn error" onclick={testErrorNotification}>
               ❌ Error Notification
             </button>
-            <button class="test-btn warning" on:click={testWarningNotification}>
+            <button class="test-btn warning" onclick={testWarningNotification}>
               ⚠️ Warning Notification
             </button>
-            <button class="test-btn info" on:click={testInfoNotification}>
+            <button class="test-btn info" onclick={testInfoNotification}>
               ℹ️ Info Notification
             </button>
-            <button class="test-btn progress" on:click={testProgressNotification}>
+            <button class="test-btn progress" onclick={testProgressNotification}>
               📊 Progress Notification
             </button>
           </div>
@@ -307,10 +307,10 @@
           </div>
           
           <div class="button-group">
-            <button class="test-btn primary" on:click={testMultipleConnections}>
+            <button class="test-btn primary" onclick={testMultipleConnections}>
               🔌 Create 5 Connections
             </button>
-            <button class="test-btn danger" on:click={disconnectAllConnections}>
+            <button class="test-btn danger" onclick={disconnectAllConnections}>
               ❌ Disconnect All
             </button>
           </div>
@@ -367,30 +367,30 @@
           </div>
           
           <div class="button-group">
-            <button class="test-btn" on:click={() => addTestMessage(Priority.LOW)}>
+            <button class="test-btn" onclick={() => addTestMessage(Priority.LOW)}>
               ➕ Add Low Priority
             </button>
-            <button class="test-btn" on:click={() => addTestMessage(Priority.NORMAL)}>
+            <button class="test-btn" onclick={() => addTestMessage(Priority.NORMAL)}>
               ➕ Add Normal Priority
             </button>
-            <button class="test-btn" on:click={() => addTestMessage(Priority.HIGH)}>
+            <button class="test-btn" onclick={() => addTestMessage(Priority.HIGH)}>
               ➕ Add High Priority
             </button>
-            <button class="test-btn primary" on:click={addBulkMessages}>
+            <button class="test-btn primary" onclick={addBulkMessages}>
               📦 Add 10 Messages
             </button>
-            <button class="test-btn" on:click={() => messageQueue.retryAllFailed()}>
+            <button class="test-btn" onclick={() => messageQueue.retryAllFailed()}>
               🔄 Retry Failed
             </button>
-            <button class="test-btn danger" on:click={() => messageQueue.clearQueue()}>
+            <button class="test-btn danger" onclick={() => messageQueue.clearQueue()}>
               🗑️ Clear Queue
             </button>
             {#if messageQueue?.isPaused()}
-              <button class="test-btn success" on:click={() => messageQueue.resume()}>
+              <button class="test-btn success" onclick={() => messageQueue.resume()}>
                 ▶️ Resume Processing
               </button>
             {:else}
-              <button class="test-btn warning" on:click={() => messageQueue.pause()}>
+              <button class="test-btn warning" onclick={() => messageQueue.pause()}>
                 ⏸️ Pause Processing
               </button>
             {/if}

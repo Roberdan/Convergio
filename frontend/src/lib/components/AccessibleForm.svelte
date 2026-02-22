@@ -1,10 +1,21 @@
 <script lang="ts">
-  export let title: string;
-  export let description = '';
-  export let ariaLabelledBy = '';
-  export let ariaDescribedBy = '';
+  interface Props {
+    title: string;
+    description?: string;
+    ariaLabelledBy?: string;
+    ariaDescribedBy?: string;
+    children?: import('svelte').Snippet;
+  }
 
-  let formElement: HTMLFormElement;
+  let {
+    title,
+    description = '',
+    ariaLabelledBy = '',
+    ariaDescribedBy = '',
+    children
+  }: Props = $props();
+
+  let formElement: HTMLFormElement = $state()!;
   
   function handleSubmit() {
     // Announce form submission to screen readers
@@ -34,9 +45,9 @@
     class="accessible-form"
     aria-labelledby={ariaLabelledBy || "form-title"}
     aria-describedby={ariaDescribedBy || (description ? "form-description" : undefined)}
-  on:submit={handleSubmit}
+  onsubmit={handleSubmit}
   >
-    <slot />
+    {@render children?.()}
   </form>
 
   <!-- Live region for dynamic announcements -->

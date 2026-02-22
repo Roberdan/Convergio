@@ -31,13 +31,13 @@
 	}
 
 	// State
-	let metrics: ProjectMetrics | null = null;
-	let velocityData: TimeSeriesData[] = [];
+	let metrics: ProjectMetrics | null = $state(null);
+	let velocityData: TimeSeriesData[] = $state([]);
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in template
 	let burndownData: TimeSeriesData[] = [];
-	let teamPerformance: TeamMember[] = [];
-	let loading = false;
-	let selectedMetric = 'overview';
+	let teamPerformance: TeamMember[] = $state([]);
+	let loading = $state(false);
+	let selectedMetric = $state('overview');
 
 	// Mock data for demonstration
 	const mockMetrics: ProjectMetrics = {

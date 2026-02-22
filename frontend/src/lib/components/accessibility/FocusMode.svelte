@@ -25,7 +25,7 @@
 				<input
 					type="checkbox"
 					checked={$accessibilityStore.focusModeEnabled}
-					on:change={() => accessibilityStore.updateSetting('focusModeEnabled', !$accessibilityStore.focusModeEnabled)}
+					onchange={() => accessibilityStore.updateSetting('focusModeEnabled', !$accessibilityStore.focusModeEnabled)}
 					class="sr-only peer"
 				/>
 				<div class="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
@@ -46,7 +46,7 @@
 			<input
 				type="checkbox"
 				checked={$accessibilityStore.showProgressBars}
-				on:change={() => accessibilityStore.updateSetting('showProgressBars', !$accessibilityStore.showProgressBars)}
+				onchange={() => accessibilityStore.updateSetting('showProgressBars', !$accessibilityStore.showProgressBars)}
 				class="h-4 w-4 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
 			/>
 		</label>
@@ -60,7 +60,7 @@
 			<input
 				type="checkbox"
 				checked={$accessibilityStore.microCelebrations}
-				on:change={() => accessibilityStore.updateSetting('microCelebrations', !$accessibilityStore.microCelebrations)}
+				onchange={() => accessibilityStore.updateSetting('microCelebrations', !$accessibilityStore.microCelebrations)}
 				class="h-4 w-4 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
 			/>
 		</label>
@@ -75,7 +75,7 @@
 				<input
 					type="checkbox"
 					checked={$accessibilityStore.breakReminders}
-					on:change={() => accessibilityStore.updateSetting('breakReminders', !$accessibilityStore.breakReminders)}
+					onchange={() => accessibilityStore.updateSetting('breakReminders', !$accessibilityStore.breakReminders)}
 					class="h-4 w-4 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
 				/>
 			</label>
@@ -93,7 +93,7 @@
 						max="60"
 						step="5"
 						value={$accessibilityStore.breakIntervalMinutes}
-						on:input={handleBreakIntervalChange}
+						oninput={handleBreakIntervalChange}
 						class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer"
 					/>
 				</div>
@@ -115,7 +115,7 @@
 				max="10"
 				step="1"
 				value={$accessibilityStore.maxBulletPoints}
-				on:input={(e) => accessibilityStore.updateSetting('maxBulletPoints', parseInt((e.target as HTMLInputElement).value))}
+				oninput={(e) => accessibilityStore.updateSetting('maxBulletPoints', parseInt((e.target as HTMLInputElement).value))}
 				class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer"
 			/>
 			<p class="text-xs text-surface-500 mt-1">Recommended: 4 points max for ADHD support</p>

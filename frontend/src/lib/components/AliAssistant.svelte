@@ -1,20 +1,22 @@
 <script lang="ts">
+  import { run, preventDefault } from 'svelte/legacy';
+
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import MarkdownRenderer from './MarkdownRenderer.svelte';
   import '../styles/ali-breathing.css';
 
   // Ali state
-  let isOpen = false;
-  let isMinimized = false;
-  let isTyping = false;
+  let isOpen = $state(false);
+  let isMinimized = $state(false);
+  let isTyping = $state(false);
   let isProactive = true;
 
   // Messages - start empty, Ali will respond intelligently when asked
-  let messages: any[] = [];
-  let messagesContainer: HTMLElement;
+  let messages: any[] = $state([]);
+  let messagesContainer: HTMLElement = $state()!;
   
-  let newMessage = '';
+  let newMessage = $state('');
 
   // Auto-scroll function
   function scrollToBottom() {
@@ -29,9 +31,11 @@
   }
 
   // Watch messages changes to auto-scroll
-  $: if (messages.length > 0) {
-    scrollToBottom();
-  }
+  run(() => {
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
+  });
 
   onMount(async () => {
     startProactiveMode();
@@ -216,21 +220,21 @@
         </div>
         <div class="flex items-center space-x-1">
           <button 
-            on:click={minimize}
+            onclick={minimize}
             class="p-1 hover:bg-surface-200 rounded text-surface-500"
             aria-label="Minimize Ali chat window"
           >
             <img src="/convergio_icons/minimize.svg" alt="" class="h-3 w-3" />
           </button>
           <button 
-            on:click={openFullChat}
+            onclick={openFullChat}
             class="p-1 hover:bg-surface-200 rounded text-surface-500"
             aria-label="Open full chat interface"
           >
             <img src="/convergio_icons/expand.svg" alt="" class="h-3 w-3" />
           </button>
           <button 
-            on:click={toggleOpen}
+            onclick={toggleOpen}
             class="p-1 hover:bg-surface-200 rounded text-surface-500"
             aria-label="Close Ali chat window"
           >
@@ -289,13 +293,13 @@
 
       <!-- Input -->
       <div class="p-3 border-t border-surface-200">
-        <form on:submit|preventDefault={sendMessage}>
+        <form onsubmit={preventDefault(sendMessage)}>
           <label for="ali-message-input" class="sr-only">Message for Ali</label>
           <div class="flex space-x-2">
             <textarea
               id="ali-message-input"
               bind:value={newMessage}
-              on:keydown={handleKeyPress}
+              onkeydown={handleKeyPress}
               placeholder="Ask Ali for strategic insights..."
               class="flex-1 p-2 text-xs border border-surface-300 rounded resize-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
               rows="1"
@@ -303,7 +307,7 @@
             ></textarea>
             <button
               type="submit"
-              on:click={sendMessage}
+              onclick={sendMessage}
               disabled={!newMessage.trim() || isTyping}
               class="px-2 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-surface-600 text-white rounded transition-colors disabled:cursor-not-allowed"
               aria-label="Send message to Ali"
@@ -320,7 +324,7 @@
   {#if isMinimized}
     <!-- Minimized State -->
     <button
-      on:click={toggleOpen}
+      onclick={toggleOpen}
       class="bg-gray-900 hover:bg-gray-800 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg mb-4 transition-colors"
       aria-label="Expand Ali chat - Your AI Chief of Staff"
     >
@@ -341,7 +345,7 @@
   {#if !isOpen && !isMinimized}
     <!-- Ali Toggle Button -->
     <button
-      on:click={toggleOpen}
+      onclick={toggleOpen}
       class="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-105"
       aria-label="Open Ali chat - Your AI Chief of Staff"
     >

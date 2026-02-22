@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### W2: Framework Upgrades (Agent Framework + Svelte 5)
+- Changed: Upgraded agent-framework to 1.0 RC (AgentThread→AgentSession)
+- Changed: Migrated 126 Svelte components to Svelte 5 syntax ($props, $derived, onclick)
+- Fixed: TypeScript compilation errors from Svelte 5 migration
+- Fixed: Removed 8 deprecated SvelteKit config options
+
 ### W1: Database Schema & Prisma Migration
 
 - Added: Prisma ORM with full database schema (Tier, Team, Invite, Session, etc.)

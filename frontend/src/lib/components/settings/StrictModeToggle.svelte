@@ -1,9 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
-  export let enabled: boolean = false;
-  export let currentMode: string = 'ollama_only';
-  export let disabled: boolean = false;
+  interface Props {
+    enabled?: boolean;
+    currentMode?: string;
+    disabled?: boolean;
+  }
+
+  let { enabled = $bindable(false), currentMode = 'ollama_only', disabled = false }: Props = $props();
 
   const dispatch = createEventDispatcher();
 
@@ -13,8 +17,8 @@
     dispatch('change', { enabled });
   }
 
-  $: isRelevant = currentMode === 'ollama_only' || currentMode === 'azure_only';
-  $: modeLabel = currentMode === 'ollama_only' ? 'Ollama' : currentMode === 'azure_only' ? 'Azure' : 'selected provider';
+  let isRelevant = $derived(currentMode === 'ollama_only' || currentMode === 'azure_only');
+  let modeLabel = $derived(currentMode === 'ollama_only' ? 'Ollama' : currentMode === 'azure_only' ? 'Azure' : 'selected provider');
 </script>
 
 <div class="p-4 border rounded-lg {enabled ? 'border-red-200 bg-red-50' : 'border-surface-200 bg-white'}">
@@ -46,7 +50,7 @@
     </div>
 
     <button
-      on:click={toggle}
+      onclick={toggle}
       disabled={disabled}
       class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 {enabled ? 'bg-red-600 focus:ring-red-500' : 'bg-surface-200 focus:ring-gray-500'} {disabled ? 'opacity-50 cursor-not-allowed' : ''}"
       role="switch"

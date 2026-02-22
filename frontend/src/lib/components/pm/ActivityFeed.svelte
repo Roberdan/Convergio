@@ -2,14 +2,19 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { pmRealtimeService, type PMRealtimeEvent } from '$lib/services/pmRealtimeService';
 
-	// Props
-	export let projectId: string;
-	export let compact: boolean = false;
+	
+	interface Props {
+		// Props
+		projectId: string;
+		compact?: boolean;
+	}
+
+	let { projectId, compact = false }: Props = $props();
 
 	// State
-	let activityFeed: PMRealtimeEvent[] = [];
-	let connectionStatus: string = 'disconnected';
-	let showAll = false;
+	let activityFeed: PMRealtimeEvent[] = $state([]);
+	let connectionStatus: string = $state('disconnected');
+	let showAll = $state(false);
 	let unsubscribes: (() => void)[] = [];
 
 	onMount(async () => {
@@ -144,7 +149,7 @@
 		}
 	}
 
-	$: displayedEvents = compact ? activityFeed.slice(0, 5) : showAll ? activityFeed : activityFeed.slice(0, 10);
+	let displayedEvents = $derived(compact ? activityFeed.slice(0, 5) : showAll ? activityFeed : activityFeed.slice(0, 10));
 </script>
 
 <div class="activity-feed bg-white rounded-xl shadow-sm border border-surface-200  overflow-hidden">
@@ -168,14 +173,14 @@
 			{#if !compact}
 				<div class="flex items-center space-x-2">
 					<button 
-						on:click={() => pmRealtimeService.clearHistory()}
+						onclick={() => pmRealtimeService.clearHistory()}
 						class="btn-secondary btn-sm"
 					>
 						Clear
 					</button>
 					{#if activityFeed.length > 10}
 						<button 
-							on:click={() => showAll = !showAll}
+							onclick={() => showAll = !showAll}
 							class="btn-secondary btn-sm"
 						>
 							{showAll ? 'Show Less' : `Show All (${activityFeed.length})`}

@@ -2,17 +2,29 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 
-	interface $$Props {
+	
+
+	interface Props {
 		sidebarCollapsed?: boolean;
 		showMobileOverlay?: boolean;
 		fixedHeader?: boolean;
 		maxWidth?: 'full' | 'wide' | 'narrow';
+		sidebar?: import('svelte').Snippet;
+		header?: import('svelte').Snippet;
+		children?: import('svelte').Snippet;
+		footer?: import('svelte').Snippet;
 	}
 
-	export let sidebarCollapsed: $$Props['sidebarCollapsed'] = false;
-	export let showMobileOverlay: $$Props['showMobileOverlay'] = false; 
-	export let fixedHeader: $$Props['fixedHeader'] = true;
-	export let maxWidth: NonNullable<$$Props['maxWidth']> = 'full';
+	let {
+		sidebarCollapsed = $bindable(false),
+		showMobileOverlay = $bindable(false),
+		fixedHeader = true,
+		maxWidth = 'full',
+		sidebar,
+		header,
+		children,
+		footer
+	}: Props = $props();
 
 	// Create stores for responsive behavior
 	const isMobile = writable(false);
@@ -39,31 +51,31 @@
 	}
 
 	// Compute container classes
-	$: containerClasses = {
+	let containerClasses = $derived({
 		full: 'container-wide',
 		wide: 'container-wide', 
 		narrow: 'container-narrow'
-	};
+	});
 
-	$: mainClasses = [
+	let mainClasses = $derived([
 		'dashboard-main',
 		sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded',
 		fixedHeader ? 'fixed-header' : ''
-	].filter(Boolean).join(' ');
+	].filter(Boolean).join(' '));
 </script>
 
 <div class="dashboard-layout">
 	<!-- Sidebar -->
 	<aside class="dashboard-sidebar" class:collapsed={sidebarCollapsed} class:mobile-open={showMobileOverlay}>
-		<slot name="sidebar" />
+		{@render sidebar?.()}
 	</aside>
 
 	<!-- Mobile overlay -->
 	{#if showMobileOverlay}
 		<div 
 			class="mobile-overlay" 
-			on:click={closeMobileSidebar}
-			on:keydown={(e) => e.key === 'Escape' && closeMobileSidebar()}
+			onclick={closeMobileSidebar}
+			onkeydown={(e) => e.key === 'Escape' && closeMobileSidebar()}
 			role="button"
 			tabindex="0"
 			aria-label="Close sidebar"
@@ -73,21 +85,21 @@
 	<!-- Main content area -->
 	<div class={mainClasses}>
 		<!-- Header -->
-		{#if $$slots.header}
+		{#if header}
 			<header class="dashboard-header" class:fixed={fixedHeader}>
-				<slot name="header" />
+				{@render header?.()}
 			</header>
 		{/if}
 
 		<!-- Page content -->
 		<main class="dashboard-content {containerClasses[maxWidth]}">
-			<slot />
+			{@render children?.()}
 		</main>
 
 		<!-- Footer -->
-		{#if $$slots.footer}
+		{#if footer}
 			<footer class="dashboard-footer">
-				<slot name="footer" />
+				{@render footer?.()}
 			</footer>
 		{/if}
 	</div>

@@ -2,8 +2,12 @@
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
   
-  export let userId: string = '';
-  export let onApproval: (_approvalId: string, _decision: ApprovalDecision) => void = () => {};
+  interface Props {
+    userId?: string;
+    onApproval?: (_approvalId: string, _decision: ApprovalDecision) => void;
+  }
+
+  let { userId = '', onApproval = () => {} }: Props = $props();
   
   interface ApprovalRequest {
     id: string;
@@ -36,21 +40,21 @@
   }
   
   let approvals = writable<ApprovalRequest[]>([]);
-  let selectedApproval: ApprovalRequest | null = null;
-  let stats: ApprovalStats = {
+  let selectedApproval: ApprovalRequest | null = $state(null);
+  let stats: ApprovalStats = $state({
     pending: 0,
     approved: 0,
     rejected: 0,
     avgResponseTime: 0
-  };
+  });
   
-  let decisionReason = '';
-  let modifiedAction = '';
-  let filter: 'all' | 'pending' | 'completed' = 'pending';
-  let searchQuery = '';
+  let decisionReason = $state('');
+  let modifiedAction = $state('');
+  let filter: 'all' | 'pending' | 'completed' = $state('pending');
+  let searchQuery = $state('');
   let ws: WebSocket | null = null;
-  let isConnected = false;
-  let autoApproveEnabled = false;
+  let isConnected = $state(false);
+  let autoApproveEnabled = $state(false);
   let autoApproveRules: Array<{pattern: string, action: 'approve' | 'reject'}> = [];
   
   const riskColors = {
@@ -304,21 +308,21 @@
       <button
         class="filter-btn"
         class:active={filter === 'all'}
-        on:click={() => filter = 'all'}
+        onclick={() => filter = 'all'}
       >
         All
       </button>
       <button
         class="filter-btn"
         class:active={filter === 'pending'}
-        on:click={() => filter = 'pending'}
+        onclick={() => filter = 'pending'}
       >
         Pending ({stats.pending})
       </button>
       <button
         class="filter-btn"
         class:active={filter === 'completed'}
-        on:click={() => filter = 'completed'}
+        onclick={() => filter = 'completed'}
       >
         Completed
       </button>
@@ -346,8 +350,8 @@
           class:expired={approval.status === 'expired'}
           role="button"
           tabindex="0"
-          on:click={() => selectedApproval = approval}
-          on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && (selectedApproval = approval)}
+          onclick={() => selectedApproval = approval}
+          onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (selectedApproval = approval)}
         >
           <div class="approval-header">
             <div class="approval-agent">
@@ -479,13 +483,13 @@
             <div class="decision-actions">
               <button
                 class="btn btn-reject"
-                on:click={() => selectedApproval && handleDecision(selectedApproval.id, false)}
+                onclick={() => selectedApproval && handleDecision(selectedApproval.id, false)}
               >
                 ❌ Reject
               </button>
               <button
                 class="btn btn-approve"
-                on:click={() => selectedApproval && handleDecision(selectedApproval.id, true)}
+                onclick={() => selectedApproval && handleDecision(selectedApproval.id, true)}
               >
                 ✅ Approve
               </button>

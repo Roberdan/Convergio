@@ -2,11 +2,11 @@
   import { onMount } from 'svelte';
   import { projectsService, type ProjectOverview, type EngagementDetail } from '$lib/services/projectsService';
 
-  let projectOverview: ProjectOverview | null = null;
-  let selectedEngagement: EngagementDetail | null = null;
-  let loading = true;
-  let error: string | null = null;
-  let loadingDetails = false;
+  let projectOverview: ProjectOverview | null = $state(null);
+  let selectedEngagement: EngagementDetail | null = $state(null);
+  let loading = $state(true);
+  let error: string | null = $state(null);
+  let loadingDetails = $state(false);
 
   function getStatusColor(status: string): string {
     switch (status) {
@@ -58,7 +58,7 @@
     <div class="flex items-center justify-between">
       <h3 class="text-sm font-medium text-surface-900">Projects & Activities</h3>
       <button 
-        on:click={loadData}
+        onclick={loadData}
         class="text-xs text-surface-500 hover:text-surface-600 flex items-center space-x-1"
         aria-label="Refresh projects overview"
       >
@@ -92,7 +92,7 @@
       <div class="p-6 text-center text-red-600">
         <p>{error}</p>
         <button 
-          on:click={loadData}
+          onclick={loadData}
           class="mt-2 text-sm text-blue-600 hover:text-blue-800"
         >
           Try again
@@ -131,7 +131,7 @@
               {#each projectOverview.recent_engagements.slice(0, 5) as engagement}
                 <button 
                   class="w-full flex items-center justify-between p-3 bg-surface-50 rounded hover:bg-surface-100 transition-colors"
-                  on:click={() => showEngagementDetails(engagement.id)}
+                  onclick={() => showEngagementDetails(engagement.id)}
                 >
                   <div class="flex items-center space-x-3">
                     <div class="w-2 h-2 rounded-full {getStatusColor(engagement.status).split(' ')[0].replace('text-', 'bg-')}"></div>
@@ -203,7 +203,7 @@
             </span>
           </div>
           <button 
-            on:click={closeDetails}
+            onclick={closeDetails}
             class="text-surface-600 hover:text-surface-300"
             aria-label="Close details"
           >

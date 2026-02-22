@@ -2,8 +2,12 @@
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
 
-  export let agentName: string = '';
-  export let showDetails: boolean = false;
+  interface Props {
+    agentName?: string;
+    showDetails?: boolean;
+  }
+
+  let { agentName = '', showDetails = false }: Props = $props();
 
   // Health states
   type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'checking';

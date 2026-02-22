@@ -4,8 +4,12 @@
   import { Card, Badge, Button } from '$lib/components/ui';
   import { slide, scale } from 'svelte/transition';
 
-  export let agentAssignments: any[] = [];
-  export let orchestrationId: string = '550e8400-e29b-41d4-a716-446655440000'; // Default UUID format
+  interface Props {
+    agentAssignments?: any[];
+    orchestrationId?: string; // Default UUID format
+  }
+
+  let { agentAssignments = [], orchestrationId = '550e8400-e29b-41d4-a716-446655440000' }: Props = $props();
   
   interface AgentAssignment {
     agent_name: string;
@@ -20,12 +24,12 @@
     last_active?: string;
   }
   
-  let selectedAgent: string | null = null;
+  let selectedAgent: string | null = $state(null);
   let collaborationMatrix: Record<string, Record<string, number>> = {};
   let realTimeAgentStatus = writable<Record<string, any>>({});
-  let showPerformanceDetails = false;
-  let sortBy: 'efficiency' | 'collaboration' | 'cost' | 'tasks' = 'efficiency';
-  let filterRole: string = 'all';
+  let showPerformanceDetails = $state(false);
+  let sortBy: 'efficiency' | 'collaboration' | 'cost' | 'tasks' = $state('efficiency');
+  let filterRole: string = $state('all');
   
   // Agent avatars and colors
   const agentProfiles: Record<string, { avatar: string; color: string; title: string }> = {
@@ -204,8 +208,8 @@
     }
   }
   
-  $: filteredAndSortedAgents = sortAgents(filterAgents(agentAssignments, filterRole), sortBy);
-  $: currentStatus = $realTimeAgentStatus as Record<string, any>;
+  let filteredAndSortedAgents = $derived(sortAgents(filterAgents(agentAssignments, filterRole), sortBy));
+  let currentStatus = $derived($realTimeAgentStatus as Record<string, any>);
 </script>
 
 <!-- Agent Collaboration Panel -->
@@ -425,7 +429,7 @@
           
           <!-- Action Button -->
           <button
-            on:click={() => selectedAgent = selectedAgent === agent.agent_name ? null : agent.agent_name}
+            onclick={() => selectedAgent = selectedAgent === agent.agent_name ? null : agent.agent_name}
             class="w-full mt-3 py-2 text-xs font-medium text-surface-700  
                    hover:text-surface-900 transition-colors duration-200"
           >
@@ -446,7 +450,7 @@
               🔗 {selectedAgent} Collaboration Matrix
             </h4>
             <button
-              on:click={() => selectedAgent = null}
+              onclick={() => selectedAgent = null}
               class="text-surface-400 hover:text-surface-600"
             >
               ✕

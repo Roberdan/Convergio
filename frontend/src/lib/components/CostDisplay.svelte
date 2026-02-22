@@ -54,7 +54,7 @@
     last_updated: ''
   });
 
-  let showDetails = false;
+  let showDetails = $state(false);
   let updateInterval: ReturnType<typeof setInterval> | null = null;
 
   async function fetchCostData() {
@@ -137,7 +137,7 @@
 <div class="relative">
   <!-- Main Cost Display Button -->
   <button
-    on:click={() => showDetails = !showDetails}
+    onclick={() => showDetails = !showDetails}
     class="flex items-start space-x-2 px-4 py-2 bg-surface-50 rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-sm"
     title="Click to toggle detailed cost breakdown"
   >
@@ -326,7 +326,7 @@
           Updated: {$costData.last_updated ? new Date($costData.last_updated + (($costData.last_updated.includes('Z') || $costData.last_updated.includes('+')) ? '' : 'Z')).toLocaleTimeString() : 'N/A'}
         </span>
         <button 
-          on:click={fetchCostData}
+          onclick={fetchCostData}
           class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded transition-colors"
         >
           Refresh
@@ -352,7 +352,7 @@
     role="button"
     tabindex="-1"
     aria-label="Close cost details"
-    on:click={() => showDetails = false}
-    on:keydown={(e) => e.key === 'Escape' && (showDetails = false)}
+    onclick={() => showDetails = false}
+    onkeydown={(e) => e.key === 'Escape' && (showDetails = false)}
   ></div>
 {/if}

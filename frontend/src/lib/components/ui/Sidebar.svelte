@@ -16,7 +16,9 @@
 		disabled?: boolean;
 	}
 
-	interface $$Props {
+	
+
+	interface Props {
 		collapsed?: boolean;
 		menuItems?: MenuItem[];
 		userInfo?: {
@@ -31,26 +33,30 @@
 			name: string;
 			logo?: string;
 		};
+		footer?: import('svelte').Snippet;
 	}
 
-	export let collapsed: $$Props['collapsed'] = false;
-	export let menuItems: $$Props['menuItems'] = [];
-	export let userInfo: $$Props['userInfo'] = {
+	let {
+		collapsed = false,
+		menuItems = [],
+		userInfo = {
 		name: 'User Name',
 		email: 'user@example.com'
-	};
-	export let showUserInfo: $$Props['showUserInfo'] = true;
-	export let showFooter: $$Props['showFooter'] = true;
-	export let brand: $$Props['brand'] = {
+	},
+		showUserInfo = true,
+		showFooter = true,
+		brand = {
 		name: 'Convergio'
-	};
+	},
+		footer
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		'menu-click': { item: MenuItem };
 		'user-click': void;
 	}>();
 
-	let expandedGroups = new Set<string>();
+	let expandedGroups = $state(new Set<string>());
 
 	function handleMenuClick(item: MenuItem) {
 		if (item.disabled) return;
@@ -116,7 +122,7 @@
 		}
 	];
 
-	$: items = (menuItems?.length ?? 0) > 0 ? (menuItems ?? []) : defaultMenuItems;
+	let items = $derived((menuItems?.length ?? 0) > 0 ? (menuItems ?? []) : defaultMenuItems);
 </script>
 
 <div class="sidebar" class:collapsed>
@@ -147,7 +153,7 @@
 							class="nav-link nav-group"
 							class:active={item.active}
 							class:disabled={item.disabled}
-							on:click={() => handleMenuClick(item)}
+							onclick={() => handleMenuClick(item)}
 							aria-expanded={expandedGroups.has(item.id)}
 							aria-controls="group-{item.id}"
 						>
@@ -177,7 +183,7 @@
 											class="nav-link nav-child"
 											class:active={child.active}
 											class:disabled={child.disabled}
-											on:click={() => handleMenuClick(child)}
+											onclick={() => handleMenuClick(child)}
 										>
 											<span class="nav-icon icon-{child.icon}" aria-hidden="true"></span>
 											<span class="nav-label">{child.label}</span>
@@ -198,7 +204,7 @@
 							class="nav-link"
 							class:active={item.active}
 							class:disabled={item.disabled}
-							on:click={() => handleMenuClick(item)}
+							onclick={() => handleMenuClick(item)}
 						>
 							<span class="nav-icon icon-{item.icon}" aria-hidden="true"></span>
 							{#if !collapsed}
@@ -222,7 +228,7 @@
 			<button
 				type="button"
 				class="user-info-button"
-				on:click={handleUserClick}
+				onclick={handleUserClick}
 				aria-label="User profile"
 			>
 				<Avatar
@@ -246,9 +252,9 @@
 	<!-- Footer -->
 	{#if showFooter && !collapsed}
 		<div class="sidebar-footer">
-			<slot name="footer">
+			{#if footer}{@render footer()}{:else}
 				<p class="footer-text">© 2024 Convergio</p>
-			</slot>
+			{/if}
 		</div>
 	{/if}
 </div>

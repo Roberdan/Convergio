@@ -33,15 +33,19 @@
   
   export const projectId: string = '';
   export const userId: string = '';
-  export let position: 'right' | 'left' = 'right';
-  export let expanded: boolean = true;
+  interface Props {
+    position?: 'right' | 'left';
+    expanded?: boolean;
+  }
+
+  let { position = 'right', expanded = $bindable(true) }: Props = $props();
   
   let suggestions = writable<Suggestion[]>([]);
   let metrics = writable<Metric[]>([]);
-  let loading = false;
-  let filterType = 'all';
-  let showDismissed = false;
-  let autoRefresh = true;
+  let loading = $state(false);
+  let filterType = $state('all');
+  let showDismissed = $state(false);
+  let autoRefresh = $state(true);
   let refreshInterval: ReturnType<typeof setInterval> | undefined;
   
   onMount(() => {
@@ -301,13 +305,13 @@
     return `${Math.floor(seconds / 86400)} days ago`;
   }
   
-  $: filteredSuggestions = $suggestions.filter(s => {
+  let filteredSuggestions = $derived($suggestions.filter(s => {
     const matchesType = filterType === 'all' || s.type === filterType;
     const matchesVisibility = showDismissed || !s.dismissed;
     return matchesType && matchesVisibility && !s.applied;
-  });
+  }));
   
-  $: activeSuggestions = $suggestions.filter(s => !s.dismissed && !s.applied);
+  let activeSuggestions = $derived($suggestions.filter(s => !s.dismissed && !s.applied));
 </script>
 
 <div class="ali-coach-panel {position === 'left' ? 'left-0' : 'right-0'} {expanded ? 'expanded' : 'collapsed'}">
@@ -323,7 +327,7 @@
           </div>
         </div>
         <button
-          on:click={() => expanded = !expanded}
+          onclick={() => expanded = !expanded}
           class="p-1 hover:bg-surface-100 rounded"
           aria-label={expanded ? 'Collapse panel' : 'Expand panel'}
         >
@@ -428,7 +432,7 @@
                 <div class="flex gap-2 mt-2">
                   {#each suggestion.actions as action}
                     <button
-                      on:click={action.handler}
+                      onclick={action.handler}
                       class="px-3 py-1 text-xs rounded transition-colors
                              {action.type === 'primary' ? 'bg-blue-600 text-white hover:bg-blue-700' :
                               action.type === 'danger' ? 'bg-red-600 text-white hover:bg-red-700' :
@@ -454,7 +458,7 @@
         <div class="flex items-center justify-between text-xs text-surface-600">
           <span>{activeSuggestions.length} active suggestions</span>
           <button
-            on:click={loadSuggestions}
+            onclick={loadSuggestions}
             class="text-blue-600 hover:text-blue-800"
           >
             Refresh

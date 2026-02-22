@@ -2,8 +2,12 @@
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   
-  export let projectId: string = '';
-  export let timeRange: string = '30d';
+  interface Props {
+    projectId?: string;
+    timeRange?: string;
+  }
+
+  let { projectId = '', timeRange = $bindable('30d') }: Props = $props();
 
   interface MetricValue {
     value: number;
@@ -18,11 +22,11 @@
     throughput?: number;
   }
 
-  let selectedMetric = 'overview';
+  let selectedMetric = $state('overview');
   let realTimeData = writable<RealTimeData>({});
-  let chartData: any = {};
-  let kpiMetrics: any = {};
-  let aiInsights: any[] = [];
+  let chartData: any = $state({});
+  let kpiMetrics: any = $state({});
+  let aiInsights: any[] = $state([]);
   
   // Mock KPI data with AI insights
   const mockKPIMetrics = {
@@ -258,7 +262,7 @@
     }
   }
   
-  $: currentMetrics = kpiMetrics[selectedMetric] || {};
+  let currentMetrics = $derived(kpiMetrics[selectedMetric] || {});
 </script>
 
 <div class="analytics-container">
@@ -276,7 +280,7 @@
       <div class="header-controls">
         <!-- Time Range Selector -->
         <div class="control-group">
-          <select bind:value={timeRange} on:change={loadAnalyticsData} class="input-field">
+          <select bind:value={timeRange} onchange={loadAnalyticsData} class="input-field">
             <option value="7d">Last 7 Days</option>
             <option value="30d">Last 30 Days</option>
             <option value="90d">Last 3 Months</option>
@@ -288,19 +292,19 @@
         <div class="metric-tabs">
           <button 
             class="btn-secondary {selectedMetric === 'overview' ? 'btn-primary' : ''}"
-            on:click={() => selectedMetric = 'overview'}
+            onclick={() => selectedMetric = 'overview'}
           >
             Overview
           </button>
           <button 
             class="btn-secondary {selectedMetric === 'performance' ? 'btn-primary' : ''}"
-            on:click={() => selectedMetric = 'performance'}
+            onclick={() => selectedMetric = 'performance'}
           >
             Performance
           </button>
           <button 
             class="btn-secondary {selectedMetric === 'business' ? 'btn-primary' : ''}"
-            on:click={() => selectedMetric = 'business'}
+            onclick={() => selectedMetric = 'business'}
           >
             Business
           </button>
@@ -359,7 +363,7 @@
               <span class="body-xs text-muted">by {insight.agent}</span>
               <button 
                 class="btn-primary btn-sm"
-                on:click={() => implementRecommendation(insight)}
+                onclick={() => implementRecommendation(insight)}
               >
                 Implement
               </button>

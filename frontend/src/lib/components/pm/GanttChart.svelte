@@ -1,9 +1,17 @@
 <script lang="ts">
+	import { createBubbler, stopPropagation } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { onMount } from 'svelte';
 	import { projectsService } from '$lib/services/projectsService';
 
-	// Props
-	export let projectId: string;
+	
+	interface Props {
+		// Props
+		projectId: string;
+	}
+
+	let { projectId }: Props = $props();
 
 	// Interfaces
 	interface Task {
@@ -24,11 +32,11 @@
 	}
 
 	// State
-	let tasks: Task[] = [];
-	let timeline: TimelineScale = { weeks: [], months: [] };
-	let loading = false;
-	let selectedTask: Task | null = null;
-	let viewMode: 'weeks' | 'months' = 'weeks';
+	let tasks: Task[] = $state([]);
+	let timeline: TimelineScale = $state({ weeks: [], months: [] });
+	let loading = $state(false);
+	let selectedTask: Task | null = $state(null);
+	let viewMode: 'weeks' | 'months' = $state('weeks');
 
 	onMount(async () => {
 		await loadTasks();
@@ -166,7 +174,7 @@
 			<div class="flex items-center space-x-3">
 				<div class="flex bg-surface-200  rounded-lg p-1">
 					<button
-						on:click={() => viewMode = 'weeks'}
+						onclick={() => viewMode = 'weeks'}
 						class="px-3 py-1 rounded text-xs font-medium transition-colors duration-200 {viewMode === 'weeks' 
 							? 'bg-white text-surface-900  shadow-sm' 
 							: 'text-surface-600 '}"
@@ -174,7 +182,7 @@
 						Weeks
 					</button>
 					<button
-						on:click={() => viewMode = 'months'}
+						onclick={() => viewMode = 'months'}
 						class="px-3 py-1 rounded text-xs font-medium transition-colors duration-200 {viewMode === 'months' 
 							? 'bg-white text-surface-900  shadow-sm' 
 							: 'text-surface-600 '}"
@@ -256,7 +264,7 @@
 								<button 
 									class="absolute top-1 h-4 rounded-md {getStatusColor(task.status)} opacity-80 hover:opacity-100 transition-opacity duration-200 w-full cursor-pointer border-0 p-0"
 									style="left: {getTaskPosition(task).left}; width: {getTaskPosition(task).width}"
-									on:click={() => selectedTask = task}
+									onclick={() => selectedTask = task}
 									aria-label="View details for task: {task.name}"
 									title="Click to view task details"
 								>
@@ -282,11 +290,11 @@
 
 <!-- Task Detail Modal -->
 {#if selectedTask}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="button" tabindex="0" on:click={() => selectedTask = null} on:keydown={(e) => e.key === 'Escape' && (selectedTask = null)}>
-		<div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6" role="dialog" aria-modal="true" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
+	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="button" tabindex="0" onclick={() => selectedTask = null} onkeydown={(e) => e.key === 'Escape' && (selectedTask = null)}>
+		<div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6" role="dialog" aria-modal="true" tabindex="-1" onclick={stopPropagation(bubble('click'))} onkeydown={stopPropagation(bubble('keydown'))}>
 			<div class="flex items-center justify-between mb-4">
 				<h4 class="text-lg font-semibold text-surface-900 ">Task Details</h4>
-				<button on:click={() => selectedTask = null} class="text-surface-500 hover:text-surface-700" aria-label="Close task details">
+				<button onclick={() => selectedTask = null} class="text-surface-500 hover:text-surface-700" aria-label="Close task details">
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 					</svg>

@@ -2,8 +2,12 @@
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   
-  export let agentId: string = '';
-  export let onSave: (_config: RAGConfig) => void = () => {};
+  interface Props {
+    agentId?: string;
+    onSave?: (_config: RAGConfig) => void;
+  }
+
+  let { agentId = '', onSave = () => {} }: Props = $props();
   
   interface RAGConfig {
     enabled: boolean;
@@ -25,7 +29,7 @@
     customInstructions: string;
   }
   
-  let config: RAGConfig = {
+  let config: RAGConfig = $state({
     enabled: true,
     maxTokens: 2048,
     temperature: 0.7,
@@ -43,12 +47,12 @@
     contextWindow: 4096,
     systemPrompt: '',
     customInstructions: ''
-  };
+  });
   
   let errors = writable<{[key: string]: string}>({});
-  let isDirty = false;
-  let isSaving = false;
-  let showAdvanced = false;
+  let isDirty = $state(false);
+  let isSaving = $state(false);
+  let showAdvanced = $state(false);
   
   const embeddingModels = [
     { value: 'text-embedding-ada-002', label: 'OpenAI Ada 002' },
@@ -180,7 +184,7 @@
         <input 
           type="checkbox" 
           bind:checked={config.enabled}
-          on:change={handleInputChange}
+          onchange={handleInputChange}
         />
         <span class="slider"></span>
         <span class="label">{config.enabled ? 'Enabled' : 'Disabled'}</span>
@@ -200,7 +204,7 @@
             id="maxTokens"
             type="number"
             bind:value={config.maxTokens}
-            on:input={handleInputChange}
+            oninput={handleInputChange}
             min="1"
             max="32000"
             class:error={$errors.maxTokens}
@@ -217,7 +221,7 @@
               id="temperature"
               type="number"
               bind:value={config.temperature}
-              on:input={handleInputChange}
+              oninput={handleInputChange}
               min="0"
               max="2"
               step="0.1"
@@ -234,7 +238,7 @@
               id="topP"
               type="number"
               bind:value={config.topP}
-              on:input={handleInputChange}
+              oninput={handleInputChange}
               min="0"
               max="1"
               step="0.1"
@@ -251,7 +255,7 @@
               id="topK"
               type="number"
               bind:value={config.topK}
-              on:input={handleInputChange}
+              oninput={handleInputChange}
               min="1"
               max="100"
             />
@@ -269,7 +273,7 @@
             <select
               id="embeddingModel"
               bind:value={config.embeddingModel}
-              on:change={handleInputChange}
+              onchange={handleInputChange}
             >
               {#each embeddingModels as model}
                 <option value={model.value}>{model.label}</option>
@@ -282,7 +286,7 @@
             <select
               id="vectorStore"
               bind:value={config.vectorStore}
-              on:change={handleInputChange}
+              onchange={handleInputChange}
             >
               {#each vectorStores as store}
                 <option value={store.value}>{store.label}</option>
@@ -297,7 +301,7 @@
             <select
               id="searchType"
               bind:value={config.searchType}
-              on:change={handleInputChange}
+              onchange={handleInputChange}
             >
               <option value="similarity">Similarity</option>
               <option value="mmr">MMR (Max Marginal Relevance)</option>
@@ -311,7 +315,7 @@
               id="retrievalLimit"
               type="number"
               bind:value={config.retrievalLimit}
-              on:input={handleInputChange}
+              oninput={handleInputChange}
               min="1"
               max="20"
               class:error={$errors.retrievalLimit}
@@ -330,7 +334,7 @@
             id="similarityThreshold"
             type="range"
             bind:value={config.similarityThreshold}
-            on:input={handleInputChange}
+            oninput={handleInputChange}
             min="0"
             max="1"
             step="0.05"
@@ -349,7 +353,7 @@
               id="chunkSize"
               type="number"
               bind:value={config.chunkSize}
-              on:input={handleInputChange}
+              oninput={handleInputChange}
               min="100"
               max="2000"
               class:error={$errors.chunkSize}
@@ -365,7 +369,7 @@
               id="chunkOverlap"
               type="number"
               bind:value={config.chunkOverlap}
-              on:input={handleInputChange}
+              oninput={handleInputChange}
               min="0"
               max={config.chunkSize - 1}
               class:error={$errors.chunkOverlap}
@@ -382,7 +386,7 @@
             id="contextWindow"
             type="number"
             bind:value={config.contextWindow}
-            on:input={handleInputChange}
+            oninput={handleInputChange}
             min="512"
             max="128000"
             class:error={$errors.contextWindow}
@@ -397,7 +401,7 @@
       <section class="config-section">
         <button
           class="advanced-toggle"
-          on:click={() => showAdvanced = !showAdvanced}
+          onclick={() => showAdvanced = !showAdvanced}
         >
           {showAdvanced ? '▼' : '▶'} Advanced Settings
         </button>
@@ -409,7 +413,7 @@
                 <input
                   type="checkbox"
                   bind:checked={config.rerankingEnabled}
-                  on:change={handleInputChange}
+                  onchange={handleInputChange}
                 />
                 Enable Reranking
               </label>
@@ -421,7 +425,7 @@
                 <select
                   id="rerankingModel"
                   bind:value={config.rerankingModel}
-                  on:change={handleInputChange}
+                  onchange={handleInputChange}
                   class:error={$errors.rerankingModel}
                 >
                   <option value="">Select a model...</option>
@@ -440,7 +444,7 @@
               <textarea
                 id="systemPrompt"
                 bind:value={config.systemPrompt}
-                on:input={handleInputChange}
+                oninput={handleInputChange}
                 rows="4"
                 placeholder="Enter system prompt for RAG context..."
               ></textarea>
@@ -451,7 +455,7 @@
               <textarea
                 id="customInstructions"
                 bind:value={config.customInstructions}
-                on:input={handleInputChange}
+                oninput={handleInputChange}
                 rows="4"
                 placeholder="Additional instructions for retrieval and generation..."
               ></textarea>
@@ -465,14 +469,14 @@
   <div class="config-actions">
     <button
       class="btn btn-secondary"
-      on:click={resetConfiguration}
+      onclick={resetConfiguration}
       disabled={!isDirty || isSaving}
     >
       Reset
     </button>
     <button
       class="btn btn-primary"
-      on:click={saveConfiguration}
+      onclick={saveConfiguration}
       disabled={!isDirty || isSaving}
     >
       {isSaving ? 'Saving...' : 'Save Configuration'}

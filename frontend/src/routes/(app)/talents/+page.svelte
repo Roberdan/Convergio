@@ -1,16 +1,18 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { onMount } from 'svelte';
   import { talentsService, type Talent } from '$lib/services/talentsService';
 
-  let talents: Talent[] = [];
-  let filteredTalents: Talent[] = [];
-  let loading = true;
-  let error: string | null = null;
-  let searchQuery = '';
-  let filterStatus: 'all' | 'active' | 'inactive' = 'all';
-  let filterRole: 'all' | 'admin' | 'member' = 'all';
-  let sortBy: 'name' | 'email' | 'created' = 'name';
-  let sortOrder: 'asc' | 'desc' = 'asc';
+  let talents: Talent[] = $state([]);
+  let filteredTalents: Talent[] = $state([]);
+  let loading = $state(true);
+  let error: string | null = $state(null);
+  let searchQuery = $state('');
+  let filterStatus: 'all' | 'active' | 'inactive' = $state('all');
+  let filterRole: 'all' | 'admin' | 'member' = $state('all');
+  let sortBy: 'name' | 'email' | 'created' = $state('name');
+  let sortOrder: 'asc' | 'desc' = $state('asc');
 
   function formatDate(dateString?: string): string {
     if (!dateString) return 'N/A';
@@ -83,13 +85,19 @@
   }
 
   // Reactively apply filters when any filter changes
-  $: if (talents.length >= 0) {
-    searchQuery, filterStatus, filterRole, sortBy, sortOrder;
-    applyFilters();
-  }
+  run(() => {
+    if (talents.length >= 0) {
+      void searchQuery;
+      void filterStatus;
+      void filterRole;
+      void sortBy;
+      void sortOrder;
+      applyFilters();
+    }
+  });
 
-  $: activeTalents = talents.filter(t => t.is_active);
-  $: adminTalents = talents.filter(t => t.is_admin);
+  let activeTalents = $derived(talents.filter(t => t.is_active));
+  let adminTalents = $derived(talents.filter(t => t.is_admin));
 
   onMount(loadTalents);
 </script>
@@ -107,7 +115,7 @@
         <p class="text-sm text-surface-600 mt-1">Manage your organization's team members</p>
       </div>
       <button
-        on:click={loadTalents}
+        onclick={loadTalents}
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,7 +235,7 @@
         </select>
 
         <button
-          on:click={() => sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'}
+          onclick={() => sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'}
           class="p-2 border border-surface-200 rounded-lg hover:bg-surface-50 transition-colors"
           title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
           aria-label="Toggle sort order: {sortOrder === 'asc' ? 'Ascending' : 'Descending'}"
@@ -263,7 +271,7 @@
           </div>
           <p class="text-red-600 font-medium">{error}</p>
           <button
-            on:click={loadTalents}
+            onclick={loadTalents}
             class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Try Again

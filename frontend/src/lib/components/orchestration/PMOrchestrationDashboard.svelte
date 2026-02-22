@@ -8,7 +8,11 @@
   import TouchpointTimeline from './TouchpointTimeline.svelte';
   import { Card, Button, Badge, LoadingSpinner } from '$lib/components/ui';
   
-  export let projectId: string = '';
+  interface Props {
+    projectId?: string;
+  }
+
+  let { projectId = '' }: Props = $props();
 
   // Orchestration data structure
   interface OrchestrationData {
@@ -28,10 +32,10 @@
 
   // State management
   let orchestrationData = writable<OrchestrationData | null>(null);
-  let loading = true;
-  let error = '';
-  let selectedView: 'overview' | 'journey' | 'agents' | 'metrics' | 'realtime' = 'overview';
-  let websocketConnection: WebSocket | null = null;
+  let loading = $state(true);
+  let error = $state('');
+  let selectedView: 'overview' | 'journey' | 'agents' | 'metrics' | 'realtime' = $state('overview');
+  let websocketConnection: WebSocket | null = $state(null);
   
   interface AgentAssignment {
     agent_name: string;
@@ -299,7 +303,7 @@
     }
   }
   
-  $: currentData = $orchestrationData as OrchestrationData | null;
+  let currentData = $derived($orchestrationData as OrchestrationData | null);
 </script>
 
 <!-- PM Orchestration Dashboard -->
@@ -366,7 +370,7 @@
     <!-- Navigation Tabs -->
     <div class="flex space-x-1 bg-surface-200  rounded-lg p-1">
       <button
-        on:click={() => selectedView = 'overview'}
+        onclick={() => selectedView = 'overview'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'overview' 
           ? 'bg-surface-50 text-surface-900  shadow-sm' 
           : 'text-surface-600  hover:text-surface-900'}"
@@ -374,7 +378,7 @@
         📊 Overview
       </button>
       <button
-        on:click={() => selectedView = 'journey'}
+        onclick={() => selectedView = 'journey'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'journey' 
           ? 'bg-surface-50 text-surface-900  shadow-sm' 
           : 'text-surface-600  hover:text-surface-900'}"
@@ -382,7 +386,7 @@
         🛤️ Journey
       </button>
       <button
-        on:click={() => selectedView = 'agents'}
+        onclick={() => selectedView = 'agents'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'agents' 
           ? 'bg-surface-50 text-surface-900  shadow-sm' 
           : 'text-surface-600  hover:text-surface-900'}"
@@ -390,7 +394,7 @@
         🤖 Agents
       </button>
       <button
-        on:click={() => selectedView = 'metrics'}
+        onclick={() => selectedView = 'metrics'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'metrics' 
           ? 'bg-surface-50 text-surface-900  shadow-sm' 
           : 'text-surface-600  hover:text-surface-900'}"
@@ -398,7 +402,7 @@
         📈 Metrics
       </button>
       <button
-        on:click={() => selectedView = 'realtime'}
+        onclick={() => selectedView = 'realtime'}
         class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'realtime' 
           ? 'bg-surface-50 text-surface-900  shadow-sm' 
           : 'text-surface-600  hover:text-surface-900'}"

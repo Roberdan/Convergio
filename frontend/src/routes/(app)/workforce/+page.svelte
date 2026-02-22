@@ -15,10 +15,10 @@
 	} from '$lib/components/workforce';
 	import type { UnifiedResource } from '$lib/types/resource';
 
-	let loading = true;
-	let error: string | null = null;
-	let selectedResource: UnifiedResource | null = null;
-	let showDetailModal = false;
+	let loading = $state(true);
+	let error: string | null = $state(null);
+	let selectedResource: UnifiedResource | null = $state(null);
+	let showDetailModal = $state(false);
 
 	onMount(async () => {
 		try {
@@ -70,7 +70,7 @@
 				</div>
 				<div class="flex items-center gap-3">
 					<button
-						on:click={handleRefresh}
+						onclick={handleRefresh}
 						disabled={loading}
 						class="inline-flex items-center px-4 py-2 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 disabled:opacity-50 transition-colors"
 					>

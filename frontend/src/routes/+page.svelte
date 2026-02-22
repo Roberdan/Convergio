@@ -3,8 +3,8 @@
   import { goto } from '$app/navigation';
   import AliAssistant from '$lib/components/AliAssistant.svelte';
 
-  let healthStatus: { status?: string; build?: string } | null = null;
-  let loading = true;
+  let healthStatus: { status?: string; build?: string } | null = $state(null);
+  let loading = $state(true);
   const APP_VERSION: string = (typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : (typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0')) as string;
 
   onMount(async () => {
@@ -82,14 +82,14 @@
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <button
-          on:click={() => goto('/dashboard')}
+          onclick={() => goto('/dashboard')}
           class="flex items-center justify-center px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-all transform hover:scale-[1.02] shadow-lg"
         >
           <img src="/convergio_icons/dashboard.svg" alt="" class="mr-3 h-5 w-5" />
           Start Your Command Center
         </button>
         <button
-          on:click={() => goto('/agents')}
+          onclick={() => goto('/agents')}
           class="flex items-center justify-center px-8 py-4 border-2 border-blue-600 text-blue-600 text-lg font-semibold rounded-xl hover:bg-blue-50 transition-all"
         >
           <img src="/convergio_icons/users.svg" alt="" class="mr-3 h-5 w-5" />

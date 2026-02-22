@@ -12,20 +12,6 @@ const config = {
       envPrefix: "CONVERGIO_",
     }),
 
-    // Configure the development server
-    files: {
-      assets: "static",
-      hooks: {
-        client: "src/hooks.client.ts",
-        server: "src/hooks.server.ts",
-      },
-      lib: "src/lib",
-      params: "src/params",
-      routes: "src/routes",
-      serviceWorker: "src/service-worker",
-      appTemplate: "src/app.html",
-    },
-
     // Security headers
     csp: {
       mode: "auto",

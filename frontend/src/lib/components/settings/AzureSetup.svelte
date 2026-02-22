@@ -1,19 +1,23 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
-  export let config = {
+  interface Props {
+    config?: any;
+    disabled?: boolean;
+  }
+
+  let { config = $bindable({
     endpoint: '',
     api_key: '',
     deployment_name: '',
     api_version: '2024-02-15-preview'
-  };
-  export let disabled: boolean = false;
+  }), disabled = false }: Props = $props();
 
   const dispatch = createEventDispatcher();
 
-  let testing = false;
-  let testResult: { success: boolean; message: string } | null = null;
-  let showApiKey = false;
+  let testing = $state(false);
+  let testResult: { success: boolean; message: string } | null = $state(null);
+  let showApiKey = $state(false);
 
   function updateConfig(field: keyof typeof config, value: string) {
     if (disabled) return;
@@ -47,7 +51,7 @@
     }
   }
 
-  $: isConfigured = config.endpoint && config.api_key && config.deployment_name;
+  let isConfigured = $derived(config.endpoint && config.api_key && config.deployment_name);
 </script>
 
 <div class="border rounded-lg overflow-hidden">
@@ -71,7 +75,7 @@
         id="azure-endpoint"
         type="url"
         value={config.endpoint}
-        on:input={(e) => updateConfig('endpoint', e.currentTarget.value)}
+        oninput={(e) => updateConfig('endpoint', e.currentTarget.value)}
         placeholder="https://your-resource.openai.azure.com"
         disabled={disabled}
         class="w-full px-3 py-2 text-sm border border-surface-300 rounded focus:ring-1 focus:ring-gray-900 focus:border-gray-900 disabled:opacity-50 disabled:bg-surface-100"
@@ -89,14 +93,14 @@
           id="azure-key"
           type={showApiKey ? 'text' : 'password'}
           value={config.api_key}
-          on:input={(e) => updateConfig('api_key', e.currentTarget.value)}
+          oninput={(e) => updateConfig('api_key', e.currentTarget.value)}
           placeholder="Enter your Azure OpenAI API key"
           disabled={disabled}
           class="w-full px-3 py-2 pr-10 text-sm border border-surface-300 rounded focus:ring-1 focus:ring-gray-900 focus:border-gray-900 disabled:opacity-50 disabled:bg-surface-100"
         />
         <button
           type="button"
-          on:click={() => showApiKey = !showApiKey}
+          onclick={() => showApiKey = !showApiKey}
           class="absolute right-2 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600"
           aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
         >
@@ -123,7 +127,7 @@
         id="azure-deployment"
         type="text"
         value={config.deployment_name}
-        on:input={(e) => updateConfig('deployment_name', e.currentTarget.value)}
+        oninput={(e) => updateConfig('deployment_name', e.currentTarget.value)}
         placeholder="gpt-4o-deployment"
         disabled={disabled}
         class="w-full px-3 py-2 text-sm border border-surface-300 rounded focus:ring-1 focus:ring-gray-900 focus:border-gray-900 disabled:opacity-50 disabled:bg-surface-100"
@@ -139,7 +143,7 @@
       <select
         id="azure-version"
         value={config.api_version}
-        on:change={(e) => updateConfig('api_version', e.currentTarget.value)}
+        onchange={(e) => updateConfig('api_version', e.currentTarget.value)}
         disabled={disabled}
         class="w-full px-3 py-2 text-sm border border-surface-300 rounded focus:ring-1 focus:ring-gray-900 focus:border-gray-900 disabled:opacity-50 disabled:bg-surface-100"
       >
@@ -153,7 +157,7 @@
     <!-- Test Connection -->
     <div class="pt-3 border-t border-surface-200">
       <button
-        on:click={testConnection}
+        onclick={testConnection}
         disabled={disabled || testing || !isConfigured}
         class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-surface-300 rounded transition-colors disabled:cursor-not-allowed"
       >

@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   
-  let showWarning = false;
+  let showWarning = $state(false);
   let apiKeyStatus = null;
   
   onMount(async () => {
@@ -38,14 +38,14 @@
           </p>
           <div class="mt-2 flex space-x-2">
             <button
-              on:click={() => goto('/settings')}
+              onclick={() => goto('/settings')}
               class="text-xs font-medium text-yellow-900 hover:text-yellow-800 underline"
             >
               Configure API Key
             </button>
             <span class="text-yellow-500">•</span>
             <button
-              on:click={dismissWarning}
+              onclick={dismissWarning}
               class="text-xs text-yellow-700 hover:text-yellow-600"
             >
               Dismiss

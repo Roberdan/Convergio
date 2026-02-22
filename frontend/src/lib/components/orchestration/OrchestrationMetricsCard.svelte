@@ -3,8 +3,12 @@
   import { Card, Badge, Button } from '$lib/components/ui';
   import { slide } from 'svelte/transition';
 
-  export let orchestrationData: any = {};
-  export let timeRange: string = '30d';
+  interface Props {
+    orchestrationData?: any;
+    timeRange?: string;
+  }
+
+  let { orchestrationData = {}, timeRange = $bindable('30d') }: Props = $props();
   
   interface MetricValue {
     value: number;
@@ -27,10 +31,10 @@
     trends: any;
   }
   
-  let metricsData: MetricsData | null = null;
-  let loading = true;
-  let selectedMetricCategory = 'overview';
-  let showAIInsights = true;
+  let metricsData: MetricsData | null = $state(null);
+  let loading = $state(true);
+  let selectedMetricCategory = $state('overview');
+  let showAIInsights = $state(true);
   
   const metricCategories = [
     { id: 'overview', label: '📊 Overview', icon: '📊' },
@@ -242,7 +246,7 @@
     }
   }
   
-  $: selectedMetrics = metricsData ? (metricsData as any)[`${selectedMetricCategory}_metrics`] || metricsData.efficiency_metrics : null;
+  let selectedMetrics = $derived(metricsData ? (metricsData as any)[`${selectedMetricCategory}_metrics`] || (metricsData as any).efficiency_metrics : null);
 </script>
 
 <!-- Orchestration Metrics Dashboard -->
@@ -272,7 +276,7 @@
             <!-- Time Range Selector -->
             <select 
               bind:value={timeRange}
-              on:change={loadMetricsData}
+              onchange={loadMetricsData}
               class="text-sm border border-surface-300  rounded-md px-3 py-1 
                      bg-surface-50  text-surface-900 "
             >
@@ -293,7 +297,7 @@
     <div class="flex space-x-1 bg-surface-200  rounded-lg p-1">
       {#each metricCategories as category}
         <button
-          on:click={() => selectedMetricCategory = category.id}
+          onclick={() => selectedMetricCategory = category.id}
           class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedMetricCategory === category.id 
             ? 'bg-surface-50 text-surface-900  shadow-sm' 
             : 'text-surface-600  hover:text-surface-900'}"

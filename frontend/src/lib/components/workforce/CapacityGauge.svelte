@@ -1,10 +1,12 @@
 <script lang="ts">
 	import type { UnifiedResource } from '$lib/types/resource';
 
-	export let resources: UnifiedResource[] = [];
+	interface Props {
+		resources?: UnifiedResource[];
+	}
 
-	// Calculate capacity metrics
-	$: metrics = calculateMetrics(resources);
+	let { resources = [] }: Props = $props();
+
 
 	function calculateMetrics(resources: UnifiedResource[]) {
 		const talents = resources.filter(r => r.type === 'talent');
@@ -37,8 +39,10 @@
 		return '#22c55e'; // green
 	}
 
-	$: gaugeColor = getGaugeColor(metrics.utilizationPercent);
-	$: dashArray = `${metrics.utilizationPercent * 2.51327} 251.327`;
+	// Calculate capacity metrics
+	let metrics = $derived(calculateMetrics(resources));
+	let gaugeColor = $derived(getGaugeColor(metrics.utilizationPercent));
+	let dashArray = $derived(`${metrics.utilizationPercent * 2.51327} 251.327`);
 </script>
 
 <div class="capacity-gauge bg-white rounded-xl shadow-sm border border-surface-200 p-6">

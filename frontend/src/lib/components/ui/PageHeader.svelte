@@ -7,7 +7,11 @@
 		active?: boolean;
 	}
 
-	interface $$Props {
+	
+
+
+	import { createEventDispatcher } from 'svelte';
+	interface Props {
 		title: string;
 		subtitle?: string;
 		breadcrumbs?: BreadcrumbItem[];
@@ -17,16 +21,20 @@
 			text: string;
 			variant?: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'gray';
 		};
+		actions?: import('svelte').Snippet;
+		additional?: import('svelte').Snippet;
 	}
 
-	export let title: $$Props['title'];
-	export let subtitle: $$Props['subtitle'] = '';
-	export let breadcrumbs: BreadcrumbItem[] = [];
-	export let showBackButton: $$Props['showBackButton'] = false;
-	export let backHref: $$Props['backHref'] = '';
-	export let badge: $$Props['badge'] = undefined;
-
-	import { createEventDispatcher } from 'svelte';
+	let {
+		title,
+		subtitle = '',
+		breadcrumbs = [],
+		showBackButton = false,
+		backHref = '',
+		badge = undefined,
+		actions,
+		additional
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		'back-click': void;
@@ -59,7 +67,7 @@
 							<a
 								href={item.href}
 								class="breadcrumb-link"
-								on:click={() => handleBreadcrumbClick(item)}
+								onclick={() => handleBreadcrumbClick(item)}
 							>
 								{item.label}
 							</a>
@@ -82,12 +90,12 @@
 			<!-- Back Button -->
 			{#if showBackButton}
 				{#if backHref}
-					<a href={backHref} class="back-button" on:click={handleBackClick}>
+					<a href={backHref} class="back-button" onclick={handleBackClick}>
 						<span class="icon-arrow-left" aria-hidden="true"></span>
 						<span class="sr-only">Go back</span>
 					</a>
 				{:else}
-					<button type="button" class="back-button" on:click={handleBackClick}>
+					<button type="button" class="back-button" onclick={handleBackClick}>
 						<span class="icon-arrow-left" aria-hidden="true"></span>
 						<span class="sr-only">Go back</span>
 					</button>
@@ -112,17 +120,17 @@
 		</div>
 
 		<!-- Actions -->
-		{#if $$slots.actions}
+		{#if actions}
 			<div class="header-actions">
-				<slot name="actions" />
+				{@render actions?.()}
 			</div>
 		{/if}
 	</div>
 
 	<!-- Additional content (tabs, filters, etc.) -->
-	{#if $$slots.additional}
+	{#if additional}
 		<div class="header-additional">
-			<slot name="additional" />
+			{@render additional?.()}
 		</div>
 	{/if}
 </div>

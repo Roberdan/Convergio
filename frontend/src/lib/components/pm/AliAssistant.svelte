@@ -3,8 +3,13 @@
 	import { aliService, type AliResponse } from '$lib/services/aliService';
 	import { projectsService, type Engagement } from '$lib/services/projectsService';
 
-	// Props
-	export let projectId: string;
+	
+	interface Props {
+		// Props
+		projectId: string;
+	}
+
+	let { projectId }: Props = $props();
 
 	// Interfaces
 	interface Message {
@@ -34,15 +39,15 @@
 	}
 
 	// State
-	let messages: Message[] = [];
-	let newMessage = '';
+	let messages: Message[] = $state([]);
+	let newMessage = $state('');
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in template
 	let loading = false;
-	let isTyping = false;
-	let chatContainer: HTMLElement;
-	let projectContext: ProjectContext | null = null;
-	let connectionStatus = 'disconnected';
-	let aliLatency = 0;
+	let isTyping = $state(false);
+	let chatContainer: HTMLElement = $state()!;
+	let projectContext: ProjectContext | null = $state(null);
+	let connectionStatus = $state('disconnected');
+	let aliLatency = $state(0);
 
 	// Subscribe to Ali connection status
 	aliService.connectionStatus.subscribe(status => {
@@ -338,7 +343,7 @@ What would you like to know about your project?`,
 			<div class="flex flex-wrap gap-2">
 				{#each quickActions as action}
 					<button 
-						on:click={() => { newMessage = action; sendMessage(); }}
+						onclick={() => { newMessage = action; sendMessage(); }}
 						class="text-xs px-3 py-1 bg-surface-200  hover:bg-primary-100 text-surface-700  hover:text-primary-700 rounded-full transition-colors duration-200"
 						aria-label="Send quick action: {action}"
 					>
@@ -356,7 +361,7 @@ What would you like to know about your project?`,
 			<textarea
 				id="ali-message-input"
 				bind:value={newMessage}
-				on:keydown={handleKeyPress}
+				onkeydown={handleKeyPress}
 				placeholder="Ask Ali about your project..."
 				class="flex-1 input resize-none"
 				rows="1"
@@ -365,7 +370,7 @@ What would you like to know about your project?`,
 			></textarea>
 			<span id="ali-input-help" class="sr-only">Press Enter to send message, Shift+Enter for new line</span>
 			<button 
-				on:click={sendMessage}
+				onclick={sendMessage}
 				disabled={!newMessage.trim() || isTyping}
 				class="btn-primary btn-icon flex-shrink-0"
 				aria-label="Send message to Ali"

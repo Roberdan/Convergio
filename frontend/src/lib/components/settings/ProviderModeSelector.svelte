@@ -1,8 +1,12 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
-  export let currentMode: string = 'ollama_only';
-  export let disabled: boolean = false;
+  interface Props {
+    currentMode?: string;
+    disabled?: boolean;
+  }
+
+  let { currentMode = $bindable('ollama_only'), disabled = false }: Props = $props();
 
   const dispatch = createEventDispatcher();
 
@@ -47,14 +51,14 @@
     dispatch('change', { mode: modeId });
   }
 
-  $: selectedMode = modes.find(m => m.id === currentMode);
+  let selectedMode = $derived(modes.find(m => m.id === currentMode));
 </script>
 
 <div class="space-y-4">
   <div class="grid grid-cols-2 gap-3">
     {#each modes as mode}
       <button
-        on:click={() => selectMode(mode.id)}
+        onclick={() => selectMode(mode.id)}
         disabled={disabled}
         class="relative p-4 text-left border rounded-lg transition-all {currentMode === mode.id
           ? 'border-gray-900 bg-gray-50 ring-1 ring-gray-900'

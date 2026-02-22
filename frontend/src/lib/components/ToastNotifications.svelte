@@ -10,7 +10,7 @@
     type NotificationPosition 
   } from '$lib/stores/notifications';
   
-  let mounted = false;
+  let mounted = $state(false);
   
   const icons = {
     success: '✅',
@@ -85,7 +85,7 @@
           </div>
           <button
             class="toast-close"
-            on:click={() => removeNotification(notification.id)}
+            onclick={() => removeNotification(notification.id)}
             aria-label="Close notification"
           >
             ×
@@ -112,7 +112,7 @@
             {#each notification.actions as action}
               <button
                 class="toast-action {action.style || 'secondary'}"
-                on:click={() => handleActionClick(notification, action)}
+                onclick={() => handleActionClick(notification, action)}
               >
                 {action.label}
               </button>

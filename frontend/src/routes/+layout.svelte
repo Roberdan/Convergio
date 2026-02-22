@@ -3,9 +3,12 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { initializeTheme } from '$lib/stores/themeStore';
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
 
-  // Dynamic page title based on route
-  $: pageTitle = getPageTitle($page.route.id);
+  let { children }: Props = $props();
+
 
   function getPageTitle(routeId: string | null): string {
     if (routeId?.includes('dashboard')) return 'Dashboard';
@@ -22,6 +25,8 @@
   onMount(() => {
     initializeTheme();
   });
+  // Dynamic page title based on route
+  let pageTitle = $derived(getPageTitle($page.route.id));
 </script>
 
 <svelte:head>
@@ -31,7 +36,7 @@
 
 <!-- Root Layout - Super Clean, No Auth -->
 <div class="min-h-screen bg-surface-900 text-surface-900  transition-colors duration-300">
-  <slot />
+  {@render children?.()}
 </div>
 
 <style>

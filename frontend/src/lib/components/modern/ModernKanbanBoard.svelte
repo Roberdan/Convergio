@@ -2,7 +2,11 @@
   import { onMount, createEventDispatcher } from 'svelte';
   import { dndzone } from 'svelte-dnd-action';
   
-  export let projectId: string;
+  interface Props {
+    projectId: string;
+  }
+
+  let { projectId }: Props = $props();
 
   const dispatch = createEventDispatcher();
 
@@ -15,20 +19,20 @@
     tags: string[];
   }
 
-  let loading = true;
-  let error = '';
-  let columns: any[] = [];
-  let tasks: any[] = [];
-  let availableAgents: any[] = [];
-  let showNewTaskForm = false;
-  let newTaskData: NewTaskData = {
+  let loading = $state(true);
+  let error = $state('');
+  let columns: any[] = $state([]);
+  let tasks: any[] = $state([]);
+  let availableAgents: any[] = $state([]);
+  let showNewTaskForm = $state(false);
+  let newTaskData: NewTaskData = $state({
     title: '',
     description: '',
     priority: 'medium',
     assignedAgent: '',
     dueDate: '',
     tags: []
-  };
+  });
   
   // Available tags for task creation
   const availableTags = [
@@ -268,7 +272,7 @@
             {tasks.length} total tasks
           </div>
           <button
-            on:click={() => showNewTaskForm = true}
+            onclick={() => showNewTaskForm = true}
             class="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-100 border border-green-200 rounded-lg hover:bg-green-200 transition-colors"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -293,15 +297,15 @@
             <!-- Tasks in Column -->
             <div 
               use:dndzone={{ items: column.tasks }}
-              on:consider={handleDndConsider}
-              on:finalize={handleDndFinalize}
+              onconsider={handleDndConsider}
+              onfinalize={handleDndFinalize}
               class="space-y-3 min-h-[200px]"
             >
               {#each column.tasks as task (task.id)}
                 <button 
                   type="button"
                   class="w-full text-left bg-white p-3 rounded-lg border border-surface-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                  on:click={() => selectTask(task)}
+                  onclick={() => selectTask(task)}
                 >
                   <div class="font-medium text-surface-900 text-sm mb-1">{task.title || 'Untitled Task'}</div>
                   {#if task.description}
@@ -335,7 +339,7 @@
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold text-surface-900">Create New Task</h3>
           <button
-            on:click={() => showNewTaskForm = false}
+            onclick={() => showNewTaskForm = false}
             class="text-gray-400 hover:text-surface-600 transition-colors"
             aria-label="Close new task form"
           >
@@ -400,7 +404,7 @@
             {#each availableTags as tag}
               <button
                 type="button"
-                on:click={() => toggleTag(tag)}
+                onclick={() => toggleTag(tag)}
                 class="px-3 py-1 rounded-full text-sm font-medium border transition-colors {newTaskData.tags.includes(tag) 
                   ? 'bg-blue-100 text-blue-800 border-blue-200' 
                   : 'bg-surface-100 text-surface-600 border-surface-200 hover:bg-surface-200'}"
@@ -431,13 +435,13 @@
       
       <div class="px-6 py-4 border-t border-surface-200 flex justify-end space-x-3">
         <button
-          on:click={() => showNewTaskForm = false}
+          onclick={() => showNewTaskForm = false}
           class="px-4 py-2 text-surface-600 bg-surface-100 rounded-lg hover:bg-surface-200 transition-colors"
         >
           Cancel
         </button>
         <button
-          on:click={createNewTask}
+          onclick={createNewTask}
           disabled={!newTaskData.title.trim()}
           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >

@@ -5,10 +5,15 @@
 
 	const dispatch = createEventDispatcher();
 
-	// Props
-	export let agentKey: string = '';
-	export let isNewAgent: boolean = false;
-	export let initialData: any = null;
+	
+	interface Props {
+		// Props
+		agentKey?: string;
+		isNewAgent?: boolean;
+		initialData?: any;
+	}
+
+	let { agentKey = '', isNewAgent = false, initialData = null }: Props = $props();
 
 	// Type definitions
 	interface FormData {
@@ -56,13 +61,13 @@
 	});
 
 	// UI state
-	let isLoading = false;
-	let isSaving = false;
-	let aliAssistance: AliAssistance | null = null;
-	let showAliHelp = false;
-	let aliRealTimeActive = false;
-	let validationErrors: ValidationErrors = {};
-	let saveStatus = '';
+	let isLoading = $state(false);
+	let isSaving = $state(false);
+	let aliAssistance: AliAssistance | null = $state(null);
+	let showAliHelp = $state(false);
+	let aliRealTimeActive = $state(false);
+	let validationErrors: ValidationErrors = $state({});
+	let saveStatus = $state('');
 	
 	// Available tools list (could be fetched from API)
 	const availableTools = [
@@ -84,10 +89,10 @@
 	];
 	
 	// Reactive form data
-	$: currentData = $formData;
-	$: isFormValid = currentData.metadata.name && 
+	let currentData = $derived($formData);
+	let isFormValid = $derived(currentData.metadata.name && 
 					currentData.metadata.description && 
-					currentData.content.persona;
+					currentData.content.persona);
 	
 	onMount(async () => {
 		if (!isNewAgent && agentKey) {
@@ -428,7 +433,7 @@
 											aria-label="Select color {color}"
 											class="w-6 h-6 rounded border border-surface-200 hover:border-gray-400 transition-colors"
 											style="background-color: {color}"
-											on:click={() => formData.update(data => ({ ...data, metadata: { ...data.metadata, color } }))}
+											onclick={() => formData.update(data => ({ ...data, metadata: { ...data.metadata, color } }))}
 										></button>
 									{/each}
 								</div>
@@ -491,7 +496,7 @@
 						</h2>
 						<button
 							type="button"
-							on:click={addExpertiseArea}
+							onclick={addExpertiseArea}
 							class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
 						>
 							+ Add Area
@@ -508,7 +513,7 @@
 							/>
 							<button
 								type="button"
-								on:click={() => removeExpertiseArea(index)}
+								onclick={() => removeExpertiseArea(index)}
 								class="px-2 py-2 text-red-600 hover:bg-red-50 rounded transition-colors"
 							>
 								×
@@ -534,7 +539,7 @@
 								<input
 									type="checkbox"
 									checked={$formData.metadata.tools.includes(tool)}
-									on:change={() => toggleTool(tool)}
+									onchange={() => toggleTool(tool)}
 									class="rounded text-blue-600 focus:ring-blue-500"
 								/>
 								<span class="text-sm font-mono text-surface-600">{tool}</span>
@@ -575,7 +580,7 @@
 					<div class="space-y-3">
 						<button
 							type="button"
-							on:click={saveAgent}
+							onclick={saveAgent}
 							disabled={!isFormValid || isSaving}
 							class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-surface-600 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
 						>
@@ -587,7 +592,7 @@
 						
 						<button
 							type="button"
-							on:click={previewAgent}
+							onclick={previewAgent}
 							class="w-full px-4 py-2 border border-surface-300 text-surface-600 rounded hover:bg-surface-50 transition-colors"
 						>
 							Preview Agent
@@ -595,7 +600,7 @@
 						
 						<button
 							type="button"
-							on:click={getAliAssistance}
+							onclick={getAliAssistance}
 							class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center justify-center"
 						>
 							<span class="mr-2">🤖</span>
@@ -604,7 +609,7 @@
 						
 						<button
 							type="button"
-							on:click={activateAliRealTime}
+							onclick={activateAliRealTime}
 							disabled={aliRealTimeActive}
 							class="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
 						>
@@ -614,7 +619,7 @@
 						
 						<button
 							type="button"
-							on:click={resetForm}
+							onclick={resetForm}
 							class="w-full px-4 py-2 border border-red-300 text-red-700 rounded hover:bg-red-50 transition-colors"
 						>
 							Reset Form
@@ -684,7 +689,7 @@
 																<p class="text-sm text-surface-600">{suggestion}</p>
 																<button
 																	type="button"
-																	on:click={() => applyAliSuggestion(category, suggestion)}
+																	onclick={() => applyAliSuggestion(category, suggestion)}
 																	class="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
 																>
 																	Apply

@@ -2,9 +2,9 @@
   import { onMount } from 'svelte';
   import { talentsService, type Talent } from '$lib/services/talentsService';
 
-  let talents: Talent[] = [];
-  let loading = true;
-  let error: string | null = null;
+  let talents: Talent[] = $state([]);
+  let loading = $state(true);
+  let error: string | null = $state(null);
 
   async function loadTalents() {
     try {
@@ -21,8 +21,8 @@
 
   onMount(loadTalents);
 
-  $: activeTalents = talents.filter(t => t.is_active);
-  $: adminTalents = talents.filter(t => t.is_admin);
+  let activeTalents = $derived(talents.filter(t => t.is_active));
+  let adminTalents = $derived(talents.filter(t => t.is_admin));
 </script>
 
 <div class="bg-white border border-surface-200 rounded">
@@ -30,7 +30,7 @@
     <div class="flex items-center justify-between">
       <h3 class="text-sm font-medium text-surface-900">Team & Talents</h3>
       <button 
-        on:click={loadTalents}
+        onclick={loadTalents}
         class="text-xs text-surface-500 hover:text-surface-600 flex items-center space-x-1"
       >
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,7 +67,7 @@
       <div class="text-center text-red-600">
         <p>{error}</p>
         <button 
-          on:click={loadTalents}
+          onclick={loadTalents}
           class="mt-2 text-sm text-blue-600 hover:text-blue-800"
         >
           Try again

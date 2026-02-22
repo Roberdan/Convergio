@@ -1,9 +1,16 @@
 <script lang="ts">
+  import { stopPropagation } from 'svelte/legacy';
+
   import { onMount, onDestroy } from 'svelte';
   
-  export let workflowId: string = '';
-  // eslint-disable-next-line no-unused-vars
-  export let onSave: (_w: Workflow) => void = () => {};
+  
+  interface Props {
+    workflowId?: string;
+    // eslint-disable-next-line no-unused-vars
+    onSave?: (_w: Workflow) => void;
+  }
+
+  let { workflowId = '', onSave = () => {} }: Props = $props();
   
   interface Node {
     id: string;
@@ -32,27 +39,27 @@
     metadata: any;
   }
   
-  let workflow: Workflow = {
+  let workflow: Workflow = $state({
     id: workflowId || crypto.randomUUID(),
     name: 'New Workflow',
     description: '',
     nodes: [],
     edges: [],
     metadata: {}
-  };
+  });
   
-  let canvas: SVGSVGElement;
-  let selectedNode: Node | null = null;
-  let selectedEdge: Edge | null = null;
+  let canvas: SVGSVGElement = $state()!;
+  let selectedNode: Node | null = $state(null);
+  let selectedEdge: Edge | null = $state(null);
   let isDragging = false;
-  let isConnecting = false;
+  let isConnecting = $state(false);
   let dragOffset = { x: 0, y: 0 };
   let connectionStart: { nodeId: string; type: 'input' | 'output' } | null = null;
-  let tempConnection = { x1: 0, y1: 0, x2: 0, y2: 0 };
-  let zoom = 1;
+  let tempConnection = $state({ x1: 0, y1: 0, x2: 0, y2: 0 });
+  let zoom = $state(1);
   let pan = { x: 0, y: 0 };
-  let showProperties = false;
-  let showNodeLibrary = true;
+  let showProperties = $state(false);
+  let showNodeLibrary = $state(true);
   
   function handleKeyDown(e: KeyboardEvent) {
     if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEdge) {
@@ -261,19 +268,19 @@
       />
     </div>
     <div class="header-actions">
-      <button class="btn btn-icon" on:click={() => showNodeLibrary = !showNodeLibrary} title="Toggle Library">
+      <button class="btn btn-icon" onclick={() => showNodeLibrary = !showNodeLibrary} title="Toggle Library">
         📚
       </button>
-      <button class="btn btn-icon" on:click={() => handleZoom(0.1)} title="Zoom In">
+      <button class="btn btn-icon" onclick={() => handleZoom(0.1)} title="Zoom In">
         🔍+
       </button>
-      <button class="btn btn-icon" on:click={() => handleZoom(-0.1)} title="Zoom Out">
+      <button class="btn btn-icon" onclick={() => handleZoom(-0.1)} title="Zoom Out">
         🔍-
       </button>
-      <button class="btn btn-secondary" on:click={exportWorkflow}>
+      <button class="btn btn-secondary" onclick={exportWorkflow}>
         Export
       </button>
-      <button class="btn btn-primary" on:click={saveWorkflow}>
+      <button class="btn btn-primary" onclick={saveWorkflow}>
         Save Workflow
       </button>
     </div>
@@ -289,7 +296,7 @@
             <button
               class="node-template"
               style="border-color: {template.color}"
-              on:click={() => addNode(template.type, template.label)}
+              onclick={() => addNode(template.type, template.label)}
             >
               <span class="icon">{template.icon}</span>
               <span class="label">{template.label}</span>
@@ -302,7 +309,7 @@
           {#each availableAgents as agent}
             <button
               class="agent-item"
-              on:click={() => {
+              onclick={() => {
                 addNode('agent', agent);
               }}
             >
@@ -343,8 +350,8 @@
                 fill="none"
         role="button"
         tabindex="0"
-        on:click={() => selectedEdge = edge}
-        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && (selectedEdge = edge)}
+        onclick={() => selectedEdge = edge}
+        onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (selectedEdge = edge)}
               />
               {#if edge.label}
                 <text
@@ -384,13 +391,13 @@
             role="button"
             aria-label={`Workflow node ${node.label}`}
             tabindex="0"
-            on:keydown={(e) => {
+            onkeydown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 selectedNode = node;
                 e.preventDefault();
               }
             }}
-            on:mousedown={(e) => startDragging(node, e)}
+            onmousedown={(e) => startDragging(node, e)}
           >
             <div class="node-header">
               <span class="node-icon">
@@ -399,7 +406,7 @@
               <span class="node-label">{node.label}</span>
               <button 
                 class="node-delete"
-                on:click|stopPropagation={() => deleteNode(node.id)}
+                onclick={stopPropagation(() => deleteNode(node.id))}
               >
                 ×
               </button>
@@ -411,14 +418,15 @@
                 role="button"
                 aria-label="Input port"
                 tabindex="0"
-                on:mouseup={() => endConnection(node.id, 'input')}
-                on:mousedown|stopPropagation={(e) => startConnection(node.id, 'input', e)}
-                on:keydown|stopPropagation={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                onmouseup={() => endConnection(node.id, 'input')}
+                onmousedown={stopPropagation((e: Event) => startConnection(node.id, 'input', e as MouseEvent))}
+                onkeydown={stopPropagation((e: Event) => {
+                  const keyEvent = e as KeyboardEvent;
+                  if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
                     endConnection(node.id, 'input');
-                    e.preventDefault();
+                    keyEvent.preventDefault();
                   }
-                }}
+                })}
               ></div>
             {/if}
 
@@ -428,14 +436,15 @@
                 role="button"
                 aria-label="Output port"
                 tabindex="0"
-                on:mouseup={() => endConnection(node.id, 'output')}
-                on:mousedown|stopPropagation={(e) => startConnection(node.id, 'output', e)}
-                on:keydown|stopPropagation={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                onmouseup={() => endConnection(node.id, 'output')}
+                onmousedown={stopPropagation((e: Event) => startConnection(node.id, 'output', e as MouseEvent))}
+                onkeydown={stopPropagation((e: Event) => {
+                  const keyEvent = e as KeyboardEvent;
+                  if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
                     endConnection(node.id, 'output');
-                    e.preventDefault();
+                    keyEvent.preventDefault();
                   }
-                }}
+                })}
               ></div>
             {/if}
           </div>
@@ -446,7 +455,7 @@
     {#if showProperties && selectedNode}
       <div class="properties-panel">
         <h3>Node Properties</h3>
-        <button class="close-btn" on:click={() => showProperties = false}>×</button>
+        <button class="close-btn" onclick={() => showProperties = false}>×</button>
         
         <div class="property-group">
           <label for="prop-id">ID</label>

@@ -2,15 +2,19 @@
 	import { createEventDispatcher } from 'svelte';
 	import type { UnifiedResource } from '$lib/types/resource';
 
-	export let resources: UnifiedResource[] = [];
-	export let selected: UnifiedResource[] = [];
+	interface Props {
+		resources?: UnifiedResource[];
+		selected?: UnifiedResource[];
+	}
 
-	let searchQuery = '';
-	let filterType: 'all' | 'talent' | 'agent' = 'all';
+	let { resources = [], selected = [] }: Props = $props();
+
+	let searchQuery = $state('');
+	let filterType: 'all' | 'talent' | 'agent' = $state('all');
 
 	const dispatch = createEventDispatcher<{ add: UnifiedResource }>();
 
-	$: filteredResources = resources.filter(resource => {
+	let filteredResources = $derived(resources.filter(resource => {
 		// Exclude already selected
 		if (selected.find(r => r.id === resource.id)) return false;
 
@@ -30,7 +34,7 @@
 		if (resource.availability < 10 || resource.status !== 'active') return false;
 
 		return true;
-	});
+	}));
 
 	function handleAdd(resource: UnifiedResource) {
 		dispatch('add', resource);
@@ -55,19 +59,19 @@
 		</div>
 		<div class="flex gap-2">
 			<button
-				on:click={() => filterType = 'all'}
+				onclick={() => filterType = 'all'}
 				class="px-3 py-1 text-xs rounded-full transition-colors {filterType === 'all' ? 'bg-primary-100 text-primary-700' : 'bg-surface-100 text-surface-600 hover:bg-surface-200'}"
 			>
 				All
 			</button>
 			<button
-				on:click={() => filterType = 'talent'}
+				onclick={() => filterType = 'talent'}
 				class="px-3 py-1 text-xs rounded-full transition-colors {filterType === 'talent' ? 'bg-blue-100 text-blue-700' : 'bg-surface-100 text-surface-600 hover:bg-surface-200'}"
 			>
 				Talents
 			</button>
 			<button
-				on:click={() => filterType = 'agent'}
+				onclick={() => filterType = 'agent'}
 				class="px-3 py-1 text-xs rounded-full transition-colors {filterType === 'agent' ? 'bg-purple-100 text-purple-700' : 'bg-surface-100 text-surface-600 hover:bg-surface-200'}"
 			>
 				Agents
@@ -84,7 +88,7 @@
 		{:else}
 			{#each filteredResources as resource (resource.id)}
 				<button
-					on:click={() => handleAdd(resource)}
+					onclick={() => handleAdd(resource)}
 					class="w-full text-left p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors group"
 				>
 					<div class="flex items-center gap-3">

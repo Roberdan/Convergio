@@ -1,5 +1,6 @@
 <script lang="ts">
-	export let skillCoverage: {
+	interface Props {
+		skillCoverage: {
 		covered: string[];
 		missing: string[];
 		coverage: number;
@@ -10,6 +11,9 @@
 			bestLevel: string;
 		}>;
 	};
+	}
+
+	let { skillCoverage }: Props = $props();
 
 	function getLevelColor(level: string) {
 		switch (level) {

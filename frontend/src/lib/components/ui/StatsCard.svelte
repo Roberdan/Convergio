@@ -7,7 +7,11 @@
 		period?: string;
 	}
 
-	interface $$Props {
+	
+
+
+	import { createEventDispatcher } from 'svelte';
+	interface Props {
 		title: string;
 		value: string | number;
 		subtitle?: string;
@@ -18,50 +22,54 @@
 		variant?: 'default' | 'compact' | 'detailed';
 		href?: string;
 		clickable?: boolean;
+		actions?: import('svelte').Snippet;
+		footer?: import('svelte').Snippet;
 	}
 
-	export let title: $$Props['title'];
-	export let value: $$Props['value'];
-	export let subtitle: $$Props['subtitle'] = '';
-	export let icon: $$Props['icon'] = '';
-	export let iconColor: NonNullable<$$Props['iconColor']> = 'primary';
-	export let trend: $$Props['trend'] = undefined;
-	export let loading: $$Props['loading'] = false;
-	export let variant: NonNullable<$$Props['variant']> = 'default';
-	export let href: $$Props['href'] = '';
-	export let clickable: $$Props['clickable'] = false;
-
-	import { createEventDispatcher } from 'svelte';
+	let {
+		title,
+		value,
+		subtitle = '',
+		icon = '',
+		iconColor = 'primary',
+		trend = undefined,
+		loading = false,
+		variant = 'default',
+		href = '',
+		clickable = false,
+		actions,
+		footer
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		click: MouseEvent;
 	}>();
 
 	// Compute icon color classes
-	$: iconColorClasses = {
+	let iconColorClasses = $derived({
 		primary: 'text-primary-600 bg-primary-100',
 		success: 'text-success-600 bg-success-100',
 		warning: 'text-warning-600 bg-warning-100',
 		error: 'text-error-600 bg-error-100',
 		info: 'text-info-600 bg-info-100',
 		gray: 'text-gray-600 bg-gray-100'
-	};
+	});
 
 	// Compute trend color classes
-	$: trendColorClasses = trend ? {
+	let trendColorClasses = $derived(trend ? {
 		up: 'text-success-600',
 		down: 'text-error-600',
 		neutral: 'text-gray-500'
-	}[trend.direction] : '';
+	}[trend.direction] : '');
 
 	// Compute card classes
-	$: cardClasses = [
+	let cardClasses = $derived([
 		'stats-card',
 		variant === 'compact' ? 'stats-card-compact' : '',
 		variant === 'detailed' ? 'stats-card-detailed' : '',
 		clickable || href ? 'cursor-pointer hover:shadow-lg hover:-translate-y-1' : '',
 		'transition-all duration-200'
-	].filter(Boolean).join(' ');
+	].filter(Boolean).join(' '));
 
 	function handleClick(event: MouseEvent | KeyboardEvent) {
 		if (href) {
@@ -88,8 +96,8 @@
 
 <div
 	class={cardClasses}
-	on:click={handleClick}
-	on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick(e)}
+	onclick={handleClick}
+	onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick(e)}
 	{...(clickable || href ? { role: 'button', tabindex: 0 } : {})}
 >
 	{#if loading}
@@ -122,9 +130,9 @@
 				{/if}
 			</div>
 
-			{#if $$slots.actions}
+			{#if actions}
 				<div class="stats-actions">
-					<slot name="actions" />
+					{@render actions?.()}
 				</div>
 			{/if}
 		</div>
@@ -145,10 +153,10 @@
 		</div>
 
 		<!-- Footer (detailed variant only) -->
-		{#if variant === 'detailed' && ($$slots.footer || subtitle)}
+		{#if variant === 'detailed' && (footer || subtitle)}
 			<div class="stats-footer">
-				{#if $$slots.footer}
-					<slot name="footer" />
+				{#if footer}
+					{@render footer?.()}
 				{:else if subtitle}
 					<p class="footer-subtitle">{subtitle}</p>
 				{/if}

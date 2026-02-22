@@ -47,7 +47,7 @@
 	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 		{#each themes as theme}
 			<button
-				on:click={() => selectTheme(theme.value)}
+				onclick={() => selectTheme(theme.value)}
 				class="p-4 rounded-lg border-2 transition-all text-left {$accessibilityStore.colorTheme === theme.value
 					? 'border-primary-500 ring-2 ring-primary-200'
 					: 'border-surface-200 hover:border-surface-300'}"
@@ -83,7 +83,7 @@
 			<input
 				type="checkbox"
 				checked={$accessibilityStore.reduceTransparency}
-				on:change={() => accessibilityStore.updateSetting('reduceTransparency', !$accessibilityStore.reduceTransparency)}
+				onchange={() => accessibilityStore.updateSetting('reduceTransparency', !$accessibilityStore.reduceTransparency)}
 				class="h-4 w-4 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
 			/>
 			<div>

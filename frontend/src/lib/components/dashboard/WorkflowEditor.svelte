@@ -1,25 +1,32 @@
 <script lang="ts">
+  import { preventDefault, createBubbler, stopPropagation } from 'svelte/legacy';
+
+  const bubble = createBubbler();
   import { onMount, onDestroy } from 'svelte';
   import { workflowsService } from '$lib/services/workflowsService';
   
-  export let workflowId: string | null = null;
-  export let onSave: any = () => {};
-  export let onClose: () => void = () => {};
+  interface Props {
+    workflowId?: string | null;
+    onSave?: any;
+    onClose?: () => void;
+  }
+
+  let { workflowId = null, onSave = () => {}, onClose = () => {} }: Props = $props();
   
-  let canvas: HTMLDivElement;
-  let workflow: any = {
+  let canvas: HTMLDivElement = $state()!;
+  let workflow: any = $state({
     workflow_id: '',
     name: '',
     description: '',
     steps: [],
     edges: []
-  };
+  });
   
-  let selectedNode: any = null;
+  let selectedNode: any = $state(null);
   // let selectedEdge: any = null; // unused
-  let isConnecting = false;
-  let connectingFrom: any = null;
-  let mousePos = { x: 0, y: 0 };
+  let isConnecting = $state(false);
+  let connectingFrom: any = $state(null);
+  let mousePos = $state({ x: 0, y: 0 });
   let draggedNode: any = null;
   let dragOffset = { x: 0, y: 0 };
   
@@ -239,13 +246,13 @@
       </div>
       <div class="flex items-center space-x-3">
         <button 
-          on:click={saveWorkflow}
+          onclick={saveWorkflow}
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
         >
           Save Workflow
         </button>
         <button 
-          on:click={onClose}
+          onclick={onClose}
           class="px-4 py-2 bg-surface-600 hover:bg-surface-200 text-white rounded text-sm"
         >
           Close
@@ -261,7 +268,7 @@
         <div class="space-y-2">
           {#each availableAgents as agent}
             <button 
-              on:click={() => addNode(agent)}
+              onclick={() => addNode(agent)}
               class="w-full text-left px-3 py-2 bg-white hover:bg-surface-50 rounded border border-surface-200 text-xs"
               style="border-left: 4px solid {agent.color}"
             >
@@ -306,8 +313,8 @@
                   role="button"
                   tabindex="0"
                   aria-label="Delete edge"
-                  on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && deleteEdge(edge)}
-                  on:contextmenu|preventDefault={() => deleteEdge(edge)}
+                  onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && deleteEdge(edge)}
+                  oncontextmenu={preventDefault(() => deleteEdge(edge))}
                 />
               </g>
             {/if}
@@ -339,20 +346,20 @@
           <div 
             class="absolute bg-white rounded-lg shadow-lg border-2 p-3 cursor-move select-none"
             style="left: {node.x}px; top: {node.y}px; width: 200px; border-color: {node.agent_color || '#6B7280'}"
-            on:mousedown={(e) => startNodeDrag(node, e)}
-            on:contextmenu|preventDefault={() => deleteNode(node)}
+            onmousedown={(e) => startNodeDrag(node, e)}
+            oncontextmenu={preventDefault(() => deleteNode(node))}
             role="button"
             tabindex="0"
             aria-label={`Node ${node.agent_display || node.agent_name}`}
-            on:keydown={(e) => (e.key === 'Delete' || e.key === 'Backspace') && deleteNode(node)}
+            onkeydown={(e) => (e.key === 'Delete' || e.key === 'Backspace') && deleteNode(node)}
           >
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-medium text-surface-600">{node.agent_display || node.agent_name}</span>
               <select 
                 bind:value={node.step_type}
                 class="text-xs px-1 py-0.5 border rounded"
-                on:click|stopPropagation
-                on:mousedown|stopPropagation
+                onclick={stopPropagation(bubble('click'))}
+                onmousedown={stopPropagation(bubble('mousedown'))}
               >
                 {#each stepTypes as type}
                   <option value={type.value}>{type.icon} {type.label}</option>
@@ -364,21 +371,21 @@
               bind:value={node.description}
               class="w-full text-xs px-2 py-1 border rounded"
               placeholder="Step description"
-              on:click|stopPropagation
-              on:mousedown|stopPropagation
+              onclick={stopPropagation(bubble('click'))}
+              onmousedown={stopPropagation(bubble('mousedown'))}
             />
             <div class="flex justify-between mt-2">
               <button 
-                on:click|stopPropagation={() => startConnection(node)}
-                on:mousedown|stopPropagation
+                onclick={stopPropagation(() => startConnection(node))}
+                onmousedown={stopPropagation(bubble('mousedown'))}
                 class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
               >
                 Connect →
               </button>
               {#if isConnecting && connectingFrom !== node}
                 <button 
-                  on:click|stopPropagation={() => completeConnection(node)}
-                  on:mousedown|stopPropagation
+                  onclick={stopPropagation(() => completeConnection(node))}
+                  onmousedown={stopPropagation(bubble('mousedown'))}
                   class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
                 >
                   → Here
@@ -422,7 +429,7 @@
                 id="node-inputs"
                 type="text"
                 value={selectedNode.inputs?.join(', ')}
-                on:input={(e) => {
+                oninput={(e) => {
                   const target = e.target as HTMLInputElement;
                   selectedNode.inputs = target.value.split(',').map((s: string) => s.trim());
                 }}
@@ -435,7 +442,7 @@
                 id="node-outputs"
                 type="text"
                 value={selectedNode.outputs?.join(', ')}
-                on:input={(e) => {
+                oninput={(e) => {
                   const target = e.target as HTMLInputElement;
                   selectedNode.outputs = target.value.split(',').map((s: string) => s.trim());
                 }}

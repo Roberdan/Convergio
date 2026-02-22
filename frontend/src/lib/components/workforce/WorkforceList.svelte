@@ -2,9 +2,13 @@
 	import { createEventDispatcher } from 'svelte';
 	import type { UnifiedResource } from '$lib/types/resource';
 
-	export let resources: UnifiedResource[] = [];
-	export let loading = false;
-	export let selectedResource: UnifiedResource | null = null;
+	interface Props {
+		resources?: UnifiedResource[];
+		loading?: boolean;
+		selectedResource?: UnifiedResource | null;
+	}
+
+	let { resources = [], loading = false, selectedResource = null }: Props = $props();
 
 	const dispatch = createEventDispatcher<{ select: UnifiedResource }>();
 
@@ -65,8 +69,8 @@
 			{#each resources as resource (resource.id)}
 				<div
 					class="resource-card bg-white rounded-xl shadow-sm border border-surface-200 p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary-300 {selectedResource?.id === resource.id ? 'ring-2 ring-primary-500' : ''}"
-					on:click={() => handleSelect(resource)}
-					on:keypress={(e) => e.key === 'Enter' && handleSelect(resource)}
+					onclick={() => handleSelect(resource)}
+					onkeypress={(e) => e.key === 'Enter' && handleSelect(resource)}
 					role="button"
 					tabindex="0"
 				>

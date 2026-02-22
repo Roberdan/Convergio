@@ -1,5 +1,9 @@
 <script lang="ts">
-  export let activeSection: string = 'overview';
+  interface Props {
+    activeSection?: string;
+  }
+
+  let { activeSection = $bindable('overview') }: Props = $props();
   
   const sections = [
     { id: 'overview', label: 'Overview', icon: 'chart-bar' },
@@ -39,7 +43,7 @@
     <nav class="flex flex-wrap gap-2">
       {#each sections as section}
         <button
-          on:click={() => handleSectionChange(section.id)}
+          onclick={() => handleSectionChange(section.id)}
           class="flex items-center space-x-2 px-4 py-3 rounded-lg text-sm font-bold transition-all duration-200 {
             activeSection === section.id
               ? 'bg-blue-600 text-white border-2 border-blue-700 shadow-md'

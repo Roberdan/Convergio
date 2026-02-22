@@ -3,9 +3,13 @@
   import { writable } from 'svelte/store';
   import { fly, fade } from 'svelte/transition';
   
-  export let maxEvents: number = 100;
-  export let wsEndpoint: string = 'ws://localhost:9000/ws/activity';
-  export let autoScroll: boolean = true;
+  interface Props {
+    maxEvents?: number;
+    wsEndpoint?: string;
+    autoScroll?: boolean;
+  }
+
+  let { maxEvents = 100, wsEndpoint = 'ws://localhost:9000/ws/activity', autoScroll = $bindable(true) }: Props = $props();
 
   type EventType = 'agent' | 'user' | 'system' | 'api' | 'workflow' | 'error';
 
@@ -39,11 +43,11 @@
   let events = writable<ActivityEvent[]>([]);
   let filteredEvents = writable<ActivityEvent[]>([]);
   let ws: WebSocket | null = null;
-  let isConnected = false;
-  let isPaused = false;
-  let timelineContainer: HTMLElement;
+  let isConnected = $state(false);
+  let isPaused = $state(false);
+  let timelineContainer: HTMLElement = $state()!;
   
-  let filter: ActivityFilter = {
+  let filter: ActivityFilter = $state({
     types: new Set(['agent', 'user', 'system', 'api', 'workflow', 'error']),
     categories: new Set(),
     searchQuery: '',
@@ -51,7 +55,7 @@
       start: null,
       end: null
     }
-  };
+  });
 
   const eventIcons: Record<EventType, string> = {
     agent: '🤖',
@@ -276,20 +280,20 @@
       <button
         class="pause-btn"
         class:active={isPaused}
-        on:click={() => isPaused = !isPaused}
+        onclick={() => isPaused = !isPaused}
       >
         {isPaused ? '▶️ Resume' : '⏸️ Pause'}
       </button>
       <button
         class="scroll-btn"
         class:active={autoScroll}
-        on:click={() => autoScroll = !autoScroll}
+        onclick={() => autoScroll = !autoScroll}
       >
         📜 Auto-scroll
       </button>
       <button
         class="export-btn"
-        on:click={exportEvents}
+        onclick={exportEvents}
       >
         💾 Export
       </button>
@@ -305,7 +309,7 @@
             class="filter-chip"
             class:active={filter.types.has(type)}
             style="--chip-color: {eventColors[type as EventType]}"
-            on:click={() => toggleTypeFilter(type)}
+            onclick={() => toggleTypeFilter(type)}
           >
             {icon} {type}
           </button>
@@ -318,12 +322,12 @@
         type="search"
         placeholder="Search events..."
         bind:value={filter.searchQuery}
-        on:input={applyFilters}
+        oninput={applyFilters}
         class="search-input"
       />
       <button
         class="clear-filters"
-        on:click={clearFilters}
+        onclick={clearFilters}
       >
         Clear Filters
       </button>
@@ -413,7 +417,7 @@
         <span class="empty-icon">📭</span>
         <p>No activity events to display</p>
         {#if filter.searchQuery || filter.types.size < 6}
-          <button on:click={clearFilters} class="reset-btn">
+          <button onclick={clearFilters} class="reset-btn">
             Reset Filters
           </button>
         {/if}

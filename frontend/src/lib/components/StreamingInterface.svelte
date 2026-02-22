@@ -2,8 +2,12 @@
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
   
-  export let agentId: string = '';
-  export let sessionId: string = '';
+  interface Props {
+    agentId?: string;
+    sessionId?: string;
+  }
+
+  let { agentId = '', sessionId = '' }: Props = $props();
   
   interface StreamMessage {
     id: string;
@@ -14,11 +18,11 @@
   }
   
   let messages = writable<StreamMessage[]>([]);
-  let inputMessage = '';
-  let isStreaming = false;
-  let isConnected = false;
+  let inputMessage = $state('');
+  let isStreaming = $state(false);
+  let isConnected = $state(false);
   let ws: WebSocket | null = null;
-  let streamContainer: HTMLElement;
+  let streamContainer: HTMLElement = $state()!;
   
   const connectWebSocket = () => {
     const wsUrl = `ws://localhost:9000/ws/stream?session=${sessionId}`;
@@ -180,20 +184,20 @@
     <input
       type="text"
       bind:value={inputMessage}
-      on:keypress={(e) => e.key === 'Enter' && sendMessage()}
+      onkeypress={(e) => e.key === 'Enter' && sendMessage()}
       placeholder="Type your message..."
       disabled={!isConnected || isStreaming}
       class="message-input"
     />
     <button
-      on:click={sendMessage}
+      onclick={sendMessage}
       disabled={!isConnected || isStreaming || !inputMessage.trim()}
       class="send-button"
     >
       {isStreaming ? '⏳' : '📤'} Send
     </button>
     <button
-      on:click={clearMessages}
+      onclick={clearMessages}
       class="clear-button"
       title="Clear messages"
     >

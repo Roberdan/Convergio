@@ -9,7 +9,9 @@
 		disabled?: boolean;
 	}
 
-	interface $$Props {
+	
+
+	interface Props {
 		items: BreadcrumbItem[];
 		separator?: 'slash' | 'chevron' | 'arrow' | 'dot';
 		showHome?: boolean;
@@ -18,12 +20,14 @@
 		size?: 'sm' | 'md' | 'lg';
 	}
 
-	export let items: $$Props['items'];
-	export let separator: NonNullable<$$Props['separator']> = 'chevron';
-	export let showHome: $$Props['showHome'] = true;
-	export let homeHref: $$Props['homeHref'] = '/';
-	export let maxItems: $$Props['maxItems'] = undefined;
-	export let size: NonNullable<$$Props['size']> = 'md';
+	let {
+		items,
+		separator = 'chevron',
+		showHome = true,
+		homeHref = '/',
+		maxItems = undefined,
+		size = 'md'
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		click: { item: BreadcrumbItem; index: number };
@@ -31,28 +35,28 @@
 	}>();
 
 	// Compute visible items with ellipsis if needed
-	$: visibleItems = maxItems && items.length > maxItems 
+	let visibleItems = $derived(maxItems && items.length > maxItems 
 		? [
 			...items.slice(0, 1), 
 			{ label: '...', disabled: true } as BreadcrumbItem,
 			...items.slice(-(maxItems - 2))
 		]
-		: items;
+		: items);
 
 	// Size classes
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		sm: 'text-xs',
 		md: 'text-sm', 
 		lg: 'text-base'
-	}[size];
+	}[size]);
 
 	// Separator icons
-	$: separatorIcon = {
+	let separatorIcon = $derived({
 		slash: '/',
 		chevron: 'chevron-right',
 		arrow: 'arrow-right',
 		dot: 'dot'
-	}[separator];
+	}[separator]);
 
 	function handleItemClick(item: BreadcrumbItem, index: number) {
 		if (item.disabled || item.active) return;
@@ -72,7 +76,7 @@
 				<a
 					href={homeHref}
 					class="breadcrumb-link home-link"
-					on:click={handleHomeClick}
+					onclick={handleHomeClick}
 					aria-label="Home"
 				>
 					<span class="icon-home" aria-hidden="true"></span>
@@ -111,7 +115,7 @@
 						href={item.href}
 						class="breadcrumb-link"
 						class:disabled={item.disabled}
-						on:click={() => handleItemClick(item, index)}
+						onclick={() => handleItemClick(item, index)}
 						aria-disabled={item.disabled}
 					>
 						{#if item.icon}

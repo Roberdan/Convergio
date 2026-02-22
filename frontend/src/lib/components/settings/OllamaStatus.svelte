@@ -1,8 +1,12 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
 
-  export let autoRefresh: boolean = true;
-  export let refreshInterval: number = 30000;
+  interface Props {
+    autoRefresh?: boolean;
+    refreshInterval?: number;
+  }
+
+  let { autoRefresh = true, refreshInterval = 30000 }: Props = $props();
 
   const dispatch = createEventDispatcher();
 
@@ -21,9 +25,9 @@
     error: string | null;
   }
 
-  let status: OllamaStatusData | null = null;
-  let loading = true;
-  let error: string | null = null;
+  let status: OllamaStatusData | null = $state(null);
+  let loading = $state(true);
+  let error: string | null = $state(null);
   let intervalId: ReturnType<typeof setInterval> | null = null;
 
   onMount(() => {
@@ -81,7 +85,7 @@
       <h4 class="text-sm font-medium text-surface-900">Ollama Status</h4>
     </div>
     <button
-      on:click={checkStatus}
+      onclick={checkStatus}
       disabled={loading}
       class="p-1.5 text-surface-500 hover:text-surface-700 hover:bg-surface-100 rounded transition-colors disabled:opacity-50"
       aria-label="Refresh Ollama status"

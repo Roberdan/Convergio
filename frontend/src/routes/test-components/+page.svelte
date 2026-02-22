@@ -4,7 +4,7 @@
   import GraphFlowBuilder from '$lib/components/GraphFlowBuilder.svelte';
   import HITLApprovalInterface from '$lib/components/HITLApprovalInterface.svelte';
   
-  let activeTab = 'streaming';
+  let activeTab = $state('streaming');
   
   const tabs = [
     { id: 'streaming', label: '🔄 Streaming', component: StreamingInterface },
@@ -39,7 +39,7 @@
         <button
           class="tab"
           class:active={activeTab === tab.id}
-          on:click={() => activeTab = tab.id}
+          onclick={() => activeTab = tab.id}
         >
           {tab.label}
         </button>

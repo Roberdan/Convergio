@@ -3,9 +3,9 @@
 	import { accessibilityStore } from '$lib/stores/accessibilityStore';
 	import { browser } from '$app/environment';
 
-	let rulerElement: HTMLDivElement;
-	let mouseY = 0;
-	let isVisible = false;
+	let rulerElement: HTMLDivElement = $state()!;
+	let mouseY = $state(0);
+	let isVisible = $state(false);
 
 	function handleMouseMove(e: MouseEvent) {
 		if (!$accessibilityStore.readingRulerEnabled) return;
@@ -55,7 +55,7 @@
 				<input
 					type="checkbox"
 					checked={$accessibilityStore.readingRulerEnabled}
-					on:change={() => accessibilityStore.updateSetting('readingRulerEnabled', !$accessibilityStore.readingRulerEnabled)}
+					onchange={() => accessibilityStore.updateSetting('readingRulerEnabled', !$accessibilityStore.readingRulerEnabled)}
 					class="sr-only peer"
 				/>
 				<div class="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
@@ -77,7 +77,7 @@
 				max="80"
 				step="5"
 				value={$accessibilityStore.readingRulerHeight}
-				on:input={handleRulerHeightChange}
+				oninput={handleRulerHeightChange}
 				class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer"
 			/>
 		</div>
@@ -96,7 +96,7 @@
 				<input
 					type="checkbox"
 					checked={$accessibilityStore.textToSpeechEnabled}
-					on:change={() => accessibilityStore.updateSetting('textToSpeechEnabled', !$accessibilityStore.textToSpeechEnabled)}
+					onchange={() => accessibilityStore.updateSetting('textToSpeechEnabled', !$accessibilityStore.textToSpeechEnabled)}
 					class="sr-only peer"
 				/>
 				<div class="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
@@ -125,7 +125,7 @@
 				<input
 					type="checkbox"
 					checked={$accessibilityStore.syllableHighlighting}
-					on:change={() => accessibilityStore.updateSetting('syllableHighlighting', !$accessibilityStore.syllableHighlighting)}
+					onchange={() => accessibilityStore.updateSetting('syllableHighlighting', !$accessibilityStore.syllableHighlighting)}
 					disabled={!$accessibilityStore.textToSpeechEnabled}
 					class="sr-only peer"
 				/>

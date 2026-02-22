@@ -1,66 +1,74 @@
 <script lang="ts">
 	import type { HTMLAttributes } from 'svelte/elements';
 
-	interface $$Props extends HTMLAttributes<HTMLSpanElement> {
+	
+
+
+	import { createEventDispatcher } from 'svelte';
+	interface Props {
 		variant?: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'gray';
 		size?: 'sm' | 'md' | 'lg';
 		rounded?: boolean;
 		dot?: boolean;
 		removable?: boolean;
+		children?: import('svelte').Snippet;
+		[key: string]: any
 	}
 
-	export let variant: NonNullable<$$Props['variant']> = 'primary';
-	export let size: NonNullable<$$Props['size']> = 'md';
-	export let rounded: $$Props['rounded'] = true;
-	export let dot: $$Props['dot'] = false;
-	export let removable: $$Props['removable'] = false;
-
-	import { createEventDispatcher } from 'svelte';
+	let {
+		variant = 'primary',
+		size = 'md',
+		rounded = true,
+		dot = false,
+		removable = false,
+		children,
+		...rest
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		remove: void;
 	}>();
 
 	// Compute CSS classes
-	$: variantClasses = {
+	let variantClasses = $derived({
 		primary: 'badge-primary',
 		success: 'badge-success',
 		warning: 'badge-warning',
 		error: 'badge-error',
 		info: 'badge-info',
 		gray: 'badge-gray'
-	};
+	});
 
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		sm: 'badge-sm',
 		md: 'badge',
 		lg: 'badge-lg'
-	};
+	});
 
-	$: classes = [
+	let classes = $derived([
 		sizeClasses[size],
 		variantClasses[variant],
 		!rounded ? 'rounded-md' : '', // Override rounded-full from base badge class
 		dot ? 'pl-2' : ''
-	].filter(Boolean).join(' ');
+	].filter(Boolean).join(' '));
 
 	function handleRemove() {
 		dispatch('remove');
 	}
 </script>
 
-<span class={classes} {...$$restProps}>
+<span class={classes} {...rest}>
 	{#if dot}
 		<span class="badge-dot bg-current opacity-75 mr-1.5" aria-hidden="true"></span>
 	{/if}
 	
-	<slot />
+	{@render children?.()}
 	
 	{#if removable}
 		<button
 			type="button"
 			class="badge-remove-btn ml-1 hover:bg-black/10 rounded-full p-0.5 transition-colors duration-200"
-			on:click={handleRemove}
+			onclick={handleRemove}
 			aria-label="Remove badge"
 		>
 			<span class="icon-x w-3 h-3" aria-hidden="true"></span>

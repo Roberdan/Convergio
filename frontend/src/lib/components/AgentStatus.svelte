@@ -4,17 +4,23 @@ Displays agent status indicators (active, waiting, idle, error) and conversation
 -->
 
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { agentStatuses, conversationManager } from '$lib/stores/conversationStore';
   import type { AgentStatus } from '$lib/stores/conversationStore';
 
-  export let agentId: string;
-  export let agentName: string;
-  export let compact = false; // For list view vs detail view
+  interface Props {
+    agentId: string;
+    agentName: string;
+    compact?: boolean; // For list view vs detail view
+  }
 
-  let status: AgentStatus | null = null;
+  let { agentId, agentName, compact = false }: Props = $props();
+
+  let status: AgentStatus | null = $state(null);
   
   // Subscribe to agent status
-  $: {
+  run(() => {
     const statusMap = $agentStatuses;
     status = statusMap.get(agentId) || null;
     
@@ -23,7 +29,7 @@ Displays agent status indicators (active, waiting, idle, error) and conversation
       conversationManager.initializeConversation(agentId, agentName);
       status = statusMap.get(agentId) || null;
     }
-  }
+  });
 
   function getStatusColor(statusType: string): string {
     switch (statusType) {

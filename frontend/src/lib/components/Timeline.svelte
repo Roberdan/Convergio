@@ -4,19 +4,26 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
 -->
 
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { onMount, onDestroy } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   
-  // Props
-  export let conversationId: string;
-  export let autoRefresh: boolean = true;
-  export let showDetails: boolean = true;
+  
+  interface Props {
+    // Props
+    conversationId: string;
+    autoRefresh?: boolean;
+    showDetails?: boolean;
+  }
+
+  let { conversationId, autoRefresh = true, showDetails = true }: Props = $props();
   
   // State
-  let timeline: any[] = [];
-  let loading = false;
-  let error: string | null = null;
+  let timeline: any[] = $state([]);
+  let loading = $state(false);
+  let error: string | null = $state(null);
   let refreshInterval: number | null = null;
   
   // Types
@@ -136,9 +143,11 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
   });
   
   // Reactive statements
-  $: if (conversationId) {
-    loadTimeline();
-  }
+  run(() => {
+    if (conversationId) {
+      loadTimeline();
+    }
+  });
 </script>
 
 <div class="timeline-container">
@@ -153,7 +162,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
     
     <div class="timeline-controls">
       <button 
-        on:click={loadTimeline}
+        onclick={loadTimeline}
         disabled={loading}
         class="btn-refresh"
         aria-label="Refresh timeline"
@@ -180,7 +189,7 @@ Include speaker, tools, fonti, costi, razionali per ogni turn
     <div class="error-state" transition:fade>
       <div class="error-icon">⚠️</div>
       <p class="error-message">{error}</p>
-      <button on:click={loadTimeline} class="btn-retry">
+      <button onclick={loadTimeline} class="btn-retry">
         Try Again
       </button>
     </div>

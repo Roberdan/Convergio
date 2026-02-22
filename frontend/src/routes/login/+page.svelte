@@ -4,11 +4,13 @@
 -->
 
 <script lang="ts">
+  import { preventDefault } from 'svelte/legacy';
+
   import { goto } from '$app/navigation';
   
-  let username = '';
-  let password = '';
-  let loading = false;
+  let username = $state('');
+  let password = $state('');
+  let loading = $state(false);
   
   async function handleLogin() {
     loading = true;
@@ -42,7 +44,7 @@
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-      <form on:submit|preventDefault={handleLogin} class="space-y-6">
+      <form onsubmit={preventDefault(handleLogin)} class="space-y-6">
         <div>
           <label for="username" class="block text-sm font-medium text-surface-600">
             Email

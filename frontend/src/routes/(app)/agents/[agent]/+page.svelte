@@ -9,8 +9,8 @@
   import AgentStatus from '$lib/components/AgentStatus.svelte';
   
   // Get agent name from URL parameter
-  $: agentName = $page.params.agent;
-  $: agentDisplayName = agentName?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Agent';
+  let agentName = $derived($page.params.agent);
+  let agentDisplayName = $derived(agentName?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Agent');
   
   // Agent status
   let agentInfo = {
@@ -27,10 +27,10 @@
     content: string;
     timestamp: Date;
     agent?: string;
-  }> = [];
+  }> = $state([]);
   
-  let currentMessage = '';
-  let isLoading = false;
+  let currentMessage = $state('');
+  let isLoading = $state(false);
 
   // Conversation management
   let conversationId = '';
@@ -161,7 +161,7 @@
         
         <div class="flex items-center space-x-4">
           <button
-            on:click={clearConversation}
+            onclick={clearConversation}
             data-testid="clear-conversation"
             class="inline-flex items-center px-4 py-2 border border-surface-300 rounded-md shadow-sm text-sm font-medium text-surface-600 bg-white hover:bg-surface-50"
           >
@@ -225,7 +225,7 @@
           <div class="flex-1">
             <textarea
               bind:value={currentMessage}
-              on:keydown={handleKeyDown}
+              onkeydown={handleKeyDown}
               placeholder="Type your message..."
               rows="1"
               data-testid="chat-input"
@@ -234,7 +234,7 @@
             ></textarea>
           </div>
           <button
-            on:click={sendMessage}
+            onclick={sendMessage}
             disabled={!currentMessage.trim() || isLoading}
             data-testid="send-button"
             aria-label="Send message"

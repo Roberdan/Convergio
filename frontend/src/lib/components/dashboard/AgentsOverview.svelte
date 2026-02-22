@@ -2,10 +2,10 @@
   import { onMount } from 'svelte';
   import { agentsService, type Agent, type SwarmStatus } from '$lib/services/agentsService';
 
-  let agents: Agent[] = [];
-  let swarmStatus: SwarmStatus | null = null;
-  let loading = true;
-  let error: string | null = null;
+  let agents: Agent[] = $state([]);
+  let swarmStatus: SwarmStatus | null = $state(null);
+  let loading = $state(true);
+  let error: string | null = $state(null);
 
   function getStatusColor(status: string): string {
     switch (status) {
@@ -39,8 +39,8 @@
 
   onMount(loadAgentsData);
 
-  $: activeAgents = agents.filter(a => a.status === 'active');
-  $: busyAgents = agents.filter(a => a.status === 'busy');
+  let activeAgents = $derived(agents.filter(a => a.status === 'active'));
+  let busyAgents = $derived(agents.filter(a => a.status === 'busy'));
 </script>
 
 <div class="bg-white border border-surface-200 rounded">
@@ -48,7 +48,7 @@
     <div class="flex items-center justify-between">
       <h3 class="text-sm font-medium text-surface-900">AI Agents Ecosystem</h3>
       <button 
-        on:click={loadAgentsData}
+        onclick={loadAgentsData}
         class="text-xs text-surface-500 hover:text-surface-600 flex items-center space-x-1"
       >
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +85,7 @@
       <div class="text-center text-red-600">
         <p>{error}</p>
         <button 
-          on:click={loadAgentsData}
+          onclick={loadAgentsData}
           class="mt-2 text-sm text-blue-600 hover:text-blue-800"
         >
           Try again

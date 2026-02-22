@@ -37,7 +37,7 @@
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 			{#each fontOptions as font}
 				<button
-					on:click={() => accessibilityStore.updateSetting('fontFamily', font.value)}
+					onclick={() => accessibilityStore.updateSetting('fontFamily', font.value)}
 					class="p-3 text-left rounded-lg border-2 transition-all {$accessibilityStore.fontFamily === font.value
 						? 'border-primary-500 bg-primary-50'
 						: 'border-surface-200 hover:border-surface-300'}"
@@ -62,7 +62,7 @@
 			max="150"
 			step="10"
 			value={$accessibilityStore.fontSize}
-			on:input={handleFontSizeChange}
+			oninput={handleFontSizeChange}
 			class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer"
 		/>
 		<div class="flex justify-between text-xs text-surface-500 mt-1">
@@ -85,7 +85,7 @@
 			max="2.5"
 			step="0.1"
 			value={$accessibilityStore.lineHeight}
-			on:input={handleLineHeightChange}
+			oninput={handleLineHeightChange}
 			class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer"
 		/>
 		<div class="flex justify-between text-xs text-surface-500 mt-1">
@@ -111,7 +111,7 @@
 			max="0.15"
 			step="0.01"
 			value={$accessibilityStore.letterSpacing}
-			on:input={handleLetterSpacingChange}
+			oninput={handleLetterSpacingChange}
 			class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer"
 		/>
 	</div>
@@ -129,7 +129,7 @@
 			max="120"
 			step="5"
 			value={$accessibilityStore.maxLineWidth}
-			on:input={handleMaxWidthChange}
+			oninput={handleMaxWidthChange}
 			class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer"
 		/>
 		<p class="text-xs text-surface-500 mt-2">

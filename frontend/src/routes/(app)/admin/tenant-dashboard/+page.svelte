@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { stopPropagation } from 'svelte/legacy';
+
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   
@@ -40,15 +42,15 @@
   let tenants = writable<Tenant[]>([]);
   let selectedTenant = writable<Tenant | null>(null);
   let usageMetrics = writable<UsageMetric[]>([]);
-  let loading = false;
-  let showCreateModal = false;
-  let showEditModal = false;
-  let searchQuery = '';
-  let filterStatus = 'all';
-  let filterPlan = 'all';
+  let loading = $state(false);
+  let showCreateModal = $state(false);
+  let showEditModal = $state(false);
+  let searchQuery = $state('');
+  let filterStatus = $state('all');
+  let filterPlan = $state('all');
   
   // Form data for creating/editing tenant
-  let formData = {
+  let formData = $state({
     name: '',
     status: 'trial' as Tenant['status'],
     subscription_plan: 'free' as Tenant['subscription_plan'],
@@ -59,7 +61,7 @@
     max_api_calls: 10000,
     max_storage_gb: 10,
     max_ai_tokens: 100000
-  };
+  });
   
   onMount(async () => {
     await loadTenants();
@@ -230,16 +232,16 @@
     return 'bg-green-500';
   }
   
-  $: filteredTenants = $tenants.filter(tenant => {
+  let filteredTenants = $derived($tenants.filter(tenant => {
     const matchesSearch = tenant.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === 'all' || tenant.status === filterStatus;
     const matchesPlan = filterPlan === 'all' || tenant.subscription_plan === filterPlan;
     return matchesSearch && matchesStatus && matchesPlan;
-  });
+  }));
   
-  $: totalRevenue = $tenants.reduce((sum, tenant) => sum + tenant.total_cost, 0);
-  $: activeTenantsCount = $tenants.filter(t => t.status === 'active').length;
-  $: trialTenantsCount = $tenants.filter(t => t.status === 'trial').length;
+  let totalRevenue = $derived($tenants.reduce((sum, tenant) => sum + tenant.total_cost, 0));
+  let activeTenantsCount = $derived($tenants.filter(t => t.status === 'active').length);
+  let trialTenantsCount = $derived($tenants.filter(t => t.status === 'trial').length);
 </script>
 
 <div class="p-6">
@@ -304,7 +306,7 @@
       </select>
       
       <button
-        on:click={() => showCreateModal = true}
+        onclick={() => showCreateModal = true}
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
       >
         Create Tenant
@@ -332,7 +334,7 @@
         </thead>
         <tbody class="divide-y divide-gray-200">
           {#each filteredTenants as tenant}
-            <tr class="hover:bg-surface-50 cursor-pointer" on:click={() => selectTenant(tenant)}>
+            <tr class="hover:bg-surface-50 cursor-pointer" onclick={() => selectTenant(tenant)}>
               <td class="px-4 py-3">
                 <div>
                   <div class="font-medium text-surface-900">{tenant.name}</div>
@@ -388,7 +390,7 @@
               <td class="px-4 py-3">
                 <div class="flex gap-2">
                   <button
-                    on:click|stopPropagation={() => openEditModal(tenant)}
+                    onclick={stopPropagation(() => openEditModal(tenant))}
                     class="text-blue-600 hover:text-blue-800"
                     aria-label="Edit tenant"
                   >
@@ -399,7 +401,7 @@
                   
                   {#if tenant.status === 'active'}
                     <button
-                      on:click|stopPropagation={() => suspendTenant(tenant.id)}
+                      onclick={stopPropagation(() => suspendTenant(tenant.id))}
                       class="text-red-600 hover:text-red-800"
                       aria-label="Suspend tenant"
                     >
@@ -409,7 +411,7 @@
                     </button>
                   {:else if tenant.status === 'suspended'}
                     <button
-                      on:click|stopPropagation={() => activateTenant(tenant.id)}
+                      onclick={stopPropagation(() => activateTenant(tenant.id))}
                       class="text-green-600 hover:text-green-800"
                       aria-label="Activate tenant"
                     >
@@ -420,7 +422,7 @@
                   {/if}
                   
                   <button
-                    on:click|stopPropagation={() => exportTenantData(tenant.id, 'csv')}
+                    onclick={stopPropagation(() => exportTenantData(tenant.id, 'csv'))}
                     class="text-surface-600 hover:text-surface-800"
                     aria-label="Export CSV"
                   >
@@ -662,7 +664,7 @@
         
         <div class="flex justify-end gap-3 mt-6">
           <button
-            on:click={() => {
+            onclick={() => {
               showCreateModal = false;
               showEditModal = false;
               resetForm();
@@ -673,7 +675,7 @@
           </button>
           
           <button
-            on:click={showCreateModal ? createTenant : updateTenant}
+            onclick={showCreateModal ? createTenant : updateTenant}
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             {showCreateModal ? 'Create' : 'Update'}
