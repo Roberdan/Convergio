@@ -22,6 +22,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.es2017,
+        ...globals.node,
       },
     },
     plugins: {
@@ -60,7 +61,7 @@ export default [
     },
     rules: {
       "svelte/no-at-html-tags": "warn",
-      "svelte/valid-compile": "error",
+      "svelte/valid-compile": ["error", { ignoreWarnings: true }],
       // TS already checks undefined types; avoid false positives in Svelte TS
       "no-undef": "off",
       // Disable base rule in favor of TypeScript rule

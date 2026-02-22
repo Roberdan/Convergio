@@ -2,8 +2,6 @@
 	import { createBubbler } from 'svelte/legacy';
 
 	const bubble = createBubbler();
-	import type { HTMLAttributes } from 'svelte/elements';
-
 	
 
 	interface Props {
