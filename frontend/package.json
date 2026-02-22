@@ -32,7 +32,7 @@
     "@storybook/sveltekit": "^9.0.18",
     "@sveltejs/adapter-node": "^5.2.13",
     "@sveltejs/adapter-vercel": "^6.3.2",
-    "@sveltejs/kit": "^2.26.1",
+    "@sveltejs/kit": "^2.53.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/svelte": "^5.2.8",
