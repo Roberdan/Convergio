@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-02-22
+
+### W8: Platform Launch & Compliance
+- Landing page with hero, features, pricing, waitlist CTA
+- Legal pages (privacy, terms, cookies)
+- ARCHITECTURE.md (system overview, deployment, security)
+- SECURITY.md + SETUP-PRODUCTION.md
+
 ### W7: Production Deployment & Cloud Integration
 - Added: SvelteKit Vercel adapter, `vercel.json` with FRA1 region, cron jobs for scheduled tasks
 - Added: Azure Container App configuration, multi-stage `Dockerfile.production`
