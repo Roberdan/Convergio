@@ -52,6 +52,7 @@ from .api.agent_management import router as agent_management_router
 from .api.swarm_coordination import router as swarm_coordination_router
 from .api.agents_ecosystem import router as agents_ecosystem_router
 from .api.admin import router as admin_router
+from .api.admin_maintenance import router as admin_maintenance_router
 from .api.approvals import router as approvals_router
 from .api.projects import router as projects_router
 from .api.system_status import router as system_status_router
@@ -61,6 +62,7 @@ from .api.pm_orchestration import router as pm_orchestration_router
 from .api.realtime_endpoints import router as realtime_router
 from .api.ai_settings import router as ai_settings_router
 from .api.auth import router as auth_router
+from .api.webhooks import router as webhooks_router
 
 # Setup non-blocking structured logging for asyncio
 setup_async_logging()
@@ -337,6 +339,7 @@ def create_app() -> FastAPI:
     # AI Provider Settings (no auth required)
     app.include_router(ai_settings_router, prefix="/api/v1/settings/ai", tags=["AI Settings"])
     app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
+    app.include_router(webhooks_router, prefix="/api/v1/webhooks", tags=["Webhooks"])
 
     # Business logic APIs (no auth required)
     app.include_router(talents_router, prefix="/api/v1/talents", tags=["Talents"])
@@ -353,6 +356,7 @@ def create_app() -> FastAPI:
     
     # Admin endpoints for database maintenance
     app.include_router(admin_router, tags=["Admin"])
+    app.include_router(admin_maintenance_router, tags=["Admin"])
     
     # System status endpoints
     app.include_router(system_status_router, tags=["System"])

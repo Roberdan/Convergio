@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...core.database import get_db_session
+from ...core.tier_middleware import require_tier_limit
 from ...core.redis import cache_get, cache_set
 from ...agents.orchestrator import get_agent_orchestrator
 from ...agents.services.streaming_orchestrator import get_streaming_orchestrator
@@ -174,7 +175,8 @@ async def get_ecosystem_status(
 async def create_conversation(
     request: ConversationRequest,
     req: Request,
-    db: AsyncSession = Depends(get_db_session)
+    db: AsyncSession = Depends(get_db_session),
+    _: None = Depends(require_tier_limit("conversations")),
 ) -> Dict[str, Any]:
     """Create a new conversation with AI agents"""
     return await handle_conversation(request, req, db)
@@ -348,7 +350,8 @@ async def load_latest_conversation(agent_id: str) -> Dict[str, Any]:
 @router.post("/conversation/stream")
 async def create_streaming_conversation(
     request: StreamingConversationRequest,
-    req: Request
+    req: Request,
+    _: None = Depends(require_tier_limit("conversations")),
 ) -> Dict[str, Any]:
     """Create a streaming conversation with AI agents"""
     return await handle_streaming_conversation(request, req)
@@ -409,7 +412,8 @@ async def get_project(
 async def orchestrate_agents(
     request: OrchestrationRequest,
     req: Request,
-    db: AsyncSession = Depends(get_db_session)
+    db: AsyncSession = Depends(get_db_session),
+    _: None = Depends(require_tier_limit("agents")),
 ) -> AgentExecutionResponse:
     """Orchestrate multiple agents for a complex task"""
     
@@ -456,7 +460,8 @@ async def orchestrate_agents(
 async def execute_agent(
     request: AgentExecutionRequest,
     req: Request,
-    db: AsyncSession = Depends(get_db_session)
+    db: AsyncSession = Depends(get_db_session),
+    _: None = Depends(require_tier_limit("agents")),
 ) -> AgentExecutionResponse:
     """Execute a specific agent with a task"""
     

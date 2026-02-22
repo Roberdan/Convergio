@@ -1,178 +1,181 @@
-"""
-Admin API endpoints for database maintenance and monitoring
-"""
+"""Admin API endpoints for user management, audit and maintenance."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Dict, Any, List, Optional
-import structlog
 
+from ..core.admin import require_admin
 from ..core.database import get_db_session
-from ..core.db_maintenance import get_db_maintenance
-
-logger = structlog.get_logger()
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 
 
-@router.get("/db-stats")
-async def get_database_statistics(
-    db: AsyncSession = Depends(get_db_session)
-) -> Dict[str, Any]:
-    """
-    Get database statistics including table sizes and bloat.
-    """
-    try:
-        db_maintenance = get_db_maintenance()
-        table_stats = await db_maintenance.get_table_statistics(db)
-        
-        return {
-            "status": "success",
-            "tables": table_stats,
-            "total_tables": len(table_stats)
-        }
-    except Exception as e:
-        logger.error(f"Failed to get database stats: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+class AdminUserUpdateRequest(BaseModel):
+    tier: str | None = None
+    role: str | None = None
 
 
-@router.get("/slow-queries")
-async def get_slow_queries(
-    threshold_ms: int = 100,
-    db: AsyncSession = Depends(get_db_session)
-) -> Dict[str, Any]:
-    """
-    Get slow queries from pg_stat_statements.
-    
-    Args:
-        threshold_ms: Minimum query time in milliseconds
-    """
-    try:
-        db_maintenance = get_db_maintenance()
-        slow_queries = await db_maintenance.analyze_slow_queries(db, threshold_ms)
-        
-        return {
-            "status": "success",
-            "threshold_ms": threshold_ms,
-            "queries": slow_queries,
-            "total": len(slow_queries)
-        }
-    except Exception as e:
-        logger.error(f"Failed to get slow queries: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+@router.get("/users")
+async def list_users(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db_session),
+    _: dict[str, Any] = Depends(require_admin),
+) -> dict[str, Any]:
+    offset = (page - 1) * page_size
+    count_result = await db.execute(text('SELECT COUNT(*) AS count FROM talents WHERE deleted_at IS NULL'))
+    total = int(count_result.scalar() or 0)
+
+    users_result = await db.execute(
+        text(
+            """
+            SELECT id, email, first_name, last_name, tier, role, created_at, updated_at
+            FROM talents
+            WHERE deleted_at IS NULL
+            ORDER BY id ASC
+            LIMIT :limit OFFSET :offset
+            """
+        ),
+        {"limit": page_size, "offset": offset},
+    )
+    users = [dict(row) for row in users_result.mappings().all()]
+    return {
+        "users": users,
+        "pagination": {
+            "page": page,
+            "page_size": page_size,
+            "total": total,
+            "total_pages": (total + page_size - 1) // page_size if total else 0,
+        },
+    }
 
 
-@router.post("/vacuum")
-async def run_vacuum_analyze(
-    tables: Optional[List[str]] = None,
-    db: AsyncSession = Depends(get_db_session)
-) -> Dict[str, Any]:
-    """
-    Manually run VACUUM ANALYZE on specified tables or all tables.
-    
-    Args:
-        tables: List of table names (all if not specified)
-    """
-    try:
-        db_maintenance = get_db_maintenance()
-        results = await db_maintenance.vacuum_analyze_tables(db, tables)
-        
-        return {
-            "status": "success",
-            "results": results
-        }
-    except Exception as e:
-        logger.error(f"Failed to run VACUUM ANALYZE: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+@router.patch("/users/{user_id}")
+async def update_user(
+    user_id: int,
+    payload: AdminUserUpdateRequest,
+    db: AsyncSession = Depends(get_db_session),
+    admin_user: dict[str, Any] = Depends(require_admin),
+) -> dict[str, Any]:
+    update_data = payload.model_dump(exclude_none=True)
+    if not update_data:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update")
+
+    set_clause = ", ".join([f"{field} = :{field}" for field in update_data])
+    params = {"user_id": user_id, **update_data}
+    result = await db.execute(
+        text(
+            f"""
+            UPDATE talents
+            SET {set_clause}, updated_at = NOW()
+            WHERE id = :user_id AND deleted_at IS NULL
+            RETURNING id, email, tier, role, updated_at
+            """
+        ),
+        params,
+    )
+    updated = result.mappings().first()
+    if not updated:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    await db.execute(
+        text(
+            """
+            INSERT INTO "AdminAuditLog" ("action", "actor", "payload")
+            VALUES (:action, :actor, :payload)
+            """
+        ),
+        {
+            "action": "user.updated",
+            "actor": str(admin_user.get("email") or admin_user.get("id")),
+            "payload": {"entity": "user", "entity_id": str(user_id), "changes": update_data},
+        },
+    )
+    await db.commit()
+    return dict(updated)
 
 
-@router.get("/index-suggestions")
-async def get_index_optimization_suggestions(
-    db: AsyncSession = Depends(get_db_session)
-) -> Dict[str, Any]:
-    """
-    Get index optimization suggestions including unused and duplicate indexes.
-    """
-    try:
-        db_maintenance = get_db_maintenance()
-        suggestions = await db_maintenance.optimize_indexes(db)
-        
-        return {
-            "status": "success",
-            "suggestions": suggestions
-        }
-    except Exception as e:
-        logger.error(f"Failed to get index suggestions: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+@router.delete("/users/{user_id}")
+async def soft_delete_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db_session),
+    admin_user: dict[str, Any] = Depends(require_admin),
+) -> dict[str, str]:
+    result = await db.execute(
+        text(
+            """
+            UPDATE talents
+            SET deleted_at = NOW(), updated_at = NOW()
+            WHERE id = :user_id AND deleted_at IS NULL
+            RETURNING id
+            """
+        ),
+        {"user_id": user_id},
+    )
+    deleted = result.mappings().first()
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    await db.execute(
+        text(
+            """
+            INSERT INTO "AdminAuditLog" ("action", "actor", "payload")
+            VALUES (:action, :actor, :payload)
+            """
+        ),
+        {
+            "action": "user.deleted",
+            "actor": str(admin_user.get("email") or admin_user.get("id")),
+            "payload": {"entity": "user", "entity_id": str(user_id)},
+        },
+    )
+    await db.commit()
+    return {"message": "User deleted"}
 
 
-@router.get("/maintenance-status")
-async def get_maintenance_status() -> Dict[str, Any]:
-    """
-    Get current maintenance scheduler status and history.
-    """
-    try:
-        db_maintenance = get_db_maintenance()
-        status = db_maintenance.get_maintenance_status()
-        
-        return {
-            "status": "success",
-            "maintenance": status
-        }
-    except Exception as e:
-        logger.error(f"Failed to get maintenance status: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+@router.get("/audit-log")
+async def get_audit_log(
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    action: str | None = None,
+    entity: str | None = None,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db_session),
+    _: dict[str, Any] = Depends(require_admin),
+) -> dict[str, Any]:
+    where_clauses: list[str] = ["1=1"]
+    params: dict[str, Any] = {"limit": page_size, "offset": (page - 1) * page_size}
+    if start_date:
+        where_clauses.append('"createdAt" >= :start_date')
+        params["start_date"] = start_date
+    if end_date:
+        where_clauses.append('"createdAt" <= :end_date')
+        params["end_date"] = end_date
+    if action:
+        where_clauses.append('"action" = :action')
+        params["action"] = action
+    if entity:
+        where_clauses.append('COALESCE(CAST("payload" AS TEXT), \'\') LIKE :entity_like')
+        params["entity_like"] = f'%\"entity\": \"{entity}\"%'
 
-
-@router.post("/maintenance/schedule")
-async def update_maintenance_schedule(
-    vacuum_hour: int = 3,
-    vacuum_minute: int = 0
-) -> Dict[str, Any]:
-    """
-    Update the maintenance schedule.
-    
-    Args:
-        vacuum_hour: Hour to run VACUUM (0-23)
-        vacuum_minute: Minute to run VACUUM (0-59)
-    """
-    try:
-        if not (0 <= vacuum_hour <= 23):
-            raise ValueError("vacuum_hour must be between 0 and 23")
-        if not (0 <= vacuum_minute <= 59):
-            raise ValueError("vacuum_minute must be between 0 and 59")
-        
-        db_maintenance = get_db_maintenance()
-        
-        # Stop current scheduler if running
-        if db_maintenance.is_running:
-            db_maintenance.stop_maintenance()
-        
-        # Start with new schedule
-        db_maintenance.schedule_maintenance(vacuum_hour, vacuum_minute)
-        
-        return {
-            "status": "success",
-            "message": f"Maintenance scheduled for {vacuum_hour:02d}:{vacuum_minute:02d} UTC daily"
-        }
-    except Exception as e:
-        logger.error(f"Failed to update maintenance schedule: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+    result = await db.execute(
+        text(
+            f"""
+            SELECT "id", "action", "actor", "payload", "createdAt"
+            FROM "AdminAuditLog"
+            WHERE {' AND '.join(where_clauses)}
+            ORDER BY "createdAt" DESC
+            LIMIT :limit OFFSET :offset
+            """
+        ),
+        params,
+    )
+    entries = [dict(row) for row in result.mappings().all()]
+    return {"entries": entries, "page": page, "page_size": page_size}

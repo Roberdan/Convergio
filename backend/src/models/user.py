@@ -3,6 +3,7 @@
 Compatibility wrapper around Talent model for backward compatibility
 """
 
+from enum import StrEnum
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -66,6 +67,13 @@ class User:
     @property
     def is_admin(self) -> Optional[bool]:
         return self.talent.is_admin
+
+    @property
+    def role(self) -> str:
+        talent_role = getattr(self.talent, "role", None)
+        if talent_role:
+            return str(talent_role).upper()
+        return UserRole.ADMIN if self.is_admin else UserRole.MEMBER
     
     @property
     def is_active(self) -> bool:
@@ -125,3 +133,8 @@ class User:
     async def get_active_count(cls, db: AsyncSession, since_date=None) -> int:
         """Get count of active users"""
         return await Talent.get_active_count(db, since_date)
+
+
+class UserRole(StrEnum):
+    ADMIN = "ADMIN"
+    MEMBER = "MEMBER"

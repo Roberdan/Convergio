@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### W4: Admin, Billing & Stripe Integration
+- Added: Admin middleware (`require_admin`), admin API (users CRUD, audit-log)
+- Added: Admin frontend pages (`/admin/users`, `/admin/audit`, `/admin/tiers`, `/admin/agents`)
+- Added: Stripe integration (checkout sessions, webhooks, subscription→tier sync)
+- Added: Tier enforcement (`check_tier_limit`, 402 on limit exceeded)
+- Added: Billing page (`/settings/billing` with usage meters, Stripe checkout/portal)
+
 ### W3: Auth Architecture & Security
 - Added: Session-based auth with HMAC-SHA256 signed cookies (backend)
 - Added: Auth API endpoints (login, logout, register, change-password, forgot-password, reset-password, me)
