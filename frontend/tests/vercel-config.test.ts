@@ -7,8 +7,8 @@ describe("Vercel deployment configuration", () => {
     const configPath = resolve(process.cwd(), "svelte.config.js");
     const configSource = readFileSync(configPath, "utf8");
 
-    expect(configSource).toContain('@sveltejs/adapter-vercel');
-    expect(configSource).toContain("runtime: \"nodejs20.x\"");
+    expect(configSource).toContain("@sveltejs/adapter-vercel");
+    expect(configSource).toContain('runtime: "nodejs20.x"');
     expect(configSource).toContain('regions: ["fra1"]');
   });
 
@@ -19,7 +19,10 @@ describe("Vercel deployment configuration", () => {
     expect(vercelConfig.regions).toContain("fra1");
     expect(vercelConfig.buildCommand).toBeDefined();
 
-    const jobs = (vercelConfig.crons ?? []) as Array<{ path: string; schedule: string }>;
+    const jobs = (vercelConfig.crons ?? []) as Array<{
+      path: string;
+      schedule: string;
+    }>;
     expect(jobs).toEqual(
       expect.arrayContaining([
         { path: "/api/cron/data-retention", schedule: "0 2 * * *" },

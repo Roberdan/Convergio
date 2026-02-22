@@ -17,8 +17,13 @@ describe("production frontend configuration", () => {
 
 describe("hooks.server handleFetch", () => {
   it("forwards auth cookies to backend requests", async () => {
-    const backendRequest = new Request("https://convergio-backend-prod.eastus.azurecontainerapps.io/api/v1/auth/me");
-    const fetchSpy = vi.fn(async (request: Request) => new Response(request.headers.get("cookie") ?? "", { status: 200 }));
+    const backendRequest = new Request(
+      "https://convergio-backend-prod.eastus.azurecontainerapps.io/api/v1/auth/me",
+    );
+    const fetchSpy = vi.fn(
+      async (request: Request) =>
+        new Response(request.headers.get("cookie") ?? "", { status: 200 }),
+    );
 
     const response = await handleFetch({
       event: {
