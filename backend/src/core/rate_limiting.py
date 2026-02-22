@@ -4,18 +4,188 @@ Rate Limiting System for API Protection
 - Async Redis-backed middleware for production FastAPI usage
 """
 
+import os
 import time
-from typing import Optional, Dict, Any
+from collections import defaultdict, deque
+from functools import wraps
+from inspect import iscoroutinefunction
+from typing import Optional, Dict, Any, Callable
 from dataclasses import dataclass
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
-import redis.asyncio as redis
+import httpx
+try:
+    import redis.asyncio as redis
+except Exception:  # pragma: no cover - optional dependency for unit tests
+    redis = Any  # type: ignore[assignment]
 try:
     # Prefer core config
     from .config import get_settings  # type: ignore
 except Exception:
-    # Fallback to legacy location if needed
-    from agents.utils.config import get_settings  # type: ignore
+    try:
+        # Fallback to legacy location if needed
+        from agents.utils.config import get_settings  # type: ignore
+    except Exception:
+        @dataclass
+        class _FallbackSettings:
+            rate_limit_burst_size: int = 10
+            rate_limit_window_size: int = 60
+            rate_limit_requests_per_minute: int = 60
+            rate_limit_block_duration: int = 300
+            redis_host: str = "localhost"
+            redis_port: int = 6379
+            redis_db: int = 0
+
+        def get_settings() -> _FallbackSettings:  # type: ignore[override]
+            return _FallbackSettings()
+
+
+UPSTASH_REDIS_REST_URL = "UPSTASH_REDIS_REST_URL"
+UPSTASH_REDIS_REST_TOKEN = "UPSTASH_REDIS_REST_TOKEN"
+
+# Endpoint-specific limits (max_requests, window_seconds)
+RATE_LIMIT_PROFILES: dict[str, tuple[int, int]] = {
+    "login": (5, 15 * 60),
+    "register": (3, 60 * 60),
+    "api_general": (60, 60),
+    "admin_mutations": (30, 60),
+    "admin_destructive": (5, 60 * 60),
+}
+
+_MEMORY_WINDOWS: dict[str, deque[float]] = defaultdict(deque)
+
+
+def _extract_request(args: tuple[Any, ...], kwargs: dict[str, Any]) -> Request | None:
+    for arg in args:
+        if isinstance(arg, Request):
+            return arg
+    for value in kwargs.values():
+        if isinstance(value, Request):
+            return value
+    return None
+
+
+def _request_identifier(request: Request | None) -> str:
+    if request is None:
+        return "anonymous"
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+def _memory_is_allowed(key: str, max_requests: int, window_seconds: int) -> tuple[bool, int]:
+    now = time.time()
+    window_start = now - window_seconds
+    attempts = _MEMORY_WINDOWS[key]
+    while attempts and attempts[0] < window_start:
+        attempts.popleft()
+    if len(attempts) >= max_requests:
+        retry_after = max(1, int(window_seconds - (now - attempts[0])))
+        return False, retry_after
+    attempts.append(now)
+    return True, 0
+
+
+class UpstashRateLimitStore:
+    """Minimal Upstash REST client for atomic INCR + EXPIRE checks."""
+
+    def __init__(self, base_url: str, token: str | None) -> None:
+        self.base_url = base_url.rstrip("/")
+        self.token = token
+
+    async def is_allowed(self, key: str, max_requests: int, window_seconds: int) -> tuple[bool, int]:
+        headers = {"Content-Type": "application/json"}
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
+        payload = [
+            ["INCR", key],
+            ["EXPIRE", key, window_seconds, "NX"],
+            ["TTL", key],
+        ]
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            response = await client.post(f"{self.base_url}/pipeline", json=payload, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+
+        count = int(data[0]["result"])
+        ttl = int(data[2]["result"]) if data[2].get("result") is not None else window_seconds
+        if count > max_requests:
+            return False, max(1, ttl if ttl > 0 else window_seconds)
+        return True, 0
+
+
+class HybridRateLimitStore:
+    """Uses Upstash in production when configured; falls back to in-memory."""
+
+    def __init__(self) -> None:
+        upstash_url = os.getenv(UPSTASH_REDIS_REST_URL, "").strip()
+        upstash_token = os.getenv(UPSTASH_REDIS_REST_TOKEN, "").strip() or None
+        self._upstash: UpstashRateLimitStore | None = None
+        if os.getenv("ENVIRONMENT", "development") == "production" and upstash_url:
+            self._upstash = UpstashRateLimitStore(upstash_url, upstash_token)
+
+    async def is_allowed(self, key: str, max_requests: int, window_seconds: int) -> tuple[bool, int]:
+        if self._upstash is not None:
+            try:
+                return await self._upstash.is_allowed(key, max_requests, window_seconds)
+            except Exception:
+                # graceful degradation to in-memory if Upstash is unavailable
+                pass
+        return _memory_is_allowed(key, max_requests, window_seconds)
+
+
+_HYBRID_STORE: HybridRateLimitStore | None = None
+
+
+def reset_rate_limit_state() -> None:
+    """Test helper to clear in-memory counters and re-read environment settings."""
+    global _HYBRID_STORE
+    _MEMORY_WINDOWS.clear()
+    _HYBRID_STORE = None
+
+
+def _get_store() -> HybridRateLimitStore:
+    global _HYBRID_STORE
+    if _HYBRID_STORE is None:
+        _HYBRID_STORE = HybridRateLimitStore()
+    return _HYBRID_STORE
+
+
+def rate_limit(max_requests: int, window_seconds: int, scope: str | None = None) -> Callable[..., Any]:
+    """Reusable decorator for endpoint rate limits."""
+
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        endpoint_scope = scope or f"{func.__module__}.{func.__name__}"
+
+        async def _enforce_limit(request: Request | None) -> None:
+            key = f"{endpoint_scope}:{_request_identifier(request)}"
+            allowed, retry_after = await _get_store().is_allowed(key, max_requests, window_seconds)
+            if not allowed:
+                raise HTTPException(
+                    status_code=429,
+                    detail="Rate limit exceeded",
+                    headers={"Retry-After": str(retry_after)},
+                )
+
+        if iscoroutinefunction(func):
+
+            @wraps(func)
+            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                await _enforce_limit(_extract_request(args, kwargs))
+                return await func(*args, **kwargs)
+
+            return async_wrapper
+
+        @wraps(func)
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            raise RuntimeError("rate_limit decorator supports async endpoints only")
+
+        return sync_wrapper
+
+    return decorator
 
 
 # -----------------------

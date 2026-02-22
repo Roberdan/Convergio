@@ -29,7 +29,8 @@ from .core.config_enhanced import initialize_configuration
 from .core.database import init_db, close_db
 from .core.redis import init_redis, close_redis
 from .core.logging_utils import setup_async_logging
-from .core.security_middleware import SecurityHeadersMiddleware, RateLimitMiddleware
+from .core.security_middleware import RateLimitMiddleware
+from .core.security_headers import SecurityHeadersMiddleware, get_allowed_origins
 from .core.error_handling_enhanced import error_handler, handle_startup_validation
 from .core.security_config import initialize_secure_defaults, validate_security_config
 from .core.config_validator import ConfigValidator
@@ -59,6 +60,7 @@ from .api.governance import router as governance_router
 from .api.pm_orchestration import router as pm_orchestration_router
 from .api.realtime_endpoints import router as realtime_router
 from .api.ai_settings import router as ai_settings_router
+from .api.auth import router as auth_router
 
 # Setup non-blocking structured logging for asyncio
 setup_async_logging()
@@ -269,7 +271,14 @@ def create_app() -> FastAPI:
     app.add_middleware(SecurityHeadersMiddleware)
     
     # CORS - Must be first - Fix credentials issue
-    cors_origins = settings.cors_origins_list
+    allowed_origins_env = os.getenv(
+        "ALLOWED_ORIGINS",
+        getattr(settings, "CORS_ALLOWED_ORIGINS", ""),
+    )
+    cors_origins = get_allowed_origins(
+        environment=settings.ENVIRONMENT,
+        allowed_origins_env=allowed_origins_env,
+    )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=cors_origins,
@@ -327,6 +336,7 @@ def create_app() -> FastAPI:
 
     # AI Provider Settings (no auth required)
     app.include_router(ai_settings_router, prefix="/api/v1/settings/ai", tags=["AI Settings"])
+    app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
 
     # Business logic APIs (no auth required)
     app.include_router(talents_router, prefix="/api/v1/talents", tags=["Talents"])

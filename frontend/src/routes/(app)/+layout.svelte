@@ -7,6 +7,7 @@
   import ApiStatusDropdown from '$lib/components/ApiStatusDropdown.svelte';
   import { SkipToContent } from '$lib/components/accessibility';
   import { accessibilityStore } from '$lib/stores/accessibilityStore';
+  import { authStore } from '$lib/stores/auth';
   import '$lib/styles/unified-design-system.css';
   import '$lib/styles/accessibility.css';
   interface Props {
@@ -33,6 +34,13 @@
   onMount(async () => {
     // Initialize accessibility settings
     accessibilityStore.init();
+    await authStore.initialize();
+  });
+
+  $effect(() => {
+    if ($authStore.initialized && !$authStore.loading && !$authStore.isAuthenticated) {
+      goto('/login');
+    }
   });
   
   // SEMPLICE: controlla se il path corrente inizia con l'href del menu

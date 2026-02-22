@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### W3: Auth Architecture & Security
+- Added: Session-based auth with HMAC-SHA256 signed cookies (backend)
+- Added: Auth API endpoints (login, logout, register, change-password, forgot-password, reset-password, me)
+- Added: CORS whitelist, CSP nonce-based, security headers (X-Frame-Options, etc.)
+- Added: CSRF token protection, rate limiting (dev: in-memory, prod: Upstash Redis)
+- Added: Frontend auth store, auth guard, login page (Svelte 5)
+- Docs: ADR-003 (Session-based auth rationale)
+
 ### W2: Framework Upgrades (Agent Framework + Svelte 5)
 - Changed: Upgraded agent-framework to 1.0 RC (AgentThread→AgentSession)
 - Changed: Migrated 126 Svelte components to Svelte 5 syntax ($props, $derived, onclick)
