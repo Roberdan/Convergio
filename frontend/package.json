@@ -9,7 +9,7 @@
     "preview": "vite preview --port 4000",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --diagnostic-sources \"js,svelte\"",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch --diagnostic-sources \"js,svelte\"",
-    "lint": "prettier --check . && eslint .",
+    "lint": "svelte-kit sync && prettier --check . && eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -45,6 +45,7 @@
     "globals": "^13.24.0",
     "happy-dom": "^20.0.11",
     "jsdom": "^26.1.0",
+    "lint-staged": "^16.2.7",
     "playwright": "^1.54.2",
     "prettier": "^3.6.2",
     "prettier-plugin-svelte": "^3.4.0",
@@ -97,5 +98,15 @@
     "convergio"
   ],
   "author": "Convergio Team",
-  "license": "SEE LICENSE IN ../LICENSE"
+  "license": "SEE LICENSE IN ../LICENSE",
+  "lint-staged": {
+    "*.svelte": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
 }

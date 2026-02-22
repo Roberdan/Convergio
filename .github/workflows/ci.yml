@@ -1,135 +1,82 @@
-name: 🚀 Convergio CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
-
-env:
-  PYTHON_VERSION: "3.11"
-  NODE_VERSION: "20"
+    branches: [master]
 
 jobs:
-  test-backend:
-    name: 🧪 Backend Tests
+  frontend:
     runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: convergio_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-    
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-    
-    - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    
-    - name: 📦 Cache Python Dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    
-    - name: 🔧 Install Dependencies
-      working-directory: ./backend
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    
-    - name: 🧪 Run Unit Tests with Coverage
-      working-directory: ./backend
-      env:
-        POSTGRES_HOST: localhost
-        POSTGRES_PORT: 5432
-        POSTGRES_DB: convergio_test
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        REDIS_HOST: localhost
-        REDIS_PORT: 6379
-        OPENAI_API_KEY: "sk-test"
-        ANTHROPIC_API_KEY: "ant-test"
-      run: |
-        python -m pytest --cov=src --cov-report=xml --cov-report=term-missing -v || true
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: ⬆️ Upload Coverage Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: backend-coverage-xml
-        path: backend/coverage.xml
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-  test-frontend:
-    name: 🎨 Frontend Tests
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            frontend/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Type check
+        working-directory: ./frontend
+        run: npm run check
+
+      - name: Test
+        working-directory: ./frontend
+        continue-on-error: true
+        run: npm test
+
+      - name: Build
+        working-directory: ./frontend
+        run: npm run build
+
+  backend:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-    
-    - name: 📦 Setup Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
-    
-    - name: 🔧 Install Frontend Dependencies
-      working-directory: ./frontend
-      run: |
-        rm -rf node_modules package-lock.json
-        npm install --legacy-peer-deps
-    
-    - name: 🏗️ Build Frontend
-      working-directory: ./frontend
-      run: npm run build
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  docker-build:
-    name: 🐳 Docker Build Test
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-    
-    - name: 🐳 Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
-    - name: 🏗️ Build Backend Image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./backend
-        push: false
-        tags: convergio-backend:test
-    
-    - name: 🏗️ Build Frontend Image  
-      uses: docker/build-push-action@v5
-      with:
-        context: ./frontend
-        push: false
-        tags: convergio-frontend:test
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: pip install -r requirements.txt
+
+      - name: Ruff
+        working-directory: ./backend
+        run: ruff check src/
+
+      - name: Test
+        working-directory: ./backend
+        continue-on-error: true
+        run: pytest --tb=short

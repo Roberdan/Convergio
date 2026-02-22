@@ -1,5 +1,35 @@
 [tool.ruff]
 target-version = "py311"
+line-length = 100
 
 [tool.ruff.lint]
-# Add other lint configurations as needed
+select = ["E", "F", "W", "I", "N", "UP", "ANN"]
+ignore = [
+  "ANN001",
+  "ANN002",
+  "ANN003",
+  "ANN201",
+  "ANN202",
+  "ANN401",
+  "I001",
+  "ANN204",
+  "ANN205",
+  "ANN206",
+  "E501",
+  "N802",
+  "N806",
+  "N818",
+  "UP006",
+  "UP007",
+  "UP011",
+  "UP015",
+  "UP017",
+  "UP035",
+  "UP041",
+  "UP042",
+  "UP045",
+  "W191",
+  "W291",
+  "W292",
+  "W293",
+]

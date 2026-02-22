@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.0.0] - 2026-02-22
+
+### Added
+- **DX Alignment**: Unified developer experience, updated CLAUDE.md, rules, and skills docs
+- **Repo Hardening**: Husky hooks (pre-commit, pre-push, commit-msg), secret scanning, .editorconfig, strict .gitignore
+- **CI/CD Workflows**: Frontend/backend jobs, caching, test continue-on-error, weekly security audit
+- **Linting**: Strict ESLint for frontend, expanded Ruff for backend, lint-staged integration
+
+### Changed
+- Project conventions and quick start documentation
+- Bash permissions and settings
+
+### Fixed
+- Lint and CI issues from prior versions
+
+### Security
+- Weekly security audit workflow
+
+---
+
 ## [3.0.0] - 2025-12-28
 
 ### Added
