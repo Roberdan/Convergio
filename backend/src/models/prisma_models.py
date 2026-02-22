@@ -71,6 +71,7 @@ class Team(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String)
+    description: Mapped[str | None] = mapped_column(String, nullable=True)
     createdAt: Mapped[datetime] = mapped_column(DateTime(timezone=False), server_default=func.now())
 
     members: Mapped[list["TeamMember"]] = relationship(back_populates="team")
@@ -83,8 +84,11 @@ class TeamMember(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True)
     teamId: Mapped[UUID] = mapped_column(ForeignKey("Team.id", ondelete="CASCADE"), nullable=False)
+    userId: Mapped[UUID | None] = mapped_column(nullable=True)
+    agentId: Mapped[UUID | None] = mapped_column(nullable=True)
     email: Mapped[str] = mapped_column(String)
-    role: Mapped[str] = mapped_column(String)
+    role: Mapped[str] = mapped_column(String, server_default="member")
+    type: Mapped[str] = mapped_column(String, server_default="HUMAN")
     createdAt: Mapped[datetime] = mapped_column(DateTime(timezone=False), server_default=func.now())
 
     team: Mapped[Team] = relationship(back_populates="members")
@@ -97,6 +101,9 @@ class Invite(Base):
     teamId: Mapped[UUID] = mapped_column(ForeignKey("Team.id", ondelete="CASCADE"), nullable=False)
     email: Mapped[str] = mapped_column(String)
     token: Mapped[str] = mapped_column(String, unique=True)
+    role: Mapped[str] = mapped_column(String, server_default="member")
+    status: Mapped[str] = mapped_column(String, server_default="pending")
+    type: Mapped[str] = mapped_column(String, server_default="human")
     createdAt: Mapped[datetime] = mapped_column(DateTime(timezone=False), server_default=func.now())
     expiresAt: Mapped[datetime] = mapped_column(DateTime(timezone=False))
 

@@ -54,18 +54,22 @@ model TrialSession {
 }
 
 model Team {
-  id        String       @id @default(uuid()) @db.Uuid
-  name      String
-  createdAt DateTime     @default(now())
-  members   TeamMember[]
-  invites   Invite[]
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  members     TeamMember[]
+  invites     Invite[]
 }
 
 model TeamMember {
   id        String   @id @default(uuid()) @db.Uuid
   teamId    String   @db.Uuid
+  userId    String?  @db.Uuid
+  agentId   String?  @db.Uuid
   email     String
-  role      String
+  role      String   @default("member")
+  type      String   @default("HUMAN")
   createdAt DateTime @default(now())
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -78,6 +82,9 @@ model Invite {
   teamId    String   @db.Uuid
   email     String
   token     String   @unique
+  role      String   @default("member")
+  status    String   @default("pending")
+  type      String   @default("human")
   createdAt DateTime @default(now())
   expiresAt DateTime
 
