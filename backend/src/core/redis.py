@@ -4,6 +4,7 @@ High-performance async Redis with connection pooling
 """
 
 import json
+import os
 from typing import Any, Optional
 import structlog
 import redis.asyncio as redis
@@ -14,6 +15,26 @@ logger = structlog.get_logger()
 
 # Global Redis client
 redis_client: Optional[redis.Redis] = None
+
+# Upstash Redis REST variables used by production rate limiting
+UPSTASH_REDIS_REST_URL = "UPSTASH_REDIS_REST_URL"
+UPSTASH_REDIS_REST_TOKEN = "UPSTASH_REDIS_REST_TOKEN"
+
+
+def build_redis_connection_options(pool_size: int) -> dict[str, Any]:
+    """Build Redis client options, enabling Supabase CA certs when configured."""
+    options: dict[str, Any] = {
+        "max_connections": pool_size,
+        "retry_on_timeout": True,
+        "decode_responses": True,
+    }
+
+    ca_cert_path = os.getenv("SUPABASE_CA_CERT_PATH", "").strip()
+    if ca_cert_path:
+        options["ssl"] = True
+        options["ssl_ca_certs"] = ca_cert_path
+
+    return options
 
 
 class _NoOpRedis:
@@ -43,9 +64,7 @@ async def init_redis() -> None:
     try:
         redis_client = redis.from_url(
             settings.REDIS_URL,
-            max_connections=settings.REDIS_POOL_SIZE,
-            retry_on_timeout=True,
-            decode_responses=True,
+            **build_redis_connection_options(settings.REDIS_POOL_SIZE),
         )
         
         # Test connection

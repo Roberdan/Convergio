@@ -1,0 +1,77 @@
+location: westeurope
+name: convergio-backend
+resourceGroup: convergio-rg
+type: Microsoft.App/containerApps
+identity:
+  type: SystemAssigned
+properties:
+  managedEnvironmentId: /subscriptions/<subscription-id>/resourceGroups/convergio-rg/providers/Microsoft.App/managedEnvironments/convergio-env
+  configuration:
+    ingress:
+      external: true
+      targetPort: 9000
+      transport: auto
+      traffic:
+        - latestRevision: true
+          weight: 100
+    secrets:
+      - name: postgres-url
+        keyVaultUrl: https://<key-vault-name>.vault.azure.net/secrets/POSTGRES_URL
+        identity: system
+      - name: redis-url
+        keyVaultUrl: https://<key-vault-name>.vault.azure.net/secrets/REDIS_URL
+        identity: system
+      - name: jwt-secret
+        keyVaultUrl: https://<key-vault-name>.vault.azure.net/secrets/JWT_SECRET
+        identity: system
+      - name: openai-api-key
+        keyVaultUrl: https://<key-vault-name>.vault.azure.net/secrets/OPENAI_API_KEY
+        identity: system
+      - name: anthropic-api-key
+        keyVaultUrl: https://<key-vault-name>.vault.azure.net/secrets/ANTHROPIC_API_KEY
+        identity: system
+  template:
+    containers:
+      - name: backend
+        image: <acr-name>.azurecr.io/convergio/backend:latest
+        resources:
+          cpu: 1.0
+          memory: 2Gi
+        env:
+          - name: ENVIRONMENT
+            value: production
+          - name: HOST
+            value: 0.0.0.0
+          - name: PORT
+            value: "9000"
+          - name: POSTGRES_URL
+            secretRef: postgres-url
+          - name: REDIS_URL
+            secretRef: redis-url
+          - name: JWT_SECRET
+            secretRef: jwt-secret
+          - name: OPENAI_API_KEY
+            secretRef: openai-api-key
+          - name: ANTHROPIC_API_KEY
+            secretRef: anthropic-api-key
+        probes:
+          - type: Liveness
+            httpGet:
+              path: /health/
+              port: 9000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          - type: Readiness
+            httpGet:
+              path: /health/
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+    scale:
+      minReplicas: 1
+      maxReplicas: 5
+      rules:
+        - name: http-concurrency
+          http:
+            metadata:
+              concurrentRequests: "50"

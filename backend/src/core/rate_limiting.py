@@ -124,7 +124,7 @@ class HybridRateLimitStore:
         upstash_url = os.getenv(UPSTASH_REDIS_REST_URL, "").strip()
         upstash_token = os.getenv(UPSTASH_REDIS_REST_TOKEN, "").strip() or None
         self._upstash: UpstashRateLimitStore | None = None
-        if os.getenv("ENVIRONMENT", "development") == "production" and upstash_url:
+        if os.getenv("ENVIRONMENT", "development").lower() == "production" and upstash_url:
             self._upstash = UpstashRateLimitStore(upstash_url, upstash_token)
 
     async def is_allowed(self, key: str, max_requests: int, window_seconds: int) -> tuple[bool, int]:

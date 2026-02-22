@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### W7: Production Deployment & Cloud Integration
+- Added: SvelteKit Vercel adapter, `vercel.json` with FRA1 region, cron jobs for scheduled tasks
+- Added: Azure Container App configuration, multi-stage `Dockerfile.production`
+- Added: Supabase PostgreSQL config, Upstash Redis integration, `.env.production.example`
+- Added: GitHub Actions deploy workflow (staging → production)
+- Added: Frontend production environment config, SvelteKit server hooks for cookie forwarding
+
 ### W6: Observability, Compliance & Audit
 - Added: Sentry integration for backend and frontend (error tracking, release tagging, user context)
 - Added: OpenTelemetry instrumentation with Grafana Cloud OTLP export (traces, spans, service map)

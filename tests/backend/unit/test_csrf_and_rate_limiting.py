@@ -98,3 +98,14 @@ async def test_rate_limit_decorator_enforces_window(monkeypatch: pytest.MonkeyPa
         await limited_handler(request)
 
     assert exc.value.status_code == 429
+
+
+def test_hybrid_store_uses_upstash_in_production_case_insensitive(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("ENVIRONMENT", "Production")
+    monkeypatch.setenv("UPSTASH_REDIS_REST_URL", "https://example.upstash.io")
+    monkeypatch.setenv("UPSTASH_REDIS_REST_TOKEN", "token")
+    rl.reset_rate_limit_state()
+
+    store = rl._get_store()
+
+    assert store._upstash is not None
