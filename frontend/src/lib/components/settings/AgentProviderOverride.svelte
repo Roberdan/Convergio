@@ -1,9 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
 
-  export let overrides: Record<string, { provider: string; model: string }> = {};
-  export let currentMode: string = 'ollama_only';
-  export let disabled: boolean = false;
+  interface Props {
+    overrides?: Record<string, { provider: string; model: string }>;
+    currentMode?: string;
+    disabled?: boolean;
+  }
+
+  let { overrides = $bindable({}), currentMode = 'ollama_only', disabled = false }: Props = $props();
 
   const dispatch = createEventDispatcher();
 
@@ -13,10 +17,10 @@
     category: string;
   }
 
-  let agents: Agent[] = [];
-  let loading = true;
-  let searchQuery = '';
-  let selectedCategory = 'all';
+  let agents: Agent[] = $state([]);
+  let loading = $state(true);
+  let searchQuery = $state('');
+  let selectedCategory = $state('all');
 
   const providers = [
     { id: 'default', name: 'Default' },
@@ -82,16 +86,16 @@
     return true;
   }
 
-  $: categories = ['all', ...new Set(agents.map(a => a.category))];
+  let categories = $derived(['all', ...new Set(agents.map(a => a.category))]);
 
-  $: filteredAgents = agents.filter(agent => {
+  let filteredAgents = $derived(agents.filter(agent => {
     const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           agent.id.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || agent.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  });
+  }));
 
-  $: overrideCount = Object.keys(overrides).length;
+  let overrideCount = $derived(Object.keys(overrides).length);
 </script>
 
 <div class="border rounded-lg overflow-hidden">
@@ -158,7 +162,7 @@
             <div class="flex gap-2">
               <select
                 value={override.provider}
-                on:change={(e) => updateOverride(agent.id, 'provider', e.currentTarget.value)}
+                onchange={(e) => updateOverride(agent.id, 'provider', e.currentTarget.value)}
                 disabled={disabled}
                 class="flex-1 px-2 py-1 text-xs border border-surface-300 rounded focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
               >
@@ -174,7 +178,7 @@
               {#if override.provider !== 'default' && modelsByProvider[override.provider]}
                 <select
                   value={override.model}
-                  on:change={(e) => updateOverride(agent.id, 'model', e.currentTarget.value)}
+                  onchange={(e) => updateOverride(agent.id, 'model', e.currentTarget.value)}
                   disabled={disabled}
                   class="flex-1 px-2 py-1 text-xs border border-surface-300 rounded focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
                 >

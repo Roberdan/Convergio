@@ -4,8 +4,12 @@
   import { Card, Badge, Button } from '$lib/components/ui';
   import { slide } from 'svelte/transition';
   
-  export let orchestrationId: string = '';
-  export let websocketConnection: WebSocket | null = null;
+  interface Props {
+    orchestrationId?: string;
+    websocketConnection?: WebSocket | null;
+  }
+
+  let { orchestrationId = '', websocketConnection = $bindable(null) }: Props = $props();
   
   interface StreamingUpdate {
     id: string;
@@ -34,16 +38,16 @@
     last_heartbeat: null as string | null
   });
   
-  let selectedFilter = 'all';
-  let autoScroll = true;
+  let selectedFilter = $state('all');
+  let autoScroll = $state(true);
   let maxUpdates = 100;
-  let connectionQuality = 'good';
-  let streamingMetrics = {
+  let connectionQuality = $state('good');
+  let streamingMetrics = $state({
     messages_per_minute: 0,
     active_conversations: 0,
     bandwidth_usage: 0,
     error_rate: 0
-  };
+  });
   
   const updateTypes = [
     { id: 'all', label: 'All Updates', icon: '📡' },
@@ -56,7 +60,7 @@
   
   let heartbeatInterval: any;
   let metricsInterval: any;
-  let scrollContainer: HTMLElement;
+  let scrollContainer: HTMLElement = $state()!;
   
   onMount(() => {
     initializeRealTimeMonitoring();
@@ -353,9 +357,9 @@
     });
   }
   
-  $: filteredUpdates = selectedFilter === 'all' 
+  let filteredUpdates = $derived(selectedFilter === 'all' 
     ? $realtimeUpdates 
-    : $realtimeUpdates.filter(update => update.type === selectedFilter);
+    : $realtimeUpdates.filter(update => update.type === selectedFilter));
 </script>
 
 <!-- Real-time Streaming Monitor -->

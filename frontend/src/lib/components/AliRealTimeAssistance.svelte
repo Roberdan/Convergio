@@ -1,13 +1,20 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { aliService } from '$lib/services/aliService';
 	
 	const dispatch = createEventDispatcher();
 	
-	// Props
-	export let currentDefinition: any = null;
-	export let isActive = false;
+	
+	interface Props {
+		// Props
+		currentDefinition?: any;
+		isActive?: boolean;
+	}
+
+	let { currentDefinition = null, isActive = false }: Props = $props();
 	
 	// Ali assistance state
 	let aliConnection = writable<any>(null);
@@ -18,11 +25,9 @@
 	
 	// Real-time assistance intervals
 	let analysisInterval: any;
-	let lastAnalysisTime = 0;
+	let lastAnalysisTime = $state(0);
 	const ANALYSIS_COOLDOWN = 3000; // 3 seconds between analyses
 
-	// Reactive suggestions
-	$: hasActiveSuggestions = $suggestions.length > 0;
 	
 	// REMOVED: aliResponses - no fake messages
 	// All messages come from REAL Ali backend
@@ -37,17 +42,7 @@
 		stopRealTimeAssistance();
 	});
 	
-	// Watch for activation changes
-	$: if (isActive) {
-		startRealTimeAssistance();
-	} else {
-		stopRealTimeAssistance();
-	}
 	
-	// Watch for definition changes and provide real-time analysis
-	$: if (isActive && currentDefinition && Date.now() - lastAnalysisTime > ANALYSIS_COOLDOWN) {
-		debouncedAnalysis();
-	}
 	
 	async function startRealTimeAssistance() {
 		// Connect to REAL Ali backend using the service
@@ -218,6 +213,22 @@
 		};
 		return estimates[effort] || estimates.medium;
 	}
+	// Reactive suggestions
+	let hasActiveSuggestions = $derived($suggestions.length > 0);
+	// Watch for activation changes
+	run(() => {
+		if (isActive) {
+			startRealTimeAssistance();
+		} else {
+			stopRealTimeAssistance();
+		}
+	});
+	// Watch for definition changes and provide real-time analysis
+	run(() => {
+		if (isActive && currentDefinition && Date.now() - lastAnalysisTime > ANALYSIS_COOLDOWN) {
+			debouncedAnalysis();
+		}
+	});
 </script>
 
 {#if isActive && $aliConnection}
@@ -291,13 +302,13 @@
 							</div>
 							<div class="flex space-x-2">
 								<button
-									on:click={() => applySuggestion(suggestion)}
+									onclick={() => applySuggestion(suggestion)}
 									class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
 								>
 									Apply
 								</button>
 								<button
-									on:click={() => dismissSuggestion(suggestion)}
+									onclick={() => dismissSuggestion(suggestion)}
 									class="px-3 py-1 border border-surface-300 text-surface-600 text-xs rounded hover:bg-surface-50 transition-colors"
 								>
 									Dismiss
@@ -333,20 +344,20 @@
 		<div class="border-t border-blue-200 pt-3 mt-3">
 			<div class="flex space-x-2">
 				<button
-					on:click={() => performIntelligentAnalysis()}
+					onclick={() => performIntelligentAnalysis()}
 					disabled={$isThinking}
 					class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:bg-surface-400 transition-colors"
 				>
 					{$isThinking ? 'Analyzing...' : 'Re-analyze'}
 				</button>
 				<button
-					on:click={() => suggestions.set([])}
+					onclick={() => suggestions.set([])}
 					class="px-3 py-1 border border-surface-300 text-surface-600 text-xs rounded hover:bg-surface-50 transition-colors"
 				>
 					Clear All
 				</button>
 				<button
-					on:click={() => dispatch('request-deep-analysis')}
+					onclick={() => dispatch('request-deep-analysis')}
 					class="px-3 py-1 border border-blue-300 text-blue-700 text-xs rounded hover:bg-blue-50 transition-colors"
 				>
 					Deep Analysis
@@ -362,7 +373,7 @@
 		<h3 class="font-medium text-surface-600 mb-1">Ali Assistant</h3>
 		<p class="text-sm text-surface-500 mb-3">Get real-time suggestions and improvements</p>
 		<button
-			on:click={() => dispatch('activate-ali')}
+			onclick={() => dispatch('activate-ali')}
 			class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
 		>
 			Activate Ali Assistant

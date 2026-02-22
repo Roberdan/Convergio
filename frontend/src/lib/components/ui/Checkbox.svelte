@@ -1,8 +1,12 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { createEventDispatcher } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
-	interface $$Props extends Omit<HTMLInputAttributes, 'type' | 'size'> {
+	
+
+	interface Props {
 		checked?: boolean;
 		indeterminate?: boolean;
 		size?: 'sm' | 'md' | 'lg';
@@ -10,16 +14,21 @@
 		description?: string;
 		error?: string;
 		disabled?: boolean;
+		id?: HTMLInputAttributes['id'];
+		[key: string]: any
 	}
 
-	export let checked: $$Props['checked'] = false;
-	export let indeterminate: $$Props['indeterminate'] = false;
-	export let size: NonNullable<$$Props['size']> = 'md';
-	export let label: $$Props['label'] = '';
-	export let description: $$Props['description'] = '';
-	export let error: $$Props['error'] = '';
-	export let disabled: $$Props['disabled'] = false;
-	export let id: $$Props['id'] = '';
+	let {
+		checked = $bindable(false),
+		indeterminate = $bindable(false),
+		size = 'md',
+		label = '',
+		description = '',
+		error = '',
+		disabled = false,
+		id = '',
+		...rest
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		change: { checked: boolean; indeterminate: boolean };
@@ -29,20 +38,20 @@
 	const checkboxId = id || `checkbox-${Math.random().toString(36).substr(2, 9)}`;
 
 	// Compute CSS classes
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		sm: 'checkbox-sm',
 		md: 'checkbox-md',
 		lg: 'checkbox-lg'
-	};
+	});
 
-	$: checkboxClasses = [
+	let checkboxClasses = $derived([
 		'checkbox',
 		sizeClasses[size],
 		checked ? 'checkbox-checked' : '',
 		indeterminate ? 'checkbox-indeterminate' : '',
 		error ? 'checkbox-error' : '',
 		disabled ? 'checkbox-disabled' : ''
-	].filter(Boolean).join(' ');
+	].filter(Boolean).join(' '));
 
 	function handleChange(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -52,24 +61,26 @@
 	}
 
 	// Handle indeterminate state
-	let checkboxElement: HTMLInputElement;
-	$: if (checkboxElement && indeterminate !== undefined) {
-		checkboxElement.indeterminate = indeterminate;
-	}
+	let checkboxElement: HTMLInputElement = $state()!;
+	run(() => {
+		if (checkboxElement && indeterminate !== undefined) {
+			checkboxElement.indeterminate = indeterminate;
+		}
+	});
 </script>
 
 <div class="checkbox-wrapper">
 	<div class="checkbox-container">
 		<div class="checkbox-input-wrapper">
 			<input
-				{...$$restProps}
+				{...rest}
 				bind:this={checkboxElement}
 				id={checkboxId}
 				type="checkbox"
 				bind:checked
 				{disabled}
 				class={checkboxClasses}
-				on:change={handleChange}
+				onchange={handleChange}
 			/>
 			
 			<!-- Custom checkbox visual -->

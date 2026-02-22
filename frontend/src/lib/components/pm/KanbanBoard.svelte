@@ -1,9 +1,17 @@
 <script lang="ts">
+	import { createBubbler, stopPropagation } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { onMount } from 'svelte';
 	import { projectsService } from '$lib/services/projectsService';
 
-	// Props
-	export let projectId: string;
+	
+	interface Props {
+		// Props
+		projectId: string;
+	}
+
+	let { projectId }: Props = $props();
 
 	// Interfaces
 	interface Task {
@@ -32,11 +40,11 @@
 	}
 
 	// State
-	let columns: Column[] = [];
-	let loading = false;
+	let columns: Column[] = $state([]);
+	let loading = $state(false);
 	let draggedTask: Task | null = null;
-	let showTaskModal = false;
-	let newTask: Partial<Task> = {};
+	let showTaskModal = $state(false);
+	let newTask: Partial<Task> = $state({});
 
 	onMount(async () => {
 		await loadKanbanData();
@@ -342,7 +350,7 @@
 				</div>
 				
 				<!-- Add Task Button -->
-				<button on:click={openTaskModal} class="btn-primary btn-sm">
+				<button onclick={openTaskModal} class="btn-primary btn-sm">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 					</svg>
@@ -365,8 +373,8 @@
 						class="kanban-column flex-shrink-0 w-80"
 						role="region"
 						aria-label="Kanban column: {column.title}"
-						on:dragover={handleDragOver}
-						on:drop={event => handleDrop(event, column.id)}
+						ondragover={handleDragOver}
+						ondrop={event => handleDrop(event, column.id)}
 					>
 						<!-- Column Header -->
 						<div class="column-header p-4 rounded-t-lg {column.color} border-b border-surface-200 ">
@@ -394,7 +402,7 @@
 									tabindex="0"
 									aria-label="Task: {task.title}"
 									draggable="true"
-									on:dragstart={event => handleDragStart(event, task)}
+									ondragstart={event => handleDragStart(event, task)}
 								>
 									<!-- Task Header -->
 									<div class="flex items-start justify-between mb-3">
@@ -466,7 +474,7 @@
 
 							<!-- Add Task Button for Column -->
 							<button 
-								on:click={openTaskModal}
+								onclick={openTaskModal}
 								class="w-full p-3 border-2 border-dashed border-surface-300  rounded-lg text-surface-500  hover:border-primary-500 hover:text-primary-600 transition-colors duration-200"
 							>
 								<svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -484,11 +492,11 @@
 
 <!-- Task Creation Modal -->
 {#if showTaskModal}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="button" tabindex="0" on:click={() => showTaskModal = false} on:keydown={e => e.key === 'Escape' && (showTaskModal = false)}>
-		<div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 p-6" role="dialog" aria-modal="true" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
+	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="button" tabindex="0" onclick={() => showTaskModal = false} onkeydown={e => e.key === 'Escape' && (showTaskModal = false)}>
+		<div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 p-6" role="dialog" aria-modal="true" tabindex="-1" onclick={stopPropagation(bubble('click'))} onkeydown={stopPropagation(bubble('keydown'))}>
 			<div class="flex items-center justify-between mb-6">
 				<h4 class="text-lg font-semibold text-surface-900 ">Create New Task</h4>
-				<button aria-label="Close modal" on:click={() => showTaskModal = false} class="text-surface-500 hover:text-surface-700">
+				<button aria-label="Close modal" onclick={() => showTaskModal = false} class="text-surface-500 hover:text-surface-700">
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 					</svg>
@@ -528,7 +536,7 @@
 				</div>
 				
 				<div class="flex justify-end space-x-3 pt-4">
-					<button type="button" on:click={() => showTaskModal = false} class="btn-secondary">
+					<button type="button" onclick={() => showTaskModal = false} class="btn-secondary">
 						Cancel
 					</button>
 					<button type="submit" class="btn-primary">

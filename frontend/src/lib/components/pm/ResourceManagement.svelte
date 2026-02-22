@@ -5,13 +5,13 @@
 	import { ResourceDetail } from '$lib/components/workforce';
 
 	// State
-	let loading = true;
-	let error: string | null = null;
-	let selectedResource: UnifiedResource | null = null;
-	let showDetailModal = false;
+	let loading = $state(true);
+	let error: string | null = $state(null);
+	let selectedResource: UnifiedResource | null = $state(null);
+	let showDetailModal = $state(false);
 	let _showAddResourceModal = false;
-	let filterType: 'all' | 'talent' | 'agent' = 'all';
-	let sortBy: 'utilization' | 'name' | 'efficiency' | 'availability' = 'utilization';
+	let filterType: 'all' | 'talent' | 'agent' = $state('all');
+	let sortBy: 'utilization' | 'name' | 'efficiency' | 'availability' = $state('utilization');
 
 	onMount(async () => {
 		await loadResources();
@@ -52,7 +52,7 @@
 	}
 
 	// Apply local filter and sort
-	$: displayResources = $filteredResources
+	let displayResources = $derived($filteredResources
 		.filter(resource => {
 			if (filterType === 'all') return true;
 			return resource.type === filterType;
@@ -65,7 +65,7 @@
 				case 'availability': return b.availability - a.availability;
 				default: return 0;
 			}
-		});
+		}));
 </script>
 
 <div class="resource-management bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
@@ -119,7 +119,7 @@
 					<span class="text-error-700">{error}</span>
 				</div>
 				<button
-					on:click={loadResources}
+					onclick={loadResources}
 					class="mt-2 text-sm text-error-600 hover:text-error-700 underline"
 				>
 					Try again
@@ -146,8 +146,8 @@
 				{#each displayResources as resource (resource.id)}
 					<div
 						class="resource-card border border-surface-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200 cursor-pointer"
-						on:click={() => handleResourceClick(resource)}
-						on:keypress={(e) => e.key === 'Enter' && handleResourceClick(resource)}
+						onclick={() => handleResourceClick(resource)}
+						onkeypress={(e) => e.key === 'Enter' && handleResourceClick(resource)}
 						role="button"
 						tabindex="0"
 					>

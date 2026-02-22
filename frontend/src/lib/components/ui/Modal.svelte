@@ -1,8 +1,12 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { createEventDispatcher } from 'svelte';
 	import { Button } from './index';
 
-	interface $$Props {
+	
+
+	interface Props {
 		open: boolean;
 		title?: string;
 		description?: string;
@@ -14,19 +18,27 @@
 		showFooter?: boolean;
 		persistent?: boolean;
 		loading?: boolean;
+		header?: import('svelte').Snippet;
+		children?: import('svelte').Snippet;
+		footer?: import('svelte').Snippet;
 	}
 
-	export let open: $$Props['open'] = false;
-	export let title: $$Props['title'] = '';
-	export let description: $$Props['description'] = '';
-	export let size: NonNullable<$$Props['size']> = 'md';
-	export let closable: $$Props['closable'] = true;
-	export let closeOnBackdrop: $$Props['closeOnBackdrop'] = true;
-	export let closeOnEscape: $$Props['closeOnEscape'] = true;
-	export let showHeader: $$Props['showHeader'] = true;
-	export let showFooter: $$Props['showFooter'] = false;
-	export let persistent: $$Props['persistent'] = false;
-	export let loading: $$Props['loading'] = false;
+	let {
+		open = $bindable(false),
+		title = '',
+		description = '',
+		size = 'md',
+		closable = true,
+		closeOnBackdrop = true,
+		closeOnEscape = true,
+		showHeader = true,
+		showFooter = false,
+		persistent = false,
+		loading = false,
+		header,
+		children,
+		footer
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		close: void;
@@ -35,41 +47,43 @@
 		backdropClick: void;
 	}>();
 
-	let modalRef: HTMLElement;
-	let previousFocus: HTMLElement | null = null;
+	let modalRef: HTMLElement = $state()!;
+	let previousFocus: HTMLElement | null = $state(null);
 
 	// Size classes
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		sm: 'max-w-sm',
 		md: 'max-w-md',
 		lg: 'max-w-lg',
 		xl: 'max-w-xl',
 		full: 'max-w-full mx-4'
-	}[size];
+	}[size]);
 
 	// Handle open/close
-	$: if (open) {
-		// Store previous focus
-		previousFocus = document.activeElement as HTMLElement;
-		
-		// Prevent body scroll
-		document.body.style.overflow = 'hidden';
-		
-		// Focus modal when opened
-		setTimeout(() => {
-			if (modalRef) {
-				modalRef.focus();
+	run(() => {
+		if (open) {
+			// Store previous focus
+			previousFocus = document.activeElement as HTMLElement;
+			
+			// Prevent body scroll
+			document.body.style.overflow = 'hidden';
+			
+			// Focus modal when opened
+			setTimeout(() => {
+				if (modalRef) {
+					modalRef.focus();
+				}
+			}, 100);
+		} else {
+			// Restore body scroll
+			document.body.style.overflow = '';
+			
+			// Restore previous focus
+			if (previousFocus) {
+				previousFocus.focus();
 			}
-		}, 100);
-	} else {
-		// Restore body scroll
-		document.body.style.overflow = '';
-		
-		// Restore previous focus
-		if (previousFocus) {
-			previousFocus.focus();
 		}
-	}
+	});
 
 	function handleClose() {
 		if (!persistent) {
@@ -132,13 +146,13 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 {#if open}
 	<!-- Backdrop -->
 	<div 
 		class="modal-backdrop"
-		on:click={handleBackdropClick}
+		onclick={handleBackdropClick}
 		aria-hidden="true"
 	>
 		<!-- Modal Container -->
@@ -159,10 +173,10 @@
 			{/if}
 
 			<!-- Header -->
-			{#if showHeader && (title || $$slots.header)}
+			{#if showHeader && (title || header)}
 				<div class="modal-header">
-					{#if $$slots.header}
-						<slot name="header" />
+					{#if header}
+						{@render header?.()}
 					{:else}
 						<div class="header-content">
 							<h2 id="modal-title" class="modal-title">{title}</h2>
@@ -176,7 +190,7 @@
 						<button
 							type="button"
 							class="close-button"
-							on:click={handleClose}
+							onclick={handleClose}
 							aria-label="Close modal"
 						>
 							<span class="icon-x" aria-hidden="true"></span>
@@ -187,14 +201,14 @@
 
 			<!-- Content -->
 			<div class="modal-content">
-				<slot />
+				{@render children?.()}
 			</div>
 
 			<!-- Footer -->
-			{#if showFooter || $$slots.footer}
+			{#if showFooter || footer}
 				<div class="modal-footer">
-					{#if $$slots.footer}
-						<slot name="footer" />
+					{#if footer}
+						{@render footer?.()}
 					{:else}
 						<div class="footer-actions">
 							<Button variant="outline" on:click={handleCancel}>

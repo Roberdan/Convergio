@@ -4,18 +4,22 @@
   import { extent } from 'd3-array';
   import { timeFormat } from 'd3-time-format';
   
-  export let projectId: string;
-  export let tasks: any[] = [];
-  export let timeRange: 'week' | 'month' | 'quarter' = 'month';
+  interface Props {
+    projectId: string;
+    tasks?: any[];
+    timeRange?: 'week' | 'month' | 'quarter';
+  }
+
+  let { projectId, tasks = $bindable([]), timeRange = $bindable('month') }: Props = $props();
   
   const dispatch = createEventDispatcher();
   
   let svgWidth = 1200;
   let svgHeight = 600;
-  let ganttContainer: HTMLDivElement;
-  let loading = true;
-  let selectedTask: any = null;
-  let aiSuggestions: any[] = [];
+  let ganttContainer: HTMLDivElement = $state()!;
+  let loading = $state(true);
+  let selectedTask: any = $state(null);
+  let aiSuggestions: any[] = $state([]);
   
   // Modern Glassmorphism colors
   const colors = {
@@ -31,20 +35,20 @@
   };
   
   // Only real tasks from backend
-  $: displayTasks = tasks;
+  let displayTasks = $derived(tasks);
   
   // Time scale setup (robust when no tasks are present)
-  $: now = new Date();
-  $: fallbackExtent = [now, new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)] as [Date, Date];
-  $: datePairs = (displayTasks || []).flatMap((d: any) => [d.start, d.end]).filter(Boolean) as Date[];
-  $: timeExtent = (datePairs.length ? extent(datePairs) : fallbackExtent) as [Date, Date];
-  $: xScale = scaleTime()
+  let now = $derived(new Date());
+  let fallbackExtent = $derived([now, new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)] as [Date, Date]);
+  let datePairs = $derived((displayTasks || []).flatMap((d: any) => [d.start, d.end]).filter(Boolean) as Date[]);
+  let timeExtent = $derived((datePairs.length ? extent(datePairs) : fallbackExtent) as [Date, Date]);
+  let xScale = $derived(scaleTime()
     .domain(timeExtent)
-    .range([200, svgWidth - 50]);
+    .range([200, svgWidth - 50]));
   
-  $: yScale = scaleLinear()
+  let yScale = $derived(scaleLinear()
     .domain([0, (displayTasks || []).length])
-    .range([50, svgHeight - 50]);
+    .range([50, svgHeight - 50]));
   
   const formatDate = timeFormat('%b %d');
   const formatDateFull = timeFormat('%Y-%m-%d');
@@ -170,7 +174,7 @@
     <div class="header-actions">
       <button 
         class="ai-button"
-        on:click={askAliOptimization}
+        onclick={askAliOptimization}
       >
         <span class="ai-icon">🤖</span>
         Ask Ali to Optimize
@@ -180,21 +184,21 @@
         <button 
           class="control-btn"
           class:active={timeRange === 'week'}
-          on:click={() => timeRange = 'week'}
+          onclick={() => timeRange = 'week'}
         >
           Week
         </button>
         <button 
           class="control-btn"
           class:active={timeRange === 'month'}
-          on:click={() => timeRange = 'month'}
+          onclick={() => timeRange = 'month'}
         >
           Month
         </button>
         <button 
           class="control-btn"
           class:active={timeRange === 'quarter'}
-          on:click={() => timeRange = 'quarter'}
+          onclick={() => timeRange = 'quarter'}
         >
           Quarter
         </button>
@@ -258,12 +262,12 @@
           <g
             class="task-group"
             transform="translate(0, {yScale(i)})"
-            on:click={() => handleTaskClick(task)}
-            on:mousedown={() => handleTaskDrag()}
+            onclick={() => handleTaskClick(task)}
+            onmousedown={() => handleTaskDrag()}
             role="button"
             tabindex="0"
             aria-label={`Select task ${task.name}`}
-            on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleTaskClick(task)}
+            onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleTaskClick(task)}
           >
             <!-- Task Background Bar -->
             <rect
@@ -352,7 +356,7 @@
     <div class="task-details-panel">
       <div class="panel-header">
         <h3>{selectedTask.name}</h3>
-        <button class="close-btn" on:click={() => selectedTask = null}>×</button>
+        <button class="close-btn" onclick={() => selectedTask = null}>×</button>
       </div>
       
       <div class="panel-content">

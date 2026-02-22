@@ -1,11 +1,17 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { onMount } from 'svelte';
   import { Card, Badge } from '$lib/components/ui';
   import { scale } from 'svelte/transition';
   
-  export let journeyStages: any[] = [];
-  export let currentStage: string = '';
-  export let detailed: boolean = false;
+  interface Props {
+    journeyStages?: any[];
+    currentStage?: string;
+    detailed?: boolean;
+  }
+
+  let { journeyStages = [], currentStage = '', detailed = false }: Props = $props();
   
   interface _JourneyStage {
     stage_name: string;
@@ -74,8 +80,8 @@
     }
   };
   
-  let selectedStage: string | null = null;
-  let stageTimeline: any[] = [];
+  let selectedStage: string | null = $state(null);
+  let stageTimeline: any[] = $state([]);
   
   onMount(() => {
     buildStageTimeline();
@@ -147,11 +153,11 @@
     return '😞';
   }
   
-  $: {
+  run(() => {
     if (journeyStages) {
       buildStageTimeline();
     }
-  }
+  });
 </script>
 
 <!-- Project Journey Visualization -->
@@ -202,7 +208,7 @@
           <div class="flex flex-col items-center relative" style="z-index: 10;">
             <!-- Stage Circle -->
             <button
-              on:click={() => selectedStage = selectedStage === stage.name ? null : stage.name}
+              onclick={() => selectedStage = selectedStage === stage.name ? null : stage.name}
               class="w-16 h-16 rounded-full border-4 {getStageColorClasses(stage, 'border')} 
                      bg-surface-50  hover:scale-110 transition-all duration-200 
                      flex items-center justify-center text-2xl shadow-lg hover:shadow-xl"
@@ -263,7 +269,7 @@
               >
                 <!-- Close Button -->
                 <button
-                  on:click={() => selectedStage = null}
+                  onclick={() => selectedStage = null}
                   class="absolute top-2 right-2 text-surface-400 hover:text-surface-600"
                 >
                   ✕

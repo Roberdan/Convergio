@@ -2,12 +2,23 @@
   import { onMount } from 'svelte';
   import { createEventDispatcher } from 'svelte';
   
-  export let fields: FieldDefinition[] = [];
-  export let values: Record<string, any> = {};
-  export let readonly: boolean = false;
-  export let showLabels: boolean = true;
-  export let columns: number = 1;
-  export let validationErrors: Record<string, string> = {};
+  interface Props {
+    fields?: FieldDefinition[];
+    values?: Record<string, any>;
+    readonly?: boolean;
+    showLabels?: boolean;
+    columns?: number;
+    validationErrors?: Record<string, string>;
+  }
+
+  let {
+    fields = [],
+    values = {},
+    readonly = false,
+    showLabels = true,
+    columns = 1,
+    validationErrors = {}
+  }: Props = $props();
   
   interface FieldDefinition {
     name: string;
@@ -69,9 +80,9 @@
   
   const dispatch = createEventDispatcher();
   
-  let formData: Record<string, any> = { ...values };
-  let errors: Record<string, string> = { ...validationErrors };
-  let touched: Record<string, boolean> = {};
+  let formData: Record<string, any> = $state({ ...values });
+  let errors: Record<string, string> = $state({ ...validationErrors });
+  let touched: Record<string, boolean> = $state({});
   
   onMount(() => {
     // Initialize default values
@@ -193,14 +204,14 @@
   // Removed unused helpers to satisfy lint
   
   // Sort fields by display order
-  $: sortedFields = [...fields].sort((a, b) => 
+  let sortedFields = $derived([...fields].sort((a, b) => 
     (a.displayOrder || 0) - (b.displayOrder || 0)
-  );
+  ));
   
   // Check if form is valid
-  $: isValid = fields
+  let isValid = $derived(fields
     .filter(f => f.required)
-    .every(f => formData[f.name]) && Object.keys(errors).length === 0;
+    .every(f => formData[f.name]) && Object.keys(errors).length === 0);
   
   // Export validation function
   export function validate(): boolean {
@@ -242,8 +253,8 @@
             id={field.name}
             type="text"
             value={formData[field.name] || ''}
-            on:input={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
-            on:blur={() => handleBlur(field.name)}
+            oninput={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
+            onblur={() => handleBlur(field.name)}
             placeholder={field.placeholder}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
@@ -262,8 +273,8 @@
             id={field.name}
             type="number"
             value={formData[field.name] || ''}
-            on:input={(e) => handleChange(field.name, parseFloat((e.target as HTMLInputElement).value))}
-            on:blur={() => handleBlur(field.name)}
+            oninput={(e) => handleChange(field.name, parseFloat((e.target as HTMLInputElement).value))}
+            onblur={() => handleBlur(field.name)}
             min={field.validation?.min}
             max={field.validation?.max}
             placeholder={field.placeholder}
@@ -284,8 +295,8 @@
               type="number"
               step="0.01"
               value={formData[field.name] || ''}
-              on:input={(e) => handleChange(field.name, parseFloat((e.target as HTMLInputElement).value))}
-              on:blur={() => handleBlur(field.name)}
+              oninput={(e) => handleChange(field.name, parseFloat((e.target as HTMLInputElement).value))}
+              onblur={() => handleBlur(field.name)}
               min={field.validation?.min}
               max={field.validation?.max}
               placeholder={field.placeholder}
@@ -305,8 +316,8 @@
               min="0"
               max="100"
               value={formData[field.name] || ''}
-              on:input={(e) => handleChange(field.name, parseFloat((e.target as HTMLInputElement).value))}
-              on:blur={() => handleBlur(field.name)}
+              oninput={(e) => handleChange(field.name, parseFloat((e.target as HTMLInputElement).value))}
+              onblur={() => handleBlur(field.name)}
               placeholder={field.placeholder}
               disabled={readonly}
               class="w-full pr-8 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
@@ -322,8 +333,8 @@
             id={field.name}
             type="date"
             value={formData[field.name] || ''}
-            on:input={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
-            on:blur={() => handleBlur(field.name)}
+            oninput={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
+            onblur={() => handleBlur(field.name)}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
                    {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
@@ -336,8 +347,8 @@
             id={field.name}
             type="datetime-local"
             value={formData[field.name] || ''}
-            on:input={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
-            on:blur={() => handleBlur(field.name)}
+            oninput={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
+            onblur={() => handleBlur(field.name)}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
                    {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
@@ -349,8 +360,8 @@
           <select
             id={field.name}
             value={formData[field.name] || ''}
-            on:change={(e) => handleChange(field.name, (e.target as HTMLSelectElement).value)}
-            on:blur={() => handleBlur(field.name)}
+            onchange={(e) => handleChange(field.name, (e.target as HTMLSelectElement).value)}
+            onblur={() => handleBlur(field.name)}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
                    {errors[field.name] ? 'border-red-500' : 'border-surface-300'}
@@ -372,7 +383,7 @@
                 <input
                   type="checkbox"
                   checked={(formData[field.name] || []).includes(option.value)}
-                  on:change={(e) => {
+                  onchange={(e) => {
                     const current = formData[field.name] || [];
                     const target = e.target as HTMLInputElement;
                     if (target.checked) {
@@ -395,7 +406,7 @@
               id={field.name}
               type="checkbox"
               checked={formData[field.name] || false}
-              on:change={(e) => handleChange(field.name, (e.target as HTMLInputElement).checked)}
+              onchange={(e) => handleChange(field.name, (e.target as HTMLInputElement).checked)}
               disabled={readonly}
               class="w-4 h-4 text-blue-600 border-surface-300 rounded focus:ring-blue-500"
             />
@@ -408,8 +419,8 @@
             id={field.name}
             type="email"
             value={formData[field.name] || ''}
-            on:input={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
-            on:blur={() => handleBlur(field.name)}
+            oninput={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
+            onblur={() => handleBlur(field.name)}
             placeholder={field.placeholder || 'email@example.com'}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
@@ -423,8 +434,8 @@
             id={field.name}
             type="tel"
             value={formData[field.name] || ''}
-            on:input={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
-            on:blur={() => handleBlur(field.name)}
+            oninput={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
+            onblur={() => handleBlur(field.name)}
             placeholder={field.placeholder || '+1 (555) 000-0000'}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
@@ -438,8 +449,8 @@
             id={field.name}
             type="url"
             value={formData[field.name] || ''}
-            on:input={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
-            on:blur={() => handleBlur(field.name)}
+            oninput={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
+            onblur={() => handleBlur(field.name)}
             placeholder={field.placeholder || 'https://example.com'}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
@@ -452,8 +463,8 @@
           <textarea
             id={field.name}
             value={formData[field.name] || ''}
-            on:input={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
-            on:blur={() => handleBlur(field.name)}
+            oninput={(e) => handleChange(field.name, (e.target as HTMLInputElement).value)}
+            onblur={() => handleBlur(field.name)}
             rows={field.uiConfig?.rows || 3}
             placeholder={field.placeholder}
             disabled={readonly}
@@ -472,7 +483,7 @@
           <input
             id={field.name}
             type="file"
-            on:change={(e) => handleChange(field.name, (e.target as HTMLInputElement).files?.[0])}
+            onchange={(e) => handleChange(field.name, (e.target as HTMLInputElement).files?.[0])}
             disabled={readonly}
             class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500
                    {errors[field.name] ? 'border-red-500' : 'border-surface-300'}

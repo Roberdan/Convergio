@@ -44,12 +44,12 @@
   let projects = writable<Project[]>([]);
   let allocations = writable<Allocation[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in template
-  let selectedResource: Resource | null = null;
-  let selectedView: 'grid' | 'timeline' | 'utilization' = 'grid';
-  let filterDepartment = 'all';
-  let filterSkill = '';
-  let showUnderUtilized = false;
-  let showOverAllocated = false;
+  let selectedResource: Resource | null = $state(null);
+  let selectedView: 'grid' | 'timeline' | 'utilization' = $state('grid');
+  let filterDepartment = $state('all');
+  let filterSkill = $state('');
+  let showUnderUtilized = $state(false);
+  let showOverAllocated = $state(false);
   
   onMount(async () => {
     await loadResources();
@@ -210,7 +210,7 @@
     // Logic to assign resource to project
   }
   
-  $: filteredResources = $resources.filter(resource => {
+  let filteredResources = $derived($resources.filter(resource => {
     const matchesDepartment = filterDepartment === 'all' || resource.department === filterDepartment;
     const matchesSkill = !filterSkill || resource.skills.some(s => 
       s.toLowerCase().includes(filterSkill.toLowerCase())
@@ -218,9 +218,9 @@
     const matchesUtilization = (!showUnderUtilized || resource.utilization < 50) &&
                                (!showOverAllocated || resource.utilization > 90);
     return matchesDepartment && matchesSkill && matchesUtilization;
-  });
+  }));
   
-  $: departments = [...new Set($resources.map(r => r.department))];
+  let departments = $derived([...new Set($resources.map(r => r.department))]);
 </script>
 
 <div class="resource-board p-6">
@@ -236,19 +236,19 @@
       <!-- View Selector -->
       <div class="flex gap-2">
         <button
-          on:click={() => selectedView = 'grid'}
+          onclick={() => selectedView = 'grid'}
           class="px-3 py-2 rounded {selectedView === 'grid' ? 'bg-blue-600 text-white' : 'bg-surface-100'}"
         >
           Grid View
         </button>
         <button
-          on:click={() => selectedView = 'timeline'}
+          onclick={() => selectedView = 'timeline'}
           class="px-3 py-2 rounded {selectedView === 'timeline' ? 'bg-blue-600 text-white' : 'bg-surface-100'}"
         >
           Timeline
         </button>
         <button
-          on:click={() => selectedView = 'utilization'}
+          onclick={() => selectedView = 'utilization'}
           class="px-3 py-2 rounded {selectedView === 'utilization' ? 'bg-blue-600 text-white' : 'bg-surface-100'}"
         >
           Utilization
@@ -356,7 +356,7 @@
           
           <!-- Actions -->
           <button
-            on:click={() => selectedResource = resource}
+            onclick={() => selectedResource = resource}
             class="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
           >
             View Details
@@ -506,7 +506,7 @@
               </div>
             </div>
             <select
-              on:change={(e) => {
+              onchange={(e) => {
                 const target = e.target as HTMLSelectElement;
                 if (target?.value) {
                   assignResource(target.value, project.id, need.skill);

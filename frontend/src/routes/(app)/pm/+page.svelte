@@ -35,11 +35,11 @@
 	}
 
 	// State Management
-	let selectedProjectId = '';
-	let projects: Project[] = [];
-	let selectedView: 'overview' | 'gantt' | 'kanban' | 'resources' | 'analytics' | 'ali' = 'overview';
-	let loading = false;
-	let error = '';
+	let selectedProjectId = $state('');
+	let projects: Project[] = $state([]);
+	let selectedView: 'overview' | 'gantt' | 'kanban' | 'resources' | 'analytics' | 'ali' = $state('overview');
+	let loading = $state(false);
+	let error = $state('');
 	let searchQuery = '';
 	let filterStatus = 'all';
 	let sortBy = 'name';
@@ -105,7 +105,7 @@
 	}
 
 	// Filtered and sorted projects
-	$: filteredProjects = projects
+	let filteredProjects = $derived(projects
 		.filter(project => {
 			const matchesSearch = (project.name || project.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
 								 (project.description || '').toLowerCase().includes(searchQuery.toLowerCase());
@@ -123,7 +123,7 @@
 				}
 				default: return 0;
 			}
-		});
+		}));
 
 	const selectedProject = projects.find(p => p.id === selectedProjectId);
 
@@ -162,7 +162,7 @@
 		<!-- Quick Actions -->
 		<div class="flex items-center space-x-3">
 			<button 
-				on:click={() => createProject('New Project', 'Project description')}
+				onclick={() => createProject('New Project', 'Project description')}
 				class="btn-primary flex items-center space-x-2"
 			>
 				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,7 +184,7 @@
 				<div class="text-red-600 text-lg font-medium mb-2">Error Loading Projects</div>
 				<div class="text-red-500">{error}</div>
 				<button 
-					on:click={loadProjects}
+					onclick={loadProjects}
 					class="mt-4 btn-secondary"
 				>
 					Retry
@@ -202,7 +202,7 @@
 						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 							{#each filteredProjects as project}
 								<button
-									on:click={() => handleProjectSelect(project.id)}
+									onclick={() => handleProjectSelect(project.id)}
 									class="text-left p-4 rounded-lg border-2 transition-all duration-200 hover:shadow-md {selectedProjectId === project.id.toString() 
 										? 'border-blue-500 bg-blue-50' 
 										: 'border-surface-300  bg-surface-50 hover:border-surface-400 '}"
@@ -233,7 +233,7 @@
 						<h3 class="text-xl font-medium text-surface-900  mb-2">No Projects Yet</h3>
 						<p class="text-surface-600  mb-6">Create your first project to get started with project management</p>
 						<button 
-							on:click={() => createProject('My First Project', 'Start managing your AI agent workflows')}
+							onclick={() => createProject('My First Project', 'Start managing your AI agent workflows')}
 							class="btn-primary flex items-center space-x-2"
 						>
 							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,7 +255,7 @@
 							<!-- View Tabs -->
 							<div class="flex bg-surface-200  rounded-lg p-1">
 								<button
-									on:click={() => selectedView = 'overview'}
+									onclick={() => selectedView = 'overview'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'overview' 
 										? 'bg-white text-surface-900  shadow-sm' 
 										: 'text-surface-600  hover:text-surface-900'}"
@@ -263,7 +263,7 @@
 									📊 Overview
 								</button>
 								<button
-									on:click={() => selectedView = 'gantt'}
+									onclick={() => selectedView = 'gantt'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'gantt' 
 										? 'bg-white text-surface-900  shadow-sm' 
 										: 'text-surface-600  hover:text-surface-900'}"
@@ -271,7 +271,7 @@
 									📅 Gantt Chart
 								</button>
 								<button
-									on:click={() => selectedView = 'kanban'}
+									onclick={() => selectedView = 'kanban'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'kanban' 
 										? 'bg-white text-surface-900  shadow-sm' 
 										: 'text-surface-600  hover:text-surface-900'}"
@@ -279,7 +279,7 @@
 									🔄 Kanban
 								</button>
 								<button
-									on:click={() => selectedView = 'resources'}
+									onclick={() => selectedView = 'resources'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'resources' 
 										? 'bg-white text-surface-900  shadow-sm' 
 										: 'text-surface-600  hover:text-surface-900'}"
@@ -287,7 +287,7 @@
 									💼 Resources
 								</button>
 								<button
-									on:click={() => selectedView = 'analytics'}
+									onclick={() => selectedView = 'analytics'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'analytics' 
 										? 'bg-white text-surface-900  shadow-sm' 
 										: 'text-surface-600  hover:text-surface-900'}"
@@ -295,7 +295,7 @@
 									📈 Analytics
 								</button>
 								<button
-									on:click={() => selectedView = 'ali'}
+									onclick={() => selectedView = 'ali'}
 									class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {selectedView === 'ali' 
 										? 'bg-white text-surface-900  shadow-sm' 
 										: 'text-surface-600  hover:text-surface-900'}"

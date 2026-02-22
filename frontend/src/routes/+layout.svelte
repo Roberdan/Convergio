@@ -1,11 +1,16 @@
 <script lang="ts">
   import '../app.css';
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { initializeTheme } from '$lib/stores/themeStore';
+  import { authStore } from '$lib/stores/auth';
 
-  // Dynamic page title based on route
-  $: pageTitle = getPageTitle($page.route.id);
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
 
   function getPageTitle(routeId: string | null): string {
     if (routeId?.includes('dashboard')) return 'Dashboard';
@@ -18,27 +23,39 @@
     return 'Convergio';
   }
 
-  // Inizializza sistema temi
-  onMount(() => {
+  onMount(async () => {
     initializeTheme();
+    await authStore.initialize();
   });
+
+  $effect(() => {
+    if (
+      $authStore.initialized &&
+      !$authStore.loading &&
+      $authStore.isAuthenticated &&
+      $page.url.pathname === '/'
+    ) {
+      goto('/dashboard');
+    }
+  });
+
+  let pageTitle = $derived(getPageTitle($page.route.id));
 </script>
 
 <svelte:head>
   <title>{pageTitle} - Convergio</title>
-  <meta name="description" content="Convergio - Unified AI-Native Enterprise Platform (No Auth Required)" />
+  <meta name="description" content="Convergio - Unified AI-Native Enterprise Platform" />
 </svelte:head>
 
-<!-- Root Layout - Super Clean, No Auth -->
-<div class="min-h-screen bg-surface-900 text-surface-900  transition-colors duration-300">
-  <slot />
+<div class="min-h-screen bg-surface-900 text-surface-900 transition-colors duration-300">
+  {@render children?.()}
 </div>
 
 <style>
   :global(html) {
     font-family: 'Inter', sans-serif;
   }
-  
+
   :global(body) {
     margin: 0;
     padding: 0;

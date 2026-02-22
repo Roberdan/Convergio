@@ -1,22 +1,38 @@
 <script lang="ts">
-  export let variant: 'primary' | 'secondary' | 'danger' = 'primary';
-  export let size: 'sm' | 'md' | 'lg' = 'md';
-  export let disabled = false;
-  export let loading = false;
-  export let ariaLabel = '';
-  export let ariaDescribedBy = '';
-  export let type: 'button' | 'submit' | 'reset' = 'button';
+  let {
+    variant = 'primary',
+    size = 'md',
+    disabled = false,
+    loading = false,
+    ariaLabel = '',
+    ariaDescribedBy = '',
+    type = 'button',
+    tabIndex = 0,
+    class: className = ''
+  }: {
+    variant?: 'primary' | 'secondary' | 'danger';
+    size?: 'sm' | 'md' | 'lg';
+    disabled?: boolean;
+    loading?: boolean;
+    ariaLabel?: string;
+    ariaDescribedBy?: string;
+    type?: 'button' | 'submit' | 'reset';
+    tabIndex?: number;
+    class?: string;
+  } = $props();
+
   // For external reference only; not used in template
   export const accessKey = '';
-  export let tabIndex = 0;
 
-  $: buttonClass = `
-    accessible-button 
-    accessible-button--${variant} 
-    accessible-button--${size}
-    ${disabled || loading ? 'accessible-button--disabled' : ''}
-    ${$$props.class || ''}
-  `.trim();
+  let buttonClass = $derived(
+    `
+      accessible-button
+      accessible-button--${variant}
+      accessible-button--${size}
+      ${disabled || loading ? 'accessible-button--disabled' : ''}
+      ${className}
+    `.trim()
+  );
 
   function handleKeydown(event: KeyboardEvent) {
     // Handle Enter and Space for accessibility
@@ -33,13 +49,12 @@
   class={buttonClass}
   {type}
   {disabled}
-  aria-label={ariaLabel || ($$slots.default ? undefined : 'Button')}
+  aria-label={ariaLabel || undefined}
   aria-describedby={ariaDescribedBy || undefined}
   aria-busy={loading}
   aria-disabled={disabled || loading}
   tabindex={tabIndex}
-  on:click
-  on:keydown={handleKeydown}
+  onkeydown={handleKeydown}
 >
   {#if loading}
     <span class="loading-spinner" aria-hidden="true"></span>

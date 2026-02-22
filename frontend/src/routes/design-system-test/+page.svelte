@@ -29,12 +29,12 @@
 	} from '$lib/components/ui';
 
 	// Test data and state
-	let darkMode = false;
-	let sidebarCollapsed = false;
-	let showModal = false;
-	let inputValue = '';
-	let switchValue = false;
-	let checkboxValue = false;
+	let darkMode = $state(false);
+	let sidebarCollapsed = $state(false);
+	let showModal = $state(false);
+	let inputValue = $state('');
+	let switchValue = $state(false);
+	let checkboxValue = $state(false);
 	let notifications = [
 		{
 			id: '1',
@@ -135,30 +135,34 @@
 
 <DashboardLayout bind:sidebarCollapsed>
 	<!-- Sidebar -->
-	<svelte:fragment slot="sidebar">
-		<Sidebar
-			{menuItems}
-			collapsed={sidebarCollapsed}
-			userInfo={{
-				name: 'John Doe',
-				email: 'john@convergio.com',
-				role: 'Admin'
-			}}
-		/>
-	</svelte:fragment>
+	{#snippet sidebar()}
+	
+			<Sidebar
+				{menuItems}
+				collapsed={sidebarCollapsed}
+				userInfo={{
+					name: 'John Doe',
+					email: 'john@convergio.com',
+					role: 'Admin'
+				}}
+			/>
+		
+	{/snippet}
 
 	<!-- Header -->
-	<svelte:fragment slot="header">
-		<Header
-			title="Design System Test"
-			showSearch={true}
-			showNotifications={true}
-			notificationCount={1}
-			userName="John Doe"
-			userAvatar=""
-			on:toggle-sidebar={handleSidebarToggle}
-		/>
-	</svelte:fragment>
+	{#snippet header()}
+	
+			<Header
+				title="Design System Test"
+				showSearch={true}
+				showNotifications={true}
+				notificationCount={1}
+				userName="John Doe"
+				userAvatar=""
+				on:toggle-sidebar={handleSidebarToggle}
+			/>
+		
+	{/snippet}
 
 	<!-- Main Content -->
 	<div class="space-y-8">
@@ -168,14 +172,16 @@
 			subtitle="Testing all UI components and their integration"
 			{breadcrumbs}
 		>
-			<svelte:fragment slot="actions">
-				<Button variant="outline" on:click={toggleDarkMode}>
-					{darkMode ? 'Light' : 'Dark'} Mode
-				</Button>
-				<Button variant="primary" on:click={handleModalOpen}>
-					Open Modal
-				</Button>
-			</svelte:fragment>
+			{#snippet actions()}
+					
+					<Button variant="outline" on:click={toggleDarkMode}>
+						{darkMode ? 'Light' : 'Dark'} Mode
+					</Button>
+					<Button variant="primary" on:click={handleModalOpen}>
+						Open Modal
+					</Button>
+				
+					{/snippet}
 		</PageHeader>
 
 		<!-- Stats Cards -->
@@ -310,18 +316,20 @@
 				<div class="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
 					<p class="text-gray-500">Chart visualization would go here</p>
 				</div>
-				<svelte:fragment slot="legend">
-					<div class="flex items-center gap-4">
-						<div class="flex items-center gap-2">
-							<div class="w-3 h-3 bg-primary-500 rounded-full"></div>
-							<span class="text-sm">Active Users</span>
+				{#snippet legend()}
+							
+						<div class="flex items-center gap-4">
+							<div class="flex items-center gap-2">
+								<div class="w-3 h-3 bg-primary-500 rounded-full"></div>
+								<span class="text-sm">Active Users</span>
+							</div>
+							<div class="flex items-center gap-2">
+								<div class="w-3 h-3 bg-success-500 rounded-full"></div>
+								<span class="text-sm">New Users</span>
+							</div>
 						</div>
-						<div class="flex items-center gap-2">
-							<div class="w-3 h-3 bg-success-500 rounded-full"></div>
-							<span class="text-sm">New Users</span>
-						</div>
-					</div>
-				</svelte:fragment>
+					
+							{/snippet}
 			</ChartCard>
 		</div>
 
@@ -392,33 +400,39 @@
 		<div class="mb-8">
 			<h2 class="text-lg font-semibold mb-4">Structured Cards</h2>
 			<StructuredCard>
-				<svelte:fragment slot="header">
-					<div class="flex items-center justify-between">
-						<h3 class="text-lg font-medium">User Profile</h3>
-						<Badge variant="success">Active</Badge>
-					</div>
-				</svelte:fragment>
-
-				<svelte:fragment slot="content">
-					<div class="flex items-start gap-4">
-						<Avatar size="lg" fallback="JD" status="online" />
-						<div class="space-y-2">
-							<h4 class="font-medium">John Doe</h4>
-							<p class="text-sm text-gray-600">john@convergio.com</p>
-							<p class="text-sm text-gray-500">Administrator</p>
+				{#snippet header()}
+							
+						<div class="flex items-center justify-between">
+							<h3 class="text-lg font-medium">User Profile</h3>
+							<Badge variant="success">Active</Badge>
 						</div>
-					</div>
-				</svelte:fragment>
+					
+							{/snippet}
 
-				<svelte:fragment slot="footer">
-					<div class="flex items-center justify-between">
-						<span class="text-sm text-gray-500">Last seen: 2 minutes ago</span>
-						<div class="flex gap-2">
-							<Button size="sm" variant="outline">Message</Button>
-							<Button size="sm" variant="primary">Edit</Button>
+				{#snippet content()}
+							
+						<div class="flex items-start gap-4">
+							<Avatar size="lg" fallback="JD" status="online" />
+							<div class="space-y-2">
+								<h4 class="font-medium">John Doe</h4>
+								<p class="text-sm text-gray-600">john@convergio.com</p>
+								<p class="text-sm text-gray-500">Administrator</p>
+							</div>
 						</div>
-					</div>
-				</svelte:fragment>
+					
+							{/snippet}
+
+				{#snippet footer()}
+							
+						<div class="flex items-center justify-between">
+							<span class="text-sm text-gray-500">Last seen: 2 minutes ago</span>
+							<div class="flex gap-2">
+								<Button size="sm" variant="outline">Message</Button>
+								<Button size="sm" variant="primary">Edit</Button>
+							</div>
+						</div>
+					
+							{/snippet}
 			</StructuredCard>
 		</div>
 	</div>

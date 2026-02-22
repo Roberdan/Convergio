@@ -1,31 +1,49 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { createEventDispatcher } from 'svelte';
   
-  export let title: string;
-  // eslint-disable-next-line no-unused-vars
-  export let value: string | number;
-  export let change: number;
-  export let changeType: 'increase' | 'decrease' | 'neutral' = 'neutral';
-  export let icon: string;
-  export const iconColor: string = 'text-blue-600';
-  export const bgColor: string = 'bg-blue-50';
-  export const valueColor: string = 'text-surface-900';
-  export const changeColor: string = 'text-green-600';
-  export let formatValue = (val: string | number) => String(val);
-  export let showChange: boolean = true;
-  export let loading: boolean = false;
   
-  $: void value;
+  interface Props {
+    title: string;
+    // eslint-disable-next-line no-unused-vars
+    value: string | number;
+    change: number;
+    changeType?: 'increase' | 'decrease' | 'neutral';
+    icon: string;
+    iconColor?: string;
+    bgColor?: string;
+    formatValue?: any;
+    showChange?: boolean;
+    loading?: boolean;
+  }
+
+  let {
+    title,
+    value,
+    change,
+    changeType = 'neutral',
+    icon,
+    iconColor = 'text-blue-600',
+    bgColor = 'bg-blue-50',
+    formatValue = (val: string | number) => String(val),
+    showChange = true,
+    loading = false
+  }: Props = $props();
+  
+  run(() => {
+    void value;
+  });
 
   const dispatch = createEventDispatcher();
 
-  $: changeIcon = changeType === 'increase' ? '/convergio_icons/up.svg' : 
+  let changeIcon = $derived(changeType === 'increase' ? '/convergio_icons/up.svg' : 
                    changeType === 'decrease' ? '/convergio_icons/down.svg' : 
-                   '/convergio_icons/minus.svg';
+                   '/convergio_icons/minus.svg');
   
-  $: changeTextColor = changeType === 'increase' ? 'text-green-700' : 
+  let changeTextColor = $derived(changeType === 'increase' ? 'text-green-700' : 
                        changeType === 'decrease' ? 'text-red-700' : 
-                       'text-surface-600';
+                       'text-surface-600');
 
   function handleClick() {
     dispatch('click');
@@ -34,16 +52,16 @@
 
 <div
   class="rounded-xl border-2 border-surface-200 bg-white p-6 shadow-lg hover:shadow-xl hover:border-blue-500 transition-all duration-300 cursor-pointer {loading ? 'opacity-60' : ''}"
-  on:click={handleClick}
-  on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? handleClick() : null}
+  onclick={handleClick}
+  onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? handleClick() : null}
   role="button"
   tabindex="0"
   aria-label={`Dashboard metric card for ${title}`}
 >
   <div class="flex items-center justify-between">
     <div class="flex items-center space-x-4">
-      <div class="rounded-lg bg-blue-100 p-3 border-2 border-blue-200">
-        <img src={icon} alt="" class="h-6 w-6 text-blue-600" />
+      <div class="rounded-lg {bgColor} p-3 border-2 border-blue-200">
+        <img src={icon} alt="" class="h-6 w-6 {iconColor}" />
       </div>
       <div>
         <p class="text-sm font-bold text-surface-600 mb-1">{title}</p>

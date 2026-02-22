@@ -1,12 +1,35 @@
-"""
-Convergio models package.
+"""Convergio SQLAlchemy models package."""
 
-Intentionally no side-effect imports to avoid duplicate table definitions when
-packages are imported via both 'models.*' and 'src.models.*'. Import specific
-models from their modules, e.g.:
+__all__: list[str] = []
 
-from models.activity import Activity
-from models.cost_tracking import CostTracking
-"""
+try:
+    from .prisma_models import (
+        AdminAuditLog,
+        ComplianceAuditEntry,
+        Invite,
+        Session,
+        Subscription,
+        Team,
+        TeamMember,
+        Tier,
+        TierFeature,
+        TrialSession,
+        WaitlistRequest,
+    )
 
-__all__ = []
+    __all__ = [
+        "Tier",
+        "TierFeature",
+        "Subscription",
+        "TrialSession",
+        "Team",
+        "TeamMember",
+        "Invite",
+        "AdminAuditLog",
+        "ComplianceAuditEntry",
+        "WaitlistRequest",
+        "Session",
+    ]
+except ModuleNotFoundError:
+    # Keep package importable in minimal environments without DB deps.
+    pass

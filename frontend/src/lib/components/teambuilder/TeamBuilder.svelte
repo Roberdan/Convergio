@@ -7,14 +7,19 @@
 	import TeamCostEstimate from './TeamCostEstimate.svelte';
 	import SkillCoverage from './SkillCoverage.svelte';
 
-	// Props
-	export let requiredSkills: string[] = [];
-	export let availableResources: UnifiedResource[] = [];
+	
+	interface Props {
+		// Props
+		requiredSkills?: string[];
+		availableResources?: UnifiedResource[];
+	}
+
+	let { requiredSkills = [], availableResources = [] }: Props = $props();
 
 	// State
-	let selectedResources: UnifiedResource[] = [];
-	let allocations: Record<string, number> = {};
-	let loading = false;
+	let selectedResources: UnifiedResource[] = $state([]);
+	let allocations: Record<string, number> = $state({});
+	let loading = $state(false);
 
 	const dispatch = createEventDispatcher<{
 		save: { resources: UnifiedResource[]; allocations: Record<string, number> };
@@ -22,10 +27,10 @@
 	}>();
 
 	// Cost calculation
-	$: costEstimate = workforceService.calculateTeamCost(selectedResources, allocations);
+	let costEstimate = $derived(workforceService.calculateTeamCost(selectedResources, allocations));
 
 	// Skill coverage
-	$: skillCoverage = workforceService.analyzeSkillCoverage(selectedResources, requiredSkills);
+	let skillCoverage = $derived(workforceService.analyzeSkillCoverage(selectedResources, requiredSkills));
 
 	function handleResourceAdd(resource: UnifiedResource) {
 		if (!selectedResources.find(r => r.id === resource.id)) {
@@ -108,7 +113,7 @@
 									</div>
 								</div>
 								<button
-									on:click={() => handleResourceRemove(resource.id)}
+									onclick={() => handleResourceRemove(resource.id)}
 									class="p-1 text-surface-400 hover:text-error-500 rounded transition-colors"
 									aria-label="Remove {resource.name} from team"
 								>
@@ -146,13 +151,13 @@
 			</div>
 			<div class="flex gap-3">
 				<button
-					on:click={handleCancel}
+					onclick={handleCancel}
 					class="px-4 py-2 text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 transition-colors"
 				>
 					Cancel
 				</button>
 				<button
-					on:click={handleSave}
+					onclick={handleSave}
 					disabled={selectedResources.length === 0 || loading}
 					class="px-4 py-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>

@@ -4,11 +4,11 @@
 -->
 
 <script lang="ts">
-  let selectedConversation = 'conv_001';
-  let refreshing = false;
-  let showAdvancedMetrics = true;
-  let telemetryStatus = 'healthy';
-  let lastHealthCheck = new Date();
+  let selectedConversation = $state('conv_001');
+  let refreshing = $state(false);
+  let showAdvancedMetrics = $state(true);
+  let telemetryStatus = $state('healthy');
+  let lastHealthCheck = $state(new Date());
   
   // Sample data for tests
   const timelineData = {
@@ -155,7 +155,7 @@
           </span>
         {/if}
         <button 
-          on:click={checkTelemetryHealth}
+          onclick={checkTelemetryHealth}
           class="btn-check-health px-3 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
           aria-label="Check telemetry health"
         >
@@ -173,7 +173,7 @@
         <select 
           id="conversation-select"
           bind:value={selectedConversation}
-          on:change={handleConversationChange}
+          onchange={handleConversationChange}
           class="conversation-select border border-surface-300 rounded-md px-3 py-2 bg-white text-surface-900"
         >
           <option value="conv_001">Conversation 001</option>
@@ -210,7 +210,7 @@
             <button
               class="btn-refresh btn-refresh-timeline inline-flex items-center px-4 py-2 border border-surface-300 rounded-md shadow-sm text-sm font-medium text-surface-600 bg-white hover:bg-surface-50"
               aria-label="Refresh timeline"
-              on:click={refreshTimeline}
+              onclick={refreshTimeline}
               disabled={refreshing}
             >
               <svg class="w-4 h-4 mr-2 {refreshing ? 'animate-spin' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,7 +314,7 @@
             <button
               class="btn-refresh btn-refresh-metrics inline-flex items-center px-4 py-2 border border-surface-300 rounded-md shadow-sm text-sm font-medium text-surface-600 bg-white hover:bg-surface-50"
               aria-label="Refresh metrics"
-              on:click={refreshTimeline}
+              onclick={refreshTimeline}
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />

@@ -11,15 +11,18 @@ import structlog
 
 # Agent Framework imports with fallback
 try:
-    from agent_framework import Agent, ChatCompletionClient, AgentThread
+    from agent_framework import Agent, ChatCompletionClient, AgentSession
     from agent_framework.messages import TextMessage as AFTextMessage
+    from agent_framework.exceptions import AgentException, ChatClientException
     AGENT_FRAMEWORK_AVAILABLE = True
 except ImportError:
     AGENT_FRAMEWORK_AVAILABLE = False
     Agent = None
     ChatCompletionClient = None
-    AgentThread = None
+    AgentSession = None
     AFTextMessage = None
+    AgentException = Exception
+    ChatClientException = Exception
 
 # Optional autogen import for backward compatibility
 try:
@@ -180,6 +183,19 @@ class AgentFrameworkOrchestrator:
 
             return result
 
+        except (AgentException, ChatClientException) as e:
+            logger.error(
+                "Agent framework execution failed",
+                agent_key=agent_key,
+                error=str(e)
+            )
+            return AgentExecutionResult(
+                success=False,
+                agent_key=agent_key,
+                response="",
+                messages=[],
+                error=str(e)
+            )
         except Exception as e:
             logger.error(
                 "Agent execution failed",
@@ -327,6 +343,9 @@ class AgentFrameworkOrchestrator:
             self._agent_cache[agent_key] = agent
             return agent
 
+        except (AgentException, ChatClientException) as e:
+            logger.error(f"Failed to create agent due to framework error: {e}")
+            return None
         except Exception as e:
             logger.error(f"Failed to create agent: {e}")
             return None
@@ -337,8 +356,8 @@ class AgentFrameworkOrchestrator:
             conversation_id = f"thread_{datetime.now().timestamp()}"
 
         if conversation_id not in self._threads:
-            if AGENT_FRAMEWORK_AVAILABLE and AgentThread:
-                self._threads[conversation_id] = AgentThread()
+            if AGENT_FRAMEWORK_AVAILABLE and AgentSession:
+                self._threads[conversation_id] = AgentSession()
             else:
                 self._threads[conversation_id] = {"messages": []}
 

@@ -1,9 +1,16 @@
 <script lang="ts">
+	import { createBubbler, stopPropagation } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { createEventDispatcher } from 'svelte';
 	import type { UnifiedResource } from '$lib/types/resource';
 
-	export let resource: UnifiedResource;
-	export let open = false;
+	interface Props {
+		resource: UnifiedResource;
+		open?: boolean;
+	}
+
+	let { resource, open = false }: Props = $props();
 
 	const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -35,8 +42,8 @@
 {#if open}
 	<div
 		class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-		on:click={close}
-		on:keydown={(e) => e.key === 'Escape' && close()}
+		onclick={close}
+		onkeydown={(e) => e.key === 'Escape' && close()}
 		role="dialog"
 		aria-modal="true"
 		aria-labelledby="resource-detail-title"
@@ -44,8 +51,8 @@
 	>
 		<div
 			class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-			on:click|stopPropagation
-			on:keydown={(e) => e.key === 'Enter' && e.stopPropagation()}
+			onclick={stopPropagation(bubble('click'))}
+			onkeydown={(e) => e.key === 'Enter' && e.stopPropagation()}
 			role="button"
 			tabindex="0"
 		>
@@ -79,7 +86,7 @@
 						</div>
 					</div>
 					<button
-						on:click={close}
+						onclick={close}
 						class="p-2 text-surface-400 hover:text-surface-600 hover:bg-surface-100 rounded-lg transition-colors"
 						aria-label="Close resource details"
 					>
@@ -237,7 +244,7 @@
 						{/if}
 					</div>
 					<div class="flex gap-2">
-						<button on:click={close} class="px-4 py-2 text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 transition-colors">
+						<button onclick={close} class="px-4 py-2 text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 transition-colors">
 							Close
 						</button>
 						<button class="px-4 py-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">

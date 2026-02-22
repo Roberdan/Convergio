@@ -13,10 +13,10 @@
   import WorkflowsOverview from '$lib/components/dashboard/WorkflowsOverview.svelte';
   import FeedbackOverview from '$lib/components/dashboard/FeedbackOverview.svelte';
 
-  let dashboardData: DashboardMetrics | null = null;
-  let loading = true;
+  let dashboardData: DashboardMetrics | null = $state(null);
+  let loading = $state(true);
   let timeRange = '7d';
-  let activeSection = 'overview';
+  let activeSection = $state('overview');
 
   function formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', {
@@ -123,7 +123,7 @@
         <p class="mt-1 text-sm text-surface-700 ">Real-time business metrics and insights</p>
       </div>
       <button
-        on:click={requestExecutiveBrief}
+        onclick={requestExecutiveBrief}
         class="btn-secondary inline-flex items-center"
       >
         <img src="/convergio_icons/download.svg" alt="" class="mr-1.5 h-3 w-3" />
@@ -152,7 +152,7 @@
             icon="/convergio_icons/cost_management.svg"
             iconColor="text-green-600"
             bgColor="bg-green-50"
-            formatValue={(val) => `$${formatNumber(Number(val))}`}
+            formatValue={(val: string | number) => `$${formatNumber(Number(val))}`}
             showChange={dashboardData?.overview?.growth_rate != null}
           />
         {/if}
@@ -190,7 +190,7 @@
           icon="/convergio_icons/analytics.svg"
           iconColor="text-orange-600"
           bgColor="bg-orange-50"
-          formatValue={(val) => String(val)}
+          formatValue={(val: string | number) => String(val)}
           showChange={false}
         />
       {/if}
@@ -304,13 +304,13 @@
           <h3 class="text-lg font-medium text-surface-900 ">Recent Projects</h3>
           <div class="flex space-x-2">
             <button 
-              on:click={() => createProject('product_launch')}
+              onclick={() => createProject('product_launch')}
               class="px-3 py-1.5 text-sm bg-surface-200 /80 hover:bg-surface-200/80 text-surface-900  rounded-lg transition-all duration-300 border border-surface-400 /50"
             >
               Launch
             </button>
             <button 
-              on:click={() => createProject('market_analysis')}
+              onclick={() => createProject('market_analysis')}
               class="px-3 py-1.5 text-sm bg-surface-200 /80 hover:bg-surface-200/80 text-surface-900  rounded-lg transition-all duration-300 border border-surface-400 /50"
             >
               Analysis

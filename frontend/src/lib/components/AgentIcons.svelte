@@ -1,7 +1,11 @@
 <script lang="ts">
-  export let agentName: string;
-  export let size: string = "w-6 h-6";
-  export let className: string = "";
+  interface Props {
+    agentName: string;
+    size?: string;
+    className?: string;
+  }
+
+  let { agentName, size = "w-6 h-6", className = "" }: Props = $props();
 
   // Agent-specific color schemes and gradients
   const agentStyles = {
@@ -168,7 +172,7 @@
     }
   };
 
-  $: style = agentStyles[agentName as keyof typeof agentStyles] || agentStyles.Ali;
+  let style = $derived(agentStyles[agentName as keyof typeof agentStyles] || agentStyles.Ali);
 </script>
 
 <div class="relative {size} {className}">

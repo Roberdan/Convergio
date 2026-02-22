@@ -3,7 +3,11 @@
 	import { flip } from 'svelte/animate';
 	import { dndzone } from 'svelte-dnd-action';
 	
-	export let projectId: string;
+	interface Props {
+		projectId: string;
+	}
+
+	let { projectId }: Props = $props();
 	
 	interface Task {
 		id: string;
@@ -25,12 +29,12 @@
 		tasks: Task[];
 	}
 	
-	let columns: Column[] = [
+	let columns: Column[] = $state([
 		{ id: 'pending', title: 'To Do', color: 'bg-surface-100', tasks: [] },
 		{ id: 'in_progress', title: 'In Progress', color: 'bg-blue-500', tasks: [] },
 		{ id: 'in_review', title: 'In Review', color: 'bg-yellow-500', tasks: [] },
 		{ id: 'completed', title: 'Done', color: 'bg-green-500', tasks: [] }
-	];
+	]);
 	
 	let selectedTask: Task | null = null;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in template
@@ -164,8 +168,8 @@
 						flipDurationMs: 300,
 						dropTargetStyle: {}
 					}}
-					on:consider={handleDndConsider(column.id)}
-					on:finalize={handleDndFinalize(column.id)}
+					onconsider={handleDndConsider(column.id)}
+					onfinalize={handleDndFinalize(column.id)}
 				>
 					{#each column.tasks as task (task.id)}
 						<div
@@ -202,7 +206,7 @@
 										</span>
 									{:else}
 										<button
-											on:click={() => attachAgent(defaultAgent)}
+											onclick={() => attachAgent(defaultAgent)}
 											class="text-xs text-primary-600 hover:text-primary-800 font-medium"
 										>
 											🤖 Assign to Ali

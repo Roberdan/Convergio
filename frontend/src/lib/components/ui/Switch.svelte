@@ -1,21 +1,30 @@
 <script lang="ts">
+	import { handlers } from 'svelte/legacy';
+
 	import { createEventDispatcher } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
-	interface $$Props extends Omit<HTMLInputAttributes, 'type' | 'size'> {
+	
+
+	interface Props {
 		checked?: boolean;
 		size?: 'sm' | 'md' | 'lg';
 		label?: string;
 		description?: string;
 		disabled?: boolean;
+		id?: HTMLInputAttributes['id'];
+		[key: string]: any
 	}
 
-	export let checked: $$Props['checked'] = false;
-	export let size: NonNullable<$$Props['size']> = 'md';
-	export let label: $$Props['label'] = '';
-	export let description: $$Props['description'] = '';
-	export let disabled: $$Props['disabled'] = false;
-	export let id: $$Props['id'] = '';
+	let {
+		checked = $bindable(false),
+		size = 'md',
+		label = '',
+		description = '',
+		disabled = false,
+		id = '',
+		...rest
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		change: { checked: boolean };
@@ -25,18 +34,18 @@
 	const switchId = id || `switch-${Math.random().toString(36).substr(2, 9)}`;
 
 	// Compute CSS classes
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		sm: 'switch-sm',
 		md: 'switch-md',
 		lg: 'switch-lg'
-	};
+	});
 
-	$: switchClasses = [
+	let switchClasses = $derived([
 		'switch',
 		sizeClasses[size],
 		checked ? 'switch-checked' : '',
 		disabled ? 'switch-disabled' : ''
-	].filter(Boolean).join(' ');
+	].filter(Boolean).join(' '));
 
 	function handleChange(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -55,8 +64,7 @@
 			aria-describedby={description ? `${switchId}-description` : undefined}
 			class={switchClasses}
 			{disabled}
-			on:click={() => !disabled && (checked = !checked)}
-			on:click={handleChange}
+			onclick={handlers(() => !disabled && (checked = !checked), handleChange)}
 		>
 			<span class="switch-track" aria-hidden="true">
 				<span class="switch-thumb"></span>
@@ -65,13 +73,13 @@
 
 		<!-- Hidden input for form submission -->
 		<input
-			{...$$restProps}
+			{...rest}
 			id={switchId}
 			type="checkbox"
 			bind:checked
 			{disabled}
 			class="sr-only"
-			on:change={handleChange}
+			onchange={handleChange}
 		/>
 
 		{#if label || description}

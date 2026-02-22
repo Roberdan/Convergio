@@ -1,11 +1,17 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { marked } from 'marked';
   import hljs from 'highlight.js';
   import 'highlight.js/styles/github-dark.css';
 
-  export let content: string = '';
+  interface Props {
+    content?: string;
+  }
 
-  let renderedHtml = '';
+  let { content = '' }: Props = $props();
+
+  let renderedHtml = $state('');
 
   // Configure marked with syntax highlighting using hooks
   marked.use({
@@ -36,10 +42,12 @@
 
   marked.use({ renderer });
 
-  $: if (content) {
-    const parsed = marked.parse(content);
-    renderedHtml = typeof parsed === 'string' ? parsed : '';
-  }
+  run(() => {
+    if (content) {
+      const parsed = marked.parse(content);
+      renderedHtml = typeof parsed === 'string' ? parsed : '';
+    }
+  });
 </script>
 
 <div class="markdown-content prose prose-sm max-w-none">

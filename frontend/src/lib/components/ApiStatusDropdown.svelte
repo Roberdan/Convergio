@@ -12,15 +12,15 @@
     backend: { connected: boolean; version?: string };
   }
   
-  let isOpen = false;
-  let apiStatus: ApiStatus = {
+  let isOpen = $state(false);
+  let apiStatus: ApiStatus = $state({
     openai: { connected: false },
     anthropic: { connected: false },
     perplexity: { connected: false },
     backend: { connected: false }
-  };
+  });
   
-  let overallStatus: 'online' | 'partial' | 'offline' = 'offline';
+  let overallStatus: 'online' | 'partial' | 'offline' = $state('offline');
   let intervalId: NodeJS.Timeout;
   
   onMount(() => {
@@ -165,7 +165,7 @@
 <div class="relative">
   <!-- Status Button -->
   <button
-    on:click={() => isOpen = !isOpen}
+    onclick={() => isOpen = !isOpen}
     class="flex items-start space-x-2 px-4 py-2 bg-white rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-sm {getStatusColor(overallStatus)}"
     aria-label="API connection status"
     aria-expanded={isOpen}
@@ -309,7 +309,7 @@
           Last checked: {new Date().toLocaleTimeString()}
         </p>
         <button
-          on:click={checkApiStatus}
+          onclick={checkApiStatus}
           class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded transition-colors"
         >
           Refresh
@@ -326,8 +326,8 @@
     role="button"
     tabindex="-1"
     aria-label="Close API status"
-    on:click={() => isOpen = false}
-    on:keydown={(e) => e.key === 'Escape' && (isOpen = false)}
+    onclick={() => isOpen = false}
+    onkeydown={(e) => e.key === 'Escape' && (isOpen = false)}
   ></div>
 {/if}
 

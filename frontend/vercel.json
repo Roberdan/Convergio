@@ -1,0 +1,14 @@
+{
+  "regions": ["fra1"],
+  "buildCommand": "npm run build",
+  "crons": [
+    {
+      "path": "/api/cron/data-retention",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/metrics-push",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

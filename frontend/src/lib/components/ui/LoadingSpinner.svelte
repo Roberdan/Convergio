@@ -1,5 +1,7 @@
 <script lang="ts">
-	interface $$Props {
+	
+
+	interface Props {
 		size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 		variant?: 'default' | 'primary' | 'white' | 'dots' | 'pulse' | 'bars';
 		text?: string;
@@ -8,36 +10,38 @@
 		fullscreen?: boolean;
 	}
 
-	export let size: NonNullable<$$Props['size']> = 'md';
-	export let variant: NonNullable<$$Props['variant']> = 'default';
-	export let text: $$Props['text'] = '';
-	export let center: $$Props['center'] = false;
-	export let overlay: $$Props['overlay'] = false;
-	export let fullscreen: $$Props['fullscreen'] = false;
+	let {
+		size = 'md',
+		variant = 'default',
+		text = '',
+		center = false,
+		overlay = false,
+		fullscreen = false
+	}: Props = $props();
 
 	// Size classes
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		xs: 'w-3 h-3',
 		sm: 'w-4 h-4',
 		md: 'w-6 h-6',
 		lg: 'w-8 h-8',
 		xl: 'w-12 h-12'
-	}[size];
+	}[size]);
 
 	// Variant classes
-	$: variantClasses = {
+	let variantClasses = $derived({
 		default: 'text-gray-500',
 		primary: 'text-primary-600',
 		white: 'text-white'
-	}[variant === 'dots' || variant === 'pulse' || variant === 'bars' ? 'default' : variant];
+	}[variant === 'dots' || variant === 'pulse' || variant === 'bars' ? 'default' : variant]);
 
 	// Container classes
-	$: containerClasses = [
+	let containerClasses = $derived([
 		center ? 'flex items-center justify-center' : '',
 		fullscreen ? 'fixed inset-0 z-50' : '',
 		overlay ? 'absolute inset-0 bg-white bg-opacity-75' : '',
 		text ? 'flex flex-col items-center gap-3' : ''
-	].filter(Boolean).join(' ');
+	].filter(Boolean).join(' '));
 </script>
 
 <div class="loading-container {containerClasses}">

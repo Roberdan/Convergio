@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run, preventDefault } from 'svelte/legacy';
+
   import { onMount } from 'svelte';
   import AgentIcons from '$lib/components/AgentIcons.svelte';
   import AgentStatus from '$lib/components/AgentStatus.svelte';
@@ -25,33 +27,33 @@
   }
 
   // Search functionality
-  let searchQuery = '';
-  let selectedSkill = '';
+  let searchQuery = $state('');
+  let selectedSkill = $state('');
   
   // Dynamic AI agents list - loaded from API
-  let allAgents: Agent[] = [];
-  let isLoadingAgents = true;
-  let loadingError: string | null = null;
+  let allAgents: Agent[] = $state([]);
+  let isLoadingAgents = $state(true);
+  let loadingError: string | null = $state(null);
   
   // Show hire new agent form
-  let showHireForm = false;
+  let showHireForm = $state(false);
   
   // Agent creation form data
-  let newAgentForm = {
+  let newAgentForm = $state({
     name: '',
     role: '',
     description: '',
     specialty: '',
     personality: ''
-  };
-  let isCreatingAgent = false;
-  let creationError: string | null = null;
-  let creationSuccess = false;
+  });
+  let isCreatingAgent = $state(false);
+  let creationError: string | null = $state(null);
+  let creationSuccess = $state(false);
   
   // AI Generated agent preview
-  let generatedAgent: any = null;
-  let isGeneratingAgent = false;
-  let showPreview = false;
+  let generatedAgent: any = $state(null);
+  let isGeneratingAgent = $state(false);
+  let showPreview = $state(false);
 
   // Reset form
   function resetAgentForm() {
@@ -361,7 +363,7 @@
   }
 
   // Extract unique skills for filter (reactive)
-  $: allSkills = [...new Set(allAgents.map(agent => {
+  let allSkills = $derived([...new Set(allAgents.map(agent => {
     // Handle both comma-separated specialties and single tier values
     if (agent.specialty && agent.specialty.includes(',')) {
       return agent.specialty.split(', ').map(skill => skill.trim());
@@ -369,13 +371,13 @@
       return [agent.specialty.trim()];
     }
     return [];
-  }).flat())].map(skill => skill.charAt(0).toUpperCase() + skill.slice(1)).sort();
+  }).flat())].map(skill => skill.charAt(0).toUpperCase() + skill.slice(1)).sort());
 
   // Featured agents (reactive)
-  $: featuredAgents = allAgents.filter(agent => agent.is_featured);
+  let featuredAgents = $derived(allAgents.filter(agent => agent.is_featured));
 
   // Filtered agents based on search
-  $: filteredAgents = allAgents.filter(agent => {
+  let filteredAgents = $derived(allAgents.filter(agent => {
     const matchesSearch = !searchQuery || 
       agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agent.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -385,17 +387,17 @@
       (agent.specialty && agent.specialty.toLowerCase().includes(selectedSkill.toLowerCase()));
     
     return matchesSearch && matchesSkill;
-  });
+  }));
 
-  let currentMessage = '';
-  let messages: Message[] = [];
-  let selectedAgent = fallbackAgents[0];
-  let isLoading = false;
-  let messagesContainer: HTMLElement;
+  let currentMessage = $state('');
+  let messages: Message[] = $state([]);
+  let selectedAgent = $state(fallbackAgents[0]);
+  let isLoading = $state(false);
+  let messagesContainer: HTMLElement = $state()!;
   
   // View Mode variables
-  let isOversightMode = false;
-  let oversightIterations: any[] = [];
+  let isOversightMode = $state(false);
+  let oversightIterations: any[] = $state([]);
   let websocket: WebSocket | null = null;
 
   // Auto-scroll function
@@ -411,9 +413,11 @@
   }
 
   // Watch messages changes to auto-scroll
-  $: if (messages.length > 0) {
-    scrollToBottom();
-  }
+  run(() => {
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
+  });
 
   function selectAgent(agent: Agent) {
     selectedAgent = agent;
@@ -692,8 +696,8 @@
                 </div>
                 <!-- Hire New Agent Button -->
                 <button
-                  on:click={() => showHireForm = true}
-                  on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? (e.preventDefault(), showHireForm = true) : null}
+                  onclick={() => showHireForm = true}
+                  onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? (e.preventDefault(), showHireForm = true) : null}
                   class="btn-primary flex items-center space-x-2 px-4 py-2.5 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
                   aria-label="Hire new AI agent"
                   tabindex="0"
@@ -772,8 +776,8 @@
                 <!-- Clear Filters Button -->
                 {#if searchQuery || selectedSkill}
                   <button
-                    on:click={() => { searchQuery = ''; selectedSkill = ''; }}
-                    on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), searchQuery = '', selectedSkill = '') : null}
+                    onclick={() => { searchQuery = ''; selectedSkill = ''; }}
+                    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), searchQuery = '', selectedSkill = '') : null}
                     class="text-sm text-surface-500 hover:text-surface-700  underline transition-colors duration-200"
                     aria-label="Clear search filters"
                     tabindex="0"
@@ -794,8 +798,8 @@
               <div class="divide-y divide-gray-100">
                 {#each filteredAgents as agent}
                   <button
-                    on:click={() => selectAgent(agent)}
-                    on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), selectAgent(agent)) : null}
+                    onclick={() => selectAgent(agent)}
+                    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), selectAgent(agent)) : null}
                     class="w-full p-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 text-left group {selectedAgent.id === agent.id ? 'bg-gradient-to-r from-blue-100 to-indigo-100 border-r-4 border-blue-500 shadow-sm' : ''}"
                     aria-label="Select {agent.name} - {agent.role}"
                     aria-pressed="{selectedAgent.id === agent.id}"
@@ -853,8 +857,8 @@
                     <div class="text-lg font-medium text-surface-900  mb-2">No agents found</div>
                     <p class="text-sm text-surface-600  mb-4">Try adjusting your search or filter criteria</p>
                     <button 
-                      on:click={() => { searchQuery = ''; selectedSkill = ''; }}
-                      on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), searchQuery = '', selectedSkill = '') : null}
+                      onclick={() => { searchQuery = ''; selectedSkill = ''; }}
+                      onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), searchQuery = '', selectedSkill = '') : null}
                       class="inline-flex items-center px-4 py-2 border border-surface-400  rounded-lg text-sm font-medium text-surface-700  bg-surface-50 hover:bg-surface-100  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
                       aria-label="Clear search filters"
                       tabindex="0"
@@ -893,8 +897,8 @@
                   <div class="flex items-center space-x-2 bg-surface-50 border border-surface-300  rounded-xl px-4 py-2 shadow-sm">
                     <span class="text-xs font-medium text-surface-600 ">View Mode:</span>
                     <button
-                      on:click={() => isOversightMode = false}
-                      on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), isOversightMode = false) : null}
+                      onclick={() => isOversightMode = false}
+                      onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), isOversightMode = false) : null}
                       class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 {!isOversightMode ? 'bg-blue-500 text-white shadow-sm' : 'text-surface-600  hover:text-blue-600 hover:bg-blue-50'}"
                       aria-label="Switch to Executive view mode"
                       aria-pressed="{!isOversightMode}"
@@ -903,8 +907,8 @@
                       Executive
                     </button>
                     <button
-                      on:click={() => isOversightMode = true}
-                      on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), isOversightMode = true) : null}
+                      onclick={() => isOversightMode = true}
+                      onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), isOversightMode = true) : null}
                       class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 {isOversightMode ? 'bg-purple-500 text-white shadow-sm' : 'text-surface-600  hover:text-purple-600 hover:bg-purple-50'}"
                       aria-label="Switch to Oversight view mode"
                       aria-pressed="{isOversightMode}"
@@ -1082,7 +1086,7 @@
               <div class="flex space-x-4">
                 <textarea
                   bind:value={currentMessage}
-                  on:keydown={handleKeyPress}
+                  onkeydown={handleKeyPress}
                   placeholder="Ask {selectedAgent?.name || 'the agent'} about strategy, analysis, or anything in their expertise area..."
                   class="flex-1 resize-none border border-surface-400  rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface-50 shadow-sm"
                   rows="3"
@@ -1090,8 +1094,8 @@
                   aria-label="Type your message to {selectedAgent?.name || 'the agent'}"
                 ></textarea>
                 <button
-                  on:click={sendMessage}
-                  on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && !(!currentMessage.trim() || isLoading) ? (e.preventDefault(), sendMessage()) : null}
+                  onclick={sendMessage}
+                  onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && !(!currentMessage.trim() || isLoading) ? (e.preventDefault(), sendMessage()) : null}
                   disabled={!currentMessage.trim() || isLoading}
                   class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
                   aria-label="Send message to {selectedAgent?.name || 'agent'}"
@@ -1125,8 +1129,8 @@
             <div class="flex items-center justify-between">
               <h2 id="modal-title" class="text-lg font-medium text-surface-900 ">Hire New Agent</h2>
               <button
-                on:click={() => showHireForm = false}
-                on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), showHireForm = false) : null}
+                onclick={() => showHireForm = false}
+                onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') ? (e.preventDefault(), showHireForm = false) : null}
                 class="text-surface-600  hover:text-surface-900  transition-colors"
                 aria-label="Close modal"
                 tabindex="0"
@@ -1142,7 +1146,7 @@
           <div class="modal-body">
             {#if !showPreview}
               <!-- Initial Form -->
-              <form on:submit|preventDefault={generateAgent} class="space-y-4">
+              <form onsubmit={preventDefault(generateAgent)} class="space-y-4">
                 <!-- Agent Name -->
                 <div>
                   <label for="agent-name" class="form-label">
@@ -1228,8 +1232,8 @@
                 <div class="flex space-x-3 pt-4">
                   <button
                     type="button"
-                    on:click={cancelAgentCreation}
-                    on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && !isGeneratingAgent ? (e.preventDefault(), cancelAgentCreation()) : null}
+                    onclick={cancelAgentCreation}
+                    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && !isGeneratingAgent ? (e.preventDefault(), cancelAgentCreation()) : null}
                     class="btn-secondary flex-1"
                     disabled={isGeneratingAgent}
                     aria-label="Cancel agent creation"
@@ -1333,8 +1337,8 @@
                 <div class="flex space-x-3">
                   <button
                     type="button"
-                    on:click={backToEdit}
-                    on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && !isCreatingAgent ? (e.preventDefault(), backToEdit()) : null}
+                    onclick={backToEdit}
+                    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && !isCreatingAgent ? (e.preventDefault(), backToEdit()) : null}
                     class="btn-secondary flex-1"
                     disabled={isCreatingAgent}
                     aria-label="Go back to edit agent details"
@@ -1343,8 +1347,8 @@
                 </button>
                 <button
                   type="button"
-                  on:click={createFinalAgent}
-                  on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && !isCreatingAgent ? (e.preventDefault(), createFinalAgent()) : null}
+                  onclick={createFinalAgent}
+                  onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && !isCreatingAgent ? (e.preventDefault(), createFinalAgent()) : null}
                   class="btn-primary flex-1 bg-green-500 hover:bg-green-600 disabled:bg-green-300"
                   disabled={isCreatingAgent}
                   aria-label="Hire this agent"

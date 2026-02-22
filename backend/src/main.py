@@ -29,7 +29,8 @@ from .core.config_enhanced import initialize_configuration
 from .core.database import init_db, close_db
 from .core.redis import init_redis, close_redis
 from .core.logging_utils import setup_async_logging
-from .core.security_middleware import SecurityHeadersMiddleware, RateLimitMiddleware
+from .core.security_middleware import RateLimitMiddleware
+from .core.security_headers import SecurityHeadersMiddleware, get_allowed_origins
 from .core.error_handling_enhanced import error_handler, handle_startup_validation
 from .core.security_config import initialize_secure_defaults, validate_security_config
 from .core.config_validator import ConfigValidator
@@ -51,14 +52,21 @@ from .api.agent_management import router as agent_management_router
 from .api.swarm_coordination import router as swarm_coordination_router
 from .api.agents_ecosystem import router as agents_ecosystem_router
 from .api.admin import router as admin_router
+from .api.admin_maintenance import router as admin_maintenance_router
 from .api.approvals import router as approvals_router
 from .api.projects import router as projects_router
 from .api.system_status import router as system_status_router
 from .api.telemetry import router as telemetry_router
 from .api.governance import router as governance_router
+from .api.compliance import router as compliance_router
+from .api.invites import router as invites_router
 from .api.pm_orchestration import router as pm_orchestration_router
 from .api.realtime_endpoints import router as realtime_router
 from .api.ai_settings import router as ai_settings_router
+from .api.auth import router as auth_router
+from .api.webhooks import router as webhooks_router
+from .api.teams import router as teams_router
+from .api.waitlist import router as waitlist_router
 
 # Setup non-blocking structured logging for asyncio
 setup_async_logging()
@@ -269,7 +277,14 @@ def create_app() -> FastAPI:
     app.add_middleware(SecurityHeadersMiddleware)
     
     # CORS - Must be first - Fix credentials issue
-    cors_origins = settings.cors_origins_list
+    allowed_origins_env = os.getenv(
+        "ALLOWED_ORIGINS",
+        getattr(settings, "CORS_ALLOWED_ORIGINS", ""),
+    )
+    cors_origins = get_allowed_origins(
+        environment=settings.ENVIRONMENT,
+        allowed_origins_env=allowed_origins_env,
+    )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=cors_origins,
@@ -327,6 +342,10 @@ def create_app() -> FastAPI:
 
     # AI Provider Settings (no auth required)
     app.include_router(ai_settings_router, prefix="/api/v1/settings/ai", tags=["AI Settings"])
+    app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
+    app.include_router(teams_router, prefix="/api/v1", tags=["Teams"])
+    app.include_router(webhooks_router, prefix="/api/v1/webhooks", tags=["Webhooks"])
+    app.include_router(waitlist_router, tags=["Waitlist"])
 
     # Business logic APIs (no auth required)
     app.include_router(talents_router, prefix="/api/v1/talents", tags=["Talents"])
@@ -343,6 +362,7 @@ def create_app() -> FastAPI:
     
     # Admin endpoints for database maintenance
     app.include_router(admin_router, tags=["Admin"])
+    app.include_router(admin_maintenance_router, tags=["Admin"])
     
     # System status endpoints
     app.include_router(system_status_router, tags=["System"])
@@ -387,6 +407,8 @@ def create_app() -> FastAPI:
     
     # Governance System (Rate limiting, SLO monitoring, Runbooks for M5)
     app.include_router(governance_router, prefix="/api/v1/governance", tags=["Governance"])
+    app.include_router(compliance_router, tags=["Compliance"])
+    app.include_router(invites_router, prefix="/api/v1", tags=["Invites"])
     
     # PM Orchestration System (AI-orchestrated project management)
     app.include_router(pm_orchestration_router, tags=["PM Orchestration"])

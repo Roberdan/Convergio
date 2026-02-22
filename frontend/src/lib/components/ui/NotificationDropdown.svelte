@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run, stopPropagation } from 'svelte/legacy';
+
 	import { createEventDispatcher } from 'svelte';
 	import { Button, Badge, Avatar } from './index';
 
@@ -19,7 +21,9 @@
 		href?: string;
 	}
 
-	interface $$Props {
+	
+
+	interface Props {
 		notifications: Notification[];
 		unreadCount?: number;
 		showAvatar?: boolean;
@@ -29,13 +33,15 @@
 		emptyMessage?: string;
 	}
 
-	export let notifications: $$Props['notifications'];
-	export let unreadCount: $$Props['unreadCount'] = 0;
-	export let showAvatar: $$Props['showAvatar'] = true;
-	export let maxHeight: $$Props['maxHeight'] = '400px';
-	export let position: NonNullable<$$Props['position']> = 'right';
-	export let loading: $$Props['loading'] = false;
-	export let emptyMessage: $$Props['emptyMessage'] = 'No notifications';
+	let {
+		notifications,
+		unreadCount = 0,
+		showAvatar = true,
+		maxHeight = '400px',
+		position = 'right',
+		loading = false,
+		emptyMessage = 'No notifications'
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		notificationClick: { notification: Notification };
@@ -45,21 +51,11 @@
 		clearAll: void;
 	}>();
 
-	let isOpen = false;
-	let dropdownRef: HTMLElement;
+	let isOpen = $state(false);
+	let dropdownRef: HTMLElement = $state()!;
 
-	// Group notifications by date
-	$: groupedNotifications = groupByDate(notifications);
 
-	// Computed unread count
-	$: computedUnreadCount = unreadCount || notifications.filter(n => !n.read).length;
 
-	// Position classes
-	$: positionClasses = {
-		left: 'left-0',
-		right: 'right-0',
-		center: 'left-1/2 transform -translate-x-1/2'
-	}[position];
 
 	function groupByDate(notifs: Notification[]) {
 		const groups: Record<string, Notification[]> = {};
@@ -141,11 +137,23 @@
 		}
 	}
 
-	$: if (isOpen) {
-		document.addEventListener('click', handleClickOutside);
-	} else {
-		document.removeEventListener('click', handleClickOutside);
-	}
+	// Group notifications by date
+	let groupedNotifications = $derived(groupByDate(notifications));
+	// Computed unread count
+	let computedUnreadCount = $derived(unreadCount || notifications.filter(n => !n.read).length);
+	// Position classes
+	let positionClasses = $derived({
+		left: 'left-0',
+		right: 'right-0',
+		center: 'left-1/2 transform -translate-x-1/2'
+	}[position]);
+	run(() => {
+		if (isOpen) {
+			document.addEventListener('click', handleClickOutside);
+		} else {
+			document.removeEventListener('click', handleClickOutside);
+		}
+	});
 </script>
 
 <div class="notification-dropdown" bind:this={dropdownRef}>
@@ -181,7 +189,7 @@
 						<button
 							type="button"
 							class="header-action-btn"
-							on:click={handleMarkAllAsRead}
+							onclick={handleMarkAllAsRead}
 						>
 							Mark all read
 						</button>
@@ -190,7 +198,7 @@
 						<button
 							type="button"
 							class="header-action-btn"
-							on:click={handleClearAll}
+							onclick={handleClearAll}
 						>
 							Clear all
 						</button>
@@ -221,8 +229,8 @@
 							{#each notifs as notification (notification.id)}
 								<div
 									class="notification-item {!notification.read ? 'unread' : ''} type-{notification.type}"
-									on:click={() => handleNotificationClick(notification)}
-									on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleNotificationClick(notification)}
+									onclick={() => handleNotificationClick(notification)}
+									onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleNotificationClick(notification)}
 									role="button"
 									tabindex="0"
 								>
@@ -263,7 +271,7 @@
 														type="button"
 														class="action-btn"
 														class:primary={action.variant === 'primary'}
-														on:click|stopPropagation={() => handleActionClick(notification, action.action)}
+														onclick={stopPropagation(() => handleActionClick(notification, action.action))}
 													>
 														{action.label}
 													</button>

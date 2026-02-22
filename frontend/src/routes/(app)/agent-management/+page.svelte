@@ -28,15 +28,15 @@ Dependencies: Agent definition standardization, advanced UI components
 	let isNewAgent = writable(false);
 	
 	// UI State
-	let isLoading = false;
-	let searchQuery = '';
-	let selectedTier = '';
-	let sortBy = 'name';
-	let sortOrder = 'asc';
-	let notification: { message: string; type: 'success' | 'error' | 'info' } | null = null;
+	let isLoading = $state(false);
+	let searchQuery = $state('');
+	let selectedTier = $state('');
+	let sortBy = $state('name');
+	let sortOrder = $state('asc');
+	let notification: { message: string; type: 'success' | 'error' | 'info' } | null = $state(null);
 	
 	// Reactive filtered agents
-	$: filteredAgents = $agents
+	let filteredAgents = $derived($agents
 		.filter(agent => {
 			const matchesSearch = !searchQuery || 
 				agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,9 +49,9 @@ Dependencies: Agent definition standardization, advanced UI components
 			const bVal = (b as any)[sortBy] || '';
 			const compareResult = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
 			return sortOrder === 'asc' ? compareResult : -compareResult;
-		});
+		}));
 	
-	$: availableTiers = [...new Set($agents.map(agent => agent.tier).filter(Boolean))].sort();
+	let availableTiers = $derived([...new Set($agents.map(agent => agent.tier).filter(Boolean))].sort());
 	
 	onMount(async () => {
 		await loadAgents();
@@ -181,7 +181,7 @@ Dependencies: Agent definition standardization, advanced UI components
 					{$isNewAgent ? 'Create New Agent' : `Edit ${$selectedAgent?.name || ''}`}
 				</h2>
 				<button
-					on:click={closeEditor}
+					onclick={closeEditor}
 					class="p-2 hover:bg-surface-100 rounded-lg transition-colors"
 					aria-label="Close editor"
 				>
@@ -211,7 +211,7 @@ Dependencies: Agent definition standardization, advanced UI components
 				</div>
 				<div class="flex space-x-3">
 					<button
-						on:click={hotReloadAgents}
+						onclick={hotReloadAgents}
 						class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center"
 					>
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,7 +220,7 @@ Dependencies: Agent definition standardization, advanced UI components
 						Hot Reload
 					</button>
 					<button
-						on:click={createNewAgent}
+						onclick={createNewAgent}
 						class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
 					>
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,7 +249,7 @@ Dependencies: Agent definition standardization, advanced UI components
 				<div class="flex justify-between items-start">
 					<p class="text-sm font-medium">{notification.message}</p>
 					<button
-						on:click={() => notification = null}
+						onclick={() => notification = null}
 						class="ml-2 text-gray-400 hover:text-surface-600"
 						aria-label="Close notification"
 					>
@@ -370,7 +370,7 @@ Dependencies: Agent definition standardization, advanced UI components
 						<div class="p-4">
 							<div class="flex space-x-2">
 								<button
-									on:click={() => editAgent(agent)}
+									onclick={() => editAgent(agent)}
 									class="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors flex items-center justify-center"
 									aria-label="Edit agent {agent.name}"
 								>
@@ -380,7 +380,7 @@ Dependencies: Agent definition standardization, advanced UI components
 									Edit
 								</button>
 								<button
-									on:click={() => deleteAgent(agent)}
+									onclick={() => deleteAgent(agent)}
 									class="px-3 py-2 border border-red-300 text-red-700 text-sm rounded hover:bg-red-50 transition-colors flex items-center justify-center"
 									aria-label="Delete agent {agent.name}"
 								>

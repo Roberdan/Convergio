@@ -1,6 +1,10 @@
 <script lang="ts">
-	export let costEstimate: { hourly: number; daily: number; monthly: number };
-	export let memberCount = 0;
+	interface Props {
+		costEstimate: { hourly: number; daily: number; monthly: number };
+		memberCount?: number;
+	}
+
+	let { costEstimate, memberCount = 0 }: Props = $props();
 </script>
 
 <div class="team-cost-estimate bg-white rounded-xl shadow-sm border border-surface-200 p-4">

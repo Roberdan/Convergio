@@ -1,15 +1,24 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
-	export let value = 100;
-	export let maxAvailable = 100;
-	export let min = 10;
-	export let step = 10;
+	interface Props {
+		value?: number;
+		maxAvailable?: number;
+		min?: number;
+		step?: number;
+	}
+
+	let {
+		value = 100,
+		maxAvailable = 100,
+		min = 10,
+		step = 10
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{ change: number }>();
 
-	$: effectiveMax = Math.min(maxAvailable, 100);
-	$: displayValue = Math.min(value, effectiveMax);
+	let effectiveMax = $derived(Math.min(maxAvailable, 100));
+	let displayValue = $derived(Math.min(value, effectiveMax));
 
 	function handleChange(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -36,7 +45,7 @@
 			min={min}
 			max={effectiveMax}
 			{step}
-			on:input={handleChange}
+			oninput={handleChange}
 			class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer slider"
 		/>
 	</div>

@@ -460,3 +460,8 @@ dev-debug.log
 
 # Unused
 .github/instructions/
+# T0-01 hardening
+grafana/
+.env.production*
+
+/generated/prisma

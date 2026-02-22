@@ -1,7 +1,11 @@
 <script lang="ts">
 	import type { UnifiedResource } from '$lib/types/resource';
 
-	export let resources: UnifiedResource[] = [];
+	interface Props {
+		resources?: UnifiedResource[];
+	}
+
+	let { resources = [] }: Props = $props();
 
 	interface SkillData {
 		name: string;
@@ -10,8 +14,6 @@
 		resources: string[];
 	}
 
-	// Calculate skill matrix from resources
-	$: skillMatrix = calculateSkillMatrix(resources);
 
 	function calculateSkillMatrix(resources: UnifiedResource[]): SkillData[] {
 		const skillMap = new Map<string, SkillData>();
@@ -36,6 +38,8 @@
 			.sort((a, b) => b.count - a.count)
 			.slice(0, 12); // Top 12 skills
 	}
+	// Calculate skill matrix from resources
+	let skillMatrix = $derived(calculateSkillMatrix(resources));
 </script>
 
 <div class="skill-matrix bg-white rounded-xl shadow-sm border border-surface-200 p-6">

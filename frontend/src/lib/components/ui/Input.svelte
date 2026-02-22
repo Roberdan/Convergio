@@ -2,7 +2,9 @@
 	import { createEventDispatcher } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
-	interface $$Props extends Omit<HTMLInputAttributes, 'size'> {
+	
+
+	interface Props {
 		variant?: 'default' | 'error' | 'success';
 		size?: 'sm' | 'md' | 'lg';
 		label?: string;
@@ -12,22 +14,31 @@
 		trailingIcon?: string;
 		clearable?: boolean;
 		required?: boolean;
+		disabled?: HTMLInputAttributes['disabled'];
+		value?: HTMLInputAttributes['value'];
+		placeholder?: HTMLInputAttributes['placeholder'];
+		type?: HTMLInputAttributes['type'];
+		id?: HTMLInputAttributes['id'];
+		[key: string]: any
 	}
 
-	export let variant: NonNullable<$$Props['variant']> = 'default';
-	export let size: NonNullable<$$Props['size']> = 'md';
-	export let label: $$Props['label'] = '';
-	export let helperText: $$Props['helperText'] = '';
-	export let errorMessage: $$Props['errorMessage'] = '';
-	export let leadingIcon: $$Props['leadingIcon'] = '';
-	export let trailingIcon: $$Props['trailingIcon'] = '';
-	export let clearable: $$Props['clearable'] = false;
-	export let required: $$Props['required'] = false;
-	export let disabled: $$Props['disabled'] = false;
-	export let value: $$Props['value'] = '';
-	export let placeholder: $$Props['placeholder'] = '';
-	export let type: $$Props['type'] = 'text';
-	export let id: $$Props['id'] = '';
+	let {
+		variant = 'default',
+		size = 'md',
+		label = '',
+		helperText = '',
+		errorMessage = '',
+		leadingIcon = '',
+		trailingIcon = '',
+		clearable = false,
+		required = false,
+		disabled = false,
+		value = $bindable(''),
+		placeholder = '',
+		type = 'text',
+		id = '',
+		...rest
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		input: Event;
@@ -41,27 +52,27 @@
 	const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
 	// Compute CSS classes
-	$: variantClasses = {
+	let variantClasses = $derived({
 		default: 'input',
 		error: 'input input-error',
 		success: 'input input-success'
-	};
+	});
 
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		sm: 'input-sm',
 		md: '',
 		lg: 'input-lg'
-	};
+	});
 
-	$: inputClasses = [
+	let inputClasses = $derived([
 		variantClasses[variant],
 		sizeClasses[size],
 		leadingIcon ? 'pl-10' : '',
 		trailingIcon || clearable ? 'pr-10' : ''
-	].filter(Boolean).join(' ');
+	].filter(Boolean).join(' '));
 
-	$: showError = variant === 'error' && errorMessage;
-	$: showHelper = !showError && helperText;
+	let showError = $derived(variant === 'error' && errorMessage);
+	let showHelper = $derived(!showError && helperText);
 
 	function handleInput(event: Event) {
 		dispatch('input', event);
@@ -103,7 +114,7 @@
 		{/if}
 
 		<input
-			{...$$restProps}
+			{...rest}
 			{id}
 			{type}
 			{placeholder}
@@ -111,17 +122,17 @@
 			{required}
 			bind:value
 			class={inputClasses}
-			on:input={handleInput}
-			on:change={handleChange}
-			on:focus={handleFocus}
-			on:blur={handleBlur}
+			oninput={handleInput}
+			onchange={handleChange}
+			onfocus={handleFocus}
+			onblur={handleBlur}
 		/>
 
 		{#if clearable && value}
 			<button
 				type="button"
 				class="input-icon input-icon-trailing input-clear-btn"
-				on:click={handleClear}
+				onclick={handleClear}
 				aria-label="Clear input"
 			>
 				<span class="icon-x" aria-hidden="true"></span>

@@ -2,7 +2,9 @@
 	import { createEventDispatcher } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 
-	interface $$Props extends HTMLButtonAttributes {
+	
+
+	interface Props {
 		variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
 		size?: 'sm' | 'md' | 'lg' | 'icon';
 		loading?: boolean;
@@ -10,45 +12,53 @@
 		icon?: string;
 		iconPosition?: 'left' | 'right';
 		fullWidth?: boolean;
+		disabled?: HTMLButtonAttributes['disabled'];
+		type?: HTMLButtonAttributes['type'];
+		children?: import('svelte').Snippet;
+		[key: string]: any
 	}
 
-	export let variant: NonNullable<$$Props['variant']> = 'primary';
-	export let size: NonNullable<$$Props['size']> = 'md';
-	export let loading: $$Props['loading'] = false;
-	export let loadingText: $$Props['loadingText'] = 'Loading...';
-	export let icon: $$Props['icon'] = '';
-	export let iconPosition: $$Props['iconPosition'] = 'left';
-	export let fullWidth: $$Props['fullWidth'] = false;
-	export let disabled: $$Props['disabled'] = false;
-	export let type: $$Props['type'] = 'button';
+	let {
+		variant = 'primary',
+		size = 'md',
+		loading = false,
+		loadingText = 'Loading...',
+		icon = '',
+		iconPosition = 'left',
+		fullWidth = false,
+		disabled = false,
+		type = 'button',
+		children,
+		...rest
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		click: MouseEvent;
 	}>();
 
 	// Compute CSS classes based on props
-	$: variantClasses = {
+	let variantClasses = $derived({
 		primary: 'btn-primary',
 		secondary: 'btn-secondary', 
 		outline: 'btn-outline',
 		ghost: 'btn-ghost'
-	};
+	});
 
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		sm: 'btn-sm',
 		md: '',
 		lg: 'btn-lg',
 		icon: 'btn-icon'
-	};
+	});
 
-	$: classes = [
+	let classes = $derived([
 		'btn',
 		variantClasses[variant],
 		sizeClasses[size],
 		fullWidth ? 'w-full' : '',
 		loading ? 'btn-loading' : '',
 		disabled ? 'opacity-50 cursor-not-allowed' : ''
-	].filter(Boolean).join(' ');
+	].filter(Boolean).join(' '));
 
 	function handleClick(event: MouseEvent) {
 		if (disabled || loading) {
@@ -63,8 +73,8 @@
 	{type}
 	class={classes}
 	{disabled}
-	on:click={handleClick}
-	{...$$restProps}
+	onclick={handleClick}
+	{...rest}
 >
 	{#if loading}
 		<div class="loading-spinner" aria-hidden="true"></div>
@@ -80,10 +90,10 @@
 			{#if icon}
 				<span class="icon-{icon}" aria-hidden="true"></span>
 			{:else}
-				<slot />
+				{@render children?.()}
 			{/if}
 		{:else}
-			<slot />
+			{@render children?.()}
 		{/if}
 		
 		{#if icon && iconPosition === 'right' && size !== 'icon'}

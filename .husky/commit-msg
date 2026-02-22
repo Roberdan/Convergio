@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+set -e
+
+commit_msg_file="$1"
+pattern='^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9._/-]+\))?!?: .+'
+
+if ! grep -Eq "$pattern" "$commit_msg_file"; then
+  echo "ERROR: Commit message must follow Conventional Commits."
+  echo "Example: feat(frontend): add login form validation"
+  exit 1
+fi

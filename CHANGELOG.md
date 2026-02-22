@@ -5,6 +5,104 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [4.0.0] - 2026-02-22
+
+### Release Highlights
+- **Platform Launch**: Public landing page, legal compliance, and production-ready deployment.
+- **Cloud Integration**: Vercel, Azure Container Apps, Supabase PostgreSQL, Upstash Redis, GitHub Actions workflows.
+- **Observability & Compliance**: Sentry, OpenTelemetry, Prometheus, Grafana, structured logging, audit trail, GDPR/AI Policy docs.
+- **Team Management**: Team API, invite system, waitlist, workforce/admin pages.
+- **Admin & Billing**: Admin middleware/pages, Stripe integration, tier enforcement, billing dashboard.
+- **Security & Auth**: Session-based auth, security headers, CSRF, rate limiting, frontend auth guard.
+- **Framework Upgrades**: Agent Framework 1.0 RC, Svelte 5 migration, TypeScript fixes.
+- **Database**: Prisma ORM, initial migration, seed script, SQLAlchemy models.
+- **DX Alignment**: Unified developer experience, CLAUDE.md, rules, skills docs.
+- **Repo Hardening**: Husky hooks, secret scanning, .editorconfig, strict .gitignore.
+- **CI/CD Workflows**: Frontend/backend jobs, caching, test continue-on-error, weekly security audit.
+- **Linting**: Strict ESLint, expanded Ruff, lint-staged integration.
+- **Conventions**: Project conventions, quick start docs, bash permissions.
+- **Fixes**: Lint and CI issues from prior versions.
+- **Security**: Weekly security audit workflow.
+
+---
+
+### W8: Platform Launch & Compliance
+- Landing page with hero, features, pricing, waitlist CTA
+- Legal pages (privacy, terms, cookies)
+- ARCHITECTURE.md (system overview, deployment, security)
+- SECURITY.md + SETUP-PRODUCTION.md
+
+### W7: Production Deployment & Cloud Integration
+- Added: SvelteKit Vercel adapter, `vercel.json` with FRA1 region, cron jobs for scheduled tasks
+- Added: Azure Container App configuration, multi-stage `Dockerfile.production`
+- Added: Supabase PostgreSQL config, Upstash Redis integration, `.env.production.example`
+- Added: GitHub Actions deploy workflow (staging → production)
+- Added: Frontend production environment config, SvelteKit server hooks for cookie forwarding
+
+### W6: Observability, Compliance & Audit
+- Added: Sentry integration for backend and frontend (error tracking, release tagging, user context)
+- Added: OpenTelemetry instrumentation with Grafana Cloud OTLP export (traces, spans, service map)
+- Added: Prometheus metrics (counters, histograms, gauges) and Grafana dashboard for real-time monitoring
+- Added: Structured logging with PII sanitization and correlation IDs (backend, frontend)
+- Added: Compliance audit trail (audit_service, compliance API endpoint, event logging)
+- Docs: Compliance documentation (GDPR, AI Policy, DPIA)
+
+### W5: Team Management, Invites & Waitlist
+- Added: Team API (create, list, detail, add members with human/agent types)
+- Added: Invite system (send/accept/reject, resend email for humans, instant for agents)
+- Added: Waitlist system (submit, admin approve/reject, welcome email)
+- Added: Workforce page (unified human+agent table, invite/add buttons)
+- Added: Admin waitlist page (pending table, approve/reject, email preview)
+
+### W4: Admin, Billing & Stripe Integration
+- Added: Admin middleware (`require_admin`), admin API (users CRUD, audit-log)
+- Added: Admin frontend pages (`/admin/users`, `/admin/audit`, `/admin/tiers`, `/admin/agents`)
+- Added: Stripe integration (checkout sessions, webhooks, subscription→tier sync)
+- Added: Tier enforcement (`check_tier_limit`, 402 on limit exceeded)
+- Added: Billing page (`/settings/billing` with usage meters, Stripe checkout/portal)
+
+### W3: Auth Architecture & Security
+- Added: Session-based auth with HMAC-SHA256 signed cookies (backend)
+- Added: Auth API endpoints (login, logout, register, change-password, forgot-password, reset-password, me)
+- Added: CORS whitelist, CSP nonce-based, security headers (X-Frame-Options, etc.)
+- Added: CSRF token protection, rate limiting (dev: in-memory, prod: Upstash Redis)
+- Added: Frontend auth store, auth guard, login page (Svelte 5)
+- Docs: ADR-003 (Session-based auth rationale)
+
+### W2: Framework Upgrades (Agent Framework + Svelte 5)
+- Changed: Upgraded agent-framework to 1.0 RC (AgentThread→AgentSession)
+- Changed: Migrated 126 Svelte components to Svelte 5 syntax ($props, $derived, onclick)
+- Fixed: TypeScript compilation errors from Svelte 5 migration
+- Fixed: Removed 8 deprecated SvelteKit config options
+
+### W1: Database Schema & Prisma Migration
+- Added: Prisma ORM with full database schema (Tier, Team, Invite, Session, etc.)
+- Added: Initial migration applied to PostgreSQL (convergio_db)
+- Added: Seed script for default tiers (Trial: 10 agents/50 convos, Pro: unlimited)
+- Added: SQLAlchemy models aligned with Prisma schema for backend read access
+
+## [v4.0.0] - 2026-02-22
+
+### Added
+- **DX Alignment**: Unified developer experience, updated CLAUDE.md, rules, and skills docs
+- **Repo Hardening**: Husky hooks (pre-commit, pre-push, commit-msg), secret scanning, .editorconfig, strict .gitignore
+- **CI/CD Workflows**: Frontend/backend jobs, caching, test continue-on-error, weekly security audit
+- **Linting**: Strict ESLint for frontend, expanded Ruff for backend, lint-staged integration
+
+### Changed
+- Project conventions and quick start documentation
+- Bash permissions and settings
+
+### Fixed
+- Lint and CI issues from prior versions
+
+### Security
+- Weekly security audit workflow
+
+---
+
 ## [3.0.0] - 2025-12-28
 
 ### Added

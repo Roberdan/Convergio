@@ -8,7 +8,7 @@
 
 	const dispatch = createEventDispatcher<{ save: void }>();
 
-	let activeSection: 'profile' | 'font' | 'color' | 'motion' | 'focus' = 'profile';
+	let activeSection: 'profile' | 'font' | 'color' | 'motion' | 'focus' = $state('profile');
 
 	const profiles: { id: AccessibilityProfile; name: string; description: string }[] = [
 		{
@@ -65,7 +65,7 @@
 	<div class="border-b border-surface-200">
 		<nav class="flex space-x-1 px-4" aria-label="Accessibility settings sections">
 			<button
-				on:click={() => activeSection = 'profile'}
+				onclick={() => activeSection = 'profile'}
 				class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeSection === 'profile'
 					? 'border-primary-600 text-primary-600'
 					: 'border-transparent text-surface-600 hover:text-surface-900'}"
@@ -73,7 +73,7 @@
 				Profiles
 			</button>
 			<button
-				on:click={() => activeSection = 'font'}
+				onclick={() => activeSection = 'font'}
 				class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeSection === 'font'
 					? 'border-primary-600 text-primary-600'
 					: 'border-transparent text-surface-600 hover:text-surface-900'}"
@@ -81,7 +81,7 @@
 				Font & Text
 			</button>
 			<button
-				on:click={() => activeSection = 'color'}
+				onclick={() => activeSection = 'color'}
 				class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeSection === 'color'
 					? 'border-primary-600 text-primary-600'
 					: 'border-transparent text-surface-600 hover:text-surface-900'}"
@@ -89,7 +89,7 @@
 				Colors
 			</button>
 			<button
-				on:click={() => activeSection = 'motion'}
+				onclick={() => activeSection = 'motion'}
 				class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeSection === 'motion'
 					? 'border-primary-600 text-primary-600'
 					: 'border-transparent text-surface-600 hover:text-surface-900'}"
@@ -97,7 +97,7 @@
 				Motion
 			</button>
 			<button
-				on:click={() => activeSection = 'focus'}
+				onclick={() => activeSection = 'focus'}
 				class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeSection === 'focus'
 					? 'border-primary-600 text-primary-600'
 					: 'border-transparent text-surface-600 hover:text-surface-900'}"
@@ -117,7 +117,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					{#each profiles as profile}
 						<button
-							on:click={() => selectProfile(profile.id)}
+							onclick={() => selectProfile(profile.id)}
 							class="p-4 text-left rounded-lg border-2 transition-all {$accessibilityStore.profile === profile.id
 								? 'border-primary-500 bg-primary-50'
 								: 'border-surface-200 hover:border-surface-300'}"
@@ -150,13 +150,13 @@
 	<!-- Footer -->
 	<div class="p-4 border-t border-surface-200 bg-surface-50 flex justify-between items-center">
 		<button
-			on:click={() => accessibilityStore.reset()}
+			onclick={() => accessibilityStore.reset()}
 			class="text-sm text-surface-600 hover:text-surface-900"
 		>
 			Reset to defaults
 		</button>
 		<button
-			on:click={handleSave}
+			onclick={handleSave}
 			class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors"
 		>
 			Save Settings

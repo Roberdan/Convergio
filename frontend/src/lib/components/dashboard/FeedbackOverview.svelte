@@ -2,10 +2,10 @@
   import { onMount } from 'svelte';
   import { feedbackService, type Feedback, type FeedbackStats } from '$lib/services/feedbackService';
 
-  let feedback: Feedback[] = [];
-  let stats: FeedbackStats | null = null;
-  let loading = true;
-  let error: string | null = null;
+  let feedback: Feedback[] = $state([]);
+  let stats: FeedbackStats | null = $state(null);
+  let loading = $state(true);
+  let error: string | null = $state(null);
 
   function getTypeColor(type: string): string {
     switch (type) {
@@ -69,7 +69,7 @@
     <div class="flex items-center justify-between">
       <h3 class="text-sm font-medium text-surface-900">Feedback & Support</h3>
       <button 
-        on:click={loadFeedbackData}
+        onclick={loadFeedbackData}
         class="text-xs text-surface-500 hover:text-surface-600 flex items-center space-x-1"
       >
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +106,7 @@
       <div class="text-center text-red-600">
         <p>{error}</p>
         <button 
-          on:click={loadFeedbackData}
+          onclick={loadFeedbackData}
           class="mt-2 text-sm text-blue-600 hover:text-blue-800"
         >
           Try again

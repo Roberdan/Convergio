@@ -50,24 +50,24 @@
 	let coordinationPatterns = writable<Record<string, CoordinationPattern>>({});
 
 	// UI State
-	let isLoading = true;
-	let selectedTab = 'overview';
-	let notification: Notification | null = null;
-	let showCreateTaskModal = false;
+	let isLoading = $state(true);
+	let selectedTab = $state('overview');
+	let notification: Notification | null = $state(null);
+	let showCreateTaskModal = $state(false);
 
 	// New task form
-	let newTaskForm = {
+	let newTaskForm = $state({
 		description: '',
 		priority: 5,
 		required_expertise: [],
 		estimated_duration: null as number | null
-	};
+	});
 
 	// Reactive computed values
-	$: totalAgents = $swarmStatus.total_agents || 0;
-	$: activeTasks = $swarmStatus.active_tasks || 0;
-	$: completedTasks = $swarmStatus.completed_tasks || 0;
-	$: availableAgents = $swarmAgents.filter(agent => agent.is_available).length;
+	let totalAgents = $derived($swarmStatus.total_agents || 0);
+	let activeTasks = $derived($swarmStatus.active_tasks || 0);
+	let completedTasks = $derived($swarmStatus.completed_tasks || 0);
+	let availableAgents = $derived($swarmAgents.filter(agent => agent.is_available).length);
 
 	onMount(async () => {
 		await loadSwarmData();
@@ -218,7 +218,7 @@
 	}
 
 	// Helper to get typed pattern entries
-	$: patternEntries = Object.entries($coordinationPatterns) as [string, CoordinationPattern][];
+	let patternEntries = $derived(Object.entries($coordinationPatterns) as [string, CoordinationPattern][]);
 
 	// (removed) unused formatDuration
 </script>
@@ -242,7 +242,7 @@
 			 class:text-blue-800={notification.type === 'info'}>
 			<div class="flex justify-between items-start">
 				<p class="text-sm font-medium">{notification.message}</p>
-				<button on:click={() => notification = null} class="ml-2 text-surface-600 hover:text-surface-300" aria-label="Dismiss notification">
+				<button onclick={() => notification = null} class="ml-2 text-surface-600 hover:text-surface-300" aria-label="Dismiss notification">
 					<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
 						<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
 					</svg>
@@ -259,7 +259,7 @@
 			<div class="px-6 py-4 border-b">
 				<div class="flex justify-between items-center">
 					<h2 class="text-xl font-semibold">Create Swarm Task</h2>
-					<button on:click={() => showCreateTaskModal = false} class="text-surface-600 hover:text-surface-300" aria-label="Close modal">
+					<button onclick={() => showCreateTaskModal = false} class="text-surface-600 hover:text-surface-300" aria-label="Close modal">
 						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
 						</svg>
@@ -304,13 +304,13 @@
 			</div>
 			<div class="px-6 py-4 border-t flex justify-end space-x-3">
 				<button 
-					on:click={() => showCreateTaskModal = false}
+					onclick={() => showCreateTaskModal = false}
 					class="px-4 py-2 border border-surface-300 text-surface-600 rounded-md hover:bg-surface-50"
 				>
 					Cancel
 				</button>
 				<button 
-					on:click={createSwarmTask}
+					onclick={createSwarmTask}
 					disabled={!newTaskForm.description.trim()}
 					class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-surface-400 disabled:cursor-not-allowed"
 				>
@@ -332,7 +332,7 @@
 				</div>
 				<div class="flex space-x-3">
 					<button
-						on:click={initializeSwarm}
+						onclick={initializeSwarm}
 						class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center"
 					>
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -341,7 +341,7 @@
 						Initialize Swarm
 					</button>
 					<button
-						on:click={() => showCreateTaskModal = true}
+						onclick={() => showCreateTaskModal = true}
 						class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
 					>
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -426,7 +426,7 @@
 				<nav class="flex space-x-8 border-b border-surface-200">
 					{#each ['overview', 'tasks', 'agents', 'patterns'] as tab}
 						<button
-							on:click={() => selectedTab = tab}
+							onclick={() => selectedTab = tab}
 							class="py-2 px-1 border-b-2 font-medium text-sm capitalize transition-colors"
 							class:border-purple-500={selectedTab === tab}
 							class:text-purple-600={selectedTab === tab}
@@ -475,21 +475,21 @@
 						<h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
 						<div class="space-y-3">
 							<button
-								on:click={loadSwarmData}
+								onclick={loadSwarmData}
 								class="w-full px-4 py-2 border border-surface-300 text-surface-600 rounded-md hover:bg-surface-50 transition-colors text-left"
 								aria-label="Refresh status"
 							>
 								🔄 Refresh Status
 							</button>
 							<button
-								on:click={() => showCreateTaskModal = true}
+								onclick={() => showCreateTaskModal = true}
 								class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-left"
 								aria-label="Create swarm task"
 							>
 								➕ Create Swarm Task
 							</button>
 							<button
-								on:click={initializeSwarm}
+								onclick={initializeSwarm}
 								class="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-left"
 								aria-label="Re-initialize swarm"
 							>
@@ -545,7 +545,7 @@
 										<td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
 											{#if task.status === 'pending' || task.status === 'assigned'}
 												<button
-													on:click={() => executeTask(task.task_id)}
+													onclick={() => executeTask(task.task_id)}
 													class="text-green-600 hover:text-green-900"
 												>
 													Execute
@@ -553,7 +553,7 @@
 											{/if}
 											{#if task.status !== 'completed'}
 												<button
-													on:click={() => cancelTask(task.task_id)}
+													onclick={() => cancelTask(task.task_id)}
 													class="text-red-600 hover:text-red-900"
 												>
 													Cancel

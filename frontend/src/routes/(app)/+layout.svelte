@@ -7,8 +7,14 @@
   import ApiStatusDropdown from '$lib/components/ApiStatusDropdown.svelte';
   import { SkipToContent } from '$lib/components/accessibility';
   import { accessibilityStore } from '$lib/stores/accessibilityStore';
+  import { authStore } from '$lib/stores/auth';
   import '$lib/styles/unified-design-system.css';
   import '$lib/styles/accessibility.css';
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
   
   // MVP navigation items (simplified for initial release)
   const navItems = [
@@ -28,6 +34,13 @@
   onMount(async () => {
     // Initialize accessibility settings
     accessibilityStore.init();
+    await authStore.initialize();
+  });
+
+  $effect(() => {
+    if ($authStore.initialized && !$authStore.loading && !$authStore.isAuthenticated) {
+      goto('/login');
+    }
   });
   
   // SEMPLICE: controlla se il path corrente inizia con l'href del menu
@@ -55,7 +68,7 @@
       <div class="flex justify-between items-center h-16">
         <!-- Logo & Title -->
         <div class="flex items-center space-x-4">
-          <button on:click={() => goto('/')} class="flex items-center space-x-3 hover:opacity-75 transition-all">
+          <button onclick={() => goto('/')} class="flex items-center space-x-3 hover:opacity-75 transition-all">
             <div class="h-10 w-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
               C
             </div>
@@ -97,7 +110,7 @@
   
   <!-- Content Area -->
   <main id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" tabindex="-1">
-    <slot />
+    {@render children?.()}
   </main>
   
   <!-- Ali Assistant (always present) -->

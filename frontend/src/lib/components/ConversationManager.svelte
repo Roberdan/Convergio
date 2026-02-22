@@ -6,15 +6,19 @@ Provides conversation management UI: reset, history, resume, delete
 <script lang="ts">
   import { conversationManager, currentConversation } from '$lib/stores/conversationStore';
 
-  export let agentId: string;
-  export let agentName: string;
-  export let compact = false;
+  interface Props {
+    agentId: string;
+    agentName: string;
+    compact?: boolean;
+  }
 
-  let showHistory = false;
-  let showConfirmDelete = false;
+  let { agentId, agentName, compact = false }: Props = $props();
 
-  $: conversation = $currentConversation;
-  $: hasMessages = conversation?.messages && conversation.messages.length > 0;
+  let showHistory = $state(false);
+  let showConfirmDelete = $state(false);
+
+  let conversation = $derived($currentConversation);
+  let hasMessages = $derived(conversation?.messages && conversation.messages.length > 0);
 
   function handleReset() {
     conversationManager.resetConversation(agentId);
@@ -57,7 +61,7 @@ Provides conversation management UI: reset, history, resume, delete
   <div class="flex items-center space-x-1" role="group" aria-label="Conversation controls">
     {#if hasMessages}
       <button
-        on:click={handleShowHistory}
+        onclick={handleShowHistory}
         class="p-1 text-surface-600 hover:text-surface-300 rounded"
         aria-label="Show conversation history"
       >
@@ -66,7 +70,7 @@ Provides conversation management UI: reset, history, resume, delete
         </svg>
       </button>
       <button
-        on:click={handleReset}
+        onclick={handleReset}
         class="p-1 text-surface-600 hover:text-orange-600 rounded"
         aria-label="Reset conversation with {agentName}"
       >
@@ -92,7 +96,7 @@ Provides conversation management UI: reset, history, resume, delete
     <div class="flex flex-wrap gap-2" role="group" aria-label="Conversation management actions">
       {#if hasMessages}
         <button
-          on:click={handleShowHistory}
+          onclick={handleShowHistory}
           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-surface-600 bg-surface-100 hover:bg-surface-200 rounded-md transition-colors"
           aria-label="{showHistory ? 'Hide' : 'Show'} conversation history"
         >
@@ -103,7 +107,7 @@ Provides conversation management UI: reset, history, resume, delete
         </button>
 
         <button
-          on:click={handleReset}
+          onclick={handleReset}
           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 rounded-md transition-colors"
           aria-label="Reset conversation with {agentName}"
         >
@@ -114,7 +118,7 @@ Provides conversation management UI: reset, history, resume, delete
         </button>
 
         <button
-          on:click={handleSaveToMemory}
+          onclick={handleSaveToMemory}
           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
           aria-label="Save conversation to memory"
         >
@@ -125,7 +129,7 @@ Provides conversation management UI: reset, history, resume, delete
         </button>
 
         <button
-          on:click={() => showConfirmDelete = true}
+          onclick={() => showConfirmDelete = true}
           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
           aria-label="Delete conversation with {agentName}"
         >
@@ -137,7 +141,7 @@ Provides conversation management UI: reset, history, resume, delete
       {/if}
 
       <button
-        on:click={handleLoadFromMemory}
+        onclick={handleLoadFromMemory}
         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-md transition-colors"
         aria-label="Load conversation from memory"
       >
@@ -191,14 +195,14 @@ Provides conversation management UI: reset, history, resume, delete
           </p>
           <div class="flex space-x-3">
             <button
-              on:click={() => showConfirmDelete = false}
+              onclick={() => showConfirmDelete = false}
               class="flex-1 px-3 py-2 text-sm font-medium text-surface-600 bg-surface-100 hover:bg-surface-200 rounded-md transition-colors"
               aria-label="Cancel deletion"
             >
               Cancel
             </button>
             <button
-              on:click={handleDelete}
+              onclick={handleDelete}
               class="flex-1 px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
               aria-label="Confirm deletion of conversation with {agentName}"
             >

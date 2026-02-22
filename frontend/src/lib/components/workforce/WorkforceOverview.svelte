@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { workforceSummary } from '$lib/stores/workforceStore';
 
-	// Props
-	export let loading = false;
+	
+	interface Props {
+		// Props
+		loading?: boolean;
+	}
+
+	let { loading = false }: Props = $props();
 </script>
 
 <div class="workforce-overview grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

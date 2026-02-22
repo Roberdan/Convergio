@@ -9,7 +9,7 @@
     "preview": "vite preview --port 4000",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --diagnostic-sources \"js,svelte\"",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch --diagnostic-sources \"js,svelte\"",
-    "lint": "prettier --check . && eslint .",
+    "lint": "svelte-kit sync && prettier --check . && eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -31,6 +31,7 @@
     "@storybook/svelte": "^9.0.18",
     "@storybook/sveltekit": "^9.0.18",
     "@sveltejs/adapter-node": "^5.2.13",
+    "@sveltejs/adapter-vercel": "^6.3.2",
     "@sveltejs/kit": "^2.26.1",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@testing-library/jest-dom": "^6.6.4",
@@ -45,6 +46,7 @@
     "globals": "^13.24.0",
     "happy-dom": "^20.0.11",
     "jsdom": "^26.1.0",
+    "lint-staged": "^16.2.7",
     "playwright": "^1.54.2",
     "prettier": "^3.6.2",
     "prettier-plugin-svelte": "^3.4.0",
@@ -57,6 +59,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@sentry/svelte": "^8.36.0",
     "@types/d3": "^7.4.3",
     "@types/marked": "^5.0.2",
     "autoprefixer": "^10.4.21",
@@ -97,5 +100,15 @@
     "convergio"
   ],
   "author": "Convergio Team",
-  "license": "SEE LICENSE IN ../LICENSE"
+  "license": "SEE LICENSE IN ../LICENSE",
+  "lint-staged": {
+    "*.svelte": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
 }

@@ -26,27 +26,27 @@
 		error_message?: string;
 	}
 	
-	let workflows: Workflow[] = [];
-	let executions: WorkflowExecution[] = [];
-	let isGenerating = false;
-	let generationPrompt = '';
-	let generationDomain = 'operations';
-	let generationPriority = 'medium';
-	let maxSteps = 10;
-	let searchQuery = '';
-	let filterDomain = '';
-	let filterComplexity = '';
-	let showGenerationPanel = false;
-	let generationResult: any = null;
-	let validationResult: any = null;
+	let workflows: Workflow[] = $state([]);
+	let executions: WorkflowExecution[] = $state([]);
+	let isGenerating = $state(false);
+	let generationPrompt = $state('');
+	let generationDomain = $state('operations');
+	let generationPriority = $state('medium');
+	let maxSteps = $state(10);
+	let searchQuery = $state('');
+	let filterDomain = $state('');
+	let filterComplexity = $state('');
+	let showGenerationPanel = $state(false);
+	let generationResult: any = $state(null);
+	let validationResult: any = $state(null);
 	
 	// Stats for dashboard
-	let stats = {
+	let stats = $state({
 		totalWorkflows: 0,
 		activeExecutions: 0,
 		successRate: 0,
 		avgDuration: 0
-	};
+	});
 	
 	onMount(() => {
 		(async () => {
@@ -271,7 +271,7 @@
 	<div class="bg-white rounded-lg shadow mb-6 p-4">
 		<div class="flex items-center space-x-4">
 			<button
-				on:click={() => showGenerationPanel = !showGenerationPanel}
+				onclick={() => showGenerationPanel = !showGenerationPanel}
 				class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
 			>
 				<span class="flex items-center">
@@ -288,12 +288,12 @@
 					bind:value={searchQuery}
 					placeholder="Search workflows..."
 					class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-					on:input={searchWorkflows}
+					oninput={searchWorkflows}
 				/>
 				
 				<select
 					bind:value={filterDomain}
-					on:change={searchWorkflows}
+					onchange={searchWorkflows}
 					class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 				>
 					<option value="">All Domains</option>
@@ -307,7 +307,7 @@
 				
 				<select
 					bind:value={filterComplexity}
-					on:change={searchWorkflows}
+					onchange={searchWorkflows}
 					class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 				>
 					<option value="">All Complexity</option>
@@ -332,7 +332,7 @@
 					<textarea
 						id="workflow-description"
 						bind:value={generationPrompt}
-						on:blur={validatePrompt}
+						onblur={validatePrompt}
 						placeholder="Describe the workflow you want to generate..."
 						rows="4"
 						class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -397,13 +397,13 @@
 				
 				<div class="flex justify-end space-x-2">
 					<button
-						on:click={() => showGenerationPanel = false}
+						onclick={() => showGenerationPanel = false}
 						class="px-4 py-2 border border-surface-300 rounded-lg hover:bg-surface-50 transition-colors"
 					>
 						Cancel
 					</button>
 					<button
-						on:click={generateWorkflow}
+						onclick={generateWorkflow}
 						disabled={!generationPrompt || isGenerating}
 						class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 					>
@@ -465,7 +465,7 @@
 				
 				<div class="flex space-x-2">
 					<button
-						on:click={() => executeWorkflow(workflow.workflow_id)}
+						onclick={() => executeWorkflow(workflow.workflow_id)}
 						class="flex-1 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
 					>
 						Execute
@@ -533,7 +533,7 @@
 							<td class="px-6 py-4 whitespace-nowrap text-sm">
 								{#if execution.status === 'running'}
 									<button
-										on:click={() => cancelExecution(execution.execution_id)}
+										onclick={() => cancelExecution(execution.execution_id)}
 										class="text-red-600 hover:text-red-900"
 									>
 										Cancel

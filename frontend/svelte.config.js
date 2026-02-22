@@ -1,4 +1,4 @@
-import adapter from "@sveltejs/adapter-node";
+import adapter from "@sveltejs/adapter-vercel";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -7,24 +7,9 @@ const config = {
 
   kit: {
     adapter: adapter({
-      out: "build",
-      precompress: false,
-      envPrefix: "CONVERGIO_",
+      runtime: "nodejs20.x",
+      regions: ["fra1"],
     }),
-
-    // Configure the development server
-    files: {
-      assets: "static",
-      hooks: {
-        client: "src/hooks.client.ts",
-        server: "src/hooks.server.ts",
-      },
-      lib: "src/lib",
-      params: "src/params",
-      routes: "src/routes",
-      serviceWorker: "src/service-worker",
-      appTemplate: "src/app.html",
-    },
 
     // Security headers
     csp: {

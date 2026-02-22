@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { stopPropagation } from 'svelte/legacy';
+
 	import { onMount, onDestroy } from 'svelte';
 	
 	interface Insight {
@@ -36,9 +38,9 @@
 		system_health: number;
 	}
 	
-	let insights: Insight[] = [];
-	let actions: ProactiveAction[] = [];
-	let metrics: SystemMetrics = {
+	let insights: Insight[] = $state([]);
+	let actions: ProactiveAction[] = $state([]);
+	let metrics: SystemMetrics = $state({
 		events_processed: 0,
 		patterns_detected: 0,
 		insights_generated: 0,
@@ -46,13 +48,13 @@
 		actions_completed: 0,
 		actions_failed: 0,
 		system_health: 100
-	};
+	});
 	
-	let selectedInsight: Insight | null = null;
-	let filterSeverity: string = 'all';
-	let filterType: string = 'all';
-	let autoRefresh = true;
-	let refreshInterval: any;
+	let selectedInsight: Insight | null = $state(null);
+	let filterSeverity: string = $state('all');
+	let filterType: string = $state('all');
+	let autoRefresh = $state(true);
+	let refreshInterval: any = $state()!;
 	
 	// WebSocket for real-time updates
 	let ws: WebSocket | null = null;
@@ -207,14 +209,14 @@
 		return date.toLocaleDateString();
 	}
 	
-	$: filteredInsights = insights.filter(insight => {
+	let filteredInsights = $derived(insights.filter(insight => {
 		if (filterSeverity !== 'all' && insight.severity !== filterSeverity) return false;
 		if (filterType !== 'all' && insight.type !== filterType) return false;
 		return true;
-	});
+	}));
 	
-	$: systemHealthColor = metrics.system_health > 80 ? 'text-green-600' : 
-	                       metrics.system_health > 60 ? 'text-yellow-600' : 'text-red-600';
+	let systemHealthColor = $derived(metrics.system_health > 80 ? 'text-green-600' : 
+	                       metrics.system_health > 60 ? 'text-yellow-600' : 'text-red-600');
 </script>
 
 <div class="coach-panel">
@@ -230,7 +232,7 @@
 				<input
 					type="checkbox"
 					bind:checked={autoRefresh}
-					on:change={() => {
+					onchange={() => {
 						if (autoRefresh) {
 							refreshInterval = setInterval(loadMetrics, 5000);
 						} else {
@@ -310,8 +312,8 @@
 					<div
 						class="insight-card"
 						class:selected={selectedInsight?.id === insight.id}
-						on:click={() => selectedInsight = insight}
-						on:keydown={() => {}}
+						onclick={() => selectedInsight = insight}
+						onkeydown={() => {}}
 						role="button"
 						tabindex="0"
 					>
@@ -334,13 +336,13 @@
 							{#if insight.is_actionable}
 								<div class="insight-actions">
 									<button
-										on:click|stopPropagation={() => takeAction(insight)}
+										onclick={stopPropagation(() => takeAction(insight))}
 										class="btn-action"
 									>
 										Take Action
 									</button>
 									<button
-										on:click|stopPropagation={() => dismissInsight(insight)}
+										onclick={stopPropagation(() => dismissInsight(insight))}
 										class="btn-dismiss"
 									>
 										Dismiss
@@ -406,7 +408,7 @@
 		<div class="detail-panel">
 			<div class="panel-header">
 				<h3 class="font-semibold">Insight Details</h3>
-				<button on:click={() => selectedInsight = null} class="close-btn">×</button>
+				<button onclick={() => selectedInsight = null} class="close-btn">×</button>
 			</div>
 			
 			<div class="panel-content">

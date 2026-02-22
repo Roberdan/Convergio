@@ -2,7 +2,11 @@
 	import { onMount } from 'svelte';
 	import { Button } from './index';
 
-	interface $$Props {
+	
+
+
+	import { createEventDispatcher } from 'svelte';
+	interface Props {
 		title: string;
 		subtitle?: string;
 		loading?: boolean;
@@ -14,21 +18,31 @@
 		refreshable?: boolean;
 		lastUpdated?: Date;
 		variant?: 'default' | 'compact' | 'full';
+		badge?: import('svelte').Snippet;
+		filters?: import('svelte').Snippet;
+		children?: import('svelte').Snippet;
+		legend?: import('svelte').Snippet;
+		footer?: import('svelte').Snippet;
 	}
 
-	export let title: $$Props['title'];
-	export let subtitle: $$Props['subtitle'] = '';
-	export let loading: $$Props['loading'] = false;
-	export let error: $$Props['error'] = '';
-	export let showLegend: $$Props['showLegend'] = true;
-	export let showControls: $$Props['showControls'] = true;
-	export let fullscreen: $$Props['fullscreen'] = false;
-	export let exportable: $$Props['exportable'] = false;
-	export let refreshable: $$Props['refreshable'] = false;
-	export let lastUpdated: $$Props['lastUpdated'] = undefined;
-	export let variant: NonNullable<$$Props['variant']> = 'default';
-
-	import { createEventDispatcher } from 'svelte';
+	let {
+		title,
+		subtitle = '',
+		loading = false,
+		error = '',
+		showLegend = true,
+		showControls = true,
+		fullscreen = $bindable(false),
+		exportable = false,
+		refreshable = false,
+		lastUpdated = undefined,
+		variant = 'default',
+		badge,
+		filters,
+		children,
+		legend,
+		footer
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		refresh: void;
@@ -37,19 +51,9 @@
 		filter: { filters: Record<string, any> };
 	}>();
 
-	let isRefreshing = false;
+	let isRefreshing = $state(false);
 
-	// Chart height based on variant
-	$: chartHeight = {
-		compact: '200px',
-		default: '300px',
-		full: '500px'
-	}[variant];
 
-	// Format last updated time
-	$: lastUpdatedText = lastUpdated 
-		? `Updated ${formatRelativeTime(lastUpdated)}`
-		: '';
 
 	function handleRefresh() {
 		if (isRefreshing) return;
@@ -85,6 +89,16 @@
 		// Chart initialization would happen here
 		// This is where you'd integrate with Chart.js or D3.js
 	});
+	// Chart height based on variant
+	let chartHeight = $derived({
+		compact: '200px',
+		default: '300px',
+		full: '500px'
+	}[variant]);
+	// Format last updated time
+	let lastUpdatedText = $derived(lastUpdated 
+		? `Updated ${formatRelativeTime(lastUpdated)}`
+		: '');
 </script>
 
 <div class="chart-card" class:fullscreen>
@@ -101,9 +115,9 @@
 				{/if}
 			</div>
 
-			{#if $$slots.badge}
+			{#if badge}
 				<div class="header-badge">
-					<slot name="badge" />
+					{@render badge?.()}
 				</div>
 			{/if}
 		</div>
@@ -111,9 +125,9 @@
 		{#if showControls}
 			<div class="chart-controls">
 				<!-- Filters slot -->
-				{#if $$slots.filters}
+				{#if filters}
 					<div class="chart-filters">
-						<slot name="filters" />
+						{@render filters?.()}
 					</div>
 				{/if}
 
@@ -180,22 +194,22 @@
 		{:else}
 			<!-- Chart Container -->
 			<div class="chart-container">
-				<slot />
+				{@render children?.()}
 			</div>
 		{/if}
 	</div>
 
 	<!-- Legend -->
-	{#if showLegend && $$slots.legend && !loading && !error}
+	{#if showLegend && legend && !loading && !error}
 		<div class="chart-legend">
-			<slot name="legend" />
+			{@render legend?.()}
 		</div>
 	{/if}
 
 	<!-- Footer -->
-	{#if $$slots.footer}
+	{#if footer}
 		<div class="chart-footer">
-			<slot name="footer" />
+			{@render footer?.()}
 		</div>
 	{/if}
 </div>
@@ -206,8 +220,8 @@
 		class="fullscreen-backdrop"
 		role="button"
 		tabindex="0"
-		on:click={toggleFullscreen}
-		on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? toggleFullscreen() : null}
+		onclick={toggleFullscreen}
+		onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? toggleFullscreen() : null}
 		aria-label="Exit fullscreen"
 	></div>
 {/if}

@@ -4,7 +4,11 @@
 	import { timeMonth, timeWeek, timeDay } from 'd3-time';
 	import { timeFormat } from 'd3-time-format';
 	
-	export let projectId: string;
+	interface Props {
+		projectId: string;
+	}
+
+	let { projectId }: Props = $props();
 	
 	interface Task {
 		id: string;
@@ -26,17 +30,17 @@
 		date: Date;
 	}
 	
-	let tasks: Task[] = [];
-	let milestones: Milestone[] = [];
-	let svgWidth = 0;
-	let svgHeight = 0;
-	let chartContainer: HTMLDivElement;
+	let tasks: Task[] = $state([]);
+	let milestones: Milestone[] = $state([]);
+	let svgWidth = $state(0);
+	let svgHeight = $state(0);
+	let chartContainer: HTMLDivElement = $state()!;
 	
 	// View settings
-	let viewMode: 'day' | 'week' | 'month' = 'week';
-	let showDependencies = true;
-	let showProgress = true;
-	let selectedTask: Task | null = null;
+	let viewMode: 'day' | 'week' | 'month' = $state('week');
+	let showDependencies = $state(true);
+	let showProgress = $state(true);
+	let selectedTask: Task | null = $state(null);
 	
 	// Chart dimensions
 	const margin = { top: 60, right: 40, bottom: 40, left: 200 };
@@ -82,22 +86,22 @@
 		}
 	}
 	
-	$: chartWidth = svgWidth - margin.left - margin.right;
-	$: chartHeight = svgHeight - margin.top - margin.bottom;
+	let chartWidth = $derived(svgWidth - margin.left - margin.right);
+	let chartHeight = $derived(svgHeight - margin.top - margin.bottom);
 	
-	$: timeScale = (() => {
+	let timeScale = $derived((() => {
 		if (tasks.length === 0) return null;
 		const startDate = new Date(Math.min(...tasks.map(t => t.start_date.getTime())));
 		const endDate = new Date(Math.max(...tasks.map(t => t.end_date.getTime())));
 		return scaleTime()
 			.domain([startDate, endDate])
 			.range([0, chartWidth]);
-	})();
+	})());
 	
-	$: yScale = scaleBand()
+	let yScale = $derived(scaleBand()
 		.domain(tasks.map(t => t.id))
 		.range([0, chartHeight])
-		.padding(0.2);
+		.padding(0.2));
 	
 	function getTimeIntervals() {
 		if (!timeScale) return [];
@@ -164,21 +168,21 @@
 			<div class="view-mode-selector">
 				<button
 					class:active={viewMode === 'day'}
-					on:click={() => changeViewMode('day')}
+					onclick={() => changeViewMode('day')}
 					class="px-3 py-1 rounded-l border"
 				>
 					Day
 				</button>
 				<button
 					class:active={viewMode === 'week'}
-					on:click={() => changeViewMode('week')}
+					onclick={() => changeViewMode('week')}
 					class="px-3 py-1 border-t border-b"
 				>
 					Week
 				</button>
 				<button
 					class:active={viewMode === 'month'}
-					on:click={() => changeViewMode('month')}
+					onclick={() => changeViewMode('month')}
 					class="px-3 py-1 rounded-r border"
 				>
 					Month
@@ -295,8 +299,8 @@
 						
 						<g
 							class="task-group"
-							on:click={() => handleTaskClick(task)}
-							on:keydown={(e) => e.key === 'Enter' && handleTaskClick(task)}
+							onclick={() => handleTaskClick(task)}
+							onkeydown={(e) => e.key === 'Enter' && handleTaskClick(task)}
 							role="button"
 							tabindex="0"
 						>
@@ -397,7 +401,7 @@
 		<div class="task-details-panel">
 			<div class="panel-header">
 				<h3 class="font-semibold">{selectedTask.title}</h3>
-				<button on:click={() => selectedTask = null} class="close-btn" aria-label="Close task details">×</button>
+				<button onclick={() => selectedTask = null} class="close-btn" aria-label="Close task details">×</button>
 			</div>
 			<div class="panel-content">
 				<p><strong>Status:</strong> {selectedTask.status}</p>

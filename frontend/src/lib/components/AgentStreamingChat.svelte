@@ -1,9 +1,15 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
   import AgentHealthIndicator from './AgentHealthIndicator.svelte';
   
-  export let agentName: string = 'ali_chief_of_staff';
+  interface Props {
+    agentName?: string;
+  }
+
+  let { agentName = 'ali_chief_of_staff' }: Props = $props();
   export const endpoint: string = '/api/v1/agents/ali/intelligence';
   
   // Connection states
@@ -22,9 +28,9 @@
   // Component state
   let messages = writable<Message[]>([]);
   let connectionState = writable<ConnectionState>('disconnected');
-  let isTyping = false;
-  let newMessage = '';
-  let messagesContainer: HTMLElement;
+  let isTyping = $state(false);
+  let newMessage = $state('');
+  let messagesContainer: HTMLElement = $state()!;
   let ws: WebSocket | null = null;
   let reconnectTimer: NodeJS.Timeout;
   let reconnectAttempts = 0;
@@ -32,7 +38,7 @@
   const RECONNECT_DELAY = 2000;
   
   // Streaming state
-  let currentStreamingMessage: Message | null = null;
+  let currentStreamingMessage: Message | null = $state(null);
   let streamBuffer = '';
   
   // Auto-scroll
@@ -299,9 +305,11 @@
   });
   
   // Reactive updates
-  $: if ($messages.length > 0) {
-    scrollToBottom();
-  }
+  run(() => {
+    if ($messages.length > 0) {
+      scrollToBottom();
+    }
+  });
 </script>
 
 <div class="agent-chat-container">
@@ -375,19 +383,19 @@
     <input
       type="text"
       bind:value={newMessage}
-      on:keydown={(e) => e.key === 'Enter' && sendMessage()}
+      onkeydown={(e) => e.key === 'Enter' && sendMessage()}
       placeholder="Type your message..."
       disabled={isTyping || $connectionState === 'error'}
       class="input-field"
     />
     
     {#if isTyping && currentStreamingMessage}
-      <button on:click={cancelStreaming} class="cancel-button">
+      <button onclick={cancelStreaming} class="cancel-button">
         Cancel
       </button>
     {:else}
       <button 
-        on:click={sendMessage} 
+        onclick={sendMessage} 
         disabled={!newMessage.trim() || isTyping}
         class="send-button"
       >

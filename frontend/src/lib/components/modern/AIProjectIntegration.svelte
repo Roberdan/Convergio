@@ -2,8 +2,12 @@
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   
-  export let projectId: string = '';
-  export let taskId: string = '';
+  interface Props {
+    projectId?: string;
+    taskId?: string;
+  }
+
+  let { projectId = '', taskId = '' }: Props = $props();
   
   interface ChatMessage {
     id: string;
@@ -13,15 +17,15 @@
     type: string;
   }
 
-  let availableAgents: any[] = [];
-  let activeAssignments: any[] = [];
-  let aiRecommendations: any[] = [];
+  let availableAgents: any[] = $state([]);
+  let activeAssignments: any[] = $state([]);
+  let aiRecommendations: any[] = $state([]);
   // removed unused selectedAgent
   let agentChat = writable<ChatMessage[]>([]);
-  let newMessage = '';
+  let newMessage = $state('');
   // removed unused loading flag (kept internal state via onMount end)
-  let showAgentSelector = false;
-  let realTimeCollaboration = true;
+  let showAgentSelector = $state(false);
+  let realTimeCollaboration = $state(true);
   
   // Modern glassmorphism colors
   const colors = {
@@ -450,7 +454,7 @@
     <div class="header-actions">
       <button 
         class="assign-agent-btn"
-        on:click={() => showAgentSelector = true}
+        onclick={() => showAgentSelector = true}
       >
         <span class="plus-icon">+</span>
         Assign Agent
@@ -528,13 +532,13 @@
             <div class="rec-actions">
               <button 
                 class="implement-btn"
-                on:click={() => implementRecommendation(rec)}
+                onclick={() => implementRecommendation(rec)}
               >
                 Implement
               </button>
               <button 
                 class="dismiss-btn"
-                on:click={() => aiRecommendations = aiRecommendations.filter(r => r.id !== rec.id)}
+                onclick={() => aiRecommendations = aiRecommendations.filter(r => r.id !== rec.id)}
               >
                 Dismiss
               </button>
@@ -607,7 +611,7 @@
             </span>
             <button 
               class="remove-btn"
-              on:click={() => removeAgent(assignment.agentId)}
+              onclick={() => removeAgent(assignment.agentId)}
             >
               Remove
             </button>
@@ -654,9 +658,9 @@
         type="text" 
         placeholder="Send a message to your AI team..."
         bind:value={newMessage}
-        on:keypress={(e) => e.key === 'Enter' && sendMessage()}
+        onkeypress={(e) => e.key === 'Enter' && sendMessage()}
       />
-      <button class="send-btn" on:click={sendMessage}>
+      <button class="send-btn" onclick={sendMessage}>
         <span class="send-icon">📤</span>
       </button>
     </div>
@@ -670,8 +674,8 @@
       aria-modal="true"
       aria-labelledby="agent-selector-title"
   tabindex="0"
-  on:click={(e) => { if (e.currentTarget === e.target) showAgentSelector = false; }}
-  on:keydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); showAgentSelector = false; } }}
+  onclick={(e) => { if (e.currentTarget === e.target) showAgentSelector = false; }}
+  onkeydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); showAgentSelector = false; } }}
     >
       <div
         class="agent-selector-modal"
@@ -679,7 +683,7 @@
       >
         <div class="modal-header">
           <h3 id="agent-selector-title">Select AI Agent</h3>
-          <button class="close-btn" on:click={() => showAgentSelector = false} aria-label="Close">×</button>
+          <button class="close-btn" onclick={() => showAgentSelector = false} aria-label="Close">×</button>
         </div>
         
         <div class="available-agents">
@@ -713,14 +717,14 @@
                 {:else}
                   <button 
                     class="assign-btn primary"
-                    on:click={() => assignAgent(agent.id, 'lead')}
+                    onclick={() => assignAgent(agent.id, 'lead')}
                     aria-label={`Assign ${agent.name} as Lead`}
                   >
                     Assign as Lead
                   </button>
                   <button 
                     class="assign-btn secondary"
-                    on:click={() => assignAgent(agent.id, 'contributor')}
+                    onclick={() => assignAgent(agent.id, 'contributor')}
                     aria-label={`Assign ${agent.name} as Contributor`}
                   >
                     Assign as Contributor

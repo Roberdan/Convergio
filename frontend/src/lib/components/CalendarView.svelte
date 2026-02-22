@@ -1,7 +1,14 @@
 <script lang="ts">
+	import { stopPropagation, createBubbler } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { onMount } from 'svelte';
 	
-	export let projectId: string;
+	interface Props {
+		projectId: string;
+	}
+
+	let { projectId }: Props = $props();
 	
 	interface Task {
 		id: string;
@@ -26,13 +33,13 @@
 	}
 	
 	let currentDate = new Date();
-	let currentMonth = currentDate.getMonth();
-	let currentYear = currentDate.getFullYear();
-	let calendarDays: CalendarDay[] = [];
+	let currentMonth = $state(currentDate.getMonth());
+	let currentYear = $state(currentDate.getFullYear());
+	let calendarDays: CalendarDay[] = $state([]);
 	let tasks: Task[] = [];
-	let selectedDay: CalendarDay | null = null;
-	let showTaskDialog = false;
-	let viewMode: 'month' | 'week' | 'day' = 'month';
+	let selectedDay: CalendarDay | null = $state(null);
+	let showTaskDialog = $state(false);
+	let viewMode: 'month' | 'week' | 'day' = $state('month');
 	
 	const monthNames = [
 		'January', 'February', 'March', 'April', 'May', 'June',
@@ -202,17 +209,17 @@
 		</div>
 		
 		<div class="header-controls">
-			<button on:click={previousMonth} class="nav-btn" aria-label="Previous month">
+			<button onclick={previousMonth} class="nav-btn" aria-label="Previous month">
 				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
 				</svg>
 			</button>
 			
-			<button on:click={goToToday} class="today-btn" aria-label="Go to today">
+			<button onclick={goToToday} class="today-btn" aria-label="Go to today">
 				Today
 			</button>
 			
-			<button on:click={nextMonth} class="nav-btn" aria-label="Next month">
+			<button onclick={nextMonth} class="nav-btn" aria-label="Next month">
 				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 				</svg>
@@ -221,21 +228,21 @@
 			<div class="view-selector ml-4">
 				<button
 					class:active={viewMode === 'month'}
-					on:click={() => viewMode = 'month'}
+					onclick={() => viewMode = 'month'}
 					class="px-3 py-1 rounded-l border"
 				>
 					Month
 				</button>
 				<button
 					class:active={viewMode === 'week'}
-					on:click={() => viewMode = 'week'}
+					onclick={() => viewMode = 'week'}
 					class="px-3 py-1 border-t border-b"
 				>
 					Week
 				</button>
 				<button
 					class:active={viewMode === 'day'}
-					on:click={() => viewMode = 'day'}
+					onclick={() => viewMode = 'day'}
 					class="px-3 py-1 rounded-r border"
 				>
 					Day
@@ -260,8 +267,8 @@
 					class:current-month={day.isCurrentMonth}
 					class:today={day.isToday}
 					class:has-tasks={day.tasks.length > 0}
-					on:click={() => selectDay(day)}
-					on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectDay(day)}
+					onclick={() => selectDay(day)}
+					onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectDay(day)}
 					role="button"
 					tabindex="0"
 					aria-label={`Select day ${day.date.toDateString()}`}
@@ -301,7 +308,7 @@
 					
 					{#if day.isCurrentMonth}
 						<button
-							on:click|stopPropagation={() => createTask(day.date)}
+							onclick={stopPropagation(() => createTask(day.date))}
 							class="add-task-btn"
 							title="Add task"
 							aria-label="Add task"
@@ -328,26 +335,26 @@
 	{#if showTaskDialog && selectedDay}
 			<div 
 				class="task-dialog-overlay" 
-				on:click={() => showTaskDialog = false}
+				onclick={() => showTaskDialog = false}
 				role="button"
 				tabindex="0"
 				aria-label="Close tasks dialog"
-				on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && (showTaskDialog = false)}
+				onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (showTaskDialog = false)}
 			>
 						<div 
 							class="task-dialog" 
-							on:click|stopPropagation 
+							onclick={stopPropagation(bubble('click'))} 
 							role="dialog" 
 							aria-modal="true"
 							tabindex="-1"
 							aria-label="Tasks for selected day"
-							on:keydown={(e) => (e.key === 'Escape') && (showTaskDialog = false)}
+							onkeydown={(e) => (e.key === 'Escape') && (showTaskDialog = false)}
 						>
 				<div class="dialog-header">
 					<h3 class="text-lg font-semibold">
 						Tasks for {selectedDay.date.toLocaleDateString()}
 					</h3>
-					<button on:click={() => showTaskDialog = false} class="close-btn">
+					<button onclick={() => showTaskDialog = false} class="close-btn">
 						×
 					</button>
 				</div>
@@ -396,7 +403,7 @@
 				
 				<div class="dialog-footer">
 					<button
-						on:click={() => selectedDay && createTask(selectedDay.date)}
+						onclick={() => selectedDay && createTask(selectedDay.date)}
 						class="btn-primary"
 					>
 						Add New Task

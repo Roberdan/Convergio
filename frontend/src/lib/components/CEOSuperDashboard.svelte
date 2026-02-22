@@ -162,26 +162,26 @@
 	let executiveForecast = writable<ExecutiveForecast>({});
 
 	// === 🎨 UI STATE ===
-	let isLoading = true;
-	let selectedTimeRange = '24h';
-	let selectedView = 'overview';
-	let autoRefresh = true;
-	let notification: Notification | null = null;
-	let isDarkMode = false;
-	let aiAssistantActive = false;
+	let isLoading = $state(true);
+	let selectedTimeRange = $state('24h');
+	let selectedView = $state('overview');
+	let autoRefresh = $state(true);
+	let notification: Notification | null = $state(null);
+	let isDarkMode = $state(false);
+	let aiAssistantActive = $state(false);
 
 	// === 📊 CHART INSTANCES ===
 	// Charts are instantiated on mount; we don't need references later
 
 	// === 🎯 DASHBOARD METRICS ===
-	$: totalAgents = $agentMetrics.total_agents || 0;
-	$: availableAgents = $agentMetrics.available_agents || 0;
-	$: totalCosts = $costMetrics.total_cost || 0;
-	$: swarmTasks = $swarmStatus.active_tasks || 0;
-	$: systemUptime = $performanceMetrics.uptime_percentage || 0;
-	$: predictedGrowth = $predictiveAnalytics.growth_rate || 0;
-	$: aiConfidence = $mlInsights.confidence_score || 0;
-	$: businessScore = $businessIntelligence.overall_score || 0;
+	let totalAgents = $derived($agentMetrics.total_agents || 0);
+	let availableAgents = $derived($agentMetrics.available_agents || 0);
+	let totalCosts = $derived($costMetrics.total_cost || 0);
+	let swarmTasks = $derived($swarmStatus.active_tasks || 0);
+	let systemUptime = $derived($performanceMetrics.uptime_percentage || 0);
+	let predictedGrowth = $derived($predictiveAnalytics.growth_rate || 0);
+	let aiConfidence = $derived($mlInsights.confidence_score || 0);
+	let businessScore = $derived($businessIntelligence.overall_score || 0);
 
 	onMount(() => {
 		loadSupremeDashboardData();
@@ -711,7 +711,7 @@
 			 class:text-blue-800={notification.type === 'info'}>
 			<div class="flex justify-between items-start">
 				<p class="text-sm font-medium leading-relaxed">{notification.message}</p>
-				<button on:click={() => notification = null} class="ml-3 text-gray-400 hover:text-surface-600 transition-colors" aria-label="Close notification">
+				<button onclick={() => notification = null} class="ml-3 text-gray-400 hover:text-surface-600 transition-colors" aria-label="Close notification">
 					<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
 						<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
 					</svg>
@@ -768,7 +768,7 @@
 					
 					<!-- Dark Mode Toggle -->
 					<button
-						on:click={toggleDarkMode}
+						onclick={toggleDarkMode}
 						class="p-2 rounded-lg border border-surface-300 hover:bg-surface-50 transition-colors" class:dark={isDarkMode}>
 						{isDarkMode ? '☀️' : '🌙'}
 					</button>
@@ -785,7 +785,7 @@
 					
 					<!-- Manual Refresh Button -->
 					<button
-						on:click={loadSupremeDashboardData}
+						onclick={loadSupremeDashboardData}
 						class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center shadow-lg">
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -795,7 +795,7 @@
 
 					<!-- Generate Report Button -->
 					<button
-						on:click={generateExecutiveReport}
+						onclick={generateExecutiveReport}
 						class="px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 flex items-center shadow-lg">
 						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -1123,25 +1123,25 @@
 							<div class="grid grid-cols-2 gap-3">
 								<button 
 									class="p-4 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 text-sm font-bold text-center transform hover:scale-105"
-									on:click={() => window.location.href = '/swarm-coordination'}
+									onclick={() => window.location.href = '/swarm-coordination'}
 								>
 									🤖 Swarm Control
 								</button>
 								<button 
 									class="p-4 bg-gradient-to-br from-green-50 to-green-100 text-green-700 rounded-xl hover:from-green-100 hover:to-green-200 transition-all duration-300 text-sm font-bold text-center transform hover:scale-105"
-									on:click={() => window.location.href = '/agent-management'}
+									onclick={() => window.location.href = '/agent-management'}
 								>
 									⚙️ Agent Manager
 								</button>
 								<button 
 									class="p-4 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-700 rounded-xl hover:from-purple-100 hover:to-purple-200 transition-all duration-300 text-sm font-bold text-center transform hover:scale-105"
-									on:click={() => window.location.href = '/agents'}
+									onclick={() => window.location.href = '/agents'}
 								>
 									👥 AI Team Chat
 								</button>
 								<button 
 									class="p-4 bg-gradient-to-br from-orange-50 to-orange-100 text-orange-700 rounded-xl hover:from-orange-100 hover:to-orange-200 transition-all duration-300 text-sm font-bold text-center transform hover:scale-105"
-									on:click={() => selectedView = 'predictive'}
+									onclick={() => selectedView = 'predictive'}
 								>
 									🔮 Predictive
 								</button>

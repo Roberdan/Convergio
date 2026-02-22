@@ -11,20 +11,20 @@
   import { AccessibilitySettings } from '$lib/components/accessibility';
 
   // API Keys state
-  let apiKeys = {
+  let apiKeys = $state({
     openai_api_key: '',
     anthropic_api_key: '',
     perplexity_api_key: ''
-  };
+  });
 
-  let keyStatus = {
+  let keyStatus = $state({
     openai: { is_configured: false, is_valid: null },
     anthropic: { is_configured: false, is_valid: null },
     perplexity: { is_configured: false, is_valid: null }
-  };
+  });
 
   // AI Provider Settings
-  let aiSettings = {
+  let aiSettings = $state({
     mode: 'ollama_only',
     strict_mode: false,
     default_model: 'llama3.2:latest',
@@ -36,14 +36,14 @@
       deployment_name: '',
       api_version: '2024-02-15-preview'
     }
-  };
+  });
 
-  let saving = false;
-  let testing = false;
-  let showSuccess = false;
-  let savingAiSettings = false;
-  let aiSettingsSuccess = false;
-  let activeTab: 'api-keys' | 'ai-provider' | 'accessibility' = 'ai-provider';
+  let saving = $state(false);
+  let testing = $state(false);
+  let showSuccess = $state(false);
+  let savingAiSettings = $state(false);
+  let aiSettingsSuccess = $state(false);
+  let activeTab: 'api-keys' | 'ai-provider' | 'accessibility' = $state('ai-provider');
 
   onMount(async () => {
     await Promise.all([loadKeyStatus(), loadAiSettings()]);
@@ -218,7 +218,7 @@
   <div class="border-b border-surface-200">
     <nav class="flex space-x-4" aria-label="Settings tabs">
       <button
-        on:click={() => activeTab = 'ai-provider'}
+        onclick={() => activeTab = 'ai-provider'}
         class="px-3 py-2 text-sm font-medium border-b-2 transition-colors {activeTab === 'ai-provider'
           ? 'border-gray-900 text-gray-900'
           : 'border-transparent text-surface-500 hover:text-surface-700 hover:border-surface-300'}"
@@ -227,7 +227,7 @@
         AI Providers
       </button>
       <button
-        on:click={() => activeTab = 'api-keys'}
+        onclick={() => activeTab = 'api-keys'}
         class="px-3 py-2 text-sm font-medium border-b-2 transition-colors {activeTab === 'api-keys'
           ? 'border-gray-900 text-gray-900'
           : 'border-transparent text-surface-500 hover:text-surface-700 hover:border-surface-300'}"
@@ -236,7 +236,7 @@
         API Keys
       </button>
       <button
-        on:click={() => activeTab = 'accessibility'}
+        onclick={() => activeTab = 'accessibility'}
         class="px-3 py-2 text-sm font-medium border-b-2 transition-colors {activeTab === 'accessibility'
           ? 'border-gray-900 text-gray-900'
           : 'border-transparent text-surface-500 hover:text-surface-700 hover:border-surface-300'}"
@@ -339,7 +339,7 @@
       <!-- Save Button -->
       <div class="flex justify-end pt-4 border-t border-surface-200">
         <button
-          on:click={saveAiSettings}
+          onclick={saveAiSettings}
           disabled={savingAiSettings}
           class="px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-surface-300 text-white text-sm font-medium rounded transition-colors disabled:cursor-not-allowed"
         >
@@ -402,7 +402,7 @@
                   Configured
                 </span>
                 <button
-                  on:click={() => testApiKey('openai')}
+                  onclick={() => testApiKey('openai')}
                   disabled={testing}
                   class="px-2 py-1 text-xs bg-surface-100 hover:bg-surface-200 text-surface-700 rounded transition-colors disabled:opacity-50"
                 >
@@ -443,7 +443,7 @@
                   Configured
                 </span>
                 <button
-                  on:click={() => testApiKey('anthropic')}
+                  onclick={() => testApiKey('anthropic')}
                   disabled={testing}
                   class="px-2 py-1 text-xs bg-surface-100 hover:bg-surface-200 text-surface-700 rounded transition-colors disabled:opacity-50"
                 >
@@ -484,7 +484,7 @@
                   Configured
                 </span>
                 <button
-                  on:click={() => testApiKey('perplexity')}
+                  onclick={() => testApiKey('perplexity')}
                   disabled={testing}
                   class="px-2 py-1 text-xs bg-surface-100 hover:bg-surface-200 text-surface-700 rounded transition-colors disabled:opacity-50"
                 >
@@ -507,7 +507,7 @@
         <div class="flex justify-between pt-4 border-t border-surface-200">
           <div class="flex space-x-2">
             <button
-              on:click={saveApiKeys}
+              onclick={saveApiKeys}
               disabled={saving}
               class="px-3 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-surface-300 text-white text-xs font-medium rounded transition-colors disabled:cursor-not-allowed"
             >
@@ -521,7 +521,7 @@
 
           {#if keyStatus.openai.is_configured || keyStatus.anthropic.is_configured || keyStatus.perplexity?.is_configured}
             <button
-              on:click={clearApiKeys}
+              onclick={clearApiKeys}
               class="px-3 py-2 text-xs text-red-600 hover:text-red-800 transition-colors"
             >
               Clear All Keys

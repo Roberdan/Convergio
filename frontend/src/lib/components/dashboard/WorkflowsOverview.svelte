@@ -3,15 +3,15 @@
   import { workflowsService, type Workflow, type RecentExecution } from '$lib/services/workflowsService';
   import WorkflowEditor from './WorkflowEditor.svelte';
 
-  let workflows: Workflow[] = [];
-  let recentExecutions: RecentExecution[] = [];
-  let loading = true;
-  let error: string | null = null;
-  let selectedWorkflow: any = null;
-  let showDetails = false;
-  let executingWorkflow = false;
-  let showEditor = false;
-  let editingWorkflowId: string | null = null;
+  let workflows: Workflow[] = $state([]);
+  let recentExecutions: RecentExecution[] = $state([]);
+  let loading = $state(true);
+  let error: string | null = $state(null);
+  let selectedWorkflow: any = $state(null);
+  let showDetails = $state(false);
+  let executingWorkflow = $state(false);
+  let showEditor = $state(false);
+  let editingWorkflowId: string | null = $state(null);
 
   function getStatusColor(status: string): string {
     switch (status) {
@@ -126,8 +126,8 @@
     }
   }
 
-  $: activeWorkflows = workflows; // All workflows are considered active
-  $: avgSuccessRate = 0; // No success rate in current API
+  let activeWorkflows = $derived(workflows); // All workflows are considered active
+  let avgSuccessRate = $derived(0);
 </script>
 
 <div class="bg-white border border-surface-200 rounded">
@@ -136,13 +136,13 @@
       <h3 class="text-sm font-medium text-surface-900">Workflows & Automation</h3>
       <div class="flex items-center space-x-2">
         <button 
-          on:click={() => { showEditor = true; editingWorkflowId = null; }}
+          onclick={() => { showEditor = true; editingWorkflowId = null; }}
           class="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           + Create Workflow
         </button>
         <button 
-          on:click={loadWorkflowsData}
+          onclick={loadWorkflowsData}
           class="text-xs text-surface-500 hover:text-surface-600 flex items-center space-x-1"
         >
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,7 +180,7 @@
       <div class="text-center text-red-600">
         <p>{error}</p>
         <button 
-          on:click={loadWorkflowsData}
+          onclick={loadWorkflowsData}
           class="mt-2 text-sm text-blue-600 hover:text-blue-800"
         >
           Try again
@@ -238,19 +238,19 @@
                     </p>
                   </div>
                   <button 
-                    on:click={() => viewWorkflowDetails(workflow.workflow_id)}
+                    onclick={() => viewWorkflowDetails(workflow.workflow_id)}
                     class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
                   >
                     Details
                   </button>
                   <button 
-                    on:click={() => openEditor(workflow.workflow_id)}
+                    onclick={() => openEditor(workflow.workflow_id)}
                     class="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 mx-1"
                   >
                     Edit
                   </button>
                   <button 
-                    on:click={() => executeWorkflow(workflow.workflow_id)}
+                    onclick={() => executeWorkflow(workflow.workflow_id)}
                     class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
                     disabled={executingWorkflow}
                   >
@@ -307,7 +307,7 @@
           <p class="text-sm text-surface-500 mt-1">{selectedWorkflow.description}</p>
         </div>
         <button
-          on:click={() => { showDetails = false; selectedWorkflow = null; }}
+          onclick={() => { showDetails = false; selectedWorkflow = null; }}
           class="text-surface-600 hover:text-surface-300"
           aria-label="Close workflow details"
         >
@@ -402,13 +402,13 @@
       <!-- Action Buttons -->
       <div class="mt-6 flex justify-end space-x-3">
         <button 
-          on:click={() => { showDetails = false; selectedWorkflow = null; }}
+          onclick={() => { showDetails = false; selectedWorkflow = null; }}
           class="px-4 py-2 text-sm text-surface-600 bg-surface-100 hover:bg-surface-200 rounded"
         >
           Close
         </button>
         <button 
-          on:click={() => { executeWorkflow(selectedWorkflow.workflow_id); showDetails = false; }}
+          onclick={() => { executeWorkflow(selectedWorkflow.workflow_id); showDetails = false; }}
           class="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded"
         >
           Execute This Workflow

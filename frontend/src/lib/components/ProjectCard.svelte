@@ -2,29 +2,33 @@
   import type { Project } from '$lib/services/dashboardService';
   import { createEventDispatcher } from 'svelte';
   
-  export let project: Project;
-  export let loading: boolean = false;
+  interface Props {
+    project: Project;
+    loading?: boolean;
+  }
+
+  let { project, loading = false }: Props = $props();
 
   const dispatch = createEventDispatcher();
 
-  $: statusColor = {
+  let statusColor = $derived({
     'planning': 'bg-yellow-100 text-yellow-800',
     'in-progress': 'bg-blue-100 text-blue-800',
     'review': 'bg-purple-100 text-purple-800',
     'completed': 'bg-green-100 text-green-800'
-  }[project.status] || 'bg-surface-100 text-surface-800';
+  }[project.status] || 'bg-surface-100 text-surface-800');
 
-  $: priorityColor = {
+  let priorityColor = $derived({
     'low': 'bg-surface-100 text-surface-800',
     'medium': 'bg-blue-100 text-blue-800',
     'high': 'bg-orange-100 text-orange-800',
     'critical': 'bg-red-100 text-red-800'
-  }[project.priority] || 'bg-surface-100 text-surface-800';
+  }[project.priority] || 'bg-surface-100 text-surface-800');
 
-  $: progressColor = project.progress >= 80 ? 'bg-green-500' : 
+  let progressColor = $derived(project.progress >= 80 ? 'bg-green-500' : 
                      project.progress >= 60 ? 'bg-blue-500' : 
                      project.progress >= 40 ? 'bg-yellow-500' : 
-                     'bg-red-500';
+                     'bg-red-500');
 
   function handleClick() {
     dispatch('click', { project });
@@ -50,11 +54,11 @@
 
 <div 
   class="rounded-xl border border-surface-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer {loading ? 'opacity-60' : ''}"
-  on:click={handleClick}
+  onclick={handleClick}
   role="button"
   tabindex="0"
   aria-label={loading ? 'Loading project card' : `Open project ${project.project_name || project.name}`}
-  on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick()}
+  onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick()}
 >
   <div class="flex items-start justify-between mb-4">
     <div class="flex-1">

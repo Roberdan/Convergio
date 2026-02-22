@@ -4,7 +4,12 @@
   "private": true,
   "description": "Root orchestrator for the Convergio project",
   "scripts": {
-    "comment": "Scripts will be added in the next steps"
+    "comment": "Scripts will be added in the next steps",
+    "prepare": "husky",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:seed": "prisma db seed"
   },
   "devDependencies": {
     "@types/supertest": "^6.0.3",
@@ -13,9 +18,20 @@
     "concurrently": "^8.0.0",
     "eslint": "^9.33.0",
     "eslint-plugin-security": "^3.0.1",
+    "husky": "^9.1.7",
     "jest": "^30.0.5",
     "prettier": "^3.0.0",
+    "prisma": "^7.4.1",
     "snyk": "^1.1298.2",
-    "supertest": "^7.1.4"
+    "supertest": "^7.1.4",
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.4.1",
+    "@prisma/client": "^7.4.1",
+    "pg": "^8.18.0"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

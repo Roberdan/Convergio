@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+set -e
+
+cd frontend && npm run check && npm test
+cd ../backend && pytest --tb=short -q

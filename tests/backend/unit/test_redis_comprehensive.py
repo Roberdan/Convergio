@@ -95,6 +95,29 @@ class TestRedisInitialization:
             decode_responses=True,
         )
 
+    @patch('redis.asyncio.from_url')
+    async def test_init_redis_uses_supabase_ca_cert_when_configured(self, mock_from_url):
+        """Test Redis client enables TLS CA cert when configured for production infra."""
+        mock_client = AsyncMock()
+        mock_client.ping.return_value = True
+        mock_from_url.return_value = mock_client
+
+        ca_cert_path = "/etc/ssl/certs/supabase-ca.crt"
+        with patch.dict(os.environ, {"SUPABASE_CA_CERT_PATH": ca_cert_path}, clear=False):
+            await init_redis()
+
+        from core.config import get_settings
+        settings = get_settings()
+
+        mock_from_url.assert_called_once_with(
+            settings.REDIS_URL,
+            max_connections=settings.REDIS_POOL_SIZE,
+            retry_on_timeout=True,
+            decode_responses=True,
+            ssl=True,
+            ssl_ca_certs=ca_cert_path,
+        )
+
 
 class TestRedisShutdown:
     """Test Redis shutdown process"""

@@ -26,10 +26,10 @@
 	} from '$lib/components/ui';
 
 	// Component showcase data
-	let showModal = false;
-	let inputValue = '';
-	let switchValue = false;
-	let checkboxValue = false;
+	let showModal = $state(false);
+	let inputValue = $state('');
+	let switchValue = $state(false);
+	let checkboxValue = $state(false);
 
 	let breadcrumbs = [
 		{ label: 'Documentation', href: '/docs' },
@@ -83,14 +83,16 @@
 		subtitle="Interactive examples of all design system components"
 		{breadcrumbs}
 	>
-		<svelte:fragment slot="actions">
-			<Button variant="outline" on:click={() => window.location.href = '/design-system-test'}>
-				View Test Page
-			</Button>
-			<Button variant="primary">
-				Get Started
-			</Button>
-		</svelte:fragment>
+		{#snippet actions()}
+			
+				<Button variant="outline" on:click={() => window.location.href = '/design-system-test'}>
+					View Test Page
+				</Button>
+				<Button variant="primary">
+					Get Started
+				</Button>
+			
+			{/snippet}
 	</PageHeader>
 
 	<!-- Component Sections -->
@@ -196,15 +198,19 @@
 						</Card>
 						
 						<StructuredCard>
-							<svelte:fragment slot="header">
-								<h4 class="font-semibold">Structured Card</h4>
-							</svelte:fragment>
+							{#snippet header()}
+													
+									<h4 class="font-semibold">Structured Card</h4>
+								
+													{/snippet}
 							<p class="text-sm text-gray-600">
 								Cards can have structured headers and footers.
 							</p>
-							<svelte:fragment slot="footer">
-								<Button size="sm" variant="outline">Action</Button>
-							</svelte:fragment>
+							{#snippet footer()}
+													
+									<Button size="sm" variant="outline">Action</Button>
+								
+													{/snippet}
 						</StructuredCard>
 					</div>
 				</div>
@@ -305,23 +311,27 @@
 						title="Revenue Overview"
 						subtitle="Monthly revenue trends for the past 6 months"
 					>
-						<svelte:fragment slot="default">
-							<div class="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-								<p class="text-gray-500">Chart component placeholder</p>
-							</div>
-						</svelte:fragment>
-						<svelte:fragment slot="legend">
-							<div class="flex items-center gap-4">
-								<div class="flex items-center gap-2">
-									<div class="w-3 h-3 bg-primary-500 rounded"></div>
-									<span class="text-sm">Current Period</span>
+						{#snippet children()}
+											
+								<div class="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+									<p class="text-gray-500">Chart component placeholder</p>
 								</div>
-								<div class="flex items-center gap-2">
-									<div class="w-3 h-3 bg-gray-400 rounded"></div>
-									<span class="text-sm">Previous Period</span>
+							
+											{/snippet}
+						{#snippet legend()}
+											
+								<div class="flex items-center gap-4">
+									<div class="flex items-center gap-2">
+										<div class="w-3 h-3 bg-primary-500 rounded"></div>
+										<span class="text-sm">Current Period</span>
+									</div>
+									<div class="flex items-center gap-2">
+										<div class="w-3 h-3 bg-gray-400 rounded"></div>
+										<span class="text-sm">Previous Period</span>
+									</div>
 								</div>
-							</div>
-						</svelte:fragment>
+							
+											{/snippet}
 					</ChartCard>
 				</div>
 			</div>
@@ -424,14 +434,16 @@
 			You can press Escape to close this modal or click the backdrop.
 		</p>
 		
-		<svelte:fragment slot="footer">
-			<Button variant="outline" on:click={() => showModal = false}>
-				Cancel
-			</Button>
-			<Button variant="primary" on:click={() => showModal = false}>
-				Confirm
-			</Button>
-		</svelte:fragment>
+		{#snippet footer()}
+			
+				<Button variant="outline" on:click={() => showModal = false}>
+					Cancel
+				</Button>
+				<Button variant="primary" on:click={() => showModal = false}>
+					Confirm
+				</Button>
+			
+			{/snippet}
 	</Modal>
 </div>
 

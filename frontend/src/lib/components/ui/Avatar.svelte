@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { HTMLAttributes } from 'svelte/elements';
+	
 
-	interface $$Props extends HTMLAttributes<HTMLDivElement> {
+	interface Props {
 		src?: string;
 		alt?: string;
 		size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
@@ -9,66 +9,70 @@
 		fallback?: string;
 		squared?: boolean;
 		bordered?: boolean;
+		[key: string]: any
 	}
 
-	export let src: $$Props['src'] = '';
-	export let alt: $$Props['alt'] = '';
-	export let size: NonNullable<$$Props['size']> = 'md';
-	export let status: $$Props['status'] = null;
-	export let fallback: $$Props['fallback'] = '';
-	export let squared: $$Props['squared'] = false;
-	export let bordered: $$Props['bordered'] = false;
+	let {
+		src = '',
+		alt = '',
+		size = 'md',
+		status = null,
+		fallback = '',
+		squared = false,
+		bordered = false,
+		...rest
+	}: Props = $props();
 
-	let imageError = false;
+	let imageError = $state(false);
 
 	// Compute CSS classes
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		xs: 'avatar-xs',
 		sm: 'avatar-sm', 
 		md: 'avatar-md',
 		lg: 'avatar-lg',
 		xl: 'avatar-xl',
 		'2xl': 'avatar-2xl'
-	};
+	});
 
-	$: statusClasses = {
+	let statusClasses = $derived({
 		online: 'avatar-status',
 		offline: 'avatar-status offline',
 		away: 'avatar-status away',
 		busy: 'avatar-status busy'
-	};
+	});
 
-	$: classes = [
+	let classes = $derived([
 		'avatar',
 		sizeClasses[size],
 		status ? statusClasses[status] : '',
 		squared ? 'rounded-lg' : '', // Override rounded-full from base avatar
 		bordered ? 'ring-4 ring-white' : '',
 		'relative overflow-hidden bg-gray-100'
-	].filter(Boolean).join(' ');
+	].filter(Boolean).join(' '));
 
 	// Generate initials from fallback text
-	$: initials = fallback
+	let initials = $derived(fallback
 		? fallback
 				.split(' ')
 				.map(word => word.charAt(0))
 				.join('')
 				.toUpperCase()
 				.slice(0, 2)
-		: '';
+		: '');
 
 	function handleImageError() {
 		imageError = true;
 	}
 </script>
 
-<div class={classes} {...$$restProps}>
+<div class={classes} {...rest}>
 	{#if src && !imageError}
 		<img
 			{src}
 			{alt}
 			class="w-full h-full object-cover"
-			on:error={handleImageError}
+			onerror={handleImageError}
 		/>
 	{:else if initials}
 		<div class="avatar-fallback w-full h-full flex items-center justify-center">

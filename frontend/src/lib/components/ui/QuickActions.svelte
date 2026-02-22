@@ -15,7 +15,9 @@
 		keyboard?: string; // Keyboard shortcut
 	}
 
-	interface $$Props {
+	
+
+	interface Props {
 		actions: QuickAction[];
 		position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'center';
 		layout?: 'vertical' | 'horizontal' | 'grid';
@@ -26,56 +28,58 @@
 		maxVisible?: number;
 	}
 
-	export let actions: $$Props['actions'];
-	export let position: NonNullable<$$Props['position']> = 'bottom-right';
-	export let layout: NonNullable<$$Props['layout']> = 'vertical';
-	export let size: NonNullable<$$Props['size']> = 'md';
-	export let expandDirection: NonNullable<$$Props['expandDirection']> = 'up';
-	export let trigger: NonNullable<$$Props['trigger']> = 'hover';
-	export let mainAction: $$Props['mainAction'] = undefined;
-	export let maxVisible: $$Props['maxVisible'] = undefined;
+	let {
+		actions,
+		position = 'bottom-right',
+		layout = 'vertical',
+		size = 'md',
+		expandDirection = 'up',
+		trigger = 'hover',
+		mainAction = undefined,
+		maxVisible = undefined
+	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
 		action: { action: QuickAction };
 		mainAction: { action: QuickAction };
 	}>();
 
-	let isExpanded = trigger === 'always';
+	let isExpanded = $state(trigger === 'always');
 
 	// Compute visible actions
-	$: visibleActions = maxVisible ? actions.slice(0, maxVisible) : actions;
-	$: hasMoreActions = maxVisible && actions.length > maxVisible;
+	let visibleActions = $derived(maxVisible ? actions.slice(0, maxVisible) : actions);
+	let hasMoreActions = $derived(maxVisible && actions.length > maxVisible);
 
 	// Position classes
-	$: positionClasses = {
+	let positionClasses = $derived({
 		'bottom-right': 'fixed bottom-6 right-6',
 		'bottom-left': 'fixed bottom-6 left-6',
 		'top-right': 'fixed top-6 right-6', 
 		'top-left': 'fixed top-6 left-6',
 		'center': 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
-	}[position];
+	}[position]);
 
 	// Layout classes
-	$: layoutClasses = {
+	let layoutClasses = $derived({
 		vertical: 'flex-col',
 		horizontal: 'flex-row',
 		grid: 'grid grid-cols-2 gap-2'
-	}[layout];
+	}[layout]);
 
 	// Size classes
-	$: sizeClasses = {
+	let sizeClasses = $derived({
 		sm: 'w-10 h-10',
 		md: 'w-12 h-12', 
 		lg: 'w-14 h-14'
-	}[size];
+	}[size]);
 
 	// Expand direction classes
-	$: expandClasses = {
+	let expandClasses = $derived({
 		up: 'flex-col-reverse',
 		down: 'flex-col',
 		left: 'flex-row-reverse',
 		right: 'flex-row'
-	}[expandDirection];
+	}[expandDirection]);
 
 	function handleMainAction() {
 		if (mainAction) {
@@ -123,14 +127,14 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <div
 	class="quick-actions {positionClasses}"
 	role="group"
 	aria-label="Quick actions menu"
-	on:mouseenter={handleMouseEnter}
-	on:mouseleave={handleMouseLeave}
+	onmouseenter={handleMouseEnter}
+	onmouseleave={handleMouseLeave}
 >
 	<div class="actions-container flex gap-3 {layout === 'grid' ? '' : expandClasses} {layoutClasses}">
 		<!-- Main Action Button (FAB) -->
@@ -139,7 +143,7 @@
 				type="button"
 				class="main-action-btn {sizeClasses}"
 				class:expanded={isExpanded}
-				on:click={handleMainAction}
+				onclick={handleMainAction}
 				aria-label={mainAction?.label || 'Toggle quick actions'}
 				aria-expanded={isExpanded}
 				title={mainAction?.label || 'Quick actions'}
@@ -165,7 +169,7 @@
 					<button
 						type="button"
 						class="action-btn {sizeClasses} {action.disabled ? 'disabled' : ''} variant-{action.variant || 'secondary'}"
-						on:click={() => handleAction(action)}
+						onclick={() => handleAction(action)}
 						disabled={action.disabled}
 						aria-label={action.label}
 						title="{action.label}{action.keyboard ? ` (${action.keyboard})` : ''}"

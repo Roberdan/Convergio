@@ -147,7 +147,7 @@
           {$costData.status}
         </span>
         <button 
-          on:click={fetchCostData}
+          onclick={fetchCostData}
           class="px-3 py-1 bg-white/20 hover:bg-white/30 text-white font-bold rounded transition-colors"
         >
           Refresh

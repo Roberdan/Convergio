@@ -3,8 +3,12 @@
   import { writable } from 'svelte/store';
   import { notify } from '$lib/stores/notifications';
   
-  export let refreshInterval: number = 5000; // 5 seconds
-  export let wsEndpoint: string = 'ws://localhost:9000/ws/metrics';
+  interface Props {
+    refreshInterval?: number; // 5 seconds
+    wsEndpoint?: string;
+  }
+
+  let { refreshInterval = 5000, wsEndpoint = 'ws://localhost:9000/ws/metrics' }: Props = $props();
   
   interface Metric {
     id: string;
@@ -53,9 +57,9 @@
   }
   
   let ws: WebSocket | null = null;
-  let isConnected = false;
-  let lastUpdate = new Date();
-  let autoRefresh = true;
+  let isConnected = $state(false);
+  let lastUpdate = $state(new Date());
+  let autoRefresh = $state(true);
   let refreshTimer: NodeJS.Timeout;
   
   // Metrics stores
@@ -94,12 +98,12 @@
   let customMetrics = writable<Metric[]>([]);
   
   // Chart data
-  let chartData = {
+  let chartData = $state({
     cpu: Array(20).fill(0),
     memory: Array(20).fill(0),
     requests: Array(20).fill(0),
     responseTime: Array(20).fill(0)
-  };
+  });
   
   function connectWebSocket() {
     if (ws) {
@@ -298,13 +302,13 @@
       <button 
         class="refresh-toggle"
         class:active={autoRefresh}
-        on:click={toggleAutoRefresh}
+        onclick={toggleAutoRefresh}
       >
         {autoRefresh ? '⏸️ Pause' : '▶️ Resume'} Auto-refresh
       </button>
       <button 
         class="manual-refresh"
-        on:click={fetchMetrics}
+        onclick={fetchMetrics}
         disabled={isConnected}
       >
         🔄 Refresh

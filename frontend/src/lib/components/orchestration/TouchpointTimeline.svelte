@@ -3,9 +3,13 @@
   import { Card, Badge, Button } from '$lib/components/ui';
   import { slide } from 'svelte/transition';
   
-  export let touchpoints: any[] = [];
-  export let orchestrationId: string = '';
-  export let compact: boolean = false;
+  interface Props {
+    touchpoints?: any[];
+    orchestrationId?: string;
+    compact?: boolean;
+  }
+
+  let { touchpoints = [], orchestrationId = '', compact = false }: Props = $props();
   
   interface Touchpoint {
     id: string;
@@ -24,19 +28,19 @@
     related_stage?: string;
   }
   
-  let allTouchpoints: Touchpoint[] = [];
-  let loading = false;
-  let selectedTouchpoint: string | null = null;
-  let filterType = 'all';
-  let sortBy: 'date' | 'satisfaction' | 'impact' = 'date';
-  let showCreateForm = false;
-  let newTouchpoint = {
+  let allTouchpoints: Touchpoint[] = $state([]);
+  let loading = $state(false);
+  let selectedTouchpoint: string | null = $state(null);
+  let filterType = $state('all');
+  let sortBy: 'date' | 'satisfaction' | 'impact' = $state('date');
+  let showCreateForm = $state(false);
+  let newTouchpoint = $state({
     touchpoint_type: 'client_checkin',
     title: '',
     summary: '',
     participants: [],
     duration_minutes: 30
-  };
+  });
   
   const touchpointTypes = [
     { id: 'all', label: 'All Types', icon: '📋', color: 'gray' },
@@ -264,7 +268,7 @@
     };
   }
   
-  $: filteredAndSortedTouchpoints = sortTouchpoints(filterTouchpoints(allTouchpoints, filterType), sortBy);
+  let filteredAndSortedTouchpoints = $derived(sortTouchpoints(filterTouchpoints(allTouchpoints, filterType), sortBy));
 </script>
 
 <!-- Touchpoint Timeline -->
@@ -318,7 +322,7 @@
       <div class="bg-surface-50  rounded-lg p-4 mb-4" transition:slide>
         <div class="flex items-center justify-between mb-3">
           <h4 class="font-medium text-surface-900 ">Create New Touchpoint</h4>
-          <button on:click={() => showCreateForm = false} class="text-surface-400 hover:text-surface-600">✕</button>
+          <button onclick={() => showCreateForm = false} class="text-surface-400 hover:text-surface-600">✕</button>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -492,7 +496,7 @@
                 <!-- Expand button -->
                 {#if !compact}
                   <button
-                    on:click={() => selectedTouchpoint = selectedTouchpoint === touchpoint.id ? null : touchpoint.id}
+                    onclick={() => selectedTouchpoint = selectedTouchpoint === touchpoint.id ? null : touchpoint.id}
                     class="text-surface-400 hover:text-surface-600 p-1"
                   >
                     {selectedTouchpoint === touchpoint.id ? '▲' : '▼'}
