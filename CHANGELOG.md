@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.0] - 2026-02-22
 
+### Release Highlights
+- **Platform Launch**: Public landing page, legal compliance, and production-ready deployment.
+- **Cloud Integration**: Vercel, Azure Container Apps, Supabase PostgreSQL, Upstash Redis, GitHub Actions workflows.
+- **Observability & Compliance**: Sentry, OpenTelemetry, Prometheus, Grafana, structured logging, audit trail, GDPR/AI Policy docs.
+- **Team Management**: Team API, invite system, waitlist, workforce/admin pages.
+- **Admin & Billing**: Admin middleware/pages, Stripe integration, tier enforcement, billing dashboard.
+- **Security & Auth**: Session-based auth, security headers, CSRF, rate limiting, frontend auth guard.
+- **Framework Upgrades**: Agent Framework 1.0 RC, Svelte 5 migration, TypeScript fixes.
+- **Database**: Prisma ORM, initial migration, seed script, SQLAlchemy models.
+- **DX Alignment**: Unified developer experience, CLAUDE.md, rules, skills docs.
+- **Repo Hardening**: Husky hooks, secret scanning, .editorconfig, strict .gitignore.
+- **CI/CD Workflows**: Frontend/backend jobs, caching, test continue-on-error, weekly security audit.
+- **Linting**: Strict ESLint, expanded Ruff, lint-staged integration.
+- **Conventions**: Project conventions, quick start docs, bash permissions.
+- **Fixes**: Lint and CI issues from prior versions.
+- **Security**: Weekly security audit workflow.
+
+---
+
 ### W8: Platform Launch & Compliance
 - Landing page with hero, features, pricing, waitlist CTA
 - Legal pages (privacy, terms, cookies)
@@ -59,7 +78,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Removed 8 deprecated SvelteKit config options
 
 ### W1: Database Schema & Prisma Migration
-
 - Added: Prisma ORM with full database schema (Tier, Team, Invite, Session, etc.)
 - Added: Initial migration applied to PostgreSQL (convergio_db)
 - Added: Seed script for default tiers (Trial: 10 agents/50 convos, Pro: unlimited)

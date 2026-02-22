@@ -77,6 +77,7 @@ def mock_ollama_tool_response():
 @pytest.fixture
 def test_client():
     """Create a test client for the FastAPI app."""
+    pytest.importorskip("slowapi")
     from fastapi.testclient import TestClient
     from src.main import app
     return TestClient(app)
@@ -94,21 +95,25 @@ class TestAgentChatE2E:
         """B1: Simple chat completion through provider router."""
         from src.core.provider_router import ProviderRouter, ChatMessage, reset_provider_router
         from src.core.ai_providers import AIConfig, ProviderMode, AIProvider
+        from src.core.ollama_service import OllamaStatus
 
         config = AIConfig(mode=ProviderMode.OLLAMA_ONLY)
         reset_provider_router()
         router = ProviderRouter(config)
 
-        with patch.object(router._ollama, 'chat', new_callable=AsyncMock) as mock_chat:
-            mock_chat.return_value = mock_ollama_response
+        with patch.object(router._ollama, 'health_check', new_callable=AsyncMock) as mock_health:
+            mock_health.return_value = OllamaStatus(available=True, version="0.4.0")
 
-            response = await router.chat_completion(
-                messages=[ChatMessage(role="user", content="Hello!")],
-            )
+            with patch.object(router._ollama, 'chat', new_callable=AsyncMock) as mock_chat:
+                mock_chat.return_value = mock_ollama_response
 
-            assert response.provider == AIProvider.OLLAMA
-            assert "Hello" in response.content or "assistant" in response.content.lower()
-            assert response.cost_usd == 0.0
+                response = await router.chat_completion(
+                    messages=[ChatMessage(role="user", content="Hello!")],
+                )
+
+                assert response.provider == AIProvider.OLLAMA
+                assert "Hello" in response.content or "assistant" in response.content.lower()
+                assert response.cost_usd == 0.0
 
     @pytest.mark.asyncio
     async def test_multi_turn_conversation(self, mock_ollama_response):

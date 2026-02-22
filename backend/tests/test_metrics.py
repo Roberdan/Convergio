@@ -29,9 +29,10 @@ def test_metrics_module_exposes_expected_metric_instances():
 def test_metrics_have_expected_prometheus_names():
     from core import metrics
 
-    assert metrics.requests_total._name == "convergio_requests_total"
-    assert metrics.agent_invocations_total._name == "convergio_agent_invocations_total"
-    assert metrics.errors_total._name == "convergio_errors_total"
+    # Prometheus Counter strips the "_total" suffix on the internal _name.
+    assert metrics.requests_total._name == "convergio_requests"
+    assert metrics.agent_invocations_total._name == "convergio_agent_invocations"
+    assert metrics.errors_total._name == "convergio_errors"
     assert metrics.response_time_seconds._name == "convergio_response_time_seconds"
     assert metrics.agent_latency_seconds._name == "convergio_agent_latency_seconds"
     assert metrics.active_users._name == "convergio_active_users"
