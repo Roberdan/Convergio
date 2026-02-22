@@ -1,4 +1,38 @@
 # Changelog
+
+## [4.0.0] - 2026-02-22
+
+### 🚀 **Major Release: Production-Ready Enterprise SaaS**
+
+Complete platform upgrade with Prisma ORM, Svelte 5, session-based auth, admin dashboard, billing, teams, observability, compliance, and production deployment infrastructure.
+
+#### Waves Completed
+- **W0**: Foundation, Hardening & DX Alignment
+- **W1**: Database Schema & Prisma Migration
+- **W2**: Framework Upgrades — Agent Framework 1.0 RC + Svelte 5
+- **W3**: Authentication & Security — HMAC-SHA256 session auth, CORS, CSRF, rate limiting
+- **W4**: Admin Dashboard & Billing — Stripe, tier enforcement
+- **W5**: Teams, Invites & Unified Workforce
+- **W6**: Observability & Compliance — Sentry, OpenTelemetry, Prometheus, GDPR
+- **W7**: Production Deployment — Vercel, Azure, Supabase, Upstash
+- **W8**: Landing Page, Legal & Documentation
+- **WF**: Closure — ADRs, test consolidation
+
+#### Key Features
+- Session-based auth with HMAC-SHA256 signed cookies
+- Stripe billing with tier enforcement (Trial/Pro)
+- Teams with human+agent unified workforce
+- Full observability stack (Sentry, OpenTelemetry, Prometheus, Grafana)
+- GDPR/EU AI Act compliance documentation
+- Production deployment (Vercel fra1 + Azure Container Apps)
+
+#### ADRs
+- ADR-001: Migration to Agent Framework
+- ADR-002: Agent Framework 1.0 Upgrade
+- ADR-003: Session Auth with HMAC-SHA256
+- ADR-004: Prisma + SQLAlchemy Dual ORM
+- ADR-005: Svelte 5 Migration Approach
+
 ## [3.0.224] - 2025-12-28
 
 ### 🔄 **Build Update**
