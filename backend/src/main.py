@@ -58,6 +58,7 @@ from .api.projects import router as projects_router
 from .api.system_status import router as system_status_router
 from .api.telemetry import router as telemetry_router
 from .api.governance import router as governance_router
+from .api.compliance import router as compliance_router
 from .api.pm_orchestration import router as pm_orchestration_router
 from .api.realtime_endpoints import router as realtime_router
 from .api.ai_settings import router as ai_settings_router
@@ -405,6 +406,7 @@ def create_app() -> FastAPI:
     
     # Governance System (Rate limiting, SLO monitoring, Runbooks for M5)
     app.include_router(governance_router, prefix="/api/v1/governance", tags=["Governance"])
+    app.include_router(compliance_router, tags=["Compliance"])
     
     # PM Orchestration System (AI-orchestrated project management)
     app.include_router(pm_orchestration_router, tags=["PM Orchestration"])

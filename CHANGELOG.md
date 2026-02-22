@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### W6: Observability, Compliance & Audit
+- Added: Sentry integration for backend and frontend (error tracking, release tagging, user context)
+- Added: OpenTelemetry instrumentation with Grafana Cloud OTLP export (traces, spans, service map)
+- Added: Prometheus metrics (counters, histograms, gauges) and Grafana dashboard for real-time monitoring
+- Added: Structured logging with PII sanitization and correlation IDs (backend, frontend)
+- Added: Compliance audit trail (audit_service, compliance API endpoint, event logging)
+- Docs: Compliance documentation (GDPR, AI Policy, DPIA)
+
 ### W5: Team Management, Invites & Waitlist
 - Added: Team API (create, list, detail, add members with human/agent types)
 - Added: Invite system (send/accept/reject, resend email for humans, instant for agents)

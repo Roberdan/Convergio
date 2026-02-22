@@ -5,13 +5,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.admin import require_admin
 from ..core.database import get_db_session
+from ..services.audit_service import log_admin_action
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 
@@ -25,8 +26,9 @@ class AdminUserUpdateRequest(BaseModel):
 async def list_users(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    request: Request | None = None,
     db: AsyncSession = Depends(get_db_session),
-    _: dict[str, Any] = Depends(require_admin),
+    admin_user: dict[str, Any] = Depends(require_admin),
 ) -> dict[str, Any]:
     offset = (page - 1) * page_size
     count_result = await db.execute(text('SELECT COUNT(*) AS count FROM talents WHERE deleted_at IS NULL'))
@@ -45,6 +47,16 @@ async def list_users(
         {"limit": page_size, "offset": offset},
     )
     users = [dict(row) for row in users_result.mappings().all()]
+    await log_admin_action(
+        db=db,
+        action="user.listed",
+        entity_type="user",
+        entity_id="*",
+        admin_id=str(admin_user.get("email") or admin_user.get("id")),
+        details={"severity": "low", "page": page, "page_size": page_size},
+        ip=request.client.host if request and request.client else None,
+    )
+    await db.commit()
     return {
         "users": users,
         "pagination": {
@@ -60,6 +72,7 @@ async def list_users(
 async def update_user(
     user_id: int,
     payload: AdminUserUpdateRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db_session),
     admin_user: dict[str, Any] = Depends(require_admin),
 ) -> dict[str, Any]:
@@ -84,18 +97,14 @@ async def update_user(
     if not updated:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    await db.execute(
-        text(
-            """
-            INSERT INTO "AdminAuditLog" ("action", "actor", "payload")
-            VALUES (:action, :actor, :payload)
-            """
-        ),
-        {
-            "action": "user.updated",
-            "actor": str(admin_user.get("email") or admin_user.get("id")),
-            "payload": {"entity": "user", "entity_id": str(user_id), "changes": update_data},
-        },
+    await log_admin_action(
+        db=db,
+        action="user.updated",
+        entity_type="user",
+        entity_id=str(user_id),
+        admin_id=str(admin_user.get("email") or admin_user.get("id")),
+        details={"severity": "medium", "changes": update_data},
+        ip=request.client.host if request.client else None,
     )
     await db.commit()
     return dict(updated)
@@ -104,6 +113,7 @@ async def update_user(
 @router.delete("/users/{user_id}")
 async def soft_delete_user(
     user_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db_session),
     admin_user: dict[str, Any] = Depends(require_admin),
 ) -> dict[str, str]:
@@ -122,18 +132,14 @@ async def soft_delete_user(
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    await db.execute(
-        text(
-            """
-            INSERT INTO "AdminAuditLog" ("action", "actor", "payload")
-            VALUES (:action, :actor, :payload)
-            """
-        ),
-        {
-            "action": "user.deleted",
-            "actor": str(admin_user.get("email") or admin_user.get("id")),
-            "payload": {"entity": "user", "entity_id": str(user_id)},
-        },
+    await log_admin_action(
+        db=db,
+        action="user.deleted",
+        entity_type="user",
+        entity_id=str(user_id),
+        admin_id=str(admin_user.get("email") or admin_user.get("id")),
+        details={"severity": "high"},
+        ip=request.client.host if request.client else None,
     )
     await db.commit()
     return {"message": "User deleted"}
@@ -147,8 +153,9 @@ async def get_audit_log(
     entity: str | None = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    request: Request | None = None,
     db: AsyncSession = Depends(get_db_session),
-    _: dict[str, Any] = Depends(require_admin),
+    admin_user: dict[str, Any] = Depends(require_admin),
 ) -> dict[str, Any]:
     where_clauses: list[str] = ["1=1"]
     params: dict[str, Any] = {"limit": page_size, "offset": (page - 1) * page_size}
@@ -162,8 +169,8 @@ async def get_audit_log(
         where_clauses.append('"action" = :action')
         params["action"] = action
     if entity:
-        where_clauses.append('COALESCE(CAST("payload" AS TEXT), \'\') LIKE :entity_like')
-        params["entity_like"] = f'%\"entity\": \"{entity}\"%'
+        where_clauses.append('COALESCE("payload"->>\'entity_type\', \'\') = :entity')
+        params["entity"] = entity
 
     result = await db.execute(
         text(
@@ -178,4 +185,14 @@ async def get_audit_log(
         params,
     )
     entries = [dict(row) for row in result.mappings().all()]
+    await log_admin_action(
+        db=db,
+        action="audit-log.viewed",
+        entity_type="audit-log",
+        entity_id="*",
+        admin_id=str(admin_user.get("email") or admin_user.get("id")),
+        details={"severity": "low", "filters": {"action": action, "entity": entity}},
+        ip=request.client.host if request and request.client else None,
+    )
+    await db.commit()
     return {"entries": entries, "page": page, "page_size": page_size}
