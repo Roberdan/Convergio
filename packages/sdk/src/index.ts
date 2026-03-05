@@ -9,3 +9,5 @@ export interface ProviderConfig {
   type: string;
   apiKeyEnvVar: string;
 }
+
+export * from './agent-schema/index.js';
