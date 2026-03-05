@@ -534,6 +534,28 @@ LOG_LEVEL=INFO
 
 ---
 
+## Convergio vs Squad
+
+[Squad](https://github.com/bradygaster/squad) by Brady Gaster is a multi-agent CLI tool for GitHub Copilot. Convergio is a full-stack AI orchestration platform. They don't compete directly — different scope, different audience.
+
+| | Convergio | Squad |
+|---|-----------|-------|
+| **Type** | Full-stack platform (FastAPI + SvelteKit + PostgreSQL) | CLI tool for GitHub Copilot |
+| **Agents** | 50+ domain specialists (CEO, CFO, Architect, Security, PM...) | ~20 technical roles (Lead, Dev, Tester, DevRel...) |
+| **AI Framework** | Microsoft Agent Framework + multi-provider (Ollama/Azure/OpenAI/Anthropic) | @github/copilot-sdk |
+| **Orchestration** | UnifiedOrchestrator (routing, groupchat, swarm, workflow, RAG, safety gates) | Router + SessionPool + EventBus |
+| **Frontend** | SvelteKit UI with dashboards | CLI-only |
+| **Cost control** | Ollama-first ($0), per-agent provider override, circuit breaker | Model fallback chains |
+| **Identity** | Named agents with domain expertise | Casting system — agents named from movie universes |
+
+**Where Squad innovates:** Agent identity persistence and knowledge compounding across sessions. The casting system makes agents memorable and their accumulated `history.md` creates genuine learning. Convergio could adopt this pattern for its agent definitions.
+
+**Where Convergio leads:** Full platform with UI, multi-provider flexibility (run 100% local with Ollama), enterprise orchestration patterns (circuit breaker, RAG, safety gates), and 50+ agents covering business domains beyond engineering.
+
+Convergio competes with LangChain, CrewAI, and AutoGen. Squad competes with developer workflow tools like Claude Code configurations.
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
