@@ -1,4 +1,8 @@
 import { defineConfig } from 'tsup';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json') as { version: string };
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -7,7 +11,7 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   target: 'node20',
-  banner: {
-    js: '#!/usr/bin/env node',
+  define: {
+    __CLI_VERSION__: JSON.stringify(pkg.version),
   },
 });

@@ -195,8 +195,19 @@ function validateOptionalStringArray(
     errors.push(`${field} must be an array`);
     return;
   }
-  // tools can contain objects or strings, skip strict string check for tools
-  if (field === 'tools') return;
+  if (field === 'tools') {
+    for (const item of def[field] as unknown[]) {
+      const isString = typeof item === 'string';
+      const isNamedObject =
+        typeof item === 'object' &&
+        item !== null &&
+        !Array.isArray(item) &&
+        typeof (item as Record<string, unknown>).name === 'string' &&
+        ((item as Record<string, unknown>).name as string).length > 0;
+      pushIf(errors, !isString && !isNamedObject, 'Each tool must be a string or an object with a non-empty string "name"');
+    }
+    return;
+  }
   for (const item of def[field] as unknown[]) {
     pushIf(errors, typeof item !== 'string', `Each item in ${field} must be a string`);
   }

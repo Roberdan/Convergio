@@ -1,12 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const SCHEMA_DIR = resolve(__dirname, '../src/agent-schema');
 
 describe('agent-schema types', () => {
   it('exports AgentDefinition interface', async () => {
-    const mod = await import('../src/agent-schema/index.js');
+    const mod = await import('../src/agent-schema/index');
     expect(mod).toHaveProperty('AgentTier');
     expect(mod).toHaveProperty('AgentCategory');
     expect(mod).toHaveProperty('AgentStatus');
@@ -70,13 +72,13 @@ describe('agent-schema JSON schema', () => {
 
 describe('agent-schema validator', () => {
   it('exports validateAgentDefinition function', async () => {
-    const mod = await import('../src/agent-schema/index.js');
+    const mod = await import('../src/agent-schema/index');
     expect(typeof mod.validateAgentDefinition).toBe('function');
   });
 
   it('validates a correct agent definition', async () => {
     const { validateAgentDefinition } = await import(
-      '../src/agent-schema/index.js'
+      '../src/agent-schema/index'
     );
     const valid = {
       agent_id: 'test_agent',
@@ -100,7 +102,7 @@ describe('agent-schema validator', () => {
 
   it('rejects missing required fields', async () => {
     const { validateAgentDefinition } = await import(
-      '../src/agent-schema/index.js'
+      '../src/agent-schema/index'
     );
     const invalid = {
       name: 'Incomplete Agent',
@@ -112,7 +114,7 @@ describe('agent-schema validator', () => {
 
   it('rejects invalid agent_id pattern', async () => {
     const { validateAgentDefinition } = await import(
-      '../src/agent-schema/index.js'
+      '../src/agent-schema/index'
     );
     const invalid = {
       agent_id: 'INVALID-ID',
@@ -133,7 +135,7 @@ describe('agent-schema validator', () => {
 
   it('rejects invalid tier value', async () => {
     const { validateAgentDefinition } = await import(
-      '../src/agent-schema/index.js'
+      '../src/agent-schema/index'
     );
     const invalid = {
       agent_id: 'test_agent',
@@ -152,7 +154,7 @@ describe('agent-schema validator', () => {
 
   it('rejects invalid provider value', async () => {
     const { validateAgentDefinition } = await import(
-      '../src/agent-schema/index.js'
+      '../src/agent-schema/index'
     );
     const invalid = {
       agent_id: 'test_agent',
@@ -174,7 +176,7 @@ describe('agent-schema validator', () => {
 
   it('rejects temperature out of range', async () => {
     const { validateAgentDefinition } = await import(
-      '../src/agent-schema/index.js'
+      '../src/agent-schema/index'
     );
     const invalid = {
       agent_id: 'test_agent',
@@ -196,7 +198,7 @@ describe('agent-schema validator', () => {
 
   it('rejects empty capabilities array', async () => {
     const { validateAgentDefinition } = await import(
-      '../src/agent-schema/index.js'
+      '../src/agent-schema/index'
     );
     const invalid = {
       agent_id: 'test_agent',
@@ -217,7 +219,7 @@ describe('agent-schema validator', () => {
 
   it('accepts minimal valid definition (required fields only)', async () => {
     const { validateAgentDefinition } = await import(
-      '../src/agent-schema/index.js'
+      '../src/agent-schema/index'
     );
     const minimal = {
       agent_id: 'minimal_agent',
@@ -237,13 +239,13 @@ describe('agent-schema validator', () => {
 
 describe('agent-schema index exports', () => {
   it('exports schema as JSON object', async () => {
-    const mod = await import('../src/agent-schema/index.js');
+    const mod = await import('../src/agent-schema/index');
     expect(mod.agentSchema).toBeDefined();
     expect(mod.agentSchema.title).toBe('Convergio Agent Definition');
   });
 
   it('exports validation result type-guard', async () => {
-    const mod = await import('../src/agent-schema/index.js');
+    const mod = await import('../src/agent-schema/index');
     expect(typeof mod.validateAgentDefinition).toBe('function');
   });
 });

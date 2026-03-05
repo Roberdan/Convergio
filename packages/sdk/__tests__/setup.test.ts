@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const SDK_ROOT = resolve(__dirname, '..');
 const MONOREPO_ROOT = resolve(SDK_ROOT, '../..');
 

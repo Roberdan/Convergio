@@ -7,7 +7,7 @@
  * Usage: npx tsx scripts/sync-claude-agents.ts [--dry-run]
  */
 
-import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, unlinkSync } from "fs";
 import { join, basename } from "path";
 
 const DEFINITIONS_DIR = join(
@@ -155,6 +155,14 @@ function main(): void {
     (f) => f.endsWith(".md") && !SKIP_FILES.includes(f)
   );
 
+  // Collect existing agent files before writing so stale ones can be removed
+  const existingAgentFiles = new Set<string>(
+    existsSync(OUTPUT_DIR)
+      ? readdirSync(OUTPUT_DIR).filter((f) => f.endsWith(".md"))
+      : []
+  );
+  const writtenFiles = new Set<string>();
+
   let created = 0;
   let skipped = 0;
 
@@ -171,6 +179,7 @@ function main(): void {
     const body = content.replace(/^---\n[\s\S]*?\n---\n/, "");
     const output = generateAgentMd(fm, body);
     const outFile = join(OUTPUT_DIR, `${fm.name}.md`);
+    const outBasename = `${fm.name}.md`;
 
     if (DRY_RUN) {
       console.log(`DRY-RUN: would write ${basename(outFile)} (${output.length} bytes)`);
@@ -178,10 +187,25 @@ function main(): void {
       writeFileSync(outFile, output, "utf-8");
       console.log(`WRITE ${basename(outFile)}`);
     }
+    writtenFiles.add(outBasename);
     created++;
   }
 
-  console.log(`\nDone: ${created} agents generated, ${skipped} skipped`);
+  // Remove stale agent files that no longer have a corresponding definition
+  let removed = 0;
+  for (const existing of existingAgentFiles) {
+    if (!writtenFiles.has(existing)) {
+      if (DRY_RUN) {
+        console.log(`DRY-RUN: would remove stale ${existing}`);
+      } else {
+        unlinkSync(join(OUTPUT_DIR, existing));
+        console.log(`REMOVE stale ${existing}`);
+      }
+      removed++;
+    }
+  }
+
+  console.log(`\nDone: ${created} agents generated, ${skipped} skipped, ${removed} stale removed`);
 }
 
 main();
