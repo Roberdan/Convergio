@@ -12,7 +12,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -20,13 +22,17 @@
     "lint": "eslint src/"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "eslint": "^9.33.0",
     "tsup": "^8.4.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.2.0",
-    "eslint": "^9.33.0"
+    "vitest": "^3.2.0"
   },
   "engines": {
     "node": ">=20"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.1"
+  }
 }

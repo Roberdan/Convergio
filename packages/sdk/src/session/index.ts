@@ -13,6 +13,6 @@ export { SessionState, MessageRole, VALID_TRANSITIONS } from './types.js';
 
 export type { PersistenceAdapter } from './persistence/types.js';
 export { MemoryAdapter } from './persistence/memory.js';
-export { SqliteAdapter } from './persistence/sqlite.js';
+export { FileAdapter, FileAdapter as SqliteAdapter } from './persistence/sqlite.js';
 export { PostgresAdapter } from './persistence/postgres.js';
 export type { PostgresConfig } from './persistence/postgres.js';

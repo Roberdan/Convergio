@@ -14,8 +14,8 @@ export interface PostgresConfig {
 
 /**
  * PostgreSQL adapter for enterprise deployments (C-09).
- * TODO: Implement actual pg connection when @convergio/postgres package is added.
- * Currently provides the interface contract for enterprise integrations.
+ * Intentional stub: actual pg connection is deferred until @convergio/postgres
+ * package is added in a future wave. All methods throw a clear error.
  */
 export class PostgresAdapter implements PersistenceAdapter {
   private readonly config: PostgresConfig;

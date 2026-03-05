@@ -8,8 +8,13 @@ interface SqliteStore {
   checkpoints: Record<string, SessionCheckpoint[]>;
 }
 
-/** File-based JSON persistence adapter for CLI local mode (C-09: SQLite for CLI) */
-export class SqliteAdapter implements PersistenceAdapter {
+/**
+ * File-based JSON persistence adapter for CLI local mode (C-09).
+ * Persists sessions to a JSON file so state survives process restarts.
+ * Named FileAdapter to accurately reflect its implementation (JSON, not SQLite).
+ * @deprecated Use `SqliteAdapter` alias for backwards compatibility.
+ */
+export class FileAdapter implements PersistenceAdapter {
   private readonly filePath: string;
 
   constructor(filePath: string) {
@@ -94,3 +99,6 @@ export class SqliteAdapter implements PersistenceAdapter {
     }
   }
 }
+
+/** @deprecated Use FileAdapter instead */
+export { FileAdapter as SqliteAdapter };
