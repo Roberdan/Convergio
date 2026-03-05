@@ -1,0 +1,20 @@
+# Minimal test dependencies (no psycopg2/PostgreSQL required)
+anyio==4.12.1
+bcrypt>=4.0.0
+fastapi>=0.116.0
+httpx>=0.28.0
+opentelemetry-api>=1.40.0
+opentelemetry-exporter-otlp-proto-http>=1.40.0
+opentelemetry-instrumentation-fastapi>=0.61b0
+opentelemetry-sdk>=1.40.0
+passlib>=1.7.4
+prometheus_client>=0.24.0
+pydantic>=2.11.0
+pydantic-settings>=2.10.0
+pytest>=9.0.0
+pytest-asyncio>=1.0.0
+python-dotenv>=1.0.0
+python-jose>=3.5.0
+redis>=6.0.0
+SQLAlchemy[asyncio]>=2.0.0
+structlog>=25.0.0

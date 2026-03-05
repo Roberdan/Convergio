@@ -1,0 +1,37 @@
+{
+  "title": "Convergio Overview",
+  "uid": "convergio-overview",
+  "version": 1,
+  "panels": [
+    {
+      "title": "Request Rate",
+      "type": "timeseries",
+      "targets": [{"expr": "rate(convergio_requests_total[5m])"}]
+    },
+    {
+      "title": "Error Rate",
+      "type": "timeseries",
+      "targets": [{"expr": "rate(convergio_errors_total[5m])"}]
+    },
+    {
+      "title": "Response Time (p95)",
+      "type": "timeseries",
+      "targets": [{"expr": "histogram_quantile(0.95, rate(convergio_response_time_seconds_bucket[5m]))"}]
+    },
+    {
+      "title": "Agent Latency (p95)",
+      "type": "timeseries",
+      "targets": [{"expr": "histogram_quantile(0.95, rate(convergio_agent_latency_seconds_bucket[5m]))"}]
+    },
+    {
+      "title": "Active Users",
+      "type": "stat",
+      "targets": [{"expr": "convergio_active_users"}]
+    },
+    {
+      "title": "Active Agents",
+      "type": "stat",
+      "targets": [{"expr": "convergio_active_agents"}]
+    }
+  ]
+}
