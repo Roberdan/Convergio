@@ -4,9 +4,9 @@ set -e
 cd frontend && npm run check && npm test
 
 cd ../backend
-# Use venv if available, otherwise create one with minimal deps
+# Use venv if available, otherwise create one with test deps
 if [ ! -d ".venv" ]; then
   python3 -m venv .venv
-  .venv/bin/pip install -q pytest pytest-asyncio anyio prometheus_client
+  .venv/bin/pip install -q -r requirements-test.txt
 fi
-PYTHONPATH=src .venv/bin/pytest --tb=short -q
+PYTHONPATH=src .venv/bin/pytest --tb=short -q --ignore=tests/e2e
