@@ -454,9 +454,11 @@ dev-debug.log
 *.sw?
 # OS specific
 
-# IDE stuff (allow .claude/agents/ for release manager)
+# IDE stuff (allow .claude/agents/, settings.json, config/ for project config)
 .claude/*
 !.claude/agents/
+!.claude/settings.json
+!.claude/config/
 
 # Unused
 .github/instructions/
