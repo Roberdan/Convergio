@@ -1,0 +1,11 @@
+
+agent_id: yaml-agent
+name: yaml-agent
+description: A YAML-defined agent
+tools:
+  - database-query
+  - web-search
+system_prompt: You are a YAML agent.
+capabilities:
+  - search
+  - query
