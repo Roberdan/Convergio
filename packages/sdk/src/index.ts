@@ -11,3 +11,4 @@ export interface ProviderConfig {
 }
 
 export * from './agent-schema/index.js';
+export * from './session/index.js';
