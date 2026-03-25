@@ -1,0 +1,3079 @@
+openapi: '3.1.0'
+info:
+  title: Convergio Platform Daemon API
+  version: 18.0.0
+  description: |
+    Control plane API for the Convergio Platform daemon.
+    Manages plans, agents, mesh, IPC, workspaces, evolution, and more.
+  license:
+    name: MPL-2.0
+    url: https://www.mozilla.org/en-US/MPL/2.0/
+  contact:
+    name: Convergio Platform
+    url: https://github.com/Roberdan/convergio
+
+servers:
+  - url: http://localhost:8420
+    description: Local daemon
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Token from ~/.convergio/auth/daemon.token
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        code: { type: string }
+
+    HealthStatus:
+      type: object
+      properties:
+        ok: { type: boolean }
+        version: { type: string }
+        uptime_secs: { type: integer }
+
+    DeepHealthStatus:
+      type: object
+      properties:
+        ok: { type: boolean }
+        db: { type: string }
+        mesh: { type: string }
+        ipc: { type: string }
+        checks: { type: object, additionalProperties: { type: string } }
+
+    Repository:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        path: { type: string }
+        remote_url: { type: string }
+        branch: { type: string }
+        last_synced: { type: string, format: date-time }
+
+    Idea:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        body: { type: string }
+        status: { type: string, enum: [raw, promoted, archived] }
+        created_at: { type: string, format: date-time }
+        tags: { type: array, items: { type: string } }
+
+    Note:
+      type: object
+      properties:
+        id: { type: string }
+        idea_id: { type: string }
+        content: { type: string }
+        created_at: { type: string, format: date-time }
+
+    Agent:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type: { type: string }
+        status: { type: string, enum: [active, idle, blocked] }
+        task_id: { type: string, nullable: true }
+        started_at: { type: string, format: date-time }
+
+    Plan:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        status: { type: string, enum: [todo, doing, done, cancelled] }
+        project_id: { type: string }
+        created_at: { type: string, format: date-time }
+
+    Task:
+      type: object
+      properties:
+        id: { type: integer }
+        plan_id: { type: integer }
+        title: { type: string }
+        status: { type: string, enum: [pending, in_progress, submitted, done, blocked, skipped, cancelled] }
+        wave: { type: string }
+        assigned_to: { type: string, nullable: true }
+
+    Peer:
+      type: object
+      properties:
+        name: { type: string }
+        host: { type: string }
+        port: { type: integer }
+        status: { type: string, enum: [online, offline, degraded] }
+        last_seen: { type: string, format: date-time }
+
+    MeshStatus:
+      type: object
+      properties:
+        node_id: { type: string }
+        peers: { type: integer }
+        sync_lag_ms: { type: integer }
+        status: { type: string }
+
+    TokenUsage:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        total_tokens: { type: integer }
+        by_model: { type: object, additionalProperties: { type: integer } }
+
+    Notification:
+      type: object
+      properties:
+        id: { type: string }
+        type: { type: string }
+        message: { type: string }
+        read: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    NightlyJob:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        status: { type: string }
+        last_run: { type: string, format: date-time, nullable: true }
+        next_run: { type: string, format: date-time, nullable: true }
+
+    ChatSession:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        model: { type: string }
+        created_at: { type: string, format: date-time }
+
+    WorkspaceInfo:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        path: { type: string }
+        branch: { type: string }
+        status: { type: string }
+
+    Run:
+      type: object
+      properties:
+        id: { type: string }
+        plan_id: { type: integer }
+        status: { type: string, enum: [running, paused, done, failed] }
+        started_at: { type: string, format: date-time }
+        tokens_used: { type: integer }
+
+    EvolutionProposal:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        status: { type: string, enum: [pending, approved, rejected] }
+        roi_estimate: { type: number }
+        created_at: { type: string, format: date-time }
+
+    IpcMessage:
+      type: object
+      properties:
+        type: { type: string }
+        task_id: { type: string, nullable: true }
+        agent: { type: string }
+        summary: { type: string }
+        timestamp: { type: string, format: date-time }
+
+    OkResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        rows_changed: { type: integer }
+
+paths:
+  # Health
+  /api/health:
+    get:
+      summary: Basic health check
+      operationId: getHealth
+      security: []
+      tags: [Health]
+      responses:
+        '200':
+          description: Daemon is running
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthStatus' }
+
+  /api/health/deep:
+    get:
+      summary: Deep health check (DB, mesh, IPC)
+      operationId: getHealthDeep
+      tags: [Health]
+      responses:
+        '200':
+          description: Full subsystem health
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeepHealthStatus' }
+
+  # Repositories (W4)
+  /api/repositories:
+    get:
+      summary: List tracked repositories
+      operationId: listRepositories
+      tags: [Repositories]
+      responses:
+        '200':
+          description: Repository list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Repository' }
+
+  # Ideas
+  /api/ideas:
+    get:
+      summary: List ideas
+      operationId: listIdeas
+      tags: [Ideas]
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [raw, promoted, archived] }
+        - name: tag
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Ideas list
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Idea' } }
+    post:
+      summary: Create idea
+      operationId: createIdea
+      tags: [Ideas]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string }
+                body: { type: string }
+                tags: { type: array, items: { type: string } }
+      responses:
+        '201':
+          description: Idea created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Idea' }
+
+  /api/ideas/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      summary: Get idea by ID
+      operationId: getIdea
+      tags: [Ideas]
+      responses:
+        '200':
+          description: Idea detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Idea' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    put:
+      summary: Update idea
+      operationId: updateIdea
+      tags: [Ideas]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                body: { type: string }
+                status: { type: string }
+      responses:
+        '200':
+          description: Updated idea
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Idea' }
+    delete:
+      summary: Delete idea
+      operationId: deleteIdea
+      tags: [Ideas]
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/ideas/{id}/notes:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      summary: List notes for idea
+      operationId: listIdeaNotes
+      tags: [Ideas]
+      responses:
+        '200':
+          description: Notes
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Note' } }
+    post:
+      summary: Add note to idea
+      operationId: createIdeaNote
+      tags: [Ideas]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string }
+      responses:
+        '201':
+          description: Note created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Note' }
+
+  /api/ideas/{id}/promote:
+    post:
+      summary: Promote idea to plan
+      operationId: promoteIdea
+      tags: [Ideas]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Promoted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Overview
+  /api/overview:
+    get:
+      summary: Dashboard overview KPIs
+      operationId: getOverview
+      tags: [Dashboard]
+      responses:
+        '200':
+          description: Overview data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active_plans: { type: integer }
+                  active_agents: { type: integer }
+                  tokens_today: { type: integer }
+                  mesh_peers: { type: integer }
+
+  /api/mission:
+    get:
+      summary: Current mission statement
+      operationId: getMission
+      tags: [Dashboard]
+      responses:
+        '200':
+          description: Mission
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mission: { type: string }
+                  updated_at: { type: string, format: date-time }
+
+  /api/history:
+    get:
+      summary: Execution history
+      operationId: getHistory
+      tags: [Dashboard]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: History entries
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  # Tokens
+  /api/tokens/daily:
+    get:
+      summary: Daily token usage
+      operationId: getTokensDaily
+      tags: [Tokens]
+      parameters:
+        - name: days
+          in: query
+          schema: { type: integer, default: 7 }
+      responses:
+        '200':
+          description: Token usage by day
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/TokenUsage' } }
+
+  /api/tokens/models:
+    get:
+      summary: Token usage by model
+      operationId: getTokensByModel
+      tags: [Tokens]
+      responses:
+        '200':
+          description: Per-model token stats
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: { type: integer } }
+
+  # Agents
+  /api/agents:
+    get:
+      summary: List active agents
+      operationId: listAgents
+      tags: [Agents]
+      responses:
+        '200':
+          description: Agent list
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Agent' } }
+
+  /api/agents/catalog:
+    get:
+      summary: Agent capability catalog
+      operationId: getAgentCatalog
+      tags: [Agents]
+      responses:
+        '200':
+          description: Catalog entries
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/agents/sync:
+    post:
+      summary: Sync agent registry
+      operationId: syncAgents
+      tags: [Agents]
+      responses:
+        '200':
+          description: Synced
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/agents/enable:
+    post:
+      summary: Enable agent
+      operationId: enableAgent
+      tags: [Agents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+      responses:
+        '200':
+          description: Enabled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/agents/disable:
+    post:
+      summary: Disable agent
+      operationId: disableAgent
+      tags: [Agents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+      responses:
+        '200':
+          description: Disabled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/agents/create:
+    post:
+      summary: Create new agent session
+      operationId: createAgent
+      tags: [Agents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, type]
+              properties:
+                name: { type: string }
+                type: { type: string }
+                task_id: { type: string }
+      responses:
+        '201':
+          description: Agent created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Agent' }
+
+  /api/agents/triage:
+    post:
+      summary: Triage agent routing
+      operationId: triageAgent
+      tags: [Agents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task: { type: string }
+                context: { type: object }
+      responses:
+        '200':
+          description: Triage result
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/agents/scaffold:
+    post:
+      summary: Scaffold new agent definition
+      operationId: scaffoldAgent
+      tags: [Agents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, type]
+              properties:
+                name: { type: string }
+                type: { type: string }
+      responses:
+        '200':
+          description: Scaffold result
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Mesh
+  /api/mesh:
+    get:
+      summary: Mesh overview
+      operationId: getMesh
+      tags: [Mesh]
+      responses:
+        '200':
+          description: Mesh status
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeshStatus' }
+
+  /api/mesh/logs:
+    get:
+      summary: Mesh logs
+      operationId: getMeshLogs
+      tags: [Mesh]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 100 }
+      responses:
+        '200':
+          description: Log entries
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/mesh/metrics:
+    get:
+      summary: Mesh metrics
+      operationId: getMeshMetrics
+      tags: [Mesh]
+      responses:
+        '200':
+          description: Metrics snapshot
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/mesh/sync-stats:
+    get:
+      summary: Mesh sync statistics
+      operationId: getMeshSyncStats
+      tags: [Mesh]
+      responses:
+        '200':
+          description: Sync stats
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/mesh/sync-status:
+    get:
+      summary: Mesh sync status
+      operationId: getMeshSyncStatus
+      tags: [Mesh]
+      responses:
+        '200':
+          description: Sync status
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/mesh/traffic:
+    get:
+      summary: Mesh traffic stats
+      operationId: getMeshTraffic
+      tags: [Mesh]
+      responses:
+        '200':
+          description: Traffic data
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/mesh/provision:
+    get:
+      summary: Mesh provision status
+      operationId: getMeshProvision
+      tags: [Mesh]
+      responses:
+        '200':
+          description: Provision info
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/mesh/topology:
+    get:
+      summary: Mesh topology graph
+      operationId: getMeshTopology
+      tags: [Mesh]
+      responses:
+        '200':
+          description: Topology
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/mesh/ping/{peer}:
+    get:
+      summary: Ping mesh peer
+      operationId: pingMeshPeer
+      tags: [Mesh]
+      parameters:
+        - name: peer
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Ping result
+          content:
+            application/json:
+              schema: { type: object, properties: { ok: { type: boolean }, latency_ms: { type: integer } } }
+
+  /api/mesh/diagnostics:
+    get:
+      summary: Mesh diagnostics
+      operationId: getMeshDiagnostics
+      tags: [Mesh]
+      responses:
+        '200':
+          description: Diagnostics
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/mesh/init:
+    post:
+      summary: Initialize mesh node
+      operationId: initMesh
+      tags: [Mesh]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                node_id: { type: string }
+                peers: { type: array, items: { type: string } }
+      responses:
+        '200':
+          description: Initialized
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/mesh/exec:
+    post:
+      summary: Execute command on mesh node
+      operationId: meshExec
+      tags: [Mesh]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [peer, command]
+              properties:
+                peer: { type: string }
+                command: { type: string }
+                args: { type: array, items: { type: string } }
+      responses:
+        '200':
+          description: Exec result
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/mesh/delegate:
+    post:
+      summary: Delegate task to mesh peer
+      operationId: meshDelegate
+      tags: [Mesh]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [peer, task_id]
+              properties:
+                peer: { type: string }
+                task_id: { type: string }
+                payload: { type: object }
+      responses:
+        '200':
+          description: Delegation accepted
+          content:
+            application/json:
+              schema: { type: object, properties: { delegation_id: { type: string } } }
+
+  /api/mesh/delegate/{id}/cancel:
+    post:
+      summary: Cancel mesh delegation
+      operationId: cancelMeshDelegate
+      tags: [Mesh]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Cancelled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Peers
+  /api/peers:
+    get:
+      summary: List peers
+      operationId: listPeers
+      tags: [Peers]
+      responses:
+        '200':
+          description: Peer list
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Peer' } }
+    post:
+      summary: Add peer
+      operationId: addPeer
+      tags: [Peers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, host]
+              properties:
+                name: { type: string }
+                host: { type: string }
+                port: { type: integer, default: 8420 }
+      responses:
+        '201':
+          description: Peer added
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Peer' }
+
+  /api/peers/{name}:
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema: { type: string }
+    put:
+      summary: Update peer
+      operationId: updatePeer
+      tags: [Peers]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                host: { type: string }
+                port: { type: integer }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Peer' }
+    delete:
+      summary: Remove peer
+      operationId: removePeer
+      tags: [Peers]
+      responses:
+        '200':
+          description: Removed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/peers/discover:
+    get:
+      summary: Discover peers on network
+      operationId: discoverPeers
+      tags: [Peers]
+      responses:
+        '200':
+          description: Discovered peers
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Peer' } }
+
+  /api/peers/coordinator:
+    get:
+      summary: Get coordinator peer
+      operationId: getCoordinatorPeer
+      tags: [Peers]
+      responses:
+        '200':
+          description: Coordinator info
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Peer' }
+
+  /api/peers/ssh-check:
+    post:
+      summary: Check SSH connectivity to peer
+      operationId: sshCheckPeer
+      tags: [Peers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [host]
+              properties:
+                host: { type: string }
+                port: { type: integer, default: 22 }
+      responses:
+        '200':
+          description: SSH check result
+          content:
+            application/json:
+              schema: { type: object, properties: { ok: { type: boolean }, latency_ms: { type: integer } } }
+
+  # Projects
+  /api/projects:
+    get:
+      summary: List projects
+      operationId: listProjects
+      tags: [Projects]
+      responses:
+        '200':
+          description: Project list
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+    post:
+      summary: Create project
+      operationId: createProject
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                path: { type: string }
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/project/{id}/tree:
+    get:
+      summary: Project file tree
+      operationId: getProjectTree
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: File tree
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-status:
+    post:
+      summary: Update plan status
+      operationId: updatePlanStatus
+      tags: [Plans]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_id, status]
+              properties:
+                plan_id: { type: integer }
+                status: { type: string }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plans/{plan_id}/validate:
+    post:
+      summary: Validate plan
+      operationId: validatePlan
+      tags: [Plans]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Tasks
+  /api/tasks/distribution:
+    get:
+      summary: Task distribution across waves
+      operationId: getTaskDistribution
+      tags: [Tasks]
+      responses:
+        '200':
+          description: Distribution data
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/tasks/blocked:
+    get:
+      summary: List blocked tasks
+      operationId: getBlockedTasks
+      tags: [Tasks]
+      responses:
+        '200':
+          description: Blocked tasks
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Task' } }
+
+  /api/plans/assignable:
+    get:
+      summary: Plans available for assignment
+      operationId: getAssignablePlans
+      tags: [Plans]
+      responses:
+        '200':
+          description: Assignable plans
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Plan' } }
+
+  # Notifications
+  /api/notifications:
+    get:
+      summary: List notifications
+      operationId: listNotifications
+      tags: [Notifications]
+      responses:
+        '200':
+          description: Notifications
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+
+  /api/notify:
+    post:
+      summary: Send notification
+      operationId: sendNotification
+      tags: [Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, message]
+              properties:
+                type: { type: string }
+                message: { type: string }
+      responses:
+        '200':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/notify/queue:
+    get:
+      summary: Notification queue
+      operationId: getNotifyQueue
+      tags: [Notifications]
+      responses:
+        '200':
+          description: Queued notifications
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+
+  /api/notify/deliver:
+    post:
+      summary: Deliver notification
+      operationId: deliverNotification
+      tags: [Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: string }
+      responses:
+        '200':
+          description: Delivered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Nightly jobs
+  /api/nightly/jobs:
+    get:
+      summary: List nightly jobs
+      operationId: listNightlyJobs
+      tags: [Nightly]
+      responses:
+        '200':
+          description: Job list
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/NightlyJob' } }
+
+  /api/nightly/jobs/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      summary: Get nightly job
+      operationId: getNightlyJob
+      tags: [Nightly]
+      responses:
+        '200':
+          description: Job detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NightlyJob' }
+
+  /api/nightly/jobs/create:
+    post:
+      summary: Create nightly job
+      operationId: createNightlyJob
+      tags: [Nightly]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                schedule: { type: string }
+      responses:
+        '201':
+          description: Job created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NightlyJob' }
+
+  /api/nightly/jobs/trigger:
+    post:
+      summary: Trigger nightly job now
+      operationId: triggerNightlyJob
+      tags: [Nightly]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: string }
+      responses:
+        '200':
+          description: Triggered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/nightly/jobs/definitions/{id}/toggle:
+    post:
+      summary: Toggle nightly job definition
+      operationId: toggleNightlyJobDef
+      tags: [Nightly]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Toggled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/nightly/jobs/{id}/retry:
+    post:
+      summary: Retry nightly job
+      operationId: retryNightlyJob
+      tags: [Nightly]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Retried
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/nightly/config/{project_id}:
+    parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      summary: Get nightly config for project
+      operationId: getNightlyConfig
+      tags: [Nightly]
+      responses:
+        '200':
+          description: Config
+          content:
+            application/json:
+              schema: { type: object }
+    put:
+      summary: Update nightly config
+      operationId: updateNightlyConfig
+      tags: [Nightly]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Sessions / Chat
+  /api/sessions:
+    get:
+      summary: List agent sessions
+      operationId: listSessions
+      tags: [Sessions]
+      responses:
+        '200':
+          description: Sessions
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/chat/models:
+    get:
+      summary: Available chat models
+      operationId: getChatModels
+      tags: [Chat]
+      responses:
+        '200':
+          description: Model list
+          content:
+            application/json:
+              schema: { type: array, items: { type: string } }
+
+  /api/chat/sessions:
+    get:
+      summary: List chat sessions
+      operationId: listChatSessions
+      tags: [Chat]
+      responses:
+        '200':
+          description: Sessions
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/ChatSession' } }
+
+  /api/chat/session:
+    post:
+      summary: Create chat session
+      operationId: createChatSession
+      tags: [Chat]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model: { type: string }
+                title: { type: string }
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatSession' }
+    delete:
+      summary: Delete chat session
+      operationId: deleteChatSession
+      tags: [Chat]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id]
+              properties:
+                session_id: { type: string }
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/chat/message:
+    post:
+      summary: Send chat message
+      operationId: sendChatMessage
+      tags: [Chat]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id, content]
+              properties:
+                session_id: { type: string }
+                content: { type: string }
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/chat/requirement:
+    put:
+      summary: Update chat requirement
+      operationId: updateChatRequirement
+      tags: [Chat]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/chat/approve:
+    post:
+      summary: Approve chat action
+      operationId: approveChatAction
+      tags: [Chat]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id]
+              properties:
+                session_id: { type: string }
+      responses:
+        '200':
+          description: Approved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/chat/execute:
+    post:
+      summary: Execute chat command
+      operationId: executeChatCommand
+      tags: [Chat]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id, command]
+              properties:
+                session_id: { type: string }
+                command: { type: string }
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Coordinator
+  /api/coordinator/status:
+    get:
+      summary: Coordinator status
+      operationId: getCoordinatorStatus
+      tags: [Coordinator]
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/coordinator/toggle:
+    get:
+      summary: Toggle coordinator state
+      operationId: toggleCoordinator
+      tags: [Coordinator]
+      responses:
+        '200':
+          description: New state
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/coordinator/events:
+    get:
+      summary: Coordinator event log
+      operationId: getCoordinatorEvents
+      tags: [Coordinator]
+      responses:
+        '200':
+          description: Events
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/coordinator/emit:
+    post:
+      summary: Emit coordinator event
+      operationId: emitCoordinatorEvent
+      tags: [Coordinator]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type: { type: string }
+                payload: { type: object }
+      responses:
+        '200':
+          description: Emitted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/coordinator/process:
+    post:
+      summary: Process coordinator queue
+      operationId: processCoordinator
+      tags: [Coordinator]
+      responses:
+        '200':
+          description: Processed
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Optimize
+  /api/optimize/signals:
+    get:
+      summary: Optimization signals
+      operationId: getOptimizeSignals
+      tags: [Optimize]
+      responses:
+        '200':
+          description: Signals
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/optimize/clear:
+    post:
+      summary: Clear optimization signals
+      operationId: clearOptimizeSignals
+      tags: [Optimize]
+      responses:
+        '200':
+          description: Cleared
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # IPC
+  /api/ipc/agents:
+    get:
+      summary: IPC agent registry
+      operationId: getIpcAgents
+      tags: [IPC]
+      responses:
+        '200':
+          description: Agents
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Agent' } }
+
+  /api/ipc/messages:
+    get:
+      summary: IPC message queue
+      operationId: getIpcMessages
+      tags: [IPC]
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/IpcMessage' } }
+
+  /api/ipc/channels:
+    get:
+      summary: IPC channels
+      operationId: getIpcChannels
+      tags: [IPC]
+      responses:
+        '200':
+          description: Channels
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/ipc/context:
+    get:
+      summary: IPC shared context
+      operationId: getIpcContext
+      tags: [IPC]
+      responses:
+        '200':
+          description: Context
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/ipc/locks:
+    get:
+      summary: IPC lock registry
+      operationId: getIpcLocks
+      tags: [IPC]
+      responses:
+        '200':
+          description: Locks
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/ipc/worktrees:
+    get:
+      summary: IPC worktree registry
+      operationId: getIpcWorktrees
+      tags: [IPC]
+      responses:
+        '200':
+          description: Worktrees
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/ipc/conflicts:
+    get:
+      summary: IPC conflict registry
+      operationId: getIpcConflicts
+      tags: [IPC]
+      responses:
+        '200':
+          description: Conflicts
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/ipc/status:
+    get:
+      summary: IPC bus status
+      operationId: getIpcStatus
+      tags: [IPC]
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/ipc/budget:
+    get:
+      summary: IPC token budget
+      operationId: getIpcBudget
+      tags: [IPC]
+      responses:
+        '200':
+          description: Budget
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/ipc/models:
+    get:
+      summary: IPC model registry
+      operationId: getIpcModels
+      tags: [IPC]
+      responses:
+        '200':
+          description: Models
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/ipc/skills:
+    get:
+      summary: IPC skills registry
+      operationId: getIpcSkills
+      tags: [IPC]
+      responses:
+        '200':
+          description: Skills
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/ipc/auth-status:
+    get:
+      summary: IPC auth status
+      operationId: getIpcAuthStatus
+      tags: [IPC]
+      responses:
+        '200':
+          description: Auth status
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/ipc/route-history:
+    get:
+      summary: IPC routing history
+      operationId: getIpcRouteHistory
+      tags: [IPC]
+      responses:
+        '200':
+          description: Route history
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/ipc/send:
+    post:
+      summary: Send IPC message
+      operationId: sendIpcMessage
+      tags: [IPC]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/IpcMessage' }
+      responses:
+        '200':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Plan DB
+  /api/plan-db/list:
+    get:
+      summary: List plans in DB
+      operationId: planDbList
+      tags: [PlanDB]
+      responses:
+        '200':
+          description: Plans
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Plan' } }
+
+  /api/plan-db/context/{plan_id}:
+    get:
+      summary: Plan context
+      operationId: planDbContext
+      tags: [PlanDB]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Context
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-db/json/{plan_id}:
+    get:
+      summary: Plan as JSON
+      operationId: planDbJson
+      tags: [PlanDB]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Plan JSON
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-db/execution-tree/{plan_id}:
+    get:
+      summary: Plan execution tree
+      operationId: planDbExecutionTree
+      tags: [PlanDB]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Tree
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-db/drift-check/{plan_id}:
+    get:
+      summary: Plan drift check
+      operationId: planDbDriftCheck
+      tags: [PlanDB]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Drift report
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-db/validate-task/{task_id}/{plan_id}:
+    get:
+      summary: Validate task against plan
+      operationId: planDbValidateTask
+      tags: [PlanDB]
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-db/kb-search:
+    get:
+      summary: Knowledge base search
+      operationId: planDbKbSearch
+      tags: [PlanDB]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Results
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/plan-db/readiness/{plan_id}:
+    get:
+      summary: Plan readiness check
+      operationId: planDbReadiness
+      tags: [PlanDB]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Readiness
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-db/review/check:
+    get:
+      summary: Check plan review status
+      operationId: planDbReviewCheck
+      tags: [PlanDB]
+      responses:
+        '200':
+          description: Review status
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-db/checkpoint/restore:
+    get:
+      summary: Restore checkpoint
+      operationId: planDbCheckpointRestore
+      tags: [PlanDB]
+      responses:
+        '200':
+          description: Restored
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-db/task/update:
+    post:
+      summary: Update task status
+      operationId: planDbTaskUpdate
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [task_id, status]
+              properties:
+                task_id: { type: integer }
+                status: { type: string }
+                summary: { type: string }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/agent/start:
+    post:
+      summary: Register agent start
+      operationId: planDbAgentStart
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agent_id]
+              properties:
+                agent_id: { type: string }
+                task_id: { type: integer }
+      responses:
+        '200':
+          description: Registered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/agent/complete:
+    post:
+      summary: Register agent completion
+      operationId: planDbAgentComplete
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agent_id]
+              properties:
+                agent_id: { type: string }
+      responses:
+        '200':
+          description: Completed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/create:
+    post:
+      summary: Create plan in DB
+      operationId: planDbCreate
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, project_id]
+              properties:
+                name: { type: string }
+                project_id: { type: string }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Plan' }
+
+  /api/plan-db/start/{plan_id}:
+    post:
+      summary: Start plan execution
+      operationId: planDbStart
+      tags: [PlanDB]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/complete/{plan_id}:
+    post:
+      summary: Complete plan
+      operationId: planDbComplete
+      tags: [PlanDB]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Completed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/cancel/{plan_id}:
+    post:
+      summary: Cancel plan
+      operationId: planDbCancel
+      tags: [PlanDB]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Cancelled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/approve/{plan_id}:
+    post:
+      summary: Approve plan
+      operationId: planDbApprove
+      tags: [PlanDB]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Approved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/import:
+    post:
+      summary: Import plan from YAML/JSON
+      operationId: planDbImport
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_id, spec]
+              properties:
+                plan_id: { type: integer }
+                spec: { type: string, description: 'YAML or JSON plan spec' }
+      responses:
+        '200':
+          description: Imported
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/review/register:
+    post:
+      summary: Register plan review
+      operationId: planDbReviewRegister
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_id]
+              properties:
+                plan_id: { type: integer }
+                reviewer: { type: string }
+      responses:
+        '200':
+          description: Registered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/review/reset:
+    post:
+      summary: Reset plan review
+      operationId: planDbReviewReset
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_id]
+              properties:
+                plan_id: { type: integer }
+      responses:
+        '200':
+          description: Reset
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/checkpoint/save:
+    post:
+      summary: Save checkpoint
+      operationId: planDbCheckpointSave
+      tags: [PlanDB]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/kb-write:
+    post:
+      summary: Write to knowledge base
+      operationId: planDbKbWrite
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [key, value]
+              properties:
+                key: { type: string }
+                value: { type: string }
+                plan_id: { type: integer }
+      responses:
+        '200':
+          description: Written
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/plan-db/wave/create:
+    post:
+      summary: Create wave in plan
+      operationId: planDbWaveCreate
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_id, wave_code, title]
+              properties:
+                plan_id: { type: integer }
+                wave_code: { type: string }
+                title: { type: string }
+      responses:
+        '201':
+          description: Wave created
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/plan-db/wave/update:
+    post:
+      summary: Update wave status
+      operationId: planDbWaveUpdate
+      tags: [PlanDB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [wave_id, status]
+              properties:
+                wave_id: { type: integer }
+                status: { type: string }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Events
+  /api/events:
+    get:
+      summary: Platform event stream (polling)
+      operationId: getEvents
+      tags: [Events]
+      parameters:
+        - name: since
+          in: query
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Events
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  # GitHub
+  /api/github/repo/create:
+    post:
+      summary: Create GitHub repository
+      operationId: githubCreateRepo
+      tags: [GitHub]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                private: { type: boolean, default: false }
+                description: { type: string }
+      responses:
+        '201':
+          description: Repo created
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Heartbeat
+  /api/heartbeat:
+    post:
+      summary: Send heartbeat
+      operationId: sendHeartbeat
+      tags: [Heartbeat]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [node_id]
+              properties:
+                node_id: { type: string }
+                status: { type: string }
+      responses:
+        '200':
+          description: Acknowledged
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/heartbeat/status:
+    get:
+      summary: Heartbeat status
+      operationId: getHeartbeatStatus
+      tags: [Heartbeat]
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Watchdog
+  /api/watchdog/status:
+    get:
+      summary: Watchdog status
+      operationId: getWatchdogStatus
+      tags: [Watchdog]
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/watchdog/diagnostics:
+    get:
+      summary: Watchdog diagnostics
+      operationId: getWatchdogDiagnostics
+      tags: [Watchdog]
+      responses:
+        '200':
+          description: Diagnostics
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Workers
+  /api/workers:
+    get:
+      summary: List workers
+      operationId: listWorkers
+      tags: [Workers]
+      responses:
+        '200':
+          description: Workers
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/workers/status:
+    get:
+      summary: Workers status summary
+      operationId: getWorkersStatus
+      tags: [Workers]
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/workers/launch:
+    post:
+      summary: Launch worker
+      operationId: launchWorker
+      tags: [Workers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type: { type: string }
+                plan_id: { type: integer }
+                task_id: { type: integer }
+      responses:
+        '200':
+          description: Launched
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Evolution
+  /api/evolution/proposals:
+    get:
+      summary: List evolution proposals
+      operationId: listEvolutionProposals
+      tags: [Evolution]
+      responses:
+        '200':
+          description: Proposals
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/EvolutionProposal' } }
+
+  /api/evolution/experiments:
+    get:
+      summary: List evolution experiments
+      operationId: listEvolutionExperiments
+      tags: [Evolution]
+      responses:
+        '200':
+          description: Experiments
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/evolution/roi:
+    get:
+      summary: Evolution ROI metrics
+      operationId: getEvolutionRoi
+      tags: [Evolution]
+      responses:
+        '200':
+          description: ROI data
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/evolution/audit/{id}:
+    get:
+      summary: Evolution audit for proposal
+      operationId: getEvolutionAudit
+      tags: [Evolution]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Audit
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/evolution/proposals/{id}/approve:
+    post:
+      summary: Approve evolution proposal
+      operationId: approveEvolutionProposal
+      tags: [Evolution]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Approved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/evolution/proposals/{id}/reject:
+    post:
+      summary: Reject evolution proposal
+      operationId: rejectEvolutionProposal
+      tags: [Evolution]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Rejected
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Metrics
+  /api/metrics/run/{id}:
+    get:
+      summary: Metrics for run
+      operationId: getRunMetrics
+      tags: [Metrics]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Metrics
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/metrics/summary:
+    get:
+      summary: Metrics summary
+      operationId: getMetricsSummary
+      tags: [Metrics]
+      responses:
+        '200':
+          description: Summary
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/metrics/cost:
+    get:
+      summary: Cost metrics
+      operationId: getMetricsCost
+      tags: [Metrics]
+      responses:
+        '200':
+          description: Cost data
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Runs
+  /api/runs:
+    get:
+      summary: List runs
+      operationId: listRuns
+      tags: [Runs]
+      responses:
+        '200':
+          description: Runs
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Run' } }
+    post:
+      summary: Create run
+      operationId: createRun
+      tags: [Runs]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_id]
+              properties:
+                plan_id: { type: integer }
+      responses:
+        '201':
+          description: Run created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Run' }
+
+  /api/runs/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      summary: Get run
+      operationId: getRun
+      tags: [Runs]
+      responses:
+        '200':
+          description: Run
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Run' }
+    put:
+      summary: Update run
+      operationId: updateRun
+      tags: [Runs]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Run' }
+
+  /api/runs/{id}/pause:
+    post:
+      summary: Pause run
+      operationId: pauseRun
+      tags: [Runs]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Paused
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/runs/{id}/resume:
+    post:
+      summary: Resume run
+      operationId: resumeRun
+      tags: [Runs]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Resumed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Ingest
+  /api/ingest/formats:
+    get:
+      summary: Supported ingest formats
+      operationId: getIngestFormats
+      tags: [Ingest]
+      responses:
+        '200':
+          description: Formats
+          content:
+            application/json:
+              schema: { type: array, items: { type: string } }
+
+  /api/ingest:
+    post:
+      summary: Ingest data
+      operationId: ingestData
+      tags: [Ingest]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [format, data]
+              properties:
+                format: { type: string }
+                data: { type: object }
+      responses:
+        '200':
+          description: Ingested
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Audit
+  /api/audit/project/{project_id}:
+    get:
+      summary: Project audit report
+      operationId: getProjectAudit
+      tags: [Audit]
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Audit report
+          content:
+            application/json:
+              schema: { type: object }
+
+  # Domain
+  /api/domain/list:
+    get:
+      summary: List domain mappings
+      operationId: listDomains
+      tags: [Domain]
+      responses:
+        '200':
+          description: Domains
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/domain/map:
+    post:
+      summary: Map domain
+      operationId: mapDomain
+      tags: [Domain]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [domain, target]
+              properties:
+                domain: { type: string }
+                target: { type: string }
+      responses:
+        '200':
+          description: Mapped
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # CRDT
+  /api/crdt/status:
+    get:
+      summary: CRDT sync status
+      operationId: getCrdtStatus
+      tags: [CRDT]
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/crdt/peers:
+    get:
+      summary: CRDT peer list
+      operationId: getCrdtPeers
+      tags: [CRDT]
+      responses:
+        '200':
+          description: Peers
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/crdt/force-sync:
+    post:
+      summary: Force CRDT sync
+      operationId: crdtForceSync
+      tags: [CRDT]
+      responses:
+        '200':
+          description: Synced
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Workspace
+  /api/workspace/list:
+    get:
+      summary: List workspaces
+      operationId: listWorkspaces
+      tags: [Workspace]
+      responses:
+        '200':
+          description: Workspaces
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/WorkspaceInfo' } }
+
+  /api/workspace/status/{workspace_id}:
+    get:
+      summary: Workspace status
+      operationId: getWorkspaceStatus
+      tags: [Workspace]
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/workspace/events:
+    get:
+      summary: Workspace events
+      operationId: getWorkspaceEvents
+      tags: [Workspace]
+      responses:
+        '200':
+          description: Events
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/workspace/deliverables:
+    get:
+      summary: Workspace deliverables
+      operationId: getWorkspaceDeliverables
+      tags: [Workspace]
+      responses:
+        '200':
+          description: Deliverables
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+
+  /api/workspace/create:
+    post:
+      summary: Create workspace
+      operationId: createWorkspace
+      tags: [Workspace]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, plan_id]
+              properties:
+                name: { type: string }
+                plan_id: { type: integer }
+                wave: { type: string }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WorkspaceInfo' }
+
+  /api/workspace/delete:
+    post:
+      summary: Delete workspace
+      operationId: deleteWorkspace
+      tags: [Workspace]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workspace_id]
+              properties:
+                workspace_id: { type: string }
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/workspace/events/record:
+    post:
+      summary: Record workspace event
+      operationId: recordWorkspaceEvent
+      tags: [Workspace]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workspace_id, type]
+              properties:
+                workspace_id: { type: string }
+                type: { type: string }
+                payload: { type: object }
+      responses:
+        '200':
+          description: Recorded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/workspace/quality-gate:
+    post:
+      summary: Run workspace quality gate
+      operationId: workspaceQualityGate
+      tags: [Workspace]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workspace_id]
+              properties:
+                workspace_id: { type: string }
+      responses:
+        '200':
+          description: Gate result
+          content:
+            application/json:
+              schema: { type: object }
+
+  /api/workspace/release:
+    post:
+      summary: Release workspace
+      operationId: releaseWorkspace
+      tags: [Workspace]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workspace_id]
+              properties:
+                workspace_id: { type: string }
+      responses:
+        '200':
+          description: Released
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # Tracking
+  /api/tracking/tokens:
+    post:
+      summary: Track token usage
+      operationId: trackTokens
+      tags: [Tracking]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tokens, model]
+              properties:
+                tokens: { type: integer }
+                model: { type: string }
+                agent: { type: string }
+                task_id: { type: integer }
+      responses:
+        '200':
+          description: Tracked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/tracking/agent-activity:
+    post:
+      summary: Track agent activity
+      operationId: trackAgentActivity
+      tags: [Tracking]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agent_id, event]
+              properties:
+                agent_id: { type: string }
+                event: { type: string }
+                metadata: { type: object }
+      responses:
+        '200':
+          description: Tracked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/tracking/session-state:
+    post:
+      summary: Track session state
+      operationId: trackSessionState
+      tags: [Tracking]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id, state]
+              properties:
+                session_id: { type: string }
+                state: { type: string }
+      responses:
+        '200':
+          description: Tracked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  /api/tracking/compaction:
+    post:
+      summary: Track compaction event
+      operationId: trackCompaction
+      tags: [Tracking]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id]
+              properties:
+                session_id: { type: string }
+                tokens_saved: { type: integer }
+      responses:
+        '200':
+          description: Tracked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OkResponse' }
+
+  # SSE endpoints (documented separately)
+  /api/chat/stream/{sid}:
+    get:
+      summary: Chat stream (SSE)
+      operationId: chatStream
+      tags: [Chat, SSE]
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+
+  /api/mesh/action/stream:
+    get:
+      summary: Mesh action stream (SSE)
+      operationId: meshActionStream
+      tags: [Mesh, SSE]
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+
+  /api/plan/preflight:
+    get:
+      summary: Plan preflight check stream (SSE)
+      operationId: planPreflight
+      tags: [Plans, SSE]
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+
+  /api/plan/delegate:
+    get:
+      summary: Plan delegation stream (SSE)
+      operationId: planDelegate
+      tags: [Plans, SSE]
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+
+  /api/plan/start:
+    get:
+      summary: Plan start stream (SSE)
+      operationId: planStart
+      tags: [Plans, SSE]
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+
+  /api/mesh/fullsync:
+    get:
+      summary: Mesh full sync stream (SSE)
+      operationId: meshFullSync
+      tags: [Mesh, SSE]
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+
+  /api/mesh/pull-db:
+    get:
+      summary: Pull DB from mesh peer (SSE)
+      operationId: meshPullDb
+      tags: [Mesh, SSE]
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+
+tags:
+  - name: Health
+    description: Liveness and readiness checks
+  - name: Repositories
+    description: Tracked git repository management (W4)
+  - name: Ideas
+    description: Idea capture and promotion
+  - name: Dashboard
+    description: Overview KPIs and mission
+  - name: Tokens
+    description: Token usage tracking
+  - name: Agents
+    description: Agent lifecycle and catalog
+  - name: Mesh
+    description: P2P swarm mesh operations
+  - name: Peers
+    description: Peer node management
+  - name: Projects
+    description: Project management
+  - name: Plans
+    description: Plan lifecycle
+  - name: Tasks
+    description: Task queries
+  - name: PlanDB
+    description: Plan database CRUD and lifecycle
+  - name: Notifications
+    description: Notification system
+  - name: Nightly
+    description: Scheduled nightly jobs
+  - name: Chat
+    description: LLM chat interface
+  - name: Sessions
+    description: Agent session registry
+  - name: Coordinator
+    description: Swarm coordinator control
+  - name: Optimize
+    description: Optimization signals
+  - name: IPC
+    description: Inter-process communication bus
+  - name: Events
+    description: Platform event stream
+  - name: GitHub
+    description: GitHub integration
+  - name: Heartbeat
+    description: Node heartbeat
+  - name: Watchdog
+    description: Process watchdog
+  - name: Workers
+    description: Background worker management
+  - name: Evolution
+    description: Platform evolution engine
+  - name: Metrics
+    description: Run and cost metrics
+  - name: Runs
+    description: Execution run lifecycle
+  - name: Ingest
+    description: Data ingestion
+  - name: Audit
+    description: Project audit
+  - name: Domain
+    description: Domain mapping
+  - name: CRDT
+    description: Conflict-free replicated data type sync
+  - name: Workspace
+    description: Workspace lifecycle and quality gates
+  - name: Tracking
+    description: Telemetry tracking
+  - name: SSE
+    description: Server-sent event streams

@@ -1,0 +1,83 @@
+name: Cross-Repo CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'specs/openapi.yaml'
+      - 'docs/adr/**'
+      - 'CONSTITUTION.md'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  validate-openapi:
+    name: Validate OpenAPI Spec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install openapi validator
+        run: npm install -g @apidevtools/swagger-cli
+
+      - name: Validate OpenAPI spec
+        run: swagger-cli validate specs/openapi.yaml
+
+      - name: Check spec version matches
+        run: |
+          VERSION=$(grep 'version:' specs/openapi.yaml | head -1 | awk '{print $2}' | tr -d "'\"")
+          echo "Spec version: $VERSION"
+          echo "spec_version=$VERSION" >> "$GITHUB_ENV"
+
+  lint-adr:
+    name: Lint ADRs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check ADR format
+        run: |
+          for f in docs/adr/*.md; do
+            echo "Checking $f"
+            grep -q "^## Context" "$f" || (echo "FAIL: $f missing ## Context" && exit 1)
+            grep -q "^## Decision" "$f" || (echo "FAIL: $f missing ## Decision" && exit 1)
+            grep -q "^## Rationale" "$f" || (echo "FAIL: $f missing ## Rationale" && exit 1)
+            grep -q "^## Consequences" "$f" || (echo "FAIL: $f missing ## Consequences" && exit 1)
+          done
+          echo "All ADRs valid"
+
+  check-constitution:
+    name: Verify CONSTITUTION.md Present
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: CONSTITUTION.md must exist
+        run: test -f CONSTITUTION.md || (echo "FAIL: CONSTITUTION.md missing" && exit 1)
+
+      - name: LICENSE must exist
+        run: test -f LICENSE || (echo "FAIL: LICENSE missing" && exit 1)
+
+      - name: CLAUDE.md must exist
+        run: test -f CLAUDE.md || (echo "FAIL: CLAUDE.md missing" && exit 1)
+
+  notify-downstream:
+    name: Notify Downstream Repos
+    runs-on: ubuntu-latest
+    needs: [validate-openapi, lint-adr, check-constitution]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Summarize changes
+        run: |
+          echo "spec_version=${{ env.spec_version }}"
+          echo "Cross-repo CI passed. Downstream repos can consume updated specs."
