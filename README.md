@@ -1,6 +1,6 @@
 # Convergio — Business OS Ecosystem
 
-> Copyright (c) 2026 Roberto D'Angelo. MPL-2.0. Not affiliated with Microsoft.
+> Copyright (c) 2026 Roberto D'Angelo. Convergio Community License v1.3. Not affiliated with Microsoft.
 
 Convergio is a distributed, agent-first Business Operating System. This meta repository
 is the single source of truth for cross-repo specifications, ADRs, CI, and governance.
@@ -28,7 +28,7 @@ docs/
     cross-repo-ci.yaml  — Cross-repo integration checks
 CLAUDE.md               — Meta repo rules for AI agents
 CONSTITUTION.md         — Agent governance (single source of truth)
-LICENSE                 — MPL-2.0
+LICENSE                 — Convergio Community License v1.3
 ```
 
 ## Architecture
@@ -67,6 +67,30 @@ The Convergio daemon exposes a REST API documented at `specs/openapi.yaml`.
 All AI agents operating in this ecosystem are governed by `CONSTITUTION.md` (v3.0.0).
 Key principles: resilience, swarm intelligence, zero tech debt, transparency.
 
-## License
+## License & Mission
 
-MPL-2.0. See [LICENSE](./LICENSE).
+> **Convergio is free. The code is open. We trust you.**
+
+This project is released under the [Convergio Community License](./LICENSE).
+
+Use it to learn. Use it to build. Use it to grow your business.
+Fork it, modify it, redistribute it — the license travels with the code.
+
+If Convergio helps you, we ask one thing: **help someone who needs it** —
+consider a donation to [FightTheStroke Foundation](https://fightthestroke.org),
+a non-profit supporting children and families affected by pediatric stroke
+and cerebral palsy.
+
+**Always free, no questions asked, for:**
+- 🎓 Students
+- ♿ People with disabilities
+- 💚 Non-profit organizations
+
+**Want to go further?** We offer consulting, workshops, and speaking
+engagements — priced on the value we create together, not by the hour.
+→ [convergio.io](https://convergio.io)
+
+---
+
+*Built for solopreneurs who dare to build alone.*
+*If it helps you grow, help someone grow too.*
