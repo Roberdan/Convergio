@@ -11,6 +11,7 @@ set -euo pipefail
 OLD_DAEMON_API="http://localhost:8420"
 NEW_BINARY="./daemon/target/release/convergio"
 CONFIG_PATH="$HOME/.convergio/config.toml"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DRY_RUN=false
 
 [[ "${1:-}" == "--dry-run" ]] && DRY_RUN=true
@@ -38,15 +39,13 @@ fi
 # 2. Export critical data from old daemon
 log "=== Export from old daemon ==="
 
-EXPORT_DIR="$HOME/.convergio/cutover-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$EXPORT_DIR"
-
 if curl -sf "$OLD_DAEMON_API/api/health" >/dev/null 2>&1; then
-    curl -sf "$OLD_DAEMON_API/api/plan-db/list" > "$EXPORT_DIR/plans.json" 2>/dev/null || true
-    curl -sf "$OLD_DAEMON_API/api/ipc/agents" > "$EXPORT_DIR/agents.json" 2>/dev/null || true
-    curl -sf "$OLD_DAEMON_API/api/health" > "$EXPORT_DIR/health-old.json" 2>/dev/null || true
+    EXPORT_DIR=$("$SCRIPT_DIR/export-old-data.sh" \
+        --port 8420 | tail -1)
     log "Exported to $EXPORT_DIR"
 else
+    EXPORT_DIR="$HOME/.convergio/migration/export-none"
+    mkdir -p "$EXPORT_DIR"
     log "Skipping export (old daemon not reachable)"
 fi
 
@@ -98,9 +97,25 @@ for i in $(seq 1 10); do
     sleep 1
 done
 
-# 6. Verify
+# 6. Import data into new daemon
+log "=== Import data ==="
+if [ -d "$EXPORT_DIR" ] && [ -f "$EXPORT_DIR/plans.json" ]; then
+    "$SCRIPT_DIR/import-new-data.sh" "$EXPORT_DIR" \
+        --port 8420 || log "WARNING: import had errors"
+else
+    log "Skipping import (no export data)"
+fi
+
+# 7. Verify parity
 log "=== Verification ==="
-curl -sf "$OLD_DAEMON_API/api/health" > "$EXPORT_DIR/health-new.json" 2>/dev/null || true
+curl -sf "$OLD_DAEMON_API/api/health" \
+    > "$EXPORT_DIR/health-new.json" 2>/dev/null || true
+
+if [ -d "$EXPORT_DIR" ] && [ -f "$EXPORT_DIR/plans.json" ]; then
+    "$SCRIPT_DIR/verify-parity.sh" "$EXPORT_DIR" \
+        --port 8420 || log "WARNING: parity check had issues"
+fi
+
 log "New daemon health saved to $EXPORT_DIR/health-new.json"
 log "Old data exported to $EXPORT_DIR/"
 log ""
