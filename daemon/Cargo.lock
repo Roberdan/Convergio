@@ -553,6 +553,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-org-package"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "chrono",
+ "convergio-db",
+ "convergio-ipc",
+ "convergio-security",
+ "convergio-types",
+ "hmac",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 1.0.69",
+ "toml",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "convergio-prompts"
 version = "0.1.0"
 dependencies = [
