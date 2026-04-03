@@ -127,7 +127,11 @@ async fn poll_progress(api_url: &str, plan_id: i64) -> Result<(), CliError> {
 
 pub async fn handle(cmd: DelegationCommands, api_url: &str) -> Result<(), CliError> {
     match cmd {
-        DelegationCommands::Start { plan_id, peer, no_wait } => {
+        DelegationCommands::Start {
+            plan_id,
+            peer,
+            no_wait,
+        } => {
             let url = format!("{api_url}/api/mesh/delegate");
             let body = serde_json::json!({"plan_id": plan_id, "peer": peer});
             cli_http::post_and_print(&url, &body, true).await?;

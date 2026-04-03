@@ -139,17 +139,7 @@ pub async fn handle(cmd: LaunchCommands) -> Result<(), CliError> {
             name,
             parent,
             api_url,
-        } => {
-            launch_tool(
-                &api_url,
-                &name,
-                "claude",
-                parent.as_deref(),
-                "claude",
-                &[],
-            )
-            .await
-        }
+        } => launch_tool(&api_url, &name, "claude", parent.as_deref(), "claude", &[]).await,
         LaunchCommands::Copilot {
             name,
             parent,
@@ -178,9 +168,18 @@ mod tests {
         let envs: Vec<(String, String)> = cmd
             .as_std()
             .get_envs()
-            .filter_map(|(k, v)| Some((k.to_string_lossy().to_string(), v?.to_string_lossy().to_string())))
+            .filter_map(|(k, v)| {
+                Some((
+                    k.to_string_lossy().to_string(),
+                    v?.to_string_lossy().to_string(),
+                ))
+            })
             .collect();
-        assert!(envs.iter().any(|(k, v)| k == "CONVERGIO_AGENT_NAME" && v == "priya"));
-        assert!(envs.iter().any(|(k, v)| k == "CONVERGIO_API_URL" && v == "http://localhost:8420"));
+        assert!(envs
+            .iter()
+            .any(|(k, v)| k == "CONVERGIO_AGENT_NAME" && v == "priya"));
+        assert!(envs
+            .iter()
+            .any(|(k, v)| k == "CONVERGIO_API_URL" && v == "http://localhost:8420"));
     }
 }

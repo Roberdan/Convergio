@@ -39,9 +39,7 @@ fn apply_mesh_auth(
     body: Option<&[u8]>,
 ) -> reqwest::blocking::RequestBuilder {
     let body_hash = body.map(|b| hex::encode(Sha256::digest(b)));
-    if let Some((ts, sig)) =
-        mesh_hmac_header(method, path_and_query, body_hash.as_deref())
-    {
+    if let Some((ts, sig)) = mesh_hmac_header(method, path_and_query, body_hash.as_deref()) {
         req = req
             .header("X-Mesh-Timestamp", ts)
             .header("X-Mesh-Signature", sig);
@@ -53,15 +51,12 @@ fn apply_mesh_auth(
 }
 
 /// POST local changes to peer's /api/sync/import endpoint.
-pub fn send_changes_to_peer(
-    peer_addr: &str,
-    changes: &[SyncChange],
-) -> Result<(), String> {
+pub fn send_changes_to_peer(peer_addr: &str, changes: &[SyncChange]) -> Result<(), String> {
     let path = "/api/sync/import";
     let url = format!("http://{peer_addr}{path}");
     let payload = serde_json::json!({ "changes": changes });
-    let body_bytes = serde_json::to_vec(&payload)
-        .map_err(|e| format!("JSON serialize failed: {e}"))?;
+    let body_bytes =
+        serde_json::to_vec(&payload).map_err(|e| format!("JSON serialize failed: {e}"))?;
     let client = reqwest::blocking::Client::builder()
         .connect_timeout(Duration::from_secs(5))
         .timeout(Duration::from_secs(10))
@@ -100,24 +95,22 @@ pub fn fetch_changes_from_peer(
     if !resp.status().is_success() {
         return Err(format!("peer returned {}", resp.status()));
     }
-    let body: serde_json::Value =
-        resp.json().map_err(|e| format!("JSON parse failed: {e}"))?;
-    let changes: Vec<SyncChange> = serde_json::from_value(
-        body.get("changes").cloned().unwrap_or_default(),
-    )
-    .map_err(|e| format!("changes parse failed: {e}"))?;
+    let body: serde_json::Value = resp.json().map_err(|e| format!("JSON parse failed: {e}"))?;
+    let changes: Vec<SyncChange> =
+        serde_json::from_value(body.get("changes").cloned().unwrap_or_default())
+            .map_err(|e| format!("changes parse failed: {e}"))?;
     Ok(changes)
 }
 
 /// Resolve best reachable address for a peer.
 /// Priority: Thunderbolt (10.0.0.x) > LAN > Tailscale (100.x.x.x).
 /// Returns "host:port" without scheme.
-pub fn resolve_best_addr(
-    name: &str,
-    fields: &HashMap<String, String>,
-) -> Option<String> {
+pub fn resolve_best_addr(name: &str, fields: &HashMap<String, String>) -> Option<String> {
     let candidates: Vec<(&str, &str)> = [
-        ("thunderbolt", fields.get("thunderbolt_ip").map(|s| s.as_str())),
+        (
+            "thunderbolt",
+            fields.get("thunderbolt_ip").map(|s| s.as_str()),
+        ),
         ("lan", fields.get("lan_ip").map(|s| s.as_str())),
         ("tailscale", fields.get("tailscale_ip").map(|s| s.as_str())),
     ]

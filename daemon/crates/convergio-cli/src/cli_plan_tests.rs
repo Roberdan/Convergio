@@ -68,7 +68,13 @@ fn plan_commands_create_with_parent_variant_exists() {
         human: false,
         api_url: "http://localhost:8420".to_string(),
     };
-    assert!(matches!(cmd, PlanCommands::Create { parent: Some(42), .. }));
+    assert!(matches!(
+        cmd,
+        PlanCommands::Create {
+            parent: Some(42),
+            ..
+        }
+    ));
 }
 
 #[test]

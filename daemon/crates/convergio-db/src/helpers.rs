@@ -12,11 +12,7 @@ pub fn table_exists(conn: &Connection, table: &str) -> rusqlite::Result<bool> {
 }
 
 /// Check if a column exists in a table.
-pub fn column_exists(
-    conn: &Connection,
-    table: &str,
-    column: &str,
-) -> rusqlite::Result<bool> {
+pub fn column_exists(conn: &Connection, table: &str, column: &str) -> rusqlite::Result<bool> {
     let columns = get_column_names(conn, table)?;
     Ok(columns.iter().any(|c| c == column))
 }
@@ -46,8 +42,7 @@ pub fn is_busy_error(e: &rusqlite::Error) -> bool {
         rusqlite::Error::SqliteFailure(err, _) => {
             matches!(
                 err.code,
-                rusqlite::ffi::ErrorCode::DatabaseBusy
-                    | rusqlite::ffi::ErrorCode::DatabaseLocked
+                rusqlite::ffi::ErrorCode::DatabaseBusy | rusqlite::ffi::ErrorCode::DatabaseLocked
             )
         }
         _ => false,
@@ -60,10 +55,8 @@ mod tests {
 
     fn test_conn() -> Connection {
         let conn = Connection::open_in_memory().unwrap();
-        conn.execute_batch(
-            "CREATE TABLE example (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)",
-        )
-        .unwrap();
+        conn.execute_batch("CREATE TABLE example (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)")
+            .unwrap();
         conn
     }
 

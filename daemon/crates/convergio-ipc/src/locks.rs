@@ -60,7 +60,10 @@ pub fn list_locks(pool: &ConnPool) -> IpcResult<Vec<FileLock>> {
         "SELECT file_path, locked_by, host, pid, locked_at
          FROM ipc_file_locks ORDER BY locked_at DESC",
     )?;
-    let locks = stmt.query_map([], map_lock)?.filter_map(|r| r.ok()).collect();
+    let locks = stmt
+        .query_map([], map_lock)?
+        .filter_map(|r| r.ok())
+        .collect();
     Ok(locks)
 }
 

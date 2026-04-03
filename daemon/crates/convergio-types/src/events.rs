@@ -38,22 +38,56 @@ pub struct DomainEvent {
 #[serde(tag = "type")]
 pub enum EventKind {
     // Orchestration
-    PlanCreated { plan_id: i64, name: String },
-    TaskAssigned { task_id: i64, agent: String, org: String },
-    TaskCompleted { task_id: i64 },
+    PlanCreated {
+        plan_id: i64,
+        name: String,
+    },
+    TaskAssigned {
+        task_id: i64,
+        agent: String,
+        org: String,
+    },
+    TaskCompleted {
+        task_id: i64,
+    },
 
     // Communication (visible in real-time UI)
-    MessageSent { from: String, to: String, preview: String },
-    DelegationStarted { from_org: String, to_org: String, task: String },
+    MessageSent {
+        from: String,
+        to: String,
+        preview: String,
+    },
+    DelegationStarted {
+        from_org: String,
+        to_org: String,
+        task: String,
+    },
 
     // Agent lifecycle
-    AgentOnline { name: String, org: String, node: String },
-    AgentOffline { name: String, reason: String },
+    AgentOnline {
+        name: String,
+        org: String,
+        node: String,
+    },
+    AgentOffline {
+        name: String,
+        reason: String,
+    },
 
     // System
-    HealthDegraded { module: String, reason: String },
-    BudgetAlert { org: String, spent: f64, limit: f64 },
-    ExtensionLoaded { id: String, version: String },
+    HealthDegraded {
+        module: String,
+        reason: String,
+    },
+    BudgetAlert {
+        org: String,
+        spent: f64,
+        limit: f64,
+    },
+    ExtensionLoaded {
+        id: String,
+        version: String,
+    },
 }
 
 /// Filter for subscribing to events.

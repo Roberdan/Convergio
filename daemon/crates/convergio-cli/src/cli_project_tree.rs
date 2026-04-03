@@ -23,7 +23,11 @@ pub fn print_project_tree(val: &Value, fallback_id: &str) {
 
 fn print_plan_node(node: &Value, depth: usize) {
     let indent = "  ".repeat(depth);
-    let marker = if node["is_master"].as_bool().unwrap_or(false) { "+" } else { "-" };
+    let marker = if node["is_master"].as_bool().unwrap_or(false) {
+        "+"
+    } else {
+        "-"
+    };
     let mode = node["execution_mode"].as_str().unwrap_or("");
     let deps = node["depends_on"].as_str().unwrap_or("");
     println!(
@@ -32,8 +36,16 @@ fn print_plan_node(node: &Value, depth: usize) {
         node["name"].as_str().unwrap_or("unnamed"),
         node["tasks_done"].as_i64().unwrap_or(0),
         node["tasks_total"].as_i64().unwrap_or(0),
-        if mode.is_empty() { String::new() } else { format!(" mode={mode}") },
-        if deps.is_empty() { String::new() } else { format!(" depends_on={deps}") },
+        if mode.is_empty() {
+            String::new()
+        } else {
+            format!(" mode={mode}")
+        },
+        if deps.is_empty() {
+            String::new()
+        } else {
+            format!(" depends_on={deps}")
+        },
     );
     if let Some(children) = node["children"].as_array() {
         for child in children {

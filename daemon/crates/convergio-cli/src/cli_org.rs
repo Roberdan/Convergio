@@ -83,16 +83,40 @@ pub async fn handle(cmd: OrgCommands) -> Result<(), CliError> {
             budget,
             ceo_agent,
             api_url,
-        } => create_org_and_spawn_ceo(&name, &mission, &objectives, budget, &ceo_agent, &api_url).await,
+        } => {
+            create_org_and_spawn_ceo(&name, &mission, &objectives, budget, &ceo_agent, &api_url)
+                .await
+        }
         OrgCommands::List { api_url } => crate::cli_org_show::list_orgs(&api_url).await,
         OrgCommands::Show { id, api_url } => crate::cli_org_show::show_org(&id, &api_url).await,
-        OrgCommands::Plans { slug, api_url } => crate::cli_org_show::org_plans(&slug, &api_url).await,
-        OrgCommands::Chart { slug, api_url } => crate::cli_org_show::org_chart(slug.as_deref(), &api_url).await,
-        OrgCommands::CreateOrg { name, mission, budget, yes, api_url } => {
-            crate::cli_create_org::handle_create_org(&name, &mission, budget, yes, &api_url).await
+        OrgCommands::Plans { slug, api_url } => {
+            crate::cli_org_show::org_plans(&slug, &api_url).await
         }
-        OrgCommands::CreateOrgFrom { path, name, budget, yes, api_url } => {
-            crate::cli_create_org::handle_create_org_from(&path, name.as_deref(), budget, yes, &api_url).await
+        OrgCommands::Chart { slug, api_url } => {
+            crate::cli_org_show::org_chart(slug.as_deref(), &api_url).await
+        }
+        OrgCommands::CreateOrg {
+            name,
+            mission,
+            budget,
+            yes,
+            api_url,
+        } => crate::cli_create_org::handle_create_org(&name, &mission, budget, yes, &api_url).await,
+        OrgCommands::CreateOrgFrom {
+            path,
+            name,
+            budget,
+            yes,
+            api_url,
+        } => {
+            crate::cli_create_org::handle_create_org_from(
+                &path,
+                name.as_deref(),
+                budget,
+                yes,
+                &api_url,
+            )
+            .await
         }
     }
 }
@@ -137,10 +161,9 @@ async fn create_org_and_spawn_ceo(
         .await
         .map_err(|e| CliError::ApiCallFailed(format!("failed to start ceo agent: {e}")))?;
     let start_status = start_resp.status();
-    let start_json: Value = start_resp
-        .json()
-        .await
-        .map_err(|e| CliError::ApiCallFailed(format!("failed to decode ceo start response: {e}")))?;
+    let start_json: Value = start_resp.json().await.map_err(|e| {
+        CliError::ApiCallFailed(format!("failed to decode ceo start response: {e}"))
+    })?;
     if !start_status.is_success() {
         return Err(CliError::ApiCallFailed(format!(
             "ceo start failed with status {start_status}: {start_json}"

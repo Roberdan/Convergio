@@ -17,9 +17,18 @@ pub fn compute_local_checksum(conn: &Connection) -> String {
     let mut hasher = Sha256::new();
 
     let tables = &[
-        ("plans", "SELECT status, COUNT(*) as c FROM plans GROUP BY status ORDER BY status"),
-        ("tasks", "SELECT status, COUNT(*) as c FROM tasks GROUP BY status ORDER BY status"),
-        ("waves", "SELECT status, COUNT(*) as c FROM waves GROUP BY status ORDER BY status"),
+        (
+            "plans",
+            "SELECT status, COUNT(*) as c FROM plans GROUP BY status ORDER BY status",
+        ),
+        (
+            "tasks",
+            "SELECT status, COUNT(*) as c FROM tasks GROUP BY status ORDER BY status",
+        ),
+        (
+            "waves",
+            "SELECT status, COUNT(*) as c FROM waves GROUP BY status ORDER BY status",
+        ),
     ];
 
     for (table, sql) in tables {

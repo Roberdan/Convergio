@@ -175,11 +175,7 @@ pub fn history(
     Ok(msgs)
 }
 
-fn check_rate_limit(
-    conn: &rusqlite::Connection,
-    from: &str,
-    limit: u32,
-) -> IpcResult<()> {
+fn check_rate_limit(conn: &rusqlite::Connection, from: &str, limit: u32) -> IpcResult<()> {
     let count: u32 = conn.query_row(
         "SELECT COUNT(*) FROM ipc_messages
          WHERE from_agent = ?1 AND created_at > datetime('now', '-1 minute')",
@@ -245,7 +241,17 @@ mod tests {
     fn rate_limit_enforced() {
         let (p, n) = setup();
         for i in 0..5 {
-            send(&p, &n, "spammer", "target", &format!("msg{i}"), "text", 0, 5).unwrap();
+            send(
+                &p,
+                &n,
+                "spammer",
+                "target",
+                &format!("msg{i}"),
+                "text",
+                0,
+                5,
+            )
+            .unwrap();
         }
         let err = send(&p, &n, "spammer", "target", "one more", "text", 0, 5);
         assert!(matches!(err, Err(IpcError::RateLimited(_))));

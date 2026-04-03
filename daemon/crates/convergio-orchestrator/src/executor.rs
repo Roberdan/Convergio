@@ -66,8 +66,19 @@ pub async fn delegate_to_peer(
         "tmux_session": session,
         "tmux_window": window,
     });
-    content.as_object_mut().unwrap().insert("type".to_string(), serde_json::json!("plan_delegated"));
+    content
+        .as_object_mut()
+        .unwrap()
+        .insert("type".to_string(), serde_json::json!("plan_delegated"));
 
-    messaging::broadcast(pool, notify, ALI_AGENT, &content.to_string(), "event", Some(CHANNEL), 100)?;
+    messaging::broadcast(
+        pool,
+        notify,
+        ALI_AGENT,
+        &content.to_string(),
+        "event",
+        Some(CHANNEL),
+        100,
+    )?;
     Ok(())
 }

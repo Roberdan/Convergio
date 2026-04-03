@@ -116,8 +116,14 @@ mod tests {
     fn api_list_covers_major_domains() {
         let text = api_list_text();
         let domains = [
-            "PLANS", "AGENTS", "MESH & PEERS", "KERNEL & HEALTH",
-            "CHAT", "CHANNELS", "CAPABILITIES", "METRICS",
+            "PLANS",
+            "AGENTS",
+            "MESH & PEERS",
+            "KERNEL & HEALTH",
+            "CHAT",
+            "CHANNELS",
+            "CAPABILITIES",
+            "METRICS",
         ];
         for domain in domains {
             assert!(text.contains(domain), "must cover domain '{domain}'");

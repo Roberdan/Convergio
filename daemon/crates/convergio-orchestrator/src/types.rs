@@ -133,7 +133,15 @@ mod tests {
 
     #[test]
     fn task_status_roundtrip() {
-        for s in ["pending", "in_progress", "submitted", "done", "blocked", "skipped", "cancelled"] {
+        for s in [
+            "pending",
+            "in_progress",
+            "submitted",
+            "done",
+            "blocked",
+            "skipped",
+            "cancelled",
+        ] {
             let parsed: TaskStatus = s.parse().unwrap();
             assert_eq!(parsed.as_str(), s);
             assert_eq!(parsed.to_string(), s);

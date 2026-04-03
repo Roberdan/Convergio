@@ -98,11 +98,17 @@ async fn handle_message(
         "delegation_failed" => {
             let plan_id = require_i64(&payload, "plan_id")?;
             let peer = payload.get("peer").and_then(|v| v.as_str()).unwrap_or("");
-            let reason = payload.get("reason").and_then(|v| v.as_str()).unwrap_or("unknown");
+            let reason = payload
+                .get("reason")
+                .and_then(|v| v.as_str())
+                .unwrap_or("unknown");
             handlers::on_delegation_failed(pool, notify, plan_id, peer, reason).await?;
         }
         "need_human" => {
-            let reason = payload.get("reason").and_then(|v| v.as_str()).unwrap_or("unknown");
+            let reason = payload
+                .get("reason")
+                .and_then(|v| v.as_str())
+                .unwrap_or("unknown");
             tracing::warn!("ALI NEEDS HUMAN: {reason}");
         }
         other => {
@@ -125,7 +131,15 @@ fn require_i64(
 
 fn emit_error(pool: &ConnPool, notify: &Arc<Notify>, detail: &str) {
     let content = serde_json::json!({"type": "error", "detail": detail}).to_string();
-    if let Err(e) = messaging::broadcast(pool, notify, ALI_AGENT, &content, "error", Some(CHANNEL), 100) {
+    if let Err(e) = messaging::broadcast(
+        pool,
+        notify,
+        ALI_AGENT,
+        &content,
+        "error",
+        Some(CHANNEL),
+        100,
+    ) {
         tracing::warn!("ali: emit_error broadcast failed: {e}");
     }
 }

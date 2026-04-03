@@ -34,7 +34,9 @@ pub async fn handle(api_url: &str, message: Option<String>) -> Result<(), CliErr
         }
 
         let trimmed = input.trim();
-        if trimmed.is_empty() { continue; }
+        if trimmed.is_empty() {
+            continue;
+        }
         if trimmed == "/quit" || trimmed == "/exit" || trimmed == "/q" {
             println!("{DIM}Ciao!{RESET}");
             break;

@@ -91,8 +91,7 @@ pub fn prune_stale(pool: &ConnPool, ttl_secs: u64) -> IpcResult<usize> {
 
 pub fn prune_dead_pids(pool: &ConnPool, local_host: &str) -> IpcResult<usize> {
     let conn = pool.get()?;
-    let mut stmt =
-        conn.prepare("SELECT name, host, pid FROM ipc_agents WHERE pid IS NOT NULL")?;
+    let mut stmt = conn.prepare("SELECT name, host, pid FROM ipc_agents WHERE pid IS NOT NULL")?;
     let agents: Vec<(String, String, u32)> = stmt
         .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))?
         .filter_map(|r| r.ok())

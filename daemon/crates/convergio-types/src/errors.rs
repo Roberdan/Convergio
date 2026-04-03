@@ -10,7 +10,10 @@ pub enum ConvergioError {
     Extension { module: String, message: String },
 
     #[error("dependency not satisfied: {capability} required by {requirer}")]
-    DependencyMissing { capability: String, requirer: String },
+    DependencyMissing {
+        capability: String,
+        requirer: String,
+    },
 
     #[error("permission denied: {0}")]
     PermissionDenied(String),

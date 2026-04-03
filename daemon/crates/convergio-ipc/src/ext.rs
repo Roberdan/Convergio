@@ -49,15 +49,19 @@ impl IpcExtension {
 
     pub fn stats(&self) -> Result<IpcStats, crate::types::IpcError> {
         let conn = self.pool.get()?;
-        let agents: u64 = conn
-            .query_row("SELECT count(*) FROM ipc_agents", [], |r| r.get(0))?;
-        let messages: u64 = conn
-            .query_row("SELECT count(*) FROM ipc_messages", [], |r| r.get(0))?;
-        let channels: u64 = conn
-            .query_row("SELECT count(*) FROM ipc_channels", [], |r| r.get(0))?;
-        let context_keys: u64 = conn
-            .query_row("SELECT count(*) FROM ipc_shared_context", [], |r| r.get(0))?;
-        Ok(IpcStats { agents, messages, channels, context_keys })
+        let agents: u64 = conn.query_row("SELECT count(*) FROM ipc_agents", [], |r| r.get(0))?;
+        let messages: u64 =
+            conn.query_row("SELECT count(*) FROM ipc_messages", [], |r| r.get(0))?;
+        let channels: u64 =
+            conn.query_row("SELECT count(*) FROM ipc_channels", [], |r| r.get(0))?;
+        let context_keys: u64 =
+            conn.query_row("SELECT count(*) FROM ipc_shared_context", [], |r| r.get(0))?;
+        Ok(IpcStats {
+            agents,
+            messages,
+            channels,
+            context_keys,
+        })
     }
 }
 
@@ -106,9 +110,21 @@ impl Extension for IpcExtension {
     fn metrics(&self) -> Vec<Metric> {
         match self.stats() {
             Ok(s) => vec![
-                Metric { name: "ipc_agents".into(), value: s.agents as f64, labels: vec![] },
-                Metric { name: "ipc_messages".into(), value: s.messages as f64, labels: vec![] },
-                Metric { name: "ipc_channels".into(), value: s.channels as f64, labels: vec![] },
+                Metric {
+                    name: "ipc_agents".into(),
+                    value: s.agents as f64,
+                    labels: vec![],
+                },
+                Metric {
+                    name: "ipc_messages".into(),
+                    value: s.messages as f64,
+                    labels: vec![],
+                },
+                Metric {
+                    name: "ipc_channels".into(),
+                    value: s.channels as f64,
+                    labels: vec![],
+                },
             ],
             Err(_) => vec![],
         }
@@ -132,10 +148,22 @@ impl HealthCheck for IpcExtension {
 
     fn check(&self) -> ComponentHealth {
         let (status, message) = match self.stats() {
-            Ok(s) => (Health::Ok, Some(format!("{} agents, {} msgs", s.agents, s.messages))),
-            Err(e) => (Health::Degraded { reason: e.to_string() }, None),
+            Ok(s) => (
+                Health::Ok,
+                Some(format!("{} agents, {} msgs", s.agents, s.messages)),
+            ),
+            Err(e) => (
+                Health::Degraded {
+                    reason: e.to_string(),
+                },
+                None,
+            ),
         };
-        ComponentHealth { name: "ipc".into(), status, message }
+        ComponentHealth {
+            name: "ipc".into(),
+            status,
+            message,
+        }
     }
 }
 

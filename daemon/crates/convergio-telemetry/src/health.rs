@@ -50,12 +50,18 @@ impl HealthRegistry {
     /// Aggregate: any Down => Down, any Degraded => Degraded, else Ok.
     pub fn aggregate_status(&self) -> Health {
         let checks = self.check_all();
-        if checks.iter().any(|c| matches!(c.status, Health::Down { .. })) {
+        if checks
+            .iter()
+            .any(|c| matches!(c.status, Health::Down { .. }))
+        {
             return Health::Down {
                 reason: "one or more components down".to_string(),
             };
         }
-        if checks.iter().any(|c| matches!(c.status, Health::Degraded { .. })) {
+        if checks
+            .iter()
+            .any(|c| matches!(c.status, Health::Degraded { .. }))
+        {
             return Health::Degraded {
                 reason: "one or more components degraded".to_string(),
             };

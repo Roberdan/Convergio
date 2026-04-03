@@ -65,8 +65,13 @@ mod tests {
     fn cheatsheet_covers_major_domains() {
         let text = cheatsheet_text();
         let domains = [
-            "ORGANIZATIONS", "PLANS", "TASKS & AGENTS", "MESH",
-            "KERNEL & VOICE", "RECOVERY", "OVERVIEW",
+            "ORGANIZATIONS",
+            "PLANS",
+            "TASKS & AGENTS",
+            "MESH",
+            "KERNEL & VOICE",
+            "RECOVERY",
+            "OVERVIEW",
         ];
         for domain in domains {
             assert!(text.contains(domain), "must cover domain '{domain}'");
@@ -78,6 +83,9 @@ mod tests {
         let text = cheatsheet_text();
         assert!(text.contains("cvg org chart"), "must include org chart");
         assert!(text.contains("cvg org plans"), "must include org plans");
-        assert!(text.contains("cvg cheatsheet"), "must include self-reference");
+        assert!(
+            text.contains("cvg cheatsheet"),
+            "must include self-reference"
+        );
     }
 }

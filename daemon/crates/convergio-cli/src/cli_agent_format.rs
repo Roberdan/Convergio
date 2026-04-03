@@ -115,10 +115,8 @@ pub(crate) async fn dispatch(cmd: AgentCommands) -> Result<(), CliError> {
             limit,
             api_url,
         } => {
-            crate::cli_agent_history::handle_history(
-                &api_url, since, until, status, model, limit,
-            )
-            .await?;
+            crate::cli_agent_history::handle_history(&api_url, since, until, status, model, limit)
+                .await?;
         }
         AgentCommands::Create {
             name,

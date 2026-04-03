@@ -91,7 +91,9 @@ pub enum BusCommands {
 pub async fn handle(cmd: BusCommands) {
     match cmd {
         BusCommands::Who { human, api_url } => {
-            if let Err(e) = crate::cli_http::fetch_and_print(&format!("{api_url}/api/ipc/agents"), human).await {
+            if let Err(e) =
+                crate::cli_http::fetch_and_print(&format!("{api_url}/api/ipc/agents"), human).await
+            {
                 eprintln!("error: {e}");
             }
         }
@@ -107,7 +109,10 @@ pub async fn handle(cmd: BusCommands) {
                 "to": to,
                 "message": message,
             });
-            if let Err(e) = crate::cli_http::post_and_print(&format!("{api_url}/api/ipc/send"), &body, human).await {
+            if let Err(e) =
+                crate::cli_http::post_and_print(&format!("{api_url}/api/ipc/send"), &body, human)
+                    .await
+            {
                 eprintln!("error: {e}");
             }
         }
@@ -135,8 +140,12 @@ pub async fn handle(cmd: BusCommands) {
                 "from": from,
                 "message": message,
             });
-            if let Err(e) = crate::cli_http::post_and_print(&format!("{api_url}/api/ipc/broadcast"), &body, human)
-                .await
+            if let Err(e) = crate::cli_http::post_and_print(
+                &format!("{api_url}/api/ipc/broadcast"),
+                &body,
+                human,
+            )
+            .await
             {
                 eprintln!("error: {e}");
             }

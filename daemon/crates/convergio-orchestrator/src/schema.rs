@@ -159,9 +159,9 @@ mod tests {
         let pool = convergio_db::pool::create_memory_pool().unwrap();
         let conn = pool.get().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
-        let applied = convergio_db::migration::apply_migrations(
-            &conn, "orchestrator", &migrations(),
-        ).unwrap();
+        let applied =
+            convergio_db::migration::apply_migrations(&conn, "orchestrator", &migrations())
+                .unwrap();
         assert_eq!(applied, 3);
     }
 }

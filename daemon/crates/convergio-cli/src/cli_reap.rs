@@ -39,12 +39,9 @@ pub async fn handle(cmd: ReapCommands) {
                 "repo_root": repo_root,
                 "lock_dir": lock_dir,
             });
-            if let Err(e) = crate::cli_http::post_and_print(
-                &format!("{api_url}/api/reap/run"),
-                &body,
-                human,
-            )
-            .await
+            if let Err(e) =
+                crate::cli_http::post_and_print(&format!("{api_url}/api/reap/run"), &body, human)
+                    .await
             {
                 eprintln!("error: {e}");
             }

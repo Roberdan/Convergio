@@ -143,19 +143,24 @@ async fn dispatch_inner(cmd: KernelCommands) -> Result<(), CliError> {
             )
             .await
         }
-        KernelCommands::Say { text, api_url, locale } => {
+        KernelCommands::Say {
+            text,
+            api_url,
+            locale,
+        } => {
             let body = serde_json::json!({ "text": text, "locale": locale });
             crate::cli_http::post_and_print(&format!("{api_url}/api/kernel/speak"), &body, false)
                 .await
         }
         KernelCommands::Setup { script } => {
-            let script_path = script.unwrap_or_else(|| {
-                "scripts/kernel/setup-models.sh".to_string()
-            });
+            let script_path =
+                script.unwrap_or_else(|| "scripts/kernel/setup-models.sh".to_string());
             let status = std::process::Command::new("bash")
                 .arg(&script_path)
                 .status()
-                .map_err(|e| CliError::ApiCallFailed(format!("failed to launch {script_path}: {e}")))?;
+                .map_err(|e| {
+                    CliError::ApiCallFailed(format!("failed to launch {script_path}: {e}"))
+                })?;
             if status.success() {
                 Ok(())
             } else {
@@ -181,10 +186,7 @@ fn print_status_table(val: &serde_json::Value) {
         ("uptime_secs", val["uptime_secs"].to_string()),
         (
             "active_node",
-            val["active_node"]
-                .as_str()
-                .unwrap_or("—")
-                .to_string(),
+            val["active_node"].as_str().unwrap_or("—").to_string(),
         ),
         (
             "last_check",

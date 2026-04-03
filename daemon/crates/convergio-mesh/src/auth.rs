@@ -29,11 +29,7 @@ pub fn compute_hmac(secret: &[u8], data: &[u8]) -> Result<Vec<u8>, MeshError> {
 }
 
 /// Verify a peer's HMAC response against expected.
-pub fn verify_hmac(
-    secret: &[u8],
-    data: &[u8],
-    response: &[u8],
-) -> Result<bool, MeshError> {
+pub fn verify_hmac(secret: &[u8], data: &[u8], response: &[u8]) -> Result<bool, MeshError> {
     debug_assert!(!secret.is_empty(), "HMAC secret must not be empty");
     debug_assert!(!data.is_empty(), "HMAC data must not be empty");
     let mut mac = HmacSha256::new_from_slice(secret)
@@ -48,10 +44,7 @@ pub fn load_shared_secret(peers_conf: &Path) -> Option<Vec<u8>> {
         Ok(c) => c,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return None,
         Err(e) => {
-            tracing::warn!(
-                "failed to read peers.conf at {}: {e}",
-                peers_conf.display()
-            );
+            tracing::warn!("failed to read peers.conf at {}: {e}", peers_conf.display());
             return None;
         }
     };

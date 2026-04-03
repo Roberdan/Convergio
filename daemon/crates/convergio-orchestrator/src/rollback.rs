@@ -8,11 +8,7 @@ use std::process::Command;
 type RollbackResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 /// Capture current git HEAD, changed files, and the task DB row as a snapshot.
-pub fn save_snapshot(
-    conn: &Connection,
-    task_id: i64,
-    worktree_path: &Path,
-) -> RollbackResult<i64> {
+pub fn save_snapshot(conn: &Connection, task_id: i64, worktree_path: &Path) -> RollbackResult<i64> {
     let git_ref = git_rev_parse(worktree_path)?;
     let changed_files = git_changed_files(worktree_path)?;
 
@@ -124,7 +120,9 @@ mod tests {
     fn setup() -> Connection {
         let conn = Connection::open_in_memory().unwrap();
         conn.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
-        for m in crate::schema::migrations() { conn.execute_batch(m.up).unwrap(); }
+        for m in crate::schema::migrations() {
+            conn.execute_batch(m.up).unwrap();
+        }
         conn
     }
 
@@ -147,7 +145,8 @@ mod tests {
         conn.execute(
             "INSERT INTO plans (id, project_id, name) VALUES (1, 'p1', 'test')",
             [],
-        ).unwrap();
+        )
+        .unwrap();
         conn.execute(
             "INSERT INTO tasks (id, plan_id, task_id, title, status) VALUES (1, 1, 'T1', 'Test', 'in_progress')",
             [],
@@ -155,7 +154,8 @@ mod tests {
         conn.execute(
             "INSERT INTO rollback_snapshots (task_id, git_ref, changed_files) VALUES (?1, ?2, ?3)",
             params![1i64, "deadbeef", "src/lib.rs"],
-        ).unwrap();
+        )
+        .unwrap();
         let snaps = list_snapshots(&conn, 1).unwrap();
         assert_eq!(snaps.len(), 1);
         assert_eq!(snaps[0]["git_ref"], "deadbeef");

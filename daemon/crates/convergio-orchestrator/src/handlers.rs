@@ -17,7 +17,12 @@ pub async fn on_plan_ready(pool: &ConnPool, notify: &Arc<Notify>, plan_id: i64) 
 
     if !deps_met {
         tracing::info!("ali: plan {plan_id} blocked — dependencies not met");
-        actions::emit(pool, notify, "plan_blocked", &serde_json::json!({"plan_id": plan_id}))?;
+        actions::emit(
+            pool,
+            notify,
+            "plan_blocked",
+            &serde_json::json!({"plan_id": plan_id}),
+        )?;
         return Ok(());
     }
 
@@ -62,7 +67,8 @@ pub fn on_task_done(
 
     if pending == 0 {
         actions::emit(
-            pool, notify,
+            pool,
+            notify,
             "wave_done",
             &serde_json::json!({"wave_id": wave_id, "plan_id": plan_id}),
         )?;
@@ -71,10 +77,16 @@ pub fn on_task_done(
     Ok(())
 }
 
-pub fn on_wave_done(pool: &ConnPool, notify: &Arc<Notify>, wave_id: i64, plan_id: i64) -> AliResult {
+pub fn on_wave_done(
+    pool: &ConnPool,
+    notify: &Arc<Notify>,
+    wave_id: i64,
+    plan_id: i64,
+) -> AliResult {
     tracing::info!("ali: wave {wave_id} complete for plan {plan_id}, requesting validation");
     actions::emit(
-        pool, notify,
+        pool,
+        notify,
         "wave_needs_validation",
         &serde_json::json!({"wave_id": wave_id, "plan_id": plan_id}),
     )
@@ -104,10 +116,20 @@ pub fn on_wave_validated(
 
     if let Some(next) = next_wave {
         tracing::info!("ali: wave {wave_id} validated, next wave {next} for plan {plan_id}");
-        actions::emit(pool, notify, "wave_ready", &serde_json::json!({"wave_id": next, "plan_id": plan_id}))?;
+        actions::emit(
+            pool,
+            notify,
+            "wave_ready",
+            &serde_json::json!({"wave_id": next, "plan_id": plan_id}),
+        )?;
     } else {
         tracing::info!("ali: all waves validated for plan {plan_id}, plan done");
-        actions::emit(pool, notify, "plan_done", &serde_json::json!({"plan_id": plan_id}))?;
+        actions::emit(
+            pool,
+            notify,
+            "plan_done",
+            &serde_json::json!({"plan_id": plan_id}),
+        )?;
     }
 
     Ok(())
@@ -157,7 +179,9 @@ pub async fn on_wave_ready(
         |r| r.get(0),
     )?;
 
-    tracing::info!("ali: wave {wave_id} starting with {task_count} pending tasks for plan {plan_id}");
+    tracing::info!(
+        "ali: wave {wave_id} starting with {task_count} pending tasks for plan {plan_id}"
+    );
     actions::delegate_plan(pool, notify, plan_id).await
 }
 
@@ -178,7 +202,8 @@ pub async fn on_delegation_failed(
     } else {
         tracing::warn!("ali: no peers available for plan {plan_id}, requesting human");
         actions::emit(
-            pool, notify,
+            pool,
+            notify,
             "need_human",
             &serde_json::json!({
                 "plan_id": plan_id,

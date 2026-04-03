@@ -7,7 +7,12 @@ use crate::cli_plan::PlanCommands;
 pub async fn dispatch(cmd: PlanCommands) -> Result<(), CliError> {
     match cmd {
         // --- GET-based subcommands ---
-        PlanCommands::List { status, limit, human, api_url } => {
+        PlanCommands::List {
+            status,
+            limit,
+            human,
+            api_url,
+        } => {
             let mut params = Vec::new();
             if let Some(s) = &status {
                 params.push(format!("status={s}"));
@@ -110,8 +115,12 @@ pub async fn dispatch(cmd: PlanCommands) -> Result<(), CliError> {
                 "source_file": source_file,
                 "parent_plan_id": parent,
             });
-            if let Err(e) = crate::cli_http::post_and_print(&format!("{api_url}/api/plan-db/create"), &body, human)
-                .await
+            if let Err(e) = crate::cli_http::post_and_print(
+                &format!("{api_url}/api/plan-db/create"),
+                &body,
+                human,
+            )
+            .await
             {
                 eprintln!("error: {e}");
             }
@@ -128,16 +137,18 @@ pub async fn dispatch(cmd: PlanCommands) -> Result<(), CliError> {
                 } else {
                     String::new()
                 };
-                CliError::InvalidInput(format!(
-                    "cannot read spec file '{spec_file}': {e}{hint}"
-                ))
+                CliError::InvalidInput(format!("cannot read spec file '{spec_file}': {e}{hint}"))
             })?;
             let body = serde_json::json!({
                 "plan_id": plan_id,
                 "spec": content,
             });
-            if let Err(e) = crate::cli_http::post_and_print(&format!("{api_url}/api/plan-db/import"), &body, human)
-                .await
+            if let Err(e) = crate::cli_http::post_and_print(
+                &format!("{api_url}/api/plan-db/import"),
+                &body,
+                human,
+            )
+            .await
             {
                 eprintln!("error: {e}");
             }

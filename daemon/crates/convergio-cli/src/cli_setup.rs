@@ -61,11 +61,9 @@ pub(crate) async fn handle_setup(defaults: bool) -> Result<(), CliError> {
     let config_path = crate::paths::config_path();
     let content = steps::render_config(&node_name, role, use_tailscale);
     if let Some(parent) = config_path.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|e| CliError::Io(e))?;
+        std::fs::create_dir_all(parent).map_err(|e| CliError::Io(e))?;
     }
-    std::fs::write(&config_path, &content)
-        .map_err(|e| CliError::Io(e))?;
+    std::fs::write(&config_path, &content).map_err(|e| CliError::Io(e))?;
 
     // Generate default aliases if not present
     let aliases_path = config_path
@@ -123,10 +121,7 @@ fn detect_network() -> bool {
 
     let ifaces = steps::detect_lan_interfaces();
     if !ifaces.is_empty() {
-        println!(
-            "  LAN mode (interfaces: {})",
-            ifaces.join(", ")
-        );
+        println!("  LAN mode (interfaces: {})", ifaces.join(", "));
     } else {
         println!("  LAN mode (no Tailscale detected)");
     }
@@ -149,9 +144,7 @@ async fn configure_api_key() -> Result<(), CliError> {
     }
 
     let key: String = Input::new()
-        .with_prompt(
-            "  Enter Anthropic API key (or press Enter to skip)",
-        )
+        .with_prompt("  Enter Anthropic API key (or press Enter to skip)")
         .allow_empty(true)
         .interact_text()
         .map_err(|e| CliError::InvalidInput(e.to_string()))?;
@@ -193,10 +186,7 @@ async fn write_defaults() -> Result<(), CliError> {
         std::fs::create_dir_all(parent).map_err(CliError::Io)?;
     }
     std::fs::write(&config_path, &content).map_err(CliError::Io)?;
-    println!(
-        "Default config written to {}",
-        config_path.display()
-    );
+    println!("Default config written to {}", config_path.display());
     print_summary(&node_name, "standalone", ts);
     Ok(())
 }

@@ -49,8 +49,7 @@ pub struct DelegateResult {
 
 /// Tables eligible for timestamp-based sync.
 /// Each table must have `id INTEGER PRIMARY KEY` and `updated_at TEXT`.
-pub const SYNC_TABLES: &[&str] =
-    &["plans", "tasks", "waves", "knowledge_base", "notifications"];
+pub const SYNC_TABLES: &[&str] = &["plans", "tasks", "waves", "knowledge_base", "notifications"];
 
 /// Default sync interval in seconds.
 pub const DEFAULT_INTERVAL_SECS: u64 = 30;

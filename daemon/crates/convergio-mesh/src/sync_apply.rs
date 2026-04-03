@@ -42,8 +42,7 @@ pub fn export_changes_since(
         Some(ts) => vec![Box::new(ts.replace('T', " "))],
         None => vec![],
     };
-    let param_refs: Vec<&dyn rusqlite::types::ToSql> =
-        params.iter().map(|p| p.as_ref()).collect();
+    let param_refs: Vec<&dyn rusqlite::types::ToSql> = params.iter().map(|p| p.as_ref()).collect();
 
     let rows = stmt.query_map(param_refs.as_slice(), |row| {
         let pk: i64 = row.get(0)?;
@@ -76,10 +75,7 @@ fn sqlite_to_json(val: rusqlite::types::Value) -> serde_json::Value {
 
 /// Apply remote changes using INSERT OR REPLACE.
 /// Disables foreign keys during import to avoid ordering issues.
-pub fn apply_changes(
-    conn: &Connection,
-    changes: &[SyncChange],
-) -> Result<usize, rusqlite::Error> {
+pub fn apply_changes(conn: &Connection, changes: &[SyncChange]) -> Result<usize, rusqlite::Error> {
     if changes.is_empty() {
         return Ok(0);
     }
@@ -90,8 +86,7 @@ pub fn apply_changes(
             continue;
         };
         let cols: Vec<&str> = obj.keys().map(|k| k.as_str()).collect();
-        let placeholders: Vec<String> =
-            (1..=cols.len()).map(|i| format!("?{i}")).collect();
+        let placeholders: Vec<String> = (1..=cols.len()).map(|i| format!("?{i}")).collect();
         let sql = format!(
             "INSERT OR REPLACE INTO \"{}\" ({}) VALUES ({})",
             change.table_name,
@@ -99,8 +94,10 @@ pub fn apply_changes(
             placeholders.join(", ")
         );
         let vals: Vec<String> = obj.values().map(json_to_sql_string).collect();
-        let params: Vec<&dyn rusqlite::types::ToSql> =
-            vals.iter().map(|v| v as &dyn rusqlite::types::ToSql).collect();
+        let params: Vec<&dyn rusqlite::types::ToSql> = vals
+            .iter()
+            .map(|v| v as &dyn rusqlite::types::ToSql)
+            .collect();
         if conn.execute(&sql, params.as_slice()).is_ok() {
             applied += 1;
         }

@@ -51,14 +51,21 @@ pub enum CapabilityCommands {
 
 pub async fn handle(cmd: CapabilityCommands) -> Result<(), CliError> {
     match cmd {
-        CapabilityCommands::List { ring, api_url, human } => {
+        CapabilityCommands::List {
+            ring,
+            api_url,
+            human,
+        } => {
             let qs = ring.map(|r| format!("?ring={r}")).unwrap_or_default();
-            crate::cli_http::fetch_and_print(
-                &format!("{api_url}/api/capabilities/list{qs}"),
-                human,
-            ).await
+            crate::cli_http::fetch_and_print(&format!("{api_url}/api/capabilities/list{qs}"), human)
+                .await
         }
-        CapabilityCommands::Invoke { name, input, agent, api_url } => {
+        CapabilityCommands::Invoke {
+            name,
+            input,
+            agent,
+            api_url,
+        } => {
             let parsed: serde_json::Value = serde_json::from_str(&input)
                 .map_err(|e| CliError::ApiCallFailed(format!("invalid JSON input: {e}")))?;
             let body = serde_json::json!({
@@ -74,7 +81,12 @@ pub async fn handle(cmd: CapabilityCommands) -> Result<(), CliError> {
             let url = format!("{api_url}/api/capabilities/register");
             crate::cli_http::post_and_print(&url, &body, false).await
         }
-        CapabilityCommands::Permissions { agent, grant, revoke, api_url } => {
+        CapabilityCommands::Permissions {
+            agent,
+            grant,
+            revoke,
+            api_url,
+        } => {
             let body = serde_json::json!({
                 "agent_id": agent,
                 "grant": grant,
@@ -83,11 +95,16 @@ pub async fn handle(cmd: CapabilityCommands) -> Result<(), CliError> {
             let url = format!("{api_url}/api/capabilities/permissions");
             crate::cli_http::post_and_print(&url, &body, false).await
         }
-        CapabilityCommands::Schema { name, api_url, human } => {
+        CapabilityCommands::Schema {
+            name,
+            api_url,
+            human,
+        } => {
             crate::cli_http::fetch_and_print(
                 &format!("{api_url}/api/capabilities/schema/{name}"),
                 human,
-            ).await
+            )
+            .await
         }
     }
 }

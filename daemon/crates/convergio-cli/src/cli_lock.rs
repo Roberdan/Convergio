@@ -85,7 +85,9 @@ pub async fn handle(cmd: LockCommands) {
             }
         }
         LockCommands::List { human, api_url } => {
-            if let Err(e) = crate::cli_http::fetch_and_print(&format!("{api_url}/api/ipc/locks"), human).await {
+            if let Err(e) =
+                crate::cli_http::fetch_and_print(&format!("{api_url}/api/ipc/locks"), human).await
+            {
                 eprintln!("error: {e}");
             }
         }

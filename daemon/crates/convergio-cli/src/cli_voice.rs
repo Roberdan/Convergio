@@ -51,10 +51,7 @@ pub async fn handle(cmd: VoiceCommands) -> Result<(), CliError> {
             crate::cli_http::post_and_print(&url, &body, false).await
         }
         VoiceCommands::Status { api_url, human } => {
-            crate::cli_http::fetch_and_print(
-                &format!("{api_url}/api/voice/status"),
-                human,
-            ).await
+            crate::cli_http::fetch_and_print(&format!("{api_url}/api/voice/status"), human).await
         }
         VoiceCommands::Test { api_url } => {
             let body = serde_json::json!({});

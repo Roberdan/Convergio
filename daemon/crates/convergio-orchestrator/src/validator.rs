@@ -55,9 +55,14 @@ pub fn get_pending(conn: &Connection) -> rusqlite::Result<Vec<QueueEntry>> {
     )?;
     let rows = stmt.query_map([], |r| {
         Ok(QueueEntry {
-            id: r.get(0)?, task_id: r.get(1)?, wave_id: r.get(2)?,
-            plan_id: r.get(3)?, status: r.get(4)?, created_at: r.get(5)?,
-            started_at: r.get(6)?, completed_at: r.get(7)?,
+            id: r.get(0)?,
+            task_id: r.get(1)?,
+            wave_id: r.get(2)?,
+            plan_id: r.get(3)?,
+            status: r.get(4)?,
+            created_at: r.get(5)?,
+            started_at: r.get(6)?,
+            completed_at: r.get(7)?,
         })
     })?;
     rows.collect()
@@ -70,9 +75,14 @@ pub fn list_queue(conn: &Connection) -> rusqlite::Result<Vec<QueueEntry>> {
     )?;
     let rows = stmt.query_map([], |r| {
         Ok(QueueEntry {
-            id: r.get(0)?, task_id: r.get(1)?, wave_id: r.get(2)?,
-            plan_id: r.get(3)?, status: r.get(4)?, created_at: r.get(5)?,
-            started_at: r.get(6)?, completed_at: r.get(7)?,
+            id: r.get(0)?,
+            task_id: r.get(1)?,
+            wave_id: r.get(2)?,
+            plan_id: r.get(3)?,
+            status: r.get(4)?,
+            created_at: r.get(5)?,
+            started_at: r.get(6)?,
+            completed_at: r.get(7)?,
         })
     })?;
     rows.collect()
@@ -103,10 +113,16 @@ pub fn get_verdict(conn: &Connection, task_id: i64) -> rusqlite::Result<Option<V
          JOIN validation_queue q ON v.queue_id = q.id
          WHERE q.task_id = ?1 ORDER BY v.id DESC LIMIT 1",
         params![task_id],
-        |r| Ok(Verdict {
-            id: r.get(0)?, queue_id: r.get(1)?, verdict: r.get(2)?,
-            report: r.get(3)?, validator: r.get(4)?, created_at: r.get(5)?,
-        }),
+        |r| {
+            Ok(Verdict {
+                id: r.get(0)?,
+                queue_id: r.get(1)?,
+                verdict: r.get(2)?,
+                report: r.get(3)?,
+                validator: r.get(4)?,
+                created_at: r.get(5)?,
+            })
+        },
     );
     match result {
         Ok(v) => Ok(Some(v)),
@@ -126,7 +142,10 @@ pub fn timeout_stale(conn: &Connection, max_age_secs: u64) -> rusqlite::Result<u
         .collect::<rusqlite::Result<Vec<_>>>()?;
     let count = ids.len();
     for id in &ids {
-        conn.execute("UPDATE validation_queue SET status='failed', completed_at=datetime('now') WHERE id=?1", params![id])?;
+        conn.execute(
+            "UPDATE validation_queue SET status='failed', completed_at=datetime('now') WHERE id=?1",
+            params![id],
+        )?;
         conn.execute(
             "INSERT INTO validation_verdicts (queue_id, verdict, report, validator) \
              VALUES (?1, 'timeout', 'Timed out waiting for validator', 'system')",
@@ -137,8 +156,12 @@ pub fn timeout_stale(conn: &Connection, max_age_secs: u64) -> rusqlite::Result<u
 }
 
 fn entry_verdict(db: &Connection, entry: &QueueEntry) -> &'static str {
-    let Some(tid) = entry.task_id else { return "needs_review" };
-    match db.query_row("SELECT status FROM tasks WHERE id=?1", params![tid], |r| r.get::<_, String>(0)) {
+    let Some(tid) = entry.task_id else {
+        return "needs_review";
+    };
+    match db.query_row("SELECT status FROM tasks WHERE id=?1", params![tid], |r| {
+        r.get::<_, String>(0)
+    }) {
         Ok(s) if s == "submitted" || s == "done" => "pass",
         Ok(s) => {
             tracing::warn!("validator_loop: task {tid} status '{s}'");
@@ -155,7 +178,10 @@ pub fn spawn_validator_loop(pool: convergio_db::pool::ConnPool) {
             tokio::time::sleep(std::time::Duration::from_secs(30)).await;
             let conn = match pool.get() {
                 Ok(c) => c,
-                Err(e) => { tracing::warn!("validator_loop: pool get failed: {e}"); continue; }
+                Err(e) => {
+                    tracing::warn!("validator_loop: pool get failed: {e}");
+                    continue;
+                }
             };
             match timeout_stale(&conn, 600) {
                 Ok(n) if n > 0 => tracing::info!("validator_loop: timed out {n} stale entries"),
@@ -164,14 +190,23 @@ pub fn spawn_validator_loop(pool: convergio_db::pool::ConnPool) {
             }
             let pending = match get_pending(&conn) {
                 Ok(p) => p,
-                Err(e) => { tracing::warn!("validator_loop: get_pending failed: {e}"); continue; }
+                Err(e) => {
+                    tracing::warn!("validator_loop: get_pending failed: {e}");
+                    continue;
+                }
             };
             for entry in &pending {
                 conn.execute(
                     "UPDATE validation_queue SET status='running', started_at=datetime('now') WHERE id=?1",
                     params![entry.id],
                 ).ok();
-                if let Err(e) = record_verdict(&conn, entry.id, entry_verdict(&conn, entry), Some("mechanical gate"), Some("validator-loop")) {
+                if let Err(e) = record_verdict(
+                    &conn,
+                    entry.id,
+                    entry_verdict(&conn, entry),
+                    Some("mechanical gate"),
+                    Some("validator-loop"),
+                ) {
                     tracing::warn!("validator_loop: record_verdict failed: {e}");
                 }
             }

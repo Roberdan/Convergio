@@ -16,16 +16,31 @@ pub async fn handle(api_url: &str) -> Result<(), CliError> {
     let project = fetch_json(&format!("{api_url}/api/project/convergio/tree")).await;
     let orgs = fetch_json(&format!("{api_url}/api/orgs")).await;
 
-    let proj_total = project.get("total_tasks").and_then(|v| v.as_i64()).unwrap_or(0);
-    let proj_done = project.get("tasks_done").and_then(|v| v.as_i64()).unwrap_or(0);
-    let proj_plans = project.get("plans").and_then(|v| v.as_array())
-        .map(|a| a.len()).unwrap_or(0);
+    let proj_total = project
+        .get("total_tasks")
+        .and_then(|v| v.as_i64())
+        .unwrap_or(0);
+    let proj_done = project
+        .get("tasks_done")
+        .and_then(|v| v.as_i64())
+        .unwrap_or(0);
+    let proj_plans = project
+        .get("plans")
+        .and_then(|v| v.as_array())
+        .map(|a| a.len())
+        .unwrap_or(0);
     let org_count = orgs.as_array().map(|a| a.len()).unwrap_or(0);
 
-    let version = health.get("version").and_then(|v| v.as_str()).unwrap_or("?");
+    let version = health
+        .get("version")
+        .and_then(|v| v.as_str())
+        .unwrap_or("?");
     let peers = health.get("peers").and_then(|v| v.as_i64()).unwrap_or(0);
     let ok = health.get("ok").and_then(|v| v.as_bool()).unwrap_or(false);
-    let uptime = health.get("uptime_secs").and_then(|v| v.as_i64()).unwrap_or(0);
+    let uptime = health
+        .get("uptime_secs")
+        .and_then(|v| v.as_i64())
+        .unwrap_or(0);
     let w = term_width();
 
     let plan_list = plans.get("plans").and_then(|v| v.as_array());
@@ -45,33 +60,50 @@ pub async fn handle(api_url: &str) -> Result<(), CliError> {
 
     println!();
     border(w, 'T');
-    let (dot, label) = if ok { (GREEN, "online") } else { (RED, "OFFLINE") };
+    let (dot, label) = if ok {
+        (GREEN, "online")
+    } else {
+        (RED, "OFFLINE")
+    };
     row(w, &format!("{BOLD}Convergio Platform{RESET} v{version}"));
-    row(w, &format!(
-        "Status: {dot}\u{25CF}{RESET} {label}  \u{2502}  \
-         Peers: {peers}  \u{2502}  Uptime: {}", fmt_up(uptime),
-    ));
+    row(
+        w,
+        &format!(
+            "Status: {dot}\u{25CF}{RESET} {label}  \u{2502}  \
+         Peers: {peers}  \u{2502}  Uptime: {}",
+            fmt_up(uptime),
+        ),
+    );
     border(w, 'M');
 
     if !active.is_empty() || !queued.is_empty() {
         row(w, &format!("{BOLD}{CYAN}ACTIVE PLANS{RESET}"));
-        for p in &active { plan_row(w, p, "doing"); }
-        for p in &queued { plan_row(w, p, "queued"); }
+        for p in &active {
+            plan_row(w, p, "doing");
+        }
+        for p in &queued {
+            plan_row(w, p, "queued");
+        }
         border(w, 'M');
     }
 
     if let Some(list) = recent.get("plans").and_then(|v| v.as_array()) {
         if !list.is_empty() {
             row(w, &format!("{BOLD}{CYAN}RECENT{RESET}"));
-            for p in list { plan_row(w, p, "recent"); }
+            for p in list {
+                plan_row(w, p, "recent");
+            }
             border(w, 'M');
         }
     }
 
-    row(w, &format!(
-        "{DIM}{proj_done}/{proj_total} tasks  \u{2502}  \
+    row(
+        w,
+        &format!(
+            "{DIM}{proj_done}/{proj_total} tasks  \u{2502}  \
          {proj_plans} plans  \u{2502}  {org_count} orgs{RESET}",
-    ));
+        ),
+    );
     border(w, 'B');
     println!();
     Ok(())
@@ -80,9 +112,11 @@ pub async fn handle(api_url: &str) -> Result<(), CliError> {
 // -- box drawing ----------------------------------------------------------
 
 fn term_width() -> usize {
-    std::env::var("COLUMNS").ok()
+    std::env::var("COLUMNS")
+        .ok()
         .and_then(|v| v.parse().ok())
-        .unwrap_or(60_usize).clamp(50, 120)
+        .unwrap_or(60_usize)
+        .clamp(50, 120)
 }
 
 fn border(w: usize, kind: char) {
@@ -90,7 +124,7 @@ fn border(w: usize, kind: char) {
     match kind {
         'T' => println!("\u{2554}{fill}\u{2557}"),
         'M' => println!("\u{2560}{fill}\u{2563}"),
-        _   => println!("\u{255A}{fill}\u{255D}"),
+        _ => println!("\u{255A}{fill}\u{255D}"),
     }
 }
 
@@ -106,7 +140,11 @@ fn plan_row(w: usize, p: &serde_json::Value, mode: &str) {
     let name = p.get("name").and_then(|v| v.as_str()).unwrap_or("?");
     let status = p.get("status").and_then(|v| v.as_str()).unwrap_or("?");
     let done = p.get("tasks_done").and_then(|v| v.as_i64()).unwrap_or(0);
-    let total = p.get("tasks_total").and_then(|v| v.as_i64()).unwrap_or(1).max(1);
+    let total = p
+        .get("tasks_total")
+        .and_then(|v| v.as_i64())
+        .unwrap_or(1)
+        .max(1);
     let short: String = name.chars().take(30).collect();
 
     let line = match mode {
@@ -117,9 +155,7 @@ fn plan_row(w: usize, p: &serde_json::Value, mode: &str) {
                  [{done}/{total} {bar}]",
             )
         }
-        "queued" => format!(
-            "{DIM}\u{25E6}{RESET} #{id:<5} {short:<30} {DIM}[queued]{RESET}",
-        ),
+        "queued" => format!("{DIM}\u{25E6}{RESET} #{id:<5} {short:<30} {DIM}[queued]{RESET}",),
         _ => {
             let icon = match status {
                 "completed" | "done" => format!("{GREEN}\u{2713}{RESET}"),
@@ -149,7 +185,9 @@ fn visible_len(s: &str) -> usize {
     let mut in_esc = false;
     for c in s.chars() {
         if in_esc {
-            if c.is_ascii_alphabetic() { in_esc = false; }
+            if c.is_ascii_alphabetic() {
+                in_esc = false;
+            }
         } else if c == '\x1b' {
             in_esc = true;
         } else {
@@ -163,12 +201,17 @@ fn fmt_up(secs: i64) -> String {
     let d = secs / 86400;
     let h = (secs % 86400) / 3600;
     let m = (secs % 3600) / 60;
-    if d > 0 { format!("{d}d {h}h") }
-    else if h > 0 { format!("{h}h {m}m") }
-    else { format!("{m}m") }
+    if d > 0 {
+        format!("{d}d {h}h")
+    } else if h > 0 {
+        format!("{h}h {m}m")
+    } else {
+        format!("{m}m")
+    }
 }
 
 async fn fetch_json(url: &str) -> serde_json::Value {
-    crate::cli_http::get_and_return(url).await
+    crate::cli_http::get_and_return(url)
+        .await
         .unwrap_or(serde_json::json!({}))
 }

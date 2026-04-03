@@ -85,8 +85,7 @@ mod tests {
     fn migrations_apply_cleanly() {
         let conn = Connection::open_in_memory().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
-        let applied =
-            convergio_db::migration::apply_migrations(&conn, "mesh", &migrations());
+        let applied = convergio_db::migration::apply_migrations(&conn, "mesh", &migrations());
         assert_eq!(applied.unwrap(), 2);
     }
 
@@ -95,8 +94,7 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
         convergio_db::migration::apply_migrations(&conn, "mesh", &migrations()).unwrap();
-        let applied =
-            convergio_db::migration::apply_migrations(&conn, "mesh", &migrations());
+        let applied = convergio_db::migration::apply_migrations(&conn, "mesh", &migrations());
         assert_eq!(applied.unwrap(), 0);
     }
 

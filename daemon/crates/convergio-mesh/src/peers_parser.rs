@@ -7,11 +7,7 @@ use std::collections::BTreeMap;
 
 use crate::peers_types::{PeerConfig, PeersError};
 
-fn require(
-    map: &BTreeMap<String, String>,
-    key: &str,
-    peer: &str,
-) -> Result<String, PeersError> {
+fn require(map: &BTreeMap<String, String>, key: &str, peer: &str) -> Result<String, PeersError> {
     map.get(key)
         .cloned()
         .ok_or_else(|| PeersError::MissingField {
@@ -27,10 +23,7 @@ fn parse_capabilities(raw: &str) -> Vec<String> {
         .collect()
 }
 
-fn build_peer(
-    name: &str,
-    kv: &BTreeMap<String, String>,
-) -> Result<PeerConfig, PeersError> {
+fn build_peer(name: &str, kv: &BTreeMap<String, String>) -> Result<PeerConfig, PeersError> {
     Ok(PeerConfig {
         ssh_alias: require(kv, "ssh_alias", name)?,
         user: require(kv, "user", name)?,
@@ -75,9 +68,7 @@ fn flush_section(
     Ok(())
 }
 
-pub fn parse_ini(
-    text: &str,
-) -> Result<(String, BTreeMap<String, PeerConfig>), PeersError> {
+pub fn parse_ini(text: &str) -> Result<(String, BTreeMap<String, PeerConfig>), PeersError> {
     let mut shared_secret = String::new();
     let mut peers: BTreeMap<String, PeerConfig> = BTreeMap::new();
     let mut current_section: Option<String> = None;
@@ -126,8 +117,14 @@ pub fn peer_to_ini(name: &str, p: &PeerConfig) -> String {
         "[{name}]\nssh_alias={}\nuser={}\nos={}\n\
          tailscale_ip={}\ndns_name={}\ncapabilities={}\n\
          role={}\nstatus={}\n",
-        p.ssh_alias, p.user, p.os, p.tailscale_ip, p.dns_name,
-        caps_str(&p.capabilities), p.role, p.status,
+        p.ssh_alias,
+        p.user,
+        p.os,
+        p.tailscale_ip,
+        p.dns_name,
+        caps_str(&p.capabilities),
+        p.role,
+        p.status,
     );
     if let Some(ref tb) = p.thunderbolt_ip {
         out.push_str(&format!("thunderbolt_ip={tb}\n"));
@@ -172,12 +169,20 @@ mod tests {
     #[test]
     fn roundtrip_peer_to_ini() {
         let peer = PeerConfig {
-            ssh_alias: "a".into(), user: "u".into(), os: "macos".into(),
-            tailscale_ip: "100.0.0.1".into(), dns_name: "d.ts.net".into(),
+            ssh_alias: "a".into(),
+            user: "u".into(),
+            os: "macos".into(),
+            tailscale_ip: "100.0.0.1".into(),
+            dns_name: "d.ts.net".into(),
             capabilities: vec!["claude".into(), "copilot".into()],
-            role: "worker".into(), status: "active".into(),
-            thunderbolt_ip: None, lan_ip: None, mac_address: None,
-            gh_account: None, runners: None, runner_paths: None,
+            role: "worker".into(),
+            status: "active".into(),
+            thunderbolt_ip: None,
+            lan_ip: None,
+            mac_address: None,
+            gh_account: None,
+            runners: None,
+            runner_paths: None,
             aliases: vec![],
         };
         let ini = peer_to_ini("test", &peer);

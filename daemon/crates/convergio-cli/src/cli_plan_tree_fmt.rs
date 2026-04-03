@@ -22,9 +22,7 @@ pub fn print_execution_tree(val: &Value) {
             let w_done = wave["tasks_done"].as_i64().unwrap_or(0);
             let w_total = wave["tasks_total"].as_i64().unwrap_or(0);
 
-            println!(
-                "\n  {wave_id}: {wave_name} [{wave_status}] ({w_done}/{w_total})"
-            );
+            println!("\n  {wave_id}: {wave_name} [{wave_status}] ({w_done}/{w_total})");
 
             if let Some(tasks) = entry["tasks"].as_array() {
                 for task in tasks {

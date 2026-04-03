@@ -82,7 +82,11 @@ pub fn get_budget_status(pool: &ConnPool, subscription: &str) -> IpcResult<Optio
             |r| r.get(0),
         )
         .unwrap_or(1);
-    let daily_avg = if day_count > 0 { total_spent / day_count as f64 } else { 0.0 };
+    let daily_avg = if day_count > 0 {
+        total_spent / day_count as f64
+    } else {
+        0.0
+    };
     let days_remaining = (reset_day - 1).max(1);
     Ok(Some(BudgetStatus {
         subscription: subscription.to_string(),
@@ -92,7 +96,11 @@ pub fn get_budget_status(pool: &ConnPool, subscription: &str) -> IpcResult<Optio
         days_remaining,
         daily_avg,
         projected_total: total_spent + daily_avg * days_remaining as f64,
-        usage_pct: if budget_usd > 0.0 { (total_spent / budget_usd) * 100.0 } else { 0.0 },
+        usage_pct: if budget_usd > 0.0 {
+            (total_spent / budget_usd) * 100.0
+        } else {
+            0.0
+        },
     }))
 }
 
