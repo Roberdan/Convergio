@@ -103,6 +103,10 @@ impl Extension for PromptsExtension {
     }
 
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
+        let conn = self.pool.get().map_err(|e| e.to_string())?;
+        if let Err(e) = crate::seed::run(&conn) {
+            tracing::warn!("prompt seed failed: {e}");
+        }
         tracing::info!("Prompts extension started");
         Ok(())
     }

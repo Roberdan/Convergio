@@ -480,6 +480,33 @@ dependencies = [
 [[package]]
 name = "convergio-daemon"
 version = "0.1.0"
+dependencies = [
+ "convergio-agent-runtime",
+ "convergio-backup",
+ "convergio-billing",
+ "convergio-db",
+ "convergio-depgraph",
+ "convergio-evidence",
+ "convergio-http-bridge",
+ "convergio-inference",
+ "convergio-ipc",
+ "convergio-kernel",
+ "convergio-longrunning",
+ "convergio-mesh",
+ "convergio-multitenancy",
+ "convergio-observatory",
+ "convergio-orchestrator",
+ "convergio-org",
+ "convergio-org-package",
+ "convergio-prompts",
+ "convergio-security",
+ "convergio-server",
+ "convergio-telemetry",
+ "convergio-types",
+ "convergio-voice",
+ "tokio",
+ "tracing",
+]
 
 [[package]]
 name = "convergio-db"
