@@ -58,8 +58,7 @@ mod tests {
         let conn = pool.get().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
         let applied =
-            convergio_db::migration::apply_migrations(&conn, "inference", &migrations())
-                .unwrap();
+            convergio_db::migration::apply_migrations(&conn, "inference", &migrations()).unwrap();
         assert_eq!(applied, 1);
     }
 }

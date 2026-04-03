@@ -94,7 +94,10 @@ impl MetricsCollector {
             .collect();
         models.sort();
         models.dedup();
-        models.into_iter().map(|m| self.metrics_for(&m, window)).collect()
+        models
+            .into_iter()
+            .map(|m| self.metrics_for(&m, window))
+            .collect()
     }
 }
 

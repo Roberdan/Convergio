@@ -5,9 +5,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 use convergio_db::pool::ConnPool;
-use convergio_types::extension::{
-    AppContext, ExtResult, Extension, Health, Metric, Migration,
-};
+use convergio_types::extension::{AppContext, ExtResult, Extension, Health, Metric, Migration};
 use convergio_types::manifest::{Capability, Manifest, ModuleKind};
 
 use crate::metrics::MetricsCollector;
@@ -63,8 +61,7 @@ impl Extension for InferenceExtension {
                 Capability {
                     name: "model-routing".to_string(),
                     version: "1.0".to_string(),
-                    description: "Semantic model selection by tier, budget, health"
-                        .to_string(),
+                    description: "Semantic model selection by tier, budget, health".to_string(),
                 },
                 Capability {
                     name: "token-tracking".to_string(),
@@ -74,8 +71,7 @@ impl Extension for InferenceExtension {
                 Capability {
                     name: "budget-enforcement".to_string(),
                     version: "1.0".to_string(),
-                    description: "Automatic tier downgrade on budget pressure"
-                        .to_string(),
+                    description: "Automatic tier downgrade on budget pressure".to_string(),
                 },
             ],
             requires: vec![],
@@ -100,11 +96,9 @@ impl Extension for InferenceExtension {
         match self.pool.get() {
             Ok(conn) => {
                 let ok = conn
-                    .query_row(
-                        "SELECT COUNT(*) FROM inference_costs",
-                        [],
-                        |r| r.get::<_, i64>(0),
-                    )
+                    .query_row("SELECT COUNT(*) FROM inference_costs", [], |r| {
+                        r.get::<_, i64>(0)
+                    })
                     .is_ok();
                 if ok {
                     Health::Ok
@@ -127,11 +121,9 @@ impl Extension for InferenceExtension {
         };
         let mut out = Vec::new();
 
-        if let Ok(n) = conn.query_row(
-            "SELECT COUNT(*) FROM inference_costs",
-            [],
-            |r| r.get::<_, f64>(0),
-        ) {
+        if let Ok(n) = conn.query_row("SELECT COUNT(*) FROM inference_costs", [], |r| {
+            r.get::<_, f64>(0)
+        }) {
             out.push(Metric {
                 name: "inference.requests.total".into(),
                 value: n,

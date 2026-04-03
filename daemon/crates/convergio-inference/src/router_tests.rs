@@ -37,15 +37,23 @@ fn req(tier: Option<InferenceTier>) -> InferenceRequest {
 fn routes_to_cheapest_local_model() {
     let mut router = ModelRouter::new();
     router.register_model(ep(
-        "haiku", ModelProvider::Cloud,
-        InferenceTier::T1Trivial, InferenceTier::T2Standard, 0.25,
+        "haiku",
+        ModelProvider::Cloud,
+        InferenceTier::T1Trivial,
+        InferenceTier::T2Standard,
+        0.25,
     ));
     router.register_model(ep(
-        "gemma", ModelProvider::Local,
-        InferenceTier::T1Trivial, InferenceTier::T2Standard, 0.0,
+        "gemma",
+        ModelProvider::Local,
+        InferenceTier::T1Trivial,
+        InferenceTier::T2Standard,
+        0.0,
     ));
 
-    let (resp, decision) = router.route(&req(Some(InferenceTier::T1Trivial)), false).unwrap();
+    let (resp, decision) = router
+        .route(&req(Some(InferenceTier::T1Trivial)), false)
+        .unwrap();
     assert_eq!(resp.model_used, "gemma");
     assert!(decision.fallback_chain.contains(&"haiku".to_string()));
 }
@@ -54,17 +62,25 @@ fn routes_to_cheapest_local_model() {
 fn skips_unhealthy_models() {
     let mut router = ModelRouter::new();
     let mut broken = ep(
-        "broken", ModelProvider::Local,
-        InferenceTier::T1Trivial, InferenceTier::T4Critical, 0.0,
+        "broken",
+        ModelProvider::Local,
+        InferenceTier::T1Trivial,
+        InferenceTier::T4Critical,
+        0.0,
     );
     broken.healthy = false;
     router.register_model(broken);
     router.register_model(ep(
-        "healthy", ModelProvider::Cloud,
-        InferenceTier::T1Trivial, InferenceTier::T4Critical, 1.0,
+        "healthy",
+        ModelProvider::Cloud,
+        InferenceTier::T1Trivial,
+        InferenceTier::T4Critical,
+        1.0,
     ));
 
-    let (resp, _) = router.route(&req(Some(InferenceTier::T2Standard)), false).unwrap();
+    let (resp, _) = router
+        .route(&req(Some(InferenceTier::T2Standard)), false)
+        .unwrap();
     assert_eq!(resp.model_used, "healthy");
 }
 
@@ -72,8 +88,11 @@ fn skips_unhealthy_models() {
 fn error_when_no_model_for_tier() {
     let mut router = ModelRouter::new();
     router.register_model(ep(
-        "tiny", ModelProvider::Local,
-        InferenceTier::T1Trivial, InferenceTier::T1Trivial, 0.0,
+        "tiny",
+        ModelProvider::Local,
+        InferenceTier::T1Trivial,
+        InferenceTier::T1Trivial,
+        0.0,
     ));
 
     let result = router.route(&req(Some(InferenceTier::T4Critical)), false);
@@ -84,12 +103,18 @@ fn error_when_no_model_for_tier() {
 fn budget_downgrade_changes_tier() {
     let mut router = ModelRouter::new();
     router.register_model(ep(
-        "haiku", ModelProvider::Cloud,
-        InferenceTier::T1Trivial, InferenceTier::T2Standard, 0.25,
+        "haiku",
+        ModelProvider::Cloud,
+        InferenceTier::T1Trivial,
+        InferenceTier::T2Standard,
+        0.25,
     ));
     router.register_model(ep(
-        "opus", ModelProvider::Cloud,
-        InferenceTier::T3Complex, InferenceTier::T4Critical, 15.0,
+        "opus",
+        ModelProvider::Cloud,
+        InferenceTier::T3Complex,
+        InferenceTier::T4Critical,
+        15.0,
     ));
 
     // T3 with downgrade -> T2, should use haiku not opus
@@ -104,13 +129,20 @@ fn budget_downgrade_changes_tier() {
 fn health_update_toggles_availability() {
     let mut router = ModelRouter::new();
     router.register_model(ep(
-        "model-a", ModelProvider::Local,
-        InferenceTier::T1Trivial, InferenceTier::T4Critical, 0.0,
+        "model-a",
+        ModelProvider::Local,
+        InferenceTier::T1Trivial,
+        InferenceTier::T4Critical,
+        0.0,
     ));
     router.set_health("model-a", false);
-    assert!(router.route(&req(Some(InferenceTier::T2Standard)), false).is_err());
+    assert!(router
+        .route(&req(Some(InferenceTier::T2Standard)), false)
+        .is_err());
 
     router.set_health("model-a", true);
-    let (resp, _) = router.route(&req(Some(InferenceTier::T2Standard)), false).unwrap();
+    let (resp, _) = router
+        .route(&req(Some(InferenceTier::T2Standard)), false)
+        .unwrap();
     assert_eq!(resp.model_used, "model-a");
 }

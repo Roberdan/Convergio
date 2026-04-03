@@ -102,7 +102,10 @@ async fn handle_routing(
         prompt: params.prompt.unwrap_or_default(),
         max_tokens: 256,
         tier_hint,
-        agent_id: params.agent_id.clone().unwrap_or_else(|| "anonymous".into()),
+        agent_id: params
+            .agent_id
+            .clone()
+            .unwrap_or_else(|| "anonymous".into()),
         org_id: None,
         plan_id: None,
         constraints: InferenceConstraints {

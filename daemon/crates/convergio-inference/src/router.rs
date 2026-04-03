@@ -67,7 +67,10 @@ impl ModelRouter {
         let decision = self.select(&effective_tier, &request.constraints, budget_downgrade)?;
 
         let response = InferenceResponse {
-            content: format!("[routed to {}] {}", decision.selected_model, &request.prompt),
+            content: format!(
+                "[routed to {}] {}",
+                decision.selected_model, &request.prompt
+            ),
             model_used: decision.selected_model.clone(),
             latency_ms: 0,
             tokens_used: request.max_tokens,
@@ -96,11 +99,21 @@ impl ModelRouter {
 
         // Sort: local first, then by input cost ascending
         candidates.sort_by(|a, b| {
-            let local_a = if a.provider == ModelProvider::Local { 0 } else { 1 };
-            let local_b = if b.provider == ModelProvider::Local { 0 } else { 1 };
-            local_a
-                .cmp(&local_b)
-                .then(a.cost_per_1k_input.partial_cmp(&b.cost_per_1k_input).unwrap())
+            let local_a = if a.provider == ModelProvider::Local {
+                0
+            } else {
+                1
+            };
+            let local_b = if b.provider == ModelProvider::Local {
+                0
+            } else {
+                1
+            };
+            local_a.cmp(&local_b).then(
+                a.cost_per_1k_input
+                    .partial_cmp(&b.cost_per_1k_input)
+                    .unwrap(),
+            )
         });
 
         // Apply max_cost constraint if set
@@ -112,8 +125,7 @@ impl ModelRouter {
         }
 
         let selected = candidates[0];
-        let fallback_chain: Vec<String> =
-            candidates[1..].iter().map(|e| e.name.clone()).collect();
+        let fallback_chain: Vec<String> = candidates[1..].iter().map(|e| e.name.clone()).collect();
 
         let reason = if budget_downgrade {
             format!("tier {:?} (downgraded from budget pressure)", tier)
