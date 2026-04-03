@@ -53,10 +53,7 @@ pub(crate) fn yaml_get_list(content: &str, key: &str) -> Option<Vec<String>> {
 /// Compare semver strings: returns true if `ver >= min`.
 pub(crate) fn semver_ge(ver: &str, min: &str) -> bool {
     let parse = |s: &str| -> (u32, u32, u32) {
-        let p: Vec<u32> = s
-            .split('.')
-            .filter_map(|p| p.parse::<u32>().ok())
-            .collect();
+        let p: Vec<u32> = s.split('.').filter_map(|p| p.parse::<u32>().ok()).collect();
         (
             p.first().copied().unwrap_or(0),
             p.get(1).copied().unwrap_or(0),

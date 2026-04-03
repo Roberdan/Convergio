@@ -18,11 +18,7 @@ pub struct SendParams<'a> {
     pub rate_limit: u32,
 }
 
-pub fn send(
-    pool: &ConnPool,
-    notify: &Arc<Notify>,
-    p: &SendParams<'_>,
-) -> IpcResult<String> {
+pub fn send(pool: &ConnPool, notify: &Arc<Notify>, p: &SendParams<'_>) -> IpcResult<String> {
     let conn = pool.get()?;
     check_rate_limit(&conn, p.from, p.rate_limit)?;
     let id = generate_msg_id();

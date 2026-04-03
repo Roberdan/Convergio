@@ -20,7 +20,6 @@ impl RiskLevel {
             Self::Critical => "CRITICAL",
         }
     }
-
 }
 
 impl std::str::FromStr for RiskLevel {
