@@ -101,10 +101,7 @@ pub async fn handle(cmd: ProjectCommands) -> Result<(), CliError> {
             input,
             yes,
             api_url,
-        } => {
-            crate::cli_project_handlers::handle_create(&name, &input, yes, &api_url)
-                .await
-        }
+        } => crate::cli_project_handlers::handle_create(&name, &input, yes, &api_url).await,
         ProjectCommands::List { api_url } => {
             crate::cli_project_handlers::handle_list(&api_url).await
         }

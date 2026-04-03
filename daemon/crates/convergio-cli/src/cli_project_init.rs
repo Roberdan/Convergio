@@ -71,15 +71,11 @@ async fn create_local_repo(name: &str) -> Result<(), CliError> {
 
 async fn create_github_repo(name: &str, visibility: &str) -> Result<(), CliError> {
     let vis_flag = format!("--{visibility}");
-    run_cmd("gh", &["repo", "create", name, &vis_flag, "--clone"])
-        .await?;
+    run_cmd("gh", &["repo", "create", name, &vis_flag, "--clone"]).await?;
     Ok(())
 }
 
-fn write_scaffold_files(
-    name: &str,
-    files: &[serde_json::Value],
-) -> Result<(), CliError> {
+fn write_scaffold_files(name: &str, files: &[serde_json::Value]) -> Result<(), CliError> {
     for file in files {
         let path_str = file["path"].as_str().unwrap_or("");
         let content = file["content"].as_str().unwrap_or("");
@@ -95,10 +91,7 @@ fn write_scaffold_files(
     Ok(())
 }
 
-async fn configure_branch_protection(
-    name: &str,
-    bp: &serde_json::Value,
-) {
+async fn configure_branch_protection(name: &str, bp: &serde_json::Value) {
     let branch = bp["branch"].as_str().unwrap_or("main");
     let checks: Vec<String> = bp["required_checks"]
         .as_array()
@@ -122,9 +115,7 @@ async fn configure_branch_protection(
         "restrictions": null,
     });
 
-    let endpoint = format!(
-        "repos/{{owner}}/{name}/branches/{branch}/protection"
-    );
+    let endpoint = format!("repos/{{owner}}/{name}/branches/{branch}/protection");
     let body_str = checks_json.to_string();
     let _ = std::process::Command::new("gh")
         .args(["api", &endpoint, "-X", "PUT", "--input", "-"])
@@ -147,7 +138,11 @@ async fn first_commit(name: &str, local: bool) -> Result<(), CliError> {
     run_cmd_in("git", &["add", "."], name).await?;
     run_cmd_in(
         "git",
-        &["commit", "-m", "feat: initial project scaffold by Convergio"],
+        &[
+            "commit",
+            "-m",
+            "feat: initial project scaffold by Convergio",
+        ],
         name,
     )
     .await?;
@@ -162,9 +157,7 @@ async fn run_cmd(prog: &str, args: &[&str]) -> Result<(), CliError> {
         .args(args)
         .status()
         .await
-        .map_err(|e| {
-            CliError::ApiCallFailed(format!("failed to run {prog}: {e}"))
-        })?;
+        .map_err(|e| CliError::ApiCallFailed(format!("failed to run {prog}: {e}")))?;
     if !status.success() {
         return Err(CliError::ApiCallFailed(format!(
             "{prog} exited with {}",
@@ -174,19 +167,13 @@ async fn run_cmd(prog: &str, args: &[&str]) -> Result<(), CliError> {
     Ok(())
 }
 
-async fn run_cmd_in(
-    prog: &str,
-    args: &[&str],
-    dir: &str,
-) -> Result<(), CliError> {
+async fn run_cmd_in(prog: &str, args: &[&str], dir: &str) -> Result<(), CliError> {
     let status = tokio::process::Command::new(prog)
         .args(args)
         .current_dir(dir)
         .status()
         .await
-        .map_err(|e| {
-            CliError::ApiCallFailed(format!("failed to run {prog}: {e}"))
-        })?;
+        .map_err(|e| CliError::ApiCallFailed(format!("failed to run {prog}: {e}")))?;
     if !status.success() {
         return Err(CliError::ApiCallFailed(format!(
             "{prog} exited with {}",

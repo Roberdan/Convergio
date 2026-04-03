@@ -57,8 +57,7 @@ pub async fn handle_create(
     })?;
 
     let input_abs = std::fs::canonicalize(input).unwrap_or_else(|_| input.clone());
-    let output_abs =
-        std::fs::canonicalize(&output_dir).unwrap_or_else(|_| output_dir.clone());
+    let output_abs = std::fs::canonicalize(&output_dir).unwrap_or_else(|_| output_dir.clone());
 
     let body = serde_json::json!({
         "name": name,
@@ -128,9 +127,7 @@ pub async fn handle_plans(id: &str, api_url: &str) -> Result<(), CliError> {
 }
 
 async fn fetch_deliverable_count(project_id: &str, api_url: &str) -> i64 {
-    let url = format!(
-        "{api_url}/api/deliverables?project_id={project_id}&count_only=true"
-    );
+    let url = format!("{api_url}/api/deliverables?project_id={project_id}&count_only=true");
     match reqwest::get(&url).await {
         Ok(resp) => match resp.json::<serde_json::Value>().await {
             Ok(v) => v
