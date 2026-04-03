@@ -2,6 +2,9 @@
 daemon/target/
 target/
 
+# Worktrees (agenti paralleli)
+.worktrees/
+
 # IDE
 .idea/
 .vscode/
