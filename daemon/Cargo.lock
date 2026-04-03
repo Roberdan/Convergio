@@ -437,6 +437,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-inference"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "convergio-db",
+ "convergio-ipc",
+ "convergio-telemetry",
+ "convergio-types",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "convergio-ipc"
 version = "0.1.0"
 dependencies = [

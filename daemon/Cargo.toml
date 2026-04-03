@@ -15,6 +15,7 @@ members = [
     "crates/convergio-org",
     "crates/convergio-voice",
     "crates/convergio-prompts",
+    "crates/convergio-inference",
 ]
 
 [package]
