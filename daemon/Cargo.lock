@@ -437,6 +437,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-depgraph"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "convergio-types",
+ "semver",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "convergio-http-bridge"
 version = "0.1.0"
 dependencies = [
