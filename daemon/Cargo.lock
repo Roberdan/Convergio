@@ -509,6 +509,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-evidence"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "convergio-db",
+ "convergio-orchestrator",
+ "convergio-telemetry",
+ "convergio-types",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "convergio-http-bridge"
 version = "0.1.0"
 dependencies = [
