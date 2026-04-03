@@ -384,6 +384,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
 
 [[package]]
+name = "convergio-agent-runtime"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "convergio-db",
+ "convergio-ipc",
+ "convergio-telemetry",
+ "convergio-types",
+ "r2d2",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "convergio-agents"
 version = "0.1.0"
 dependencies = [
