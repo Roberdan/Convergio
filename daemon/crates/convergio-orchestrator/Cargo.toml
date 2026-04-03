@@ -17,4 +17,5 @@ serde_json = { workspace = true }
 chrono = { workspace = true }
 rusqlite = { workspace = true }
 reqwest = { workspace = true }
+axum = { workspace = true }
 libc = { workspace = true }

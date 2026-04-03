@@ -50,6 +50,8 @@ pub mod cli_plan_show;
 pub mod cli_plan_template;
 pub mod cli_plan_tree_fmt;
 pub mod cli_project;
+pub mod cli_project_handlers;
+pub mod cli_project_init;
 pub mod cli_project_tree;
 pub mod cli_reap;
 pub mod cli_repo;

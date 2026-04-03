@@ -22,6 +22,7 @@ fn test_manifest() -> OrgManifest {
             max_compute_seconds: 300,
         },
         delegation: DelegationConfig::default(),
+        templates: Default::default(),
     }
 }
 

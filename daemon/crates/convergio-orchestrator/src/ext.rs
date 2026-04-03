@@ -57,6 +57,10 @@ impl Extension for OrchestratorExtension {
         crate::schema::migrations()
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        Some(crate::scaffold::scaffold_routes())
+    }
+
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
         tracing::info!("orchestrator: starting reactor, validator, reaper");
 
