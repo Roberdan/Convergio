@@ -107,17 +107,46 @@ pub trait Extension: Send + Sync {
 
 /// Shared application context passed to extensions.
 ///
-/// Contains the database pool, event bus handle, and configuration.
-/// Extensions receive this at startup and when building routes.
-#[derive(Default)]
+/// Type-erased resource map: the server fills it with concrete types
+/// (ConnPool, config, health registry, …) and extensions retrieve
+/// them by type via `get::<T>()`.
 pub struct AppContext {
-    // Will hold: db pool, event bus sender, config, telemetry handle
-    // Filled in during Fase 2-3 when convergio-db and convergio-telemetry exist.
-    _placeholder: (),
+    resources: std::collections::HashMap<
+        std::any::TypeId,
+        std::sync::Arc<dyn std::any::Any + Send + Sync>,
+    >,
+}
+
+impl Default for AppContext {
+    fn default() -> Self {
+        Self {
+            resources: std::collections::HashMap::new(),
+        }
+    }
 }
 
 impl AppContext {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Insert a resource. Overwrites any previous value of the same type.
+    pub fn insert<T: 'static + Send + Sync>(&mut self, val: T) {
+        self.resources
+            .insert(std::any::TypeId::of::<T>(), std::sync::Arc::new(val));
+    }
+
+    /// Retrieve a shared reference to a resource by type.
+    pub fn get<T: 'static + Send + Sync>(&self) -> Option<&T> {
+        self.resources
+            .get(&std::any::TypeId::of::<T>())
+            .and_then(|v| v.downcast_ref())
+    }
+
+    /// Retrieve an `Arc<T>` clone for a resource.
+    pub fn get_arc<T: 'static + Send + Sync>(&self) -> Option<std::sync::Arc<T>> {
+        self.resources
+            .get(&std::any::TypeId::of::<T>())
+            .and_then(|v| v.clone().downcast().ok())
     }
 }
