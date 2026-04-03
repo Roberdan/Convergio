@@ -36,13 +36,12 @@ Il prompt per la fase deve contenere:
 
 ## Grafo dipendenze
 
-DONE: 1-8 (types, telemetry, db, security, ipc, mesh, orchestrator, cli)
-WAVE C: 9 (server) + 10 (extensions) — possono essere in corso
-WAVE D: 11 (inference) + 12 (prompt) — deps gia soddisfatte, possono partire ora
-POST-12: 12b (migrate prompts) -> 12c (agent catalog)
-POST-13: 13 (org-package) -> 13b (project scaffolding)
-WAVE E: 14-18d
-WAVE F: 19-20
+DONE: 1-21 (tutte le fasi infrastruttura + wiring). Il daemon parte.
+REMAINING:
+  12b (migrate skill/agent prompts da ConvergioPlatform) -> 12c (agent catalog con spec complete)
+  13b (project scaffolding: cvg project init)
+  22 (cutover: migrazione dati + sostituzione vecchio daemon)
+Ordine: 12b -> 12c -> 13b -> 22 (sequenziale, ognuna dipende dalla precedente)
 
 Fasi 11 e 12 NON dipendono da 9 e 10. Possono partire subito.
 
