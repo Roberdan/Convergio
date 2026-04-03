@@ -24,6 +24,7 @@ members = [
     "crates/convergio-agent-runtime",
     "crates/convergio-billing",
     "crates/convergio-backup",
+    "crates/convergio-multitenancy",
 ]
 
 [package]
