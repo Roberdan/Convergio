@@ -102,7 +102,7 @@ fn row_to_extension(row: &rusqlite::Row<'_>) -> rusqlite::Result<HttpExtension> 
         rusqlite::Error::FromSqlConversionFailure(1, rusqlite::types::Type::Text, Box::new(e))
     })?;
     let state_str: String = row.get(6)?;
-    let state = BridgeState::from_str(&state_str).unwrap_or(BridgeState::Registered);
+    let state = BridgeState::parse(&state_str).unwrap_or(BridgeState::Registered);
     let last_hc: Option<String> = row.get(8)?;
     Ok(HttpExtension {
         id: row.get(0)?,

@@ -14,6 +14,12 @@ pub struct HttpBridgeExtension {
     shutdown_tx: Mutex<Option<tokio::sync::watch::Sender<bool>>>,
 }
 
+impl Default for HttpBridgeExtension {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HttpBridgeExtension {
     pub fn new() -> Self {
         Self {

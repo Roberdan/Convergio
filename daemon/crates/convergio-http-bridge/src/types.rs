@@ -27,7 +27,7 @@ impl BridgeState {
         }
     }
 
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         match s {
             "registered" => Some(Self::Registered),
             "active" => Some(Self::Active),
@@ -89,9 +89,9 @@ mod tests {
             BridgeState::Removed,
         ] {
             let s = state.as_str();
-            assert_eq!(BridgeState::from_str(s), Some(state));
+            assert_eq!(BridgeState::parse(s), Some(state));
         }
-        assert_eq!(BridgeState::from_str("unknown"), None);
+        assert_eq!(BridgeState::parse("unknown"), None);
     }
 
     #[test]
