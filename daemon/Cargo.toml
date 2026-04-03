@@ -21,6 +21,7 @@ members = [
     "crates/convergio-depgraph",
     "crates/convergio-longrunning",
     "crates/convergio-mcp",
+    "crates/convergio-agent-runtime",
 ]
 
 [package]

@@ -1,0 +1,22 @@
+[package]
+name = "convergio-agent-runtime"
+description = "Agent runtime: allocation, isolation, ownership, scheduling, concurrency, reaper"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+convergio-types = { path = "../convergio-types" }
+convergio-db = { path = "../convergio-db" }
+convergio-ipc = { path = "../convergio-ipc" }
+convergio-telemetry = { path = "../convergio-telemetry" }
+tracing = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+rusqlite = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+r2d2 = { workspace = true }
+axum = { workspace = true }
