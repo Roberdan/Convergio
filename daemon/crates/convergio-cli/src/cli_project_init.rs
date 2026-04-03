@@ -9,16 +9,26 @@ use crate::cli_error::CliError;
 /// 3. Write generated files
 /// 4. Configure branch protection if GitHub
 /// 5. First commit + push
-pub async fn handle_init(
-    name: &str,
-    lang: &str,
-    license: &str,
-    visibility: &str,
-    org_id: &str,
-    template: Option<&str>,
-    local: bool,
-    api_url: &str,
-) -> Result<(), CliError> {
+pub struct InitOpts<'a> {
+    pub name: &'a str,
+    pub lang: &'a str,
+    pub license: &'a str,
+    pub visibility: &'a str,
+    pub org_id: &'a str,
+    pub template: Option<&'a str>,
+    pub local: bool,
+    pub api_url: &'a str,
+}
+
+pub async fn handle_init(opts: &InitOpts<'_>) -> Result<(), CliError> {
+    let name = opts.name;
+    let lang = opts.lang;
+    let license = opts.license;
+    let visibility = opts.visibility;
+    let org_id = opts.org_id;
+    let template = opts.template;
+    let local = opts.local;
+    let api_url = opts.api_url;
     // 1. Scaffold via daemon API
     let mut body = serde_json::json!({
         "name": name,
@@ -124,13 +134,12 @@ async fn configure_branch_protection(name: &str, bp: &serde_json::Value) {
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .spawn()
-        .and_then(|mut child| {
+        .map(|mut child| {
             use std::io::Write;
             if let Some(ref mut stdin) = child.stdin {
                 let _ = stdin.write_all(body_str.as_bytes());
             }
             let _ = child.wait();
-            Ok(())
         });
 }
 

@@ -85,14 +85,16 @@ pub async fn handle(cmd: ProjectCommands) -> Result<(), CliError> {
             api_url,
         } => {
             crate::cli_project_init::handle_init(
-                &name,
-                &lang,
-                &license,
-                &visibility,
-                &org_id,
-                template.as_deref(),
-                local,
-                &api_url,
+                &crate::cli_project_init::InitOpts {
+                    name: &name,
+                    lang: &lang,
+                    license: &license,
+                    visibility: &visibility,
+                    org_id: &org_id,
+                    template: template.as_deref(),
+                    local,
+                    api_url: &api_url,
+                },
             )
             .await
         }
