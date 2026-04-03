@@ -118,8 +118,12 @@ mod tests {
     #[test]
     fn record_and_verify() {
         let chain = AuditChain::new();
-        chain.record("agent-1", "deploy", "/api/plans", "{}").unwrap();
-        chain.record("agent-1", "validate", "/api/tasks/1", "{}").unwrap();
+        chain
+            .record("agent-1", "deploy", "/api/plans", "{}")
+            .unwrap();
+        chain
+            .record("agent-1", "validate", "/api/tasks/1", "{}")
+            .unwrap();
         assert_eq!(chain.len(), 2);
         assert!(chain.verify().unwrap());
     }

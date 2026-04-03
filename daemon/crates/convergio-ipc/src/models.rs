@@ -99,7 +99,14 @@ pub fn add_subscription(pool: &ConnPool, sub: &Subscription) -> IpcResult<()> {
         "INSERT OR REPLACE INTO ipc_subscriptions
          (name, provider, plan, budget_usd, reset_day, models)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-        params![sub.name, sub.provider, sub.plan, sub.budget_usd, sub.reset_day, models_json],
+        params![
+            sub.name,
+            sub.provider,
+            sub.plan,
+            sub.budget_usd,
+            sub.reset_day,
+            models_json
+        ],
     )?;
     Ok(())
 }

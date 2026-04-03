@@ -4,7 +4,17 @@
 use rusqlite::{params, Connection};
 use serde::Serialize;
 
-type PlanRow = (i64, String, String, i64, i64, Option<String>, Option<String>, bool, Option<i64>);
+type PlanRow = (
+    i64,
+    String,
+    String,
+    i64,
+    i64,
+    Option<String>,
+    Option<String>,
+    bool,
+    Option<i64>,
+);
 
 #[derive(Debug, Clone, Serialize)]
 pub struct PlanNode {
@@ -47,9 +57,14 @@ pub fn project_plan_tree(conn: &Connection, project_id: &str) -> rusqlite::Resul
     let rows: Vec<PlanRow> = stmt
         .query_map(params![project_id], |r| {
             Ok((
-                r.get(0)?, r.get(1)?, r.get(2)?,
-                r.get(3)?, r.get(4)?, r.get(5)?,
-                r.get(6)?, r.get::<_, i64>(7).map(|v| v != 0)?,
+                r.get(0)?,
+                r.get(1)?,
+                r.get(2)?,
+                r.get(3)?,
+                r.get(4)?,
+                r.get(5)?,
+                r.get(6)?,
+                r.get::<_, i64>(7).map(|v| v != 0)?,
                 r.get(8)?,
             ))
         })?
@@ -65,7 +80,9 @@ pub fn project_plan_tree(conn: &Connection, project_id: &str) -> rusqlite::Resul
     }
 
     for row in &rows {
-        if row.7 { continue; }
+        if row.7 {
+            continue;
+        }
         let node = row_to_node(row);
         if let Some(parent_id) = row.8 {
             if let Some(master) = masters.iter_mut().find(|m| m.id == parent_id) {
@@ -96,8 +113,12 @@ pub fn dependencies_met(conn: &Connection, plan_id: i64) -> rusqlite::Result<boo
         |r| r.get(0),
     )?;
 
-    let Some(deps) = depends_on else { return Ok(true) };
-    if deps.trim().is_empty() { return Ok(true); }
+    let Some(deps) = depends_on else {
+        return Ok(true);
+    };
+    if deps.trim().is_empty() {
+        return Ok(true);
+    }
 
     for dep_id_str in deps.split(',') {
         let dep_id: i64 = match dep_id_str.trim().parse() {
@@ -117,11 +138,12 @@ pub fn dependencies_met(conn: &Connection, plan_id: i64) -> rusqlite::Result<boo
 }
 
 pub fn master_rollup(conn: &Connection, master_id: i64) -> rusqlite::Result<(i64, i64, String)> {
-    let mut stmt = conn.prepare(
-        "SELECT status, tasks_done, tasks_total FROM plans WHERE parent_plan_id = ?1",
-    )?;
+    let mut stmt = conn
+        .prepare("SELECT status, tasks_done, tasks_total FROM plans WHERE parent_plan_id = ?1")?;
     let children: Vec<(String, i64, i64)> = stmt
-        .query_map(params![master_id], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))?
+        .query_map(params![master_id], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?))
+        })?
         .filter_map(|r| r.ok())
         .collect();
 
@@ -134,7 +156,10 @@ pub fn master_rollup(conn: &Connection, master_id: i64) -> rusqlite::Result<(i64
 
     let status = if children.iter().all(|c| c.0 == "done" || c.0 == "cancelled") {
         "done"
-    } else if children.iter().any(|c| c.0 == "doing" || c.0 == "in_progress") {
+    } else if children
+        .iter()
+        .any(|c| c.0 == "doing" || c.0 == "in_progress")
+    {
         "doing"
     } else if children.iter().any(|c| c.0 == "blocked") {
         "blocked"
@@ -147,10 +172,15 @@ pub fn master_rollup(conn: &Connection, master_id: i64) -> rusqlite::Result<(i64
 
 fn row_to_node(row: &PlanRow) -> PlanNode {
     PlanNode {
-        id: row.0, name: row.1.clone(), status: row.2.clone(),
-        tasks_done: row.3, tasks_total: row.4,
-        depends_on: row.5.clone(), execution_mode: row.6.clone(),
-        is_master: row.7, children: Vec::new(),
+        id: row.0,
+        name: row.1.clone(),
+        status: row.2.clone(),
+        tasks_done: row.3,
+        tasks_total: row.4,
+        depends_on: row.5.clone(),
+        execution_mode: row.6.clone(),
+        is_master: row.7,
+        children: Vec::new(),
     }
 }
 
@@ -172,8 +202,11 @@ mod tests {
         let pc = pool.get().unwrap();
         convergio_db::migration::ensure_registry(&pc).unwrap();
         convergio_db::migration::apply_migrations(
-            &pc, "orchestrator", &crate::schema::migrations(),
-        ).unwrap();
+            &pc,
+            "orchestrator",
+            &crate::schema::migrations(),
+        )
+        .unwrap();
         // Apply same schema to our direct connection
         for m in crate::schema::migrations() {
             conn.execute_batch(m.up).unwrap();
@@ -187,7 +220,8 @@ mod tests {
         conn.execute(
             "INSERT INTO plans (id, project_id, name) VALUES (1, 'p1', 'plan-a')",
             [],
-        ).unwrap();
+        )
+        .unwrap();
         assert!(dependencies_met(&conn, 1).unwrap());
     }
 
@@ -197,7 +231,8 @@ mod tests {
         conn.execute_batch(
             "INSERT INTO plans (id, project_id, name, status) VALUES (1, 'p1', 'dep', 'doing');
              INSERT INTO plans (id, project_id, name, depends_on) VALUES (2, 'p1', 'child', '1');",
-        ).unwrap();
+        )
+        .unwrap();
         assert!(!dependencies_met(&conn, 2).unwrap());
     }
 
@@ -207,7 +242,8 @@ mod tests {
         conn.execute_batch(
             "INSERT INTO plans (id, project_id, name, status) VALUES (1, 'p1', 'dep', 'done');
              INSERT INTO plans (id, project_id, name, depends_on) VALUES (2, 'p1', 'child', '1');",
-        ).unwrap();
+        )
+        .unwrap();
         assert!(dependencies_met(&conn, 2).unwrap());
     }
 

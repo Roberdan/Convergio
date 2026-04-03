@@ -56,9 +56,7 @@ async fn main() -> ExitCode {
         if !matches!(command, Commands::Setup { .. })
             && !convergio_cli::paths::config_path().exists()
         {
-            eprintln!(
-                "hint: First time? Run `cvg setup` to configure Convergio."
-            );
+            eprintln!("hint: First time? Run `cvg setup` to configure Convergio.");
         }
     }
 

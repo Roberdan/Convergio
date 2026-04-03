@@ -46,7 +46,11 @@ impl MeshExtension {
                 |r| r.get(0),
             )
             .ok();
-        Ok(MeshStats { peers_online, total_synced, last_sync_latency_ms })
+        Ok(MeshStats {
+            peers_online,
+            total_synced,
+            last_sync_latency_ms,
+        })
     }
 }
 
@@ -74,13 +78,11 @@ impl Extension for MeshExtension {
                     description: "Remote task delegation progress".into(),
                 },
             ],
-            requires: vec![
-                Dependency {
-                    capability: "db-pool".into(),
-                    version_req: ">=0.1.0".into(),
-                    required: true,
-                },
-            ],
+            requires: vec![Dependency {
+                capability: "db-pool".into(),
+                version_req: ">=0.1.0".into(),
+                required: true,
+            }],
             agent_tools: vec![],
         }
     }
@@ -148,14 +150,25 @@ impl HealthCheck for MeshExtension {
     fn check(&self) -> ComponentHealth {
         let (status, message) = match self.stats() {
             Ok(s) => (
-                if s.peers_online > 0 { Health::Ok } else {
-                    Health::Degraded { reason: "no peers".into() }
+                if s.peers_online > 0 {
+                    Health::Ok
+                } else {
+                    Health::Degraded {
+                        reason: "no peers".into(),
+                    }
                 },
-                Some(format!("{} peers, {} synced", s.peers_online, s.total_synced)),
+                Some(format!(
+                    "{} peers, {} synced",
+                    s.peers_online, s.total_synced
+                )),
             ),
             Err(e) => (Health::Down { reason: e }, None),
         };
-        ComponentHealth { name: "mesh".into(), status, message }
+        ComponentHealth {
+            name: "mesh".into(),
+            status,
+            message,
+        }
     }
 }
 

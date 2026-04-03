@@ -23,11 +23,14 @@ pub async fn list_orgs(api_url: &str) -> Result<(), CliError> {
 pub async fn show_org(id: &str, api_url: &str) -> Result<(), CliError> {
     let detail = fetch_org_detail(api_url, id).await?;
     let decisions = get_and_return(&format!("{api_url}/api/orgs/{id}/decisions"))
-        .await.unwrap_or_else(|_| json!({"decisions": []}));
+        .await
+        .unwrap_or_else(|_| json!({"decisions": []}));
     let telemetry = get_and_return(&format!("{api_url}/api/orgs/{id}/telemetry?period=day"))
-        .await.unwrap_or_else(|_| json!({"aggregate": {}}));
+        .await
+        .unwrap_or_else(|_| json!({"aggregate": {}}));
     let digest = get_and_return(&format!("{api_url}/api/orgs/{id}/digest"))
-        .await.unwrap_or_else(|_| json!({"digest": null}));
+        .await
+        .unwrap_or_else(|_| json!({"digest": null}));
     let out = json!({
         "org": detail["org"],
         "members": detail["members"],
@@ -112,12 +115,18 @@ fn render_single_orgchart(data: &Value) {
 }
 
 pub fn format_org_row(org_detail: &Value) -> String {
-    let id = org_detail["org"]["id"].as_str()
-        .or_else(|| org_detail["id"].as_str()).unwrap_or("-");
-    let status = org_detail["org"]["status"].as_str()
-        .or_else(|| org_detail["status"].as_str()).unwrap_or("-");
-    let ceo = org_detail["org"]["ceo_agent"].as_str()
-        .or_else(|| org_detail["ceo_agent"].as_str()).unwrap_or("-");
+    let id = org_detail["org"]["id"]
+        .as_str()
+        .or_else(|| org_detail["id"].as_str())
+        .unwrap_or("-");
+    let status = org_detail["org"]["status"]
+        .as_str()
+        .or_else(|| org_detail["status"].as_str())
+        .unwrap_or("-");
+    let ceo = org_detail["org"]["ceo_agent"]
+        .as_str()
+        .or_else(|| org_detail["ceo_agent"].as_str())
+        .unwrap_or("-");
     let members = org_detail["member_count"].as_u64().unwrap_or(0);
     let budget = org_detail["budget_usage_pct"].as_f64().unwrap_or(0.0);
     let color = if status == "active" { GREEN } else { YELLOW };

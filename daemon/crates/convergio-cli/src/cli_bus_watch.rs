@@ -24,8 +24,7 @@ pub async fn run_watch(name: &str, api_url: &str) -> Result<(), CliError> {
     let mut stream = resp.bytes_stream();
     let mut buffer = String::new();
     while let Some(item) = stream.next().await {
-        let chunk =
-            item.map_err(|e| CliError::ApiCallFailed(format!("stream read error: {e}")))?;
+        let chunk = item.map_err(|e| CliError::ApiCallFailed(format!("stream read error: {e}")))?;
         buffer.push_str(&String::from_utf8_lossy(&chunk));
         while let Some(pos) = buffer.find('\n') {
             let line = buffer[..pos].to_string();

@@ -22,12 +22,7 @@ pub fn register_skills(
     Ok(())
 }
 
-pub fn update_skill_usage(
-    pool: &ConnPool,
-    agent: &str,
-    host: &str,
-    skill: &str,
-) -> IpcResult<()> {
+pub fn update_skill_usage(pool: &ConnPool, agent: &str, host: &str, skill: &str) -> IpcResult<()> {
     let conn = pool.get()?;
     conn.execute(
         "UPDATE ipc_agent_skills SET last_used = strftime('%Y-%m-%dT%H:%M:%f','now')
@@ -52,9 +47,7 @@ pub fn get_skill_pool(pool: &ConnPool) -> IpcResult<HashMap<String, Vec<AgentSki
         "SELECT agent, host, skill, confidence, last_used
          FROM ipc_agent_skills ORDER BY skill, confidence DESC",
     )?;
-    let rows = stmt
-        .query_map([], map_skill)?
-        .filter_map(|r| r.ok());
+    let rows = stmt.query_map([], map_skill)?.filter_map(|r| r.ok());
     let mut result: HashMap<String, Vec<AgentSkill>> = HashMap::new();
     for skill in rows {
         result.entry(skill.skill.clone()).or_default().push(skill);
@@ -154,8 +147,13 @@ mod tests {
     #[test]
     fn register_and_query_skills() {
         let p = pool();
-        register_skills(&p, "elena", "m5max", &[("legal-review", 0.9), ("drafting", 0.7)])
-            .unwrap();
+        register_skills(
+            &p,
+            "elena",
+            "m5max",
+            &[("legal-review", 0.9), ("drafting", 0.7)],
+        )
+        .unwrap();
         let skills = get_skills_for_agent(&p, "elena").unwrap();
         assert_eq!(skills.len(), 2);
     }

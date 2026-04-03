@@ -82,9 +82,17 @@ impl Extension for OrchestratorExtension {
                 let ok = conn
                     .query_row("SELECT COUNT(*) FROM plans", [], |r| r.get::<_, i64>(0))
                     .is_ok();
-                if ok { Health::Ok } else { Health::Degraded { reason: "plans table inaccessible".into() } }
+                if ok {
+                    Health::Ok
+                } else {
+                    Health::Degraded {
+                        reason: "plans table inaccessible".into(),
+                    }
+                }
             }
-            Err(e) => Health::Down { reason: format!("pool error: {e}") },
+            Err(e) => Health::Down {
+                reason: format!("pool error: {e}"),
+            },
         }
     }
 
@@ -95,25 +103,47 @@ impl Extension for OrchestratorExtension {
         };
         let mut metrics = Vec::new();
         if let Ok(n) = conn.query_row("SELECT COUNT(*) FROM plans", [], |r| r.get::<_, f64>(0)) {
-            metrics.push(Metric { name: "orchestrator.plans.total".into(), value: n, labels: vec![] });
+            metrics.push(Metric {
+                name: "orchestrator.plans.total".into(),
+                value: n,
+                labels: vec![],
+            });
         }
         if let Ok(n) = conn.query_row(
-            "SELECT COUNT(*) FROM tasks WHERE status='in_progress'", [], |r| r.get::<_, f64>(0),
+            "SELECT COUNT(*) FROM tasks WHERE status='in_progress'",
+            [],
+            |r| r.get::<_, f64>(0),
         ) {
-            metrics.push(Metric { name: "orchestrator.tasks.active".into(), value: n, labels: vec![] });
+            metrics.push(Metric {
+                name: "orchestrator.tasks.active".into(),
+                value: n,
+                labels: vec![],
+            });
         }
         if let Ok(n) = conn.query_row(
-            "SELECT COUNT(*) FROM validation_queue WHERE status='pending'", [], |r| r.get::<_, f64>(0),
+            "SELECT COUNT(*) FROM validation_queue WHERE status='pending'",
+            [],
+            |r| r.get::<_, f64>(0),
         ) {
-            metrics.push(Metric { name: "orchestrator.validations.pending".into(), value: n, labels: vec![] });
+            metrics.push(Metric {
+                name: "orchestrator.validations.pending".into(),
+                value: n,
+                labels: vec![],
+            });
         }
         metrics
     }
 
     fn scheduled_tasks(&self) -> Vec<ScheduledTask> {
         vec![
-            ScheduledTask { name: "reaper", cron: "*/5 * * * *" },
-            ScheduledTask { name: "validator", cron: "* * * * *" },
+            ScheduledTask {
+                name: "reaper",
+                cron: "*/5 * * * *",
+            },
+            ScheduledTask {
+                name: "validator",
+                cron: "* * * * *",
+            },
         ]
     }
 }

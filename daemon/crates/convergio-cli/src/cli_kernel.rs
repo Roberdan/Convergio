@@ -143,19 +143,24 @@ async fn dispatch_inner(cmd: KernelCommands) -> Result<(), CliError> {
             )
             .await
         }
-        KernelCommands::Say { text, api_url, locale } => {
+        KernelCommands::Say {
+            text,
+            api_url,
+            locale,
+        } => {
             let body = serde_json::json!({ "text": text, "locale": locale });
             crate::cli_http::post_and_print(&format!("{api_url}/api/kernel/speak"), &body, false)
                 .await
         }
         KernelCommands::Setup { script } => {
-            let script_path = script.unwrap_or_else(|| {
-                "scripts/kernel/setup-models.sh".to_string()
-            });
+            let script_path =
+                script.unwrap_or_else(|| "scripts/kernel/setup-models.sh".to_string());
             let status = std::process::Command::new("bash")
                 .arg(&script_path)
                 .status()
-                .map_err(|e| CliError::ApiCallFailed(format!("failed to launch {script_path}: {e}")))?;
+                .map_err(|e| {
+                    CliError::ApiCallFailed(format!("failed to launch {script_path}: {e}"))
+                })?;
             if status.success() {
                 Ok(())
             } else {
@@ -181,17 +186,14 @@ fn print_status_table(val: &serde_json::Value) {
         ("uptime_secs", val["uptime_secs"].to_string()),
         (
             "active_node",
-            val["active_node"]
-                .as_str()
-                .unwrap_or("—")
-                .to_string(),
+            val["active_node"].as_str().unwrap_or("—").to_string(),
         ),
         (
             "last_check",
             val["last_check"].as_str().unwrap_or("—").to_string(),
         ),
     ];
-    println!("{:<16} {}", "field", "value");
+    println!("{:<16} value", "field");
     println!("{}", "-".repeat(40));
     for (k, v) in &rows {
         println!("{k:<16} {v}");
@@ -206,7 +208,7 @@ fn print_logs_table(val: &serde_json::Value) {
         println!("(no events)");
         return;
     }
-    println!("{:<24} {:<8} {}", "timestamp", "level", "message");
+    println!("{:<24} {:<8} message", "timestamp", "level");
     println!("{}", "-".repeat(72));
     for ev in events {
         let ts = ev["timestamp"].as_str().unwrap_or("?");
@@ -228,7 +230,7 @@ fn print_test_table(val: &serde_json::Value) {
         );
         return;
     }
-    println!("{:<28} {:<8} {}", "check", "status", "detail");
+    println!("{:<28} {:<8} detail", "check", "status");
     println!("{}", "-".repeat(72));
     for ch in checks {
         let name = ch["name"].as_str().unwrap_or("?");

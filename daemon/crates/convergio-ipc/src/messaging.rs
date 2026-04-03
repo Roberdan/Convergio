@@ -9,23 +9,23 @@ use convergio_db::pool::ConnPool;
 
 pub const DEFAULT_RATE_LIMIT: u32 = 100;
 
-pub fn send(
-    pool: &ConnPool,
-    notify: &Arc<Notify>,
-    from: &str,
-    to: &str,
-    content: &str,
-    msg_type: &str,
-    priority: i32,
-    rate_limit: u32,
-) -> IpcResult<String> {
+pub struct SendParams<'a> {
+    pub from: &'a str,
+    pub to: &'a str,
+    pub content: &'a str,
+    pub msg_type: &'a str,
+    pub priority: i32,
+    pub rate_limit: u32,
+}
+
+pub fn send(pool: &ConnPool, notify: &Arc<Notify>, p: &SendParams<'_>) -> IpcResult<String> {
     let conn = pool.get()?;
-    check_rate_limit(&conn, from, rate_limit)?;
+    check_rate_limit(&conn, p.from, p.rate_limit)?;
     let id = generate_msg_id();
     conn.execute(
         "INSERT INTO ipc_messages (id, from_agent, to_agent, content, msg_type, priority)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-        params![id, from, to, content, msg_type, priority],
+        params![id, p.from, p.to, p.content, p.msg_type, p.priority],
     )?;
     notify.notify_waiters();
     Ok(id)
@@ -169,17 +169,13 @@ pub fn history(
     let refs: Vec<&dyn rusqlite::types::ToSql> = p.iter().map(|v| v.as_ref()).collect();
     let mut stmt = conn.prepare(&sql)?;
     let msgs = stmt
-        .query_map(refs.as_slice(), |row| map_message(row))?
+        .query_map(refs.as_slice(), map_message)?
         .filter_map(|r| r.ok())
         .collect();
     Ok(msgs)
 }
 
-fn check_rate_limit(
-    conn: &rusqlite::Connection,
-    from: &str,
-    limit: u32,
-) -> IpcResult<()> {
+fn check_rate_limit(conn: &rusqlite::Connection, from: &str, limit: u32) -> IpcResult<()> {
     let count: u32 = conn.query_row(
         "SELECT COUNT(*) FROM ipc_messages
          WHERE from_agent = ?1 AND created_at > datetime('now', '-1 minute')",
@@ -226,7 +222,19 @@ mod tests {
     #[test]
     fn send_and_receive() {
         let (p, n) = setup();
-        let id = send(&p, &n, "elena", "baccio", "ciao", "text", 0, 100).unwrap();
+        let id = send(
+            &p,
+            &n,
+            &SendParams {
+                from: "elena",
+                to: "baccio",
+                content: "ciao",
+                msg_type: "text",
+                priority: 0,
+                rate_limit: 100,
+            },
+        )
+        .unwrap();
         assert!(!id.is_empty());
         let msgs = receive(&p, "baccio", None, None, 10, false).unwrap();
         assert_eq!(msgs.len(), 1);
@@ -245,17 +253,64 @@ mod tests {
     fn rate_limit_enforced() {
         let (p, n) = setup();
         for i in 0..5 {
-            send(&p, &n, "spammer", "target", &format!("msg{i}"), "text", 0, 5).unwrap();
+            send(
+                &p,
+                &n,
+                &SendParams {
+                    from: "spammer",
+                    to: "target",
+                    content: &format!("msg{i}"),
+                    msg_type: "text",
+                    priority: 0,
+                    rate_limit: 5,
+                },
+            )
+            .unwrap();
         }
-        let err = send(&p, &n, "spammer", "target", "one more", "text", 0, 5);
+        let err = send(
+            &p,
+            &n,
+            &SendParams {
+                from: "spammer",
+                to: "target",
+                content: "one more",
+                msg_type: "text",
+                priority: 0,
+                rate_limit: 5,
+            },
+        );
         assert!(matches!(err, Err(IpcError::RateLimited(_))));
     }
 
     #[test]
     fn history_returns_messages() {
         let (p, n) = setup();
-        send(&p, &n, "a", "b", "first", "text", 0, 100).unwrap();
-        send(&p, &n, "b", "a", "reply", "text", 0, 100).unwrap();
+        send(
+            &p,
+            &n,
+            &SendParams {
+                from: "a",
+                to: "b",
+                content: "first",
+                msg_type: "text",
+                priority: 0,
+                rate_limit: 100,
+            },
+        )
+        .unwrap();
+        send(
+            &p,
+            &n,
+            &SendParams {
+                from: "b",
+                to: "a",
+                content: "reply",
+                msg_type: "text",
+                priority: 0,
+                rate_limit: 100,
+            },
+        )
+        .unwrap();
         let msgs = history(&p, Some("a"), None, 10, None).unwrap();
         assert_eq!(msgs.len(), 2);
     }

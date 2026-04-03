@@ -58,7 +58,10 @@ pub async fn handle(cmd: WhoCommands, api_url: &str) -> Result<(), CliError> {
             if let Ok(tb) = cli_http::get_and_return(&tree_url).await {
                 if let Some(tree) = tb["tree"].as_array() {
                     if !tree.is_empty() {
-                        println!("\nIPC Agent Tree ({} registered):", tb["total"].as_i64().unwrap_or(0));
+                        println!(
+                            "\nIPC Agent Tree ({} registered):",
+                            tb["total"].as_i64().unwrap_or(0)
+                        );
                         for node in tree {
                             print_tree_node(node, 0);
                         }

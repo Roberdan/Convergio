@@ -166,7 +166,10 @@ mod tests {
         assert_eq!(entry.version, 2);
 
         context_delete(&p, "plan_id").unwrap();
-        assert!(matches!(context_get(&p, "plan_id"), Err(IpcError::NotFound(_))));
+        assert!(matches!(
+            context_get(&p, "plan_id"),
+            Err(IpcError::NotFound(_))
+        ));
     }
 
     #[test]

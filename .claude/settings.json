@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/Roberdan/GitHub/convergio/daemon && CHANGED=\"$CLAUDE_TOOL_ARG_FILE_PATH\" && case \"$CHANGED\" in *.rs) CRATE=$(echo \"$CHANGED\" | sed -n 's|.*/crates/\\([^/]*\\)/.*|\\1|p') && if [ -n \"$CRATE\" ]; then cargo clippy -p \"$CRATE\" -- -D warnings 2>&1; else cargo clippy --workspace -- -D warnings 2>&1; fi ;; esac",
+            "timeout": 30,
+            "blocking": true
+          }
+        ]
+      }
+    ]
+  }
+}

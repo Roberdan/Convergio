@@ -19,9 +19,7 @@ pub fn ensure_registry(conn: &Connection) -> rusqlite::Result<()> {
 
 /// Returns the current version for a module, or 0 if not yet applied.
 pub fn current_version(conn: &Connection, module: &str) -> rusqlite::Result<u32> {
-    let mut stmt = conn.prepare(
-        "SELECT version FROM _schema_registry WHERE module = ?1",
-    )?;
+    let mut stmt = conn.prepare("SELECT version FROM _schema_registry WHERE module = ?1")?;
     let version = stmt
         .query_row([module], |row| row.get::<_, u32>(0))
         .unwrap_or(0);

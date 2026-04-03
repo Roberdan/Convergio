@@ -30,8 +30,4 @@ macro_rules! impl_message_error_from {
     };
 }
 
-impl_message_error_from!(
-    std::io::Error,
-    std::net::AddrParseError,
-    serde_json::Error,
-);
+impl_message_error_from!(std::io::Error, std::net::AddrParseError, serde_json::Error,);

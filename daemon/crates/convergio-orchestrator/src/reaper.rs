@@ -26,19 +26,23 @@ pub fn reap(pool: &ConnPool) -> Result<(usize, usize, usize), Box<dyn std::error
     )?;
 
     // 3. Orphan IPC messages: older than 7 days
-    let sessions_cleaned = conn.execute(
-        "DELETE FROM ipc_messages WHERE created_at < datetime('now', '-7 days')",
-        [],
-    ).unwrap_or(0);
+    let sessions_cleaned = conn
+        .execute(
+            "DELETE FROM ipc_messages WHERE created_at < datetime('now', '-7 days')",
+            [],
+        )
+        .unwrap_or(0);
 
     // 4. Orphan tasks: in_progress but assigned agent is dead
-    let orphan_tasks = conn.execute(
-        "UPDATE tasks SET status='pending', executor_agent=NULL \
+    let orphan_tasks = conn
+        .execute(
+            "UPDATE tasks SET status='pending', executor_agent=NULL \
          WHERE status='in_progress' \
          AND executor_agent IS NOT NULL \
          AND executor_agent NOT IN (SELECT name FROM ipc_agents)",
-        [],
-    ).unwrap_or(0);
+            [],
+        )
+        .unwrap_or(0);
     if orphan_tasks > 0 {
         tracing::warn!("reaper: reset {orphan_tasks} orphan in_progress tasks to pending");
     }
@@ -74,11 +78,18 @@ pub fn reap_orphan_processes(max_age: std::time::Duration) -> usize {
                 continue;
             }
             let parts: Vec<&str> = line.split_whitespace().collect();
-            if parts.len() < 3 { continue; }
-            let pid: i32 = match parts[0].parse() { Ok(p) => p, Err(_) => continue };
+            if parts.len() < 3 {
+                continue;
+            }
+            let pid: i32 = match parts[0].parse() {
+                Ok(p) => p,
+                Err(_) => continue,
+            };
             let age = parse_etime(parts[1]);
             if age >= max_secs {
-                unsafe { libc::kill(pid, libc::SIGTERM); }
+                unsafe {
+                    libc::kill(pid, libc::SIGTERM);
+                }
                 killed += 1;
                 tracing::info!("reaper: killed orphan copilot pid={pid} age={age}s");
             }
@@ -136,8 +147,18 @@ mod tests {
         // Disable FK enforcement in tests to allow inserting without full referential chain
         conn.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
-        convergio_db::migration::apply_migrations(&conn, "ipc", &convergio_ipc::schema::migrations()).unwrap();
-        convergio_db::migration::apply_migrations(&conn, "orchestrator", &crate::schema::migrations()).unwrap();
+        convergio_db::migration::apply_migrations(
+            &conn,
+            "ipc",
+            &convergio_ipc::schema::migrations(),
+        )
+        .unwrap();
+        convergio_db::migration::apply_migrations(
+            &conn,
+            "orchestrator",
+            &crate::schema::migrations(),
+        )
+        .unwrap();
         pool
     }
 
@@ -153,7 +174,9 @@ mod tests {
         let (reaped, _, _) = reap(&pool).unwrap();
         assert!(reaped >= 1);
         let conn = pool.get().unwrap();
-        let c: i64 = conn.query_row("SELECT COUNT(*) FROM ipc_agents", [], |r| r.get(0)).unwrap();
+        let c: i64 = conn
+            .query_row("SELECT COUNT(*) FROM ipc_agents", [], |r| r.get(0))
+            .unwrap();
         assert_eq!(c, 1);
     }
 
@@ -163,12 +186,18 @@ mod tests {
         {
             let conn = pool.get().unwrap();
             conn.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
-            conn.execute("INSERT INTO plans(id, project_id, name) VALUES (100, 'p1', 'test')", []).unwrap();
+            conn.execute(
+                "INSERT INTO plans(id, project_id, name) VALUES (100, 'p1', 'test')",
+                [],
+            )
+            .unwrap();
             conn.execute("INSERT INTO tasks(id, plan_id, status, executor_agent) VALUES (1, 100, 'in_progress', 'dead-agent')", []).unwrap();
         } // drop conn before reap
         reap(&pool).unwrap();
         let conn = pool.get().unwrap();
-        let s: String = conn.query_row("SELECT status FROM tasks WHERE id=1", [], |r| r.get(0)).unwrap();
+        let s: String = conn
+            .query_row("SELECT status FROM tasks WHERE id=1", [], |r| r.get(0))
+            .unwrap();
         assert_eq!(s, "pending");
     }
 
@@ -181,6 +210,9 @@ mod tests {
 
     #[test]
     fn reap_orphan_processes_does_not_panic() {
-        assert_eq!(reap_orphan_processes(std::time::Duration::from_secs(999_999)), 0);
+        assert_eq!(
+            reap_orphan_processes(std::time::Duration::from_secs(999_999)),
+            0
+        );
     }
 }

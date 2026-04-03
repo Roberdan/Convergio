@@ -45,7 +45,10 @@ fn review_register_with_spec_file_no_plan_id() {
         human: false,
         api_url: "http://localhost:8420".to_string(),
     };
-    assert!(matches!(cmd, ReviewCommands::Register { plan_id: None, .. }));
+    assert!(matches!(
+        cmd,
+        ReviewCommands::Register { plan_id: None, .. }
+    ));
 }
 
 #[test]
@@ -59,7 +62,13 @@ fn review_register_with_plan_id_no_spec_file() {
         human: false,
         api_url: "http://localhost:8420".to_string(),
     };
-    assert!(matches!(cmd, ReviewCommands::Register { plan_id: Some(685), .. }));
+    assert!(matches!(
+        cmd,
+        ReviewCommands::Register {
+            plan_id: Some(685),
+            ..
+        }
+    ));
 }
 
 #[test]
@@ -73,7 +82,13 @@ fn review_register_variant_exists() {
         human: false,
         api_url: "http://localhost:8420".to_string(),
     };
-    assert!(matches!(cmd, ReviewCommands::Register { plan_id: Some(685), .. }));
+    assert!(matches!(
+        cmd,
+        ReviewCommands::Register {
+            plan_id: Some(685),
+            ..
+        }
+    ));
 }
 
 #[test]

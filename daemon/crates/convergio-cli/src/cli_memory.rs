@@ -77,7 +77,13 @@ pub enum MemoryCommands {
 
 pub async fn handle(cmd: MemoryCommands) -> Result<(), CliError> {
     match cmd {
-        MemoryCommands::Remember { content, agent, r#type, tags, api_url } => {
+        MemoryCommands::Remember {
+            content,
+            agent,
+            r#type,
+            tags,
+            api_url,
+        } => {
             let body = serde_json::json!({
                 "agent_id": agent,
                 "memory_type": r#type,
@@ -88,24 +94,43 @@ pub async fn handle(cmd: MemoryCommands) -> Result<(), CliError> {
             let url = format!("{api_url}/api/memory/remember");
             crate::cli_http::post_and_print(&url, &body, false).await
         }
-        MemoryCommands::Recall { query, semantic, r#type, agent, limit, api_url, human } => {
+        MemoryCommands::Recall {
+            query,
+            semantic,
+            r#type,
+            agent,
+            limit,
+            api_url,
+            human,
+        } => {
             let mut params = vec![format!("limit={limit}")];
-            if let Some(q) = query { params.push(format!("query={q}")); }
-            if let Some(s) = semantic { params.push(format!("semantic={s}")); }
-            if let Some(t) = r#type { params.push(format!("type={t}")); }
-            if let Some(a) = agent { params.push(format!("agent={a}")); }
+            if let Some(q) = query {
+                params.push(format!("query={q}"));
+            }
+            if let Some(s) = semantic {
+                params.push(format!("semantic={s}"));
+            }
+            if let Some(t) = r#type {
+                params.push(format!("type={t}"));
+            }
+            if let Some(a) = agent {
+                params.push(format!("agent={a}"));
+            }
             let qs = params.join("&");
-            crate::cli_http::fetch_and_print(
-                &format!("{api_url}/api/memory/recall?{qs}"),
-                human,
-            ).await
+            crate::cli_http::fetch_and_print(&format!("{api_url}/api/memory/recall?{qs}"), human)
+                .await
         }
         MemoryCommands::Forget { id, api_url } => {
             let url = format!("{api_url}/api/memory/forget/{id}");
             let client = reqwest::Client::new();
-            let resp = client.delete(&url).send().await
+            let resp = client
+                .delete(&url)
+                .send()
+                .await
                 .map_err(|e| CliError::ApiCallFailed(format!("error: {e}")))?;
-            let val: serde_json::Value = resp.json().await
+            let val: serde_json::Value = resp
+                .json()
+                .await
                 .map_err(|e| CliError::ApiCallFailed(format!("error: {e}")))?;
             println!("{val}");
             Ok(())
@@ -115,7 +140,12 @@ pub async fn handle(cmd: MemoryCommands) -> Result<(), CliError> {
             let url = format!("{api_url}/api/memory/share");
             crate::cli_http::post_and_print(&url, &body, false).await
         }
-        MemoryCommands::Attest { id, agent, confidence, api_url } => {
+        MemoryCommands::Attest {
+            id,
+            agent,
+            confidence,
+            api_url,
+        } => {
             let body = serde_json::json!({
                 "memory_id": id,
                 "attesting_agent_id": agent,

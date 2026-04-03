@@ -34,8 +34,7 @@ pub(crate) fn detect_tailscale() -> Option<TailscaleInfo> {
     if !output.status.success() {
         return None;
     }
-    let json: serde_json::Value =
-        serde_json::from_slice(&output.stdout).ok()?;
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout).ok()?;
     let self_ip = json
         .get("Self")
         .and_then(|s| s.get("TailscaleIPs"))
@@ -47,8 +46,7 @@ pub(crate) fn detect_tailscale() -> Option<TailscaleInfo> {
     let mut peers = Vec::new();
     if let Some(peer_map) = json.get("Peer").and_then(|p| p.as_object()) {
         for (_key, peer) in peer_map {
-            if let Some(name) = peer.get("HostName").and_then(|h| h.as_str())
-            {
+            if let Some(name) = peer.get("HostName").and_then(|h| h.as_str()) {
                 let ip = peer
                     .get("TailscaleIPs")
                     .and_then(|ips| ips.as_array())
@@ -59,10 +57,7 @@ pub(crate) fn detect_tailscale() -> Option<TailscaleInfo> {
             }
         }
     }
-    Some(TailscaleInfo {
-        ip: self_ip,
-        peers,
-    })
+    Some(TailscaleInfo { ip: self_ip, peers })
 }
 
 // ---------------------------------------------------------------------------
@@ -161,11 +156,7 @@ pub(crate) fn write_env_file(api_key: &str) -> io::Result<()> {
 // ---------------------------------------------------------------------------
 
 /// Generate config.toml content from wizard answers.
-pub(crate) fn render_config(
-    node_name: &str,
-    role: &str,
-    use_tailscale: bool,
-) -> String {
+pub(crate) fn render_config(node_name: &str, role: &str, use_tailscale: bool) -> String {
     let transport = if use_tailscale { "tailscale" } else { "lan" };
     let discovery = if use_tailscale { "tailscale" } else { "mdns" };
     format!(

@@ -25,10 +25,7 @@ pub fn resolve_interval_secs(override_secs: Option<u64>) -> u64 {
 
 /// Check if local and peer schema versions match for all modules.
 /// Returns Ok(()) if compatible, Err with details if mismatch.
-pub fn check_schema_compatibility(
-    conn: &Connection,
-    peer_addr: &str,
-) -> Result<(), String> {
+pub fn check_schema_compatibility(conn: &Connection, peer_addr: &str) -> Result<(), String> {
     let local_versions = local_schema_versions(conn);
     if local_versions.is_empty() {
         return Ok(());
@@ -43,10 +40,8 @@ pub fn check_schema_compatibility(
     if !resp.status().is_success() {
         return Err(format!("health endpoint returned {}", resp.status()));
     }
-    let body: serde_json::Value =
-        resp.json().map_err(|e| format!("parse: {e}"))?;
-    let Some(remote) = body.get("schema_versions").and_then(|v| v.as_object())
-    else {
+    let body: serde_json::Value = resp.json().map_err(|e| format!("parse: {e}"))?;
+    let Some(remote) = body.get("schema_versions").and_then(|v| v.as_object()) else {
         return Ok(());
     };
     for (module, local_ver) in &local_versions {
@@ -63,9 +58,7 @@ pub fn check_schema_compatibility(
 }
 
 fn local_schema_versions(conn: &Connection) -> Vec<(String, u32)> {
-    let mut stmt = match conn
-        .prepare("SELECT module, version FROM _schema_registry")
-    {
+    let mut stmt = match conn.prepare("SELECT module, version FROM _schema_registry") {
         Ok(s) => s,
         Err(_) => return vec![],
     };
@@ -77,10 +70,7 @@ fn local_schema_versions(conn: &Connection) -> Vec<(String, u32)> {
 }
 
 /// Upsert sync metadata for a peer+table pair.
-pub fn upsert_sync_meta(
-    conn: &Connection,
-    meta: &SyncMeta,
-) -> rusqlite::Result<()> {
+pub fn upsert_sync_meta(conn: &Connection, meta: &SyncMeta) -> rusqlite::Result<()> {
     conn.execute(
         "INSERT INTO _sync_meta (peer, table_name, last_synced) \
          VALUES (?1, ?2, ?3) \
@@ -102,11 +92,13 @@ pub fn get_sync_meta(
         "SELECT peer, table_name, last_synced FROM _sync_meta \
          WHERE peer = ?1 AND table_name = ?2",
         rusqlite::params![peer, table_name],
-        |row| Ok(SyncMeta {
-            peer: row.get(0)?,
-            table_name: row.get(1)?,
-            last_synced: row.get(2)?,
-        }),
+        |row| {
+            Ok(SyncMeta {
+                peer: row.get(0)?,
+                table_name: row.get(1)?,
+                last_synced: row.get(2)?,
+            })
+        },
     )
     .optional()
 }
@@ -122,8 +114,7 @@ pub fn sync_table_with_peer(
         .flatten()
         .map(|m| m.last_synced);
 
-    let local_changes = match export_changes_since(conn, table, since.as_deref())
-    {
+    let local_changes = match export_changes_since(conn, table, since.as_deref()) {
         Ok(c) => c,
         Err(e) => {
             warn!(peer = %peer_addr, table, error = %e, "export failed");
@@ -138,14 +129,13 @@ pub fn sync_table_with_peer(
         }
     }
 
-    let remote_changes =
-        match fetch_changes_from_peer(peer_addr, table, since.as_deref()) {
-            Ok(c) => c,
-            Err(e) => {
-                warn!(peer = %peer_addr, table, error = %e, "fetch failed");
-                return (0, 0, 0);
-            }
-        };
+    let remote_changes = match fetch_changes_from_peer(peer_addr, table, since.as_deref()) {
+        Ok(c) => c,
+        Err(e) => {
+            warn!(peer = %peer_addr, table, error = %e, "fetch failed");
+            return (0, 0, 0);
+        }
+    };
 
     let applied = match apply_changes(conn, &remote_changes) {
         Ok(n) => n,
@@ -193,9 +183,11 @@ mod tests {
     fn sync_meta_roundtrip() {
         let conn = Connection::open_in_memory().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
-        convergio_db::core_tables::core_migrations().iter().for_each(|m| {
-            conn.execute_batch(m.up).unwrap();
-        });
+        convergio_db::core_tables::core_migrations()
+            .iter()
+            .for_each(|m| {
+                conn.execute_batch(m.up).unwrap();
+            });
         let meta = SyncMeta {
             peer: "peer1".into(),
             table_name: "plans".into(),

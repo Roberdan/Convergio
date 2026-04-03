@@ -47,9 +47,10 @@ pub(crate) async fn handle_mesh_join(coordinator_url: &str) -> Result<(), CliErr
             request = request.bearer_auth(token);
         }
     }
-    let resp = request.send().await.map_err(|e| {
-        CliError::ApiCallFailed(format!("cannot reach coordinator: {e}"))
-    })?;
+    let resp = request
+        .send()
+        .await
+        .map_err(|e| CliError::ApiCallFailed(format!("cannot reach coordinator: {e}")))?;
 
     if !resp.status().is_success() {
         let status = resp.status();
@@ -59,9 +60,10 @@ pub(crate) async fn handle_mesh_join(coordinator_url: &str) -> Result<(), CliErr
         )));
     }
 
-    let result: serde_json::Value = resp.json().await.map_err(|e| {
-        CliError::ApiCallFailed(format!("invalid response: {e}"))
-    })?;
+    let result: serde_json::Value = resp
+        .json()
+        .await
+        .map_err(|e| CliError::ApiCallFailed(format!("invalid response: {e}")))?;
     println!("OK");
 
     if let Some(peers_config) = result["peers_config"].as_str() {
@@ -93,9 +95,13 @@ pub(crate) async fn handle_mesh_join(coordinator_url: &str) -> Result<(), CliErr
 }
 
 fn detect_os() -> String {
-    if cfg!(target_os = "macos") { "macos".to_string() }
-    else if cfg!(target_os = "linux") { "linux".to_string() }
-    else { std::env::consts::OS.to_string() }
+    if cfg!(target_os = "macos") {
+        "macos".to_string()
+    } else if cfg!(target_os = "linux") {
+        "linux".to_string()
+    } else {
+        std::env::consts::OS.to_string()
+    }
 }
 
 fn detect_tailscale_self() -> (String, String) {
@@ -110,25 +116,44 @@ fn detect_tailscale_self() -> (String, String) {
         Ok(v) => v,
         Err(_) => return (String::new(), String::new()),
     };
-    let ip = json.pointer("/Self/TailscaleIPs/0")
-        .and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let dns = json.pointer("/Self/DNSName")
-        .and_then(|v| v.as_str()).unwrap_or("").trim_end_matches('.').to_string();
+    let ip = json
+        .pointer("/Self/TailscaleIPs/0")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    let dns = json
+        .pointer("/Self/DNSName")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .trim_end_matches('.')
+        .to_string();
     (ip, dns)
 }
 
 fn detect_capabilities() -> Vec<String> {
     let mut caps = Vec::new();
-    if which("claude") { caps.push("claude".to_string()); }
-    if which("gh") { caps.push("copilot".to_string()); }
-    if which("ollama") { caps.push("ollama".to_string()); }
-    if caps.is_empty() { caps.push("worker".to_string()); }
+    if which("claude") {
+        caps.push("claude".to_string());
+    }
+    if which("gh") {
+        caps.push("copilot".to_string());
+    }
+    if which("ollama") {
+        caps.push("ollama".to_string());
+    }
+    if caps.is_empty() {
+        caps.push("worker".to_string());
+    }
     caps
 }
 
 fn which(cmd: &str) -> bool {
-    std::process::Command::new("which").arg(cmd)
-        .output().ok().map(|o| o.status.success()).unwrap_or(false)
+    std::process::Command::new("which")
+        .arg(cmd)
+        .output()
+        .ok()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
 }
 
 fn home_dir() -> Result<std::path::PathBuf, CliError> {
@@ -149,7 +174,9 @@ fn merge_env_file(new_content: &str) -> Result<(), CliError> {
     for line in new_content.lines() {
         if let Some((k, _)) = line.split_once('=') {
             let k = k.trim();
-            if k.is_empty() { continue; }
+            if k.is_empty() {
+                continue;
+            }
             // F-30: exact key match — split existing lines on '=' and compare full key name
             if !lines.iter().any(|l| {
                 l.trim_start()

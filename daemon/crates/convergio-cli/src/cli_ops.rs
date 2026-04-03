@@ -121,13 +121,16 @@ pub async fn handle_mesh(cmd: MeshCommands) {
             }
         }
         MeshCommands::Status { human, api_url } => {
-            if let Err(e) = crate::cli_http::fetch_and_print(&format!("{api_url}/api/mesh"), human).await {
+            if let Err(e) =
+                crate::cli_http::fetch_and_print(&format!("{api_url}/api/mesh"), human).await
+            {
                 eprintln!("error: {e}");
             }
         }
         MeshCommands::ClusterStatus { human, api_url } => {
-            if let Err(e) = crate::cli_http::fetch_and_print(&format!("{api_url}/api/heartbeat/status"), human)
-                .await
+            if let Err(e) =
+                crate::cli_http::fetch_and_print(&format!("{api_url}/api/heartbeat/status"), human)
+                    .await
             {
                 eprintln!("error: {e}");
             }
@@ -165,7 +168,9 @@ pub async fn handle_session(cmd: SessionCommands) {
             }
         }
         SessionCommands::Check { human, api_url } => {
-            if let Err(e) = crate::cli_http::fetch_and_print(&format!("{api_url}/api/dashboard"), human).await {
+            if let Err(e) =
+                crate::cli_http::fetch_and_print(&format!("{api_url}/api/dashboard"), human).await
+            {
                 eprintln!("error: {e}");
             }
         }
@@ -175,8 +180,9 @@ pub async fn handle_session(cmd: SessionCommands) {
 pub async fn handle_metrics(cmd: MetricsCommands) {
     match cmd {
         MetricsCommands::Summary { human, api_url } => {
-            if let Err(e) = crate::cli_http::fetch_and_print(&format!("{api_url}/api/metrics/summary"), human)
-                .await
+            if let Err(e) =
+                crate::cli_http::fetch_and_print(&format!("{api_url}/api/metrics/summary"), human)
+                    .await
             {
                 eprintln!("error: {e}");
             }
@@ -198,7 +204,10 @@ pub async fn handle_metrics(cmd: MetricsCommands) {
 pub async fn handle_alert(cmd: AlertCommands) {
     match cmd {
         AlertCommands::List { human, api_url } => {
-            if let Err(e) = crate::cli_http::fetch_and_print(&format!("{api_url}/api/notifications"), human).await {
+            if let Err(e) =
+                crate::cli_http::fetch_and_print(&format!("{api_url}/api/notifications"), human)
+                    .await
+            {
                 eprintln!("error: {e}");
             }
         }

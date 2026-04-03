@@ -18,9 +18,8 @@ pub async fn handle(
     if let (Some(a), Some(agent)) = (set_alias, set_agent) {
         return handle_set(&a, &agent);
     }
-    let msg = message.ok_or_else(|| {
-        CliError::InvalidInput("Usage: cvg ask <alias> \"message\"".into())
-    })?;
+    let msg = message
+        .ok_or_else(|| CliError::InvalidInput("Usage: cvg ask <alias> \"message\"".into()))?;
     let agent_name = resolve_alias(&alias, api_url).await?;
     run_ask("user", &agent_name, &msg, DEFAULT_TIMEOUT_SECS, api_url).await;
     Ok(())

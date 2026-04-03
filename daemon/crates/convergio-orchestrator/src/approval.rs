@@ -80,7 +80,11 @@ pub fn record_approval(
 }
 
 /// Approve multiple tasks at once (all-or-nothing transaction).
-pub fn approve_batch(conn: &Connection, task_ids: &[&str], approved_by: &str) -> rusqlite::Result<()> {
+pub fn approve_batch(
+    conn: &Connection,
+    task_ids: &[&str],
+    approved_by: &str,
+) -> rusqlite::Result<()> {
     conn.execute_batch("BEGIN")?;
     for task_id in task_ids {
         conn.execute(
@@ -115,7 +119,9 @@ mod tests {
 
     fn setup() -> Connection {
         let conn = Connection::open_in_memory().unwrap();
-        for m in crate::schema::migrations() { conn.execute_batch(m.up).unwrap(); }
+        for m in crate::schema::migrations() {
+            conn.execute_batch(m.up).unwrap();
+        }
         conn
     }
 
@@ -129,38 +135,63 @@ mod tests {
 
     #[test]
     fn classify_security() {
-        assert_eq!(classify_reason(&task("security_audit", "S", 1)), ReasonCode::SecurityImpact);
+        assert_eq!(
+            classify_reason(&task("security_audit", "S", 1)),
+            ReasonCode::SecurityImpact
+        );
     }
 
     #[test]
     fn classify_breaking() {
-        assert_eq!(classify_reason(&task("breaking_api_change", "M", 2)), ReasonCode::BreakingChange);
+        assert_eq!(
+            classify_reason(&task("breaking_api_change", "M", 2)),
+            ReasonCode::BreakingChange
+        );
     }
 
     #[test]
     fn classify_file_scope() {
-        assert_eq!(classify_reason(&task("feature", "L", 1)), ReasonCode::FileScope);
-        assert_eq!(classify_reason(&task("feature", "S", 5)), ReasonCode::FileScope);
+        assert_eq!(
+            classify_reason(&task("feature", "L", 1)),
+            ReasonCode::FileScope
+        );
+        assert_eq!(
+            classify_reason(&task("feature", "S", 5)),
+            ReasonCode::FileScope
+        );
     }
 
     #[test]
     fn classify_risk_default() {
-        assert_eq!(classify_reason(&task("feature", "S", 1)), ReasonCode::RiskLevel);
+        assert_eq!(
+            classify_reason(&task("feature", "S", 1)),
+            ReasonCode::RiskLevel
+        );
     }
 
     #[test]
     fn cache_miss_then_hit() {
         let conn = setup();
-        assert!(!check_approval_cache(&conn, &ReasonCode::RiskLevel, "feature"));
+        assert!(!check_approval_cache(
+            &conn,
+            &ReasonCode::RiskLevel,
+            "feature"
+        ));
         record_approval(&conn, &ReasonCode::RiskLevel, "feature", "alice").unwrap();
-        assert!(check_approval_cache(&conn, &ReasonCode::RiskLevel, "feature"));
+        assert!(check_approval_cache(
+            &conn,
+            &ReasonCode::RiskLevel,
+            "feature"
+        ));
     }
 
     #[test]
     fn approve_batch_works() {
         let conn = setup();
         approve_batch(&conn, &["T1", "T2", "T3"], "alice").unwrap();
-        let count: i64 = conn.query_row("SELECT COUNT(*) FROM batch_approvals", [], |r| r.get(0)).unwrap();
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM batch_approvals", [], |r| r.get(0))
+            .unwrap();
         assert_eq!(count, 3);
     }
 

@@ -6,10 +6,10 @@ use serde_json::Value;
 /// Status icon for task display.
 fn status_icon(status: &str) -> &'static str {
     match status {
-        "done" => "\u{2713}",           // check mark
-        "in_progress" => "\u{25cf}",    // filled circle
+        "done" => "\u{2713}",        // check mark
+        "in_progress" => "\u{25cf}", // filled circle
         "submitted" => "~",
-        "pending" => "\u{2610}",        // empty checkbox
+        "pending" => "\u{2610}", // empty checkbox
         "blocked" => "!",
         "failed" | "error" => "\u{2717}", // cross mark
         "skipped" | "cancelled" => "x",
@@ -38,9 +38,7 @@ pub fn print_plan_human(val: &Value) {
     let (total, done, wave_count) = count_tasks(waves);
 
     println!("Plan #{plan_id}: {plan_name}");
-    println!(
-        "Status: {plan_status} | Created: {created}"
-    );
+    println!("Status: {plan_status} | Created: {created}");
     println!("Progress: {done}/{total} tasks ({wave_count} waves)");
     println!("{}", "-".repeat(60));
 
@@ -77,9 +75,7 @@ fn wave_status(wave: &Value) -> &str {
     let Some(tasks) = wave["tasks"].as_array() else {
         return "pending";
     };
-    let all_done = tasks
-        .iter()
-        .all(|t| t["status"].as_str() == Some("done"));
+    let all_done = tasks.iter().all(|t| t["status"].as_str() == Some("done"));
     let any_active = tasks.iter().any(|t| {
         matches!(
             t["status"].as_str(),

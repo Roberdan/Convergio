@@ -3,10 +3,10 @@
 // are NOT included here — they live in the daemon binary.
 
 use crate::{
-    cli_agent, cli_bus, cli_capability, cli_channel, cli_checkpoint, cli_delegation,
-    cli_domain, cli_kb, cli_kernel, cli_lock, cli_memory, cli_ops, cli_org, cli_plan,
-    cli_project, cli_reap, cli_repo, cli_review, cli_run, cli_skill, cli_task,
-    cli_voice, cli_wave, cli_who, cli_workspace,
+    cli_agent, cli_bus, cli_capability, cli_channel, cli_checkpoint, cli_delegation, cli_domain,
+    cli_kb, cli_kernel, cli_lock, cli_memory, cli_ops, cli_org, cli_plan, cli_project, cli_reap,
+    cli_repo, cli_review, cli_run, cli_skill, cli_task, cli_voice, cli_wave, cli_who,
+    cli_workspace,
 };
 use clap::Subcommand;
 use std::path::PathBuf;
@@ -52,10 +52,7 @@ pub enum Commands {
         #[command(subcommand)]
         command: cli_who::WhoCommands,
     },
-    #[command(
-        alias = "commands",
-        about = "Print quick-reference command cheatsheet"
-    )]
+    #[command(alias = "commands", about = "Print quick-reference command cheatsheet")]
     Cheatsheet,
     #[command(
         next_help_heading = "Operations",

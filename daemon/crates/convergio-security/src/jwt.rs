@@ -113,8 +113,7 @@ pub fn validate_token(token: &str) -> Result<AgentClaims, JwtError> {
 fn encode(claims: &AgentClaims) -> Result<String, JwtError> {
     let header = r#"{"alg":"HS256","typ":"JWT"}"#;
     let h = URL_SAFE_NO_PAD.encode(header.as_bytes());
-    let payload = serde_json::to_vec(claims)
-        .map_err(|e| JwtError::Encoding(e.to_string()))?;
+    let payload = serde_json::to_vec(claims).map_err(|e| JwtError::Encoding(e.to_string()))?;
     let p = URL_SAFE_NO_PAD.encode(&payload);
     let signing_input = format!("{h}.{p}");
     let sig = sign(signing_input.as_bytes());

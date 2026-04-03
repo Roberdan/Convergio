@@ -19,10 +19,16 @@ pub async fn find_available_peer(exclude: Option<&str>) -> Option<String> {
     let mut resp = None;
     for attempt in 0..3 {
         match reqwest::get(&url).await {
-            Ok(r) => { resp = Some(r); break; }
+            Ok(r) => {
+                resp = Some(r);
+                break;
+            }
             Err(e) => {
                 if attempt < 2 {
-                    tracing::debug!("ali: mesh status attempt {}, retrying in 2s: {e}", attempt + 1);
+                    tracing::debug!(
+                        "ali: mesh status attempt {}, retrying in 2s: {e}",
+                        attempt + 1
+                    );
                     tokio::time::sleep(std::time::Duration::from_secs(2)).await;
                 } else {
                     tracing::warn!("ali: mesh status failed after 3 attempts: {e}");
@@ -44,7 +50,10 @@ pub async fn find_available_peer(exclude: Option<&str>) -> Option<String> {
     let peers = body.get("peers")?.as_array()?;
     for peer in peers {
         let name = peer.get("peer_name")?.as_str()?;
-        let online = peer.get("is_online").and_then(|v| v.as_bool()).unwrap_or(false);
+        let online = peer
+            .get("is_online")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
         if online && (exclude != Some(name)) {
             return Some(name.to_string());
         }
@@ -59,7 +68,8 @@ pub async fn delegate_plan(pool: &ConnPool, notify: &Arc<Notify>, plan_id: i64) 
     let Some(peer_name) = peer else {
         tracing::warn!("ali: no peers available for plan {plan_id}");
         emit(
-            pool, notify,
+            pool,
+            notify,
             "need_human",
             &serde_json::json!({
                 "plan_id": plan_id,
@@ -79,9 +89,8 @@ pub fn check_unblocked_plans(
     conn: &rusqlite::Connection,
     master_id: i64,
 ) -> AliResult {
-    let mut stmt = conn.prepare(
-        "SELECT id FROM plans WHERE parent_plan_id = ?1 AND status = 'todo'",
-    )?;
+    let mut stmt =
+        conn.prepare("SELECT id FROM plans WHERE parent_plan_id = ?1 AND status = 'todo'")?;
 
     let plan_ids: Vec<i64> = stmt
         .query_map(rusqlite::params![master_id], |row| row.get(0))?
@@ -91,7 +100,12 @@ pub fn check_unblocked_plans(
     for pid in plan_ids {
         if crate::plan_hierarchy::dependencies_met(conn, pid)? {
             tracing::info!("ali: plan {pid} now unblocked under master {master_id}");
-            emit(pool, notify, "plan_ready", &serde_json::json!({"plan_id": pid}))?;
+            emit(
+                pool,
+                notify,
+                "plan_ready",
+                &serde_json::json!({"plan_id": pid}),
+            )?;
         }
     }
 
@@ -109,7 +123,15 @@ pub fn emit(
     if let Some(obj) = content.as_object_mut() {
         obj.insert("type".to_string(), serde_json::json!(event_type));
     }
-    messaging::broadcast(pool, notify, ALI_AGENT, &content.to_string(), "event", Some(CHANNEL), 100)?;
+    messaging::broadcast(
+        pool,
+        notify,
+        ALI_AGENT,
+        &content.to_string(),
+        "event",
+        Some(CHANNEL),
+        100,
+    )?;
     Ok(())
 }
 
@@ -121,8 +143,18 @@ mod tests {
         let pool = convergio_db::pool::create_memory_pool().unwrap();
         let conn = pool.get().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
-        convergio_db::migration::apply_migrations(&conn, "ipc", &convergio_ipc::schema::migrations()).unwrap();
-        convergio_db::migration::apply_migrations(&conn, "orchestrator", &crate::schema::migrations()).unwrap();
+        convergio_db::migration::apply_migrations(
+            &conn,
+            "ipc",
+            &convergio_ipc::schema::migrations(),
+        )
+        .unwrap();
+        convergio_db::migration::apply_migrations(
+            &conn,
+            "orchestrator",
+            &crate::schema::migrations(),
+        )
+        .unwrap();
         (pool, Arc::new(Notify::new()))
     }
 
@@ -130,7 +162,8 @@ mod tests {
     fn emit_broadcasts_to_channel() {
         let (pool, notify) = setup();
         let result = emit(
-            &pool, &notify,
+            &pool,
+            &notify,
             "plan_delegated",
             &serde_json::json!({"plan_id": 42, "peer": "macProM1"}),
         );

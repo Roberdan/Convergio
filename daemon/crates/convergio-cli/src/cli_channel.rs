@@ -217,10 +217,7 @@ mod tests {
             "--severity",
             "critical",
         ]);
-        if let ChannelCommands::Send {
-            name, severity, ..
-        } = cli.cmd
-        {
+        if let ChannelCommands::Send { name, severity, .. } = cli.cmd {
             assert_eq!(name, "telegram");
             assert_eq!(severity, "critical");
         } else {

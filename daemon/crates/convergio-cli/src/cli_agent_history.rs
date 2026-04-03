@@ -51,8 +51,8 @@ pub(crate) async fn handle_history(
 
 fn print_history_table(rows: &[serde_json::Value]) {
     println!(
-        "{:<28} {:<18} {:<11} {:>8} {:>9} {:>8} {}",
-        "AGENT", "MODEL", "STATUS", "DURATION", "TOKENS", "COST", "STARTED"
+        "{:<28} {:<18} {:<11} {:>8} {:>9} {:>8} STARTED",
+        "AGENT", "MODEL", "STATUS", "DURATION", "TOKENS", "COST",
     );
     for r in rows {
         let agent = r["agent_id"].as_str().unwrap_or("-");

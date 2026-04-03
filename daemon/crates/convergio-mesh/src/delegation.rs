@@ -23,10 +23,7 @@ pub fn record_step(
          current_task   = excluded.current_task,
          output_summary = COALESCE(excluded.output_summary, output_summary),
          updated_at     = excluded.updated_at";
-    match conn.execute(
-        sql,
-        rusqlite::params![delegation_id, status, step, summary],
-    ) {
+    match conn.execute(sql, rusqlite::params![delegation_id, status, step, summary]) {
         Ok(_) => debug!(delegation_id, step, status, "progress recorded"),
         Err(e) => warn!(delegation_id, step, "progress insert failed: {e}"),
     }

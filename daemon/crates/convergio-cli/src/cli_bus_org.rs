@@ -2,7 +2,9 @@ use serde_json::Value;
 
 pub async fn run_org(api_url: &str, human: bool) {
     if !human {
-        if let Err(e) = crate::cli_http::fetch_and_print(&format!("{api_url}/api/orgs"), false).await {
+        if let Err(e) =
+            crate::cli_http::fetch_and_print(&format!("{api_url}/api/orgs"), false).await
+        {
             eprintln!("error: {e}");
         }
         return;
@@ -28,26 +30,57 @@ pub fn render_org_tree(v: &Value) -> String {
     }
     let mut out = Vec::new();
     for org in orgs {
-        let name = org.get("id").or_else(|| org.get("name")).and_then(Value::as_str).unwrap_or("unknown-org");
-        let status = org.get("status").and_then(Value::as_str).unwrap_or("UNKNOWN");
-        let budget = org.get("budget_pct").or_else(|| org.get("budget_percent")).and_then(Value::as_i64).unwrap_or(0);
+        let name = org
+            .get("id")
+            .or_else(|| org.get("name"))
+            .and_then(Value::as_str)
+            .unwrap_or("unknown-org");
+        let status = org
+            .get("status")
+            .and_then(Value::as_str)
+            .unwrap_or("UNKNOWN");
+        let budget = org
+            .get("budget_pct")
+            .or_else(|| org.get("budget_percent"))
+            .and_then(Value::as_i64)
+            .unwrap_or(0);
         out.push(format!("🏢 {name} [{status}] budget: {budget}%"));
         if let Some(ceo) = org.get("ceo") {
             out.push(format!(
                 "  CEO: {} ({}, {})",
                 ceo.get("name").and_then(Value::as_str).unwrap_or("n/a"),
-                ceo.get("model").and_then(Value::as_str).unwrap_or("unknown"),
-                ceo.get("status").and_then(Value::as_str).unwrap_or("unknown")
+                ceo.get("model")
+                    .and_then(Value::as_str)
+                    .unwrap_or("unknown"),
+                ceo.get("status")
+                    .and_then(Value::as_str)
+                    .unwrap_or("unknown")
             ));
         }
-        let departments = org.get("departments").and_then(Value::as_array).cloned().unwrap_or_default();
+        let departments = org
+            .get("departments")
+            .and_then(Value::as_array)
+            .cloned()
+            .unwrap_or_default();
         for (i, d) in departments.iter().enumerate() {
             let dname = d.get("name").and_then(Value::as_str).unwrap_or("General");
-            let dbranch = if i + 1 == departments.len() { "└──" } else { "├──" };
+            let dbranch = if i + 1 == departments.len() {
+                "└──"
+            } else {
+                "├──"
+            };
             out.push(format!("  {dbranch} {dname}"));
-            let members = d.get("members").and_then(Value::as_array).cloned().unwrap_or_default();
+            let members = d
+                .get("members")
+                .and_then(Value::as_array)
+                .cloned()
+                .unwrap_or_default();
             for (j, m) in members.iter().enumerate() {
-                let mbranch = if i + 1 == departments.len() && j + 1 == members.len() { "    └──" } else { "    ├──" };
+                let mbranch = if i + 1 == departments.len() && j + 1 == members.len() {
+                    "    └──"
+                } else {
+                    "    ├──"
+                };
                 out.push(format!(
                     "{mbranch} {} [{}] ({}, {})",
                     m.get("name").and_then(Value::as_str).unwrap_or("unknown"),

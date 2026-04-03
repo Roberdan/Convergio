@@ -68,15 +68,21 @@ mod tests {
     fn template_documents_aliases() {
         let yaml = example_spec_yaml();
         assert!(yaml.contains("do:"), "must document 'do' alias");
-        assert!(yaml.contains("also accepts: title"), "must note title alias for name");
-        assert!(yaml.contains("also accepts: do, summary"), "must note do/summary aliases");
+        assert!(
+            yaml.contains("also accepts: title"),
+            "must note title alias for name"
+        );
+        assert!(
+            yaml.contains("also accepts: do, summary"),
+            "must note do/summary aliases"
+        );
     }
 
     #[test]
     fn template_is_valid_yaml() {
         let yaml = example_spec_yaml();
-        let parsed: serde_yaml::Value = serde_yaml::from_str(yaml)
-            .expect("template must be valid YAML");
+        let parsed: serde_yaml::Value =
+            serde_yaml::from_str(yaml).expect("template must be valid YAML");
         let waves = parsed.get("waves").expect("must have waves key");
         assert!(waves.is_sequence(), "waves must be an array");
     }
@@ -85,12 +91,25 @@ mod tests {
     fn template_documents_all_task_fields() {
         let yaml = example_spec_yaml();
         let expected_fields = [
-            "id:", "title:", "type:", "priority:", "description:",
-            "model:", "assignee:", "output_type:", "validator_agent:",
-            "effort_level:", "files:", "verify:", "test_criteria:",
+            "id:",
+            "title:",
+            "type:",
+            "priority:",
+            "description:",
+            "model:",
+            "assignee:",
+            "output_type:",
+            "validator_agent:",
+            "effort_level:",
+            "files:",
+            "verify:",
+            "test_criteria:",
         ];
         for field in expected_fields {
-            assert!(yaml.contains(field), "template must document field '{field}'");
+            assert!(
+                yaml.contains(field),
+                "template must document field '{field}'"
+            );
         }
     }
 }

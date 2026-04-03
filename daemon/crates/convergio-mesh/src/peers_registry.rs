@@ -17,7 +17,10 @@ impl PeersRegistry {
     pub fn load(path: &Path) -> Result<Self, PeersError> {
         let text = std::fs::read_to_string(path)?;
         let (shared_secret, peers) = parse_ini(&text)?;
-        Ok(Self { shared_secret, peers })
+        Ok(Self {
+            shared_secret,
+            peers,
+        })
     }
 
     pub fn save(&self, path: &Path) -> Result<(), PeersError> {
@@ -40,11 +43,7 @@ impl PeersRegistry {
         self.peers.remove(name)
     }
 
-    pub fn update_role(
-        &mut self,
-        name: &str,
-        role: &str,
-    ) -> Result<(), PeersError> {
+    pub fn update_role(&mut self, name: &str, role: &str) -> Result<(), PeersError> {
         self.peers
             .get_mut(name)
             .ok_or_else(|| PeersError::NotFound(name.to_owned()))
@@ -132,12 +131,20 @@ status=active
     fn add_remove_peer() {
         let mut reg = load_from_str(PEERS_INI);
         let peer = PeerConfig {
-            ssh_alias: "n3".into(), user: "eve".into(), os: "linux".into(),
-            tailscale_ip: "100.0.0.3".into(), dns_name: "n3.ts.net".into(),
+            ssh_alias: "n3".into(),
+            user: "eve".into(),
+            os: "linux".into(),
+            tailscale_ip: "100.0.0.3".into(),
+            dns_name: "n3.ts.net".into(),
             capabilities: vec!["claude".into()],
-            role: "worker".into(), status: "active".into(),
-            thunderbolt_ip: None, lan_ip: None, mac_address: None,
-            gh_account: None, runners: None, runner_paths: None,
+            role: "worker".into(),
+            status: "active".into(),
+            thunderbolt_ip: None,
+            lan_ip: None,
+            mac_address: None,
+            gh_account: None,
+            runners: None,
+            runner_paths: None,
             aliases: vec![],
         };
         reg.add_peer("node3", peer);

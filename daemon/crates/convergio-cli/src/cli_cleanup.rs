@@ -50,12 +50,15 @@ fn classify_stale_branches(active_paths: &HashSet<String>, branch_lines: &str) -
     let mut stale = Vec::new();
     for line in branch_lines.lines() {
         let branch = line.trim().trim_start_matches("* ");
-        if !prefixes.iter().any(|p| branch.starts_with(p) || branch.contains(p)) {
+        if !prefixes
+            .iter()
+            .any(|p| branch.starts_with(p) || branch.contains(p))
+        {
             continue;
         }
-        let has_active = active_paths.iter().any(|p| {
-            p.contains(&branch.replace('/', "-")) || p.contains(branch)
-        });
+        let has_active = active_paths
+            .iter()
+            .any(|p| p.contains(&branch.replace('/', "-")) || p.contains(branch));
         if !has_active {
             stale.push(branch.to_string());
         }
@@ -122,10 +125,19 @@ mod tests {
         let active: HashSet<String> = HashSet::new();
         let lines = "  worktree-plan-42\n  worktree-agent-x\n  main\n";
         let stale = classify_stale_branches(&active, lines);
-        assert!(stale.contains(&"worktree-plan-42".to_string()), "plan-42 should be stale");
-        assert!(stale.contains(&"worktree-agent-x".to_string()), "agent-x should be stale");
+        assert!(
+            stale.contains(&"worktree-plan-42".to_string()),
+            "plan-42 should be stale"
+        );
+        assert!(
+            stale.contains(&"worktree-agent-x".to_string()),
+            "agent-x should be stale"
+        );
         // "main" does not match any worktree prefix — must not appear
-        assert!(!stale.contains(&"main".to_string()), "main is not a worktree branch");
+        assert!(
+            !stale.contains(&"main".to_string()),
+            "main is not a worktree branch"
+        );
     }
 
     #[test]
@@ -135,9 +147,15 @@ mod tests {
         let lines = "  worktree-plan-42\n  worktree-plan-99\n";
         let stale = classify_stale_branches(&active, lines);
         // plan-42 has an active worktree directory — NOT stale
-        assert!(!stale.contains(&"worktree-plan-42".to_string()), "plan-42 has active worktree");
+        assert!(
+            !stale.contains(&"worktree-plan-42".to_string()),
+            "plan-42 has active worktree"
+        );
         // plan-99 has no active directory — stale
-        assert!(stale.contains(&"worktree-plan-99".to_string()), "plan-99 should be stale");
+        assert!(
+            stale.contains(&"worktree-plan-99".to_string()),
+            "plan-99 should be stale"
+        );
     }
 
     #[test]
@@ -153,7 +171,10 @@ mod tests {
         let active: HashSet<String> = HashSet::new();
         let lines = "* worktree-plan-1\n  wt-plan-2\n";
         let stale = classify_stale_branches(&active, lines);
-        assert!(stale.contains(&"worktree-plan-1".to_string()), "current branch marker stripped");
+        assert!(
+            stale.contains(&"worktree-plan-1".to_string()),
+            "current branch marker stripped"
+        );
         assert!(stale.contains(&"wt-plan-2".to_string()));
     }
 }

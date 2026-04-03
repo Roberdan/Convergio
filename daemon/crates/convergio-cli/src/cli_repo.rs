@@ -124,10 +124,7 @@ async fn handle_list(as_json: bool, api_url: &str) -> Result<(), CliError> {
         println!("No repositories registered.");
         return Ok(());
     }
-    println!(
-        "{:<30} {:<12} {:<12} {}",
-        "NAME", "TRANSPORT", "HEALTH", "PATH"
-    );
+    println!("{:<30} {:<12} {:<12} PATH", "NAME", "TRANSPORT", "HEALTH",);
     println!("{}", "-".repeat(80));
     for r in &repos {
         let name = r["name"].as_str().unwrap_or("-");
