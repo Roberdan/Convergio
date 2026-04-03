@@ -15,8 +15,7 @@ pub const REQUEST_ID_HEADER: &str = "x-request-id";
 
 static TOTAL_REQUESTS: AtomicU64 = AtomicU64::new(0);
 static TOTAL_ERRORS: AtomicU64 = AtomicU64::new(0);
-static ENDPOINT_METRICS: RwLock<Option<HashMap<String, EndpointStats>>> =
-    RwLock::new(None);
+static ENDPOINT_METRICS: RwLock<Option<HashMap<String, EndpointStats>>> = RwLock::new(None);
 
 const HISTOGRAM_BUCKETS: &[u64] = &[5, 10, 25, 50, 100, 250, 500, 1000, 5000];
 
@@ -57,7 +56,11 @@ impl EndpointStats {
     }
 
     pub fn avg_ms(&self) -> f64 {
-        if self.count == 0 { 0.0 } else { self.total_ms as f64 / self.count as f64 }
+        if self.count == 0 {
+            0.0
+        } else {
+            self.total_ms as f64 / self.count as f64
+        }
     }
 }
 

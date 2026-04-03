@@ -48,7 +48,9 @@ pub fn build_router(
         .layer(middleware::from_fn(
             crate::middleware_auth::require_auth_stateless,
         ))
-        .layer(middleware::from_fn(crate::middleware_auth::set_cache_headers))
+        .layer(middleware::from_fn(
+            crate::middleware_auth::set_cache_headers,
+        ))
         .layer(RequestBodyLimitLayer::new(1_048_576)) // 1 MB
         .layer(TimeoutLayer::new(Duration::from_secs(30)))
         .layer(crate::middleware_auth::cors_layer())

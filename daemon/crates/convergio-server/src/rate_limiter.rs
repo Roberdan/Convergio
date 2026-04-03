@@ -68,9 +68,18 @@ mod tests {
     async fn rate_limiter_allows_within_limit() {
         let rl = RateLimiter::default();
         let window = Duration::from_secs(60);
-        assert!(rl.allow("api:test".into(), "127.0.0.1".into(), 2, window).await);
-        assert!(rl.allow("api:test".into(), "127.0.0.1".into(), 2, window).await);
-        assert!(!rl.allow("api:test".into(), "127.0.0.1".into(), 2, window).await);
+        assert!(
+            rl.allow("api:test".into(), "127.0.0.1".into(), 2, window)
+                .await
+        );
+        assert!(
+            rl.allow("api:test".into(), "127.0.0.1".into(), 2, window)
+                .await
+        );
+        assert!(
+            !rl.allow("api:test".into(), "127.0.0.1".into(), 2, window)
+                .await
+        );
     }
 
     #[tokio::test]

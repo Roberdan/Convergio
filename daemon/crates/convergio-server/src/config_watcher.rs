@@ -40,15 +40,39 @@ pub fn diff_configs(old: &ConvergioConfig, new: &ConvergioConfig) -> Vec<ConfigC
     cmp!("node.role", old.node.role, new.node.role);
     cmp!("node.name", old.node.name, new.node.name);
     cmp!("daemon.port", old.daemon.port, new.daemon.port);
-    cmp!("daemon.quiet_hours", old.daemon.quiet_hours, new.daemon.quiet_hours);
+    cmp!(
+        "daemon.quiet_hours",
+        old.daemon.quiet_hours,
+        new.daemon.quiet_hours
+    );
     cmp!("daemon.timezone", old.daemon.timezone, new.daemon.timezone);
-    cmp!("daemon.auto_update", old.daemon.auto_update, new.daemon.auto_update);
+    cmp!(
+        "daemon.auto_update",
+        old.daemon.auto_update,
+        new.daemon.auto_update
+    );
     cmp!("mesh.transport", old.mesh.transport, new.mesh.transport);
     cmp!("mesh.peers", old.mesh.peers, new.mesh.peers);
-    cmp!("inference.default_model", old.inference.default_model, new.inference.default_model);
-    cmp!("inference.fallback", old.inference.fallback, new.inference.fallback);
-    cmp!("kernel.max_tokens", old.kernel.max_tokens, new.kernel.max_tokens);
-    cmp!("telegram.enabled", old.telegram.enabled, new.telegram.enabled);
+    cmp!(
+        "inference.default_model",
+        old.inference.default_model,
+        new.inference.default_model
+    );
+    cmp!(
+        "inference.fallback",
+        old.inference.fallback,
+        new.inference.fallback
+    );
+    cmp!(
+        "kernel.max_tokens",
+        old.kernel.max_tokens,
+        new.kernel.max_tokens
+    );
+    cmp!(
+        "telegram.enabled",
+        old.telegram.enabled,
+        new.telegram.enabled
+    );
     changes
 }
 
@@ -79,9 +103,15 @@ pub fn spawn_config_watcher(config: Arc<RwLock<ConvergioConfig>>) -> Result<(), 
         .ok_or_else(|| "config path has no parent directory".to_string())?
         .to_path_buf();
     if !watch_dir.exists() {
-        return Err(format!("config dir does not exist: {}", watch_dir.display()));
+        return Err(format!(
+            "config dir does not exist: {}",
+            watch_dir.display()
+        ));
     }
-    let file_name = path.file_name().map(|f| f.to_os_string()).unwrap_or_default();
+    let file_name = path
+        .file_name()
+        .map(|f| f.to_os_string())
+        .unwrap_or_default();
 
     let cfg = Arc::clone(&config);
     let last_reload = Arc::new(std::sync::Mutex::new(Instant::now()));

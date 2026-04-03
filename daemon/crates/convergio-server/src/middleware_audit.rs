@@ -93,7 +93,10 @@ mod tests {
 
     #[test]
     fn extract_agent_no_header() {
-        let req = Request::builder().uri("/api/test").body(Body::empty()).unwrap();
+        let req = Request::builder()
+            .uri("/api/test")
+            .body(Body::empty())
+            .unwrap();
         assert_eq!(extract_agent(&req), "dev-mode");
     }
 
@@ -119,7 +122,10 @@ mod tests {
 
     #[test]
     fn extract_ip_none() {
-        let req = Request::builder().uri("/api/test").body(Body::empty()).unwrap();
+        let req = Request::builder()
+            .uri("/api/test")
+            .body(Body::empty())
+            .unwrap();
         assert_eq!(extract_ip(&req), None);
     }
 
@@ -131,14 +137,24 @@ mod tests {
                 id INTEGER PRIMARY KEY, agent TEXT, action TEXT NOT NULL,
                 resource TEXT, detail TEXT, ip_addr TEXT,
                 timestamp TEXT DEFAULT (datetime('now'))
-             );"
-        ).unwrap();
+             );",
+        )
+        .unwrap();
         conn.execute(
             "INSERT INTO audit_log (agent, action, resource, detail, ip_addr)
              VALUES (?1, ?2, ?3, ?4, ?5)",
-            rusqlite::params!["dev-mode", "POST", "/api/plans", "201", Option::<&str>::None],
-        ).unwrap();
-        let count: i64 = conn.query_row("SELECT COUNT(*) FROM audit_log", [], |r| r.get(0)).unwrap();
+            rusqlite::params![
+                "dev-mode",
+                "POST",
+                "/api/plans",
+                "201",
+                Option::<&str>::None
+            ],
+        )
+        .unwrap();
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM audit_log", [], |r| r.get(0))
+            .unwrap();
         assert_eq!(count, 1);
     }
 }

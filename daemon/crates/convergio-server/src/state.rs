@@ -24,7 +24,13 @@ impl ServerState {
         metrics: Arc<MetricsCollector>,
         dev_mode: bool,
     ) -> Self {
-        Self { pool, config, health, metrics, dev_mode }
+        Self {
+            pool,
+            config,
+            health,
+            metrics,
+            dev_mode,
+        }
     }
 
     /// Get a pooled database connection.

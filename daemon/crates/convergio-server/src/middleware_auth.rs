@@ -43,10 +43,7 @@ fn is_localhost(req: &Request<Body>) -> bool {
     false
 }
 
-fn authenticate(
-    header_value: Option<&str>,
-    dev_mode: bool,
-) -> Result<Option<AgentClaims>, ()> {
+fn authenticate(header_value: Option<&str>, dev_mode: bool) -> Result<Option<AgentClaims>, ()> {
     if let Some(token) = header_value.and_then(|v| v.strip_prefix("Bearer ")) {
         // JWT tokens have 2 dots; legacy tokens do not
         if token.matches('.').count() == 2 {
@@ -138,7 +135,10 @@ pub async fn require_auth_stateless(req: Request<Body>, next: Next) -> Response 
 /// Cache-Control header middleware.
 pub async fn set_cache_headers(req: Request<Body>, next: Next) -> Response {
     let mut res = next.run(req).await;
-    if !res.headers().contains_key(axum::http::header::CACHE_CONTROL) {
+    if !res
+        .headers()
+        .contains_key(axum::http::header::CACHE_CONTROL)
+    {
         res.headers_mut().insert(
             axum::http::header::CACHE_CONTROL,
             axum::http::HeaderValue::from_static("private, max-age=10"),
@@ -158,7 +158,11 @@ pub fn cors_layer() -> CorsLayer {
                 .filter(|o| !o.is_empty())
                 .filter_map(|o| axum::http::HeaderValue::from_str(o).ok())
                 .collect();
-            if parsed.is_empty() { None } else { Some(parsed) }
+            if parsed.is_empty() {
+                None
+            } else {
+                Some(parsed)
+            }
         })
         .unwrap_or_else(|| {
             vec![

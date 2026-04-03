@@ -110,19 +110,12 @@ pub trait Extension: Send + Sync {
 /// Type-erased resource map: the server fills it with concrete types
 /// (ConnPool, config, health registry, …) and extensions retrieve
 /// them by type via `get::<T>()`.
+#[derive(Default)]
 pub struct AppContext {
     resources: std::collections::HashMap<
         std::any::TypeId,
         std::sync::Arc<dyn std::any::Any + Send + Sync>,
     >,
-}
-
-impl Default for AppContext {
-    fn default() -> Self {
-        Self {
-            resources: std::collections::HashMap::new(),
-        }
-    }
 }
 
 impl AppContext {
