@@ -140,6 +140,20 @@ pub enum AgentCommands {
         #[arg(long, default_value = "http://localhost:8420")]
         api_url: String,
     },
+    /// Spawn an agent from the catalog with isolated workspace
+    Spawn {
+        /// Agent name from catalog
+        name: String,
+        /// Task ID to assign
+        #[arg(long)]
+        task: Option<i64>,
+        /// Human-readable output instead of JSON
+        #[arg(long)]
+        human: bool,
+        /// Daemon API base URL
+        #[arg(long, default_value = "http://localhost:8420")]
+        api_url: String,
+    },
     /// Create a new agent in the catalog
     Create {
         /// Agent name
