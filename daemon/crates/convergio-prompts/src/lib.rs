@@ -7,9 +7,11 @@
 pub mod ab_test;
 pub mod ext;
 pub mod optimizer;
+pub mod pipeline;
 pub mod render;
 pub mod routes;
 pub mod schema;
+pub mod seed;
 pub mod skills;
 pub mod spawn;
 pub mod store;

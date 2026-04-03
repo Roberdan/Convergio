@@ -11,9 +11,7 @@ use convergio_types::extension::{AppContext, Extension};
 use std::sync::{Arc, RwLock};
 use tokio::sync::Notify;
 
-fn register_extensions(
-    pool: ConnPool,
-) -> Vec<Arc<dyn Extension>> {
+fn register_extensions(pool: ConnPool) -> Vec<Arc<dyn Extension>> {
     let notify = Arc::new(Notify::new());
 
     vec![
@@ -68,8 +66,7 @@ async fn main() {
     let config = Arc::new(RwLock::new(config));
 
     // 3. Database
-    let db_path =
-        convergio_types::platform_paths::convergio_data_dir().join("convergio.db");
+    let db_path = convergio_types::platform_paths::convergio_data_dir().join("convergio.db");
     if let Some(parent) = db_path.parent() {
         let _ = std::fs::create_dir_all(parent);
     }
@@ -94,17 +91,9 @@ async fn main() {
             let manifest = ext.manifest();
             let migrations = ext.migrations();
             if !migrations.is_empty() {
-                match convergio_db::migration::apply_migrations(
-                    &conn,
-                    &manifest.id,
-                    &migrations,
-                ) {
+                match convergio_db::migration::apply_migrations(&conn, &manifest.id, &migrations) {
                     Ok(n) if n > 0 => {
-                        tracing::info!(
-                            module = manifest.id,
-                            applied = n,
-                            "migrations applied"
-                        );
+                        tracing::info!(module = manifest.id, applied = n, "migrations applied");
                     }
                     Err(e) => {
                         tracing::error!(

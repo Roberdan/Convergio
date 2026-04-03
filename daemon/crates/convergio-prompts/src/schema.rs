@@ -82,6 +82,22 @@ CREATE INDEX IF NOT EXISTS idx_spawned_agent ON prompt_spawned(agent, task_id);
 CREATE INDEX IF NOT EXISTS idx_spawned_task ON prompt_spawned(task_id);
 ",
         },
+        Migration {
+            version: 4,
+            description: "declarative pipeline definitions",
+            up: "
+CREATE TABLE IF NOT EXISTS prompt_pipelines (
+    id          TEXT PRIMARY KEY NOT NULL,
+    name        TEXT NOT NULL UNIQUE,
+    description TEXT NOT NULL DEFAULT '',
+    steps_json  TEXT NOT NULL DEFAULT '[]',
+    active      INTEGER NOT NULL DEFAULT 1,
+    created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now')),
+    updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now'))
+);
+CREATE INDEX IF NOT EXISTS idx_pipeline_name ON prompt_pipelines(name);
+",
+        },
     ]
 }
 
@@ -95,7 +111,7 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
         let applied = convergio_db::migration::apply_migrations(&conn, "prompts", &migrations());
-        assert_eq!(applied.unwrap(), 3);
+        assert_eq!(applied.unwrap(), 4);
     }
 
     #[test]

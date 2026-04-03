@@ -113,3 +113,33 @@ pub struct SkillQuery {
     pub agent: Option<String>,
     pub min_confidence: Option<f64>,
 }
+
+/// A declarative pipeline — ordered steps referencing prompt templates.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PipelineDefinition {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub steps: Vec<PipelineStep>,
+    pub active: bool,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+/// A single step in a pipeline.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PipelineStep {
+    pub order: u32,
+    pub skill: String,
+    pub prompt_name: String,
+    pub agent: Option<String>,
+    pub condition: Option<String>,
+}
+
+/// Request to create a pipeline.
+#[derive(Debug, Clone, Deserialize)]
+pub struct PipelineInput {
+    pub name: String,
+    pub description: String,
+    pub steps: Vec<PipelineStep>,
+}

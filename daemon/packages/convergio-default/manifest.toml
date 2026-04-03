@@ -1,0 +1,23 @@
+[package]
+name = "convergio-default"
+version = "1.0.0"
+description = "Default Convergio agent team — 70 agents across 9 categories"
+author = "Convergio"
+min_daemon_version = "0.1.0"
+license = "MPL-2.0"
+
+[permissions]
+ipc_publish = ["tasks.*", "agents.*", "plans.*"]
+ipc_subscribe = ["tasks.*", "agents.*", "plans.*"]
+routes = ["/api/agents", "/api/prompts"]
+allow_subprocess = false
+
+[budget]
+max_api_calls_per_hour = 1000
+max_tokens_per_day = 10000000
+max_compute_seconds = 3600
+
+[delegation]
+can_delegate = true
+can_receive = true
+trusted_orgs = []
