@@ -56,6 +56,17 @@ Fasi 11 e 12 NON dipendono da 9 e 10. Possono partire subito.
 - Se il contesto si sta riempiendo (>60 turni): scrivi lo stato in ~/Desktop/ORCHESTRATOR-STATE.md e lancia:
   cd /Users/Roberdan/GitHub/convergio && nohup ./scripts/orchestrator.sh >> .worktrees/orchestrator.log 2>&1 &
 
+## Cleanup dopo merge (OBBLIGATORIO)
+
+Dopo ogni merge di PR, DEVI pulire:
+
+1. Rimuovi il worktree: git worktree remove .worktrees/fase-N --force
+2. Cancella il branch locale: git branch -D feat/fase-N-crate-name
+3. Pruna remote: git remote prune origin
+4. Verifica: git worktree list e git branch non devono avere residui di fasi gia mergiati
+
+MAI lasciare worktree o branch orfani. Se trovi residui di fasi precedenti, puliscili prima di proseguire.
+
 ## Gestione conflitti merge
 
 Quando mergi una PR con gh pr merge e fallisce per conflitto:
