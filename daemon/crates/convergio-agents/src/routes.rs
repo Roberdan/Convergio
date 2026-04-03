@@ -14,10 +14,7 @@ use crate::types::{AgentInput, AgentQuery};
 /// Build all catalog routes.
 pub fn catalog_routes(pool: ConnPool) -> Router {
     Router::new()
-        .route(
-            "/api/agents/catalog",
-            get(list_agents).post(create_agent),
-        )
+        .route("/api/agents/catalog", get(list_agents).post(create_agent))
         .route(
             "/api/agents/catalog/{name}",
             get(get_agent).put(update_agent).delete(delete_agent),
@@ -37,10 +34,7 @@ async fn list_agents(
     Ok::<_, (StatusCode, String)>(Json(agents))
 }
 
-async fn get_agent(
-    State(pool): State<ConnPool>,
-    Path(name): Path<String>,
-) -> impl IntoResponse {
+async fn get_agent(State(pool): State<ConnPool>, Path(name): Path<String>) -> impl IntoResponse {
     let conn = pool
         .get()
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
@@ -58,10 +52,7 @@ async fn create_agent(
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     let id = crate::store::create_agent(&conn, &input)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-    Ok::<_, (StatusCode, String)>((
-        StatusCode::CREATED,
-        Json(serde_json::json!({ "id": id })),
-    ))
+    Ok::<_, (StatusCode, String)>((StatusCode::CREATED, Json(serde_json::json!({ "id": id }))))
 }
 
 async fn update_agent(
@@ -81,10 +72,7 @@ async fn update_agent(
     }
 }
 
-async fn delete_agent(
-    State(pool): State<ConnPool>,
-    Path(name): Path<String>,
-) -> impl IntoResponse {
+async fn delete_agent(State(pool): State<ConnPool>, Path(name): Path<String>) -> impl IntoResponse {
     let conn = pool
         .get()
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;

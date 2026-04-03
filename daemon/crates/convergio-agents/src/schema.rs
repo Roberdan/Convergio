@@ -39,8 +39,7 @@ mod tests {
     fn migrations_apply_cleanly() {
         let conn = Connection::open_in_memory().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
-        let n =
-            convergio_db::migration::apply_migrations(&conn, "agents", &migrations()).unwrap();
+        let n = convergio_db::migration::apply_migrations(&conn, "agents", &migrations()).unwrap();
         assert_eq!(n, 1);
     }
 
@@ -49,8 +48,7 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
         convergio_db::migration::apply_migrations(&conn, "agents", &migrations()).unwrap();
-        let n =
-            convergio_db::migration::apply_migrations(&conn, "agents", &migrations()).unwrap();
+        let n = convergio_db::migration::apply_migrations(&conn, "agents", &migrations()).unwrap();
         assert_eq!(n, 0);
     }
 }
