@@ -16,6 +16,7 @@ members = [
     "crates/convergio-voice",
     "crates/convergio-prompts",
     "crates/convergio-inference",
+    "crates/convergio-org-package",
 ]
 
 [package]
@@ -58,3 +59,4 @@ async-stream = "0.3"
 futures-core = "0.3"
 libc = "0.2"
 dirs = "6"
+toml = "0.8"
