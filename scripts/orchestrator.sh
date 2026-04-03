@@ -10,10 +10,13 @@ mkdir -p "$REPO/.worktrees"
 echo "[$(date)] Orchestrator starting" >> "$LOG"
 
 cd "$REPO"
-PROMPT=$(cat "$PROMPT_FILE")
 
-claude --dangerously-skip-permissions -p "$PROMPT" 2>&1 | tee -a "$LOG"
+timeout 7200 claude --dangerously-skip-permissions \
+    --add-dir "$REPO" \
+    --model claude-opus-4-6 \
+    -p "$(cat "$PROMPT_FILE")" 2>&1 | tee -a "$LOG"
 
-echo "[$(date)] Claude exited. Re-launching in 10s..." >> "$LOG"
+EXIT_CODE=$?
+echo "[$(date)] Claude exited (code=$EXIT_CODE). Re-launching in 10s..." >> "$LOG"
 sleep 10
 exec "$0"
