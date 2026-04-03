@@ -407,13 +407,16 @@ dependencies = [
 name = "convergio-agents"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "convergio-db",
  "convergio-ipc",
  "convergio-telemetry",
  "convergio-types",
+ "rusqlite",
  "serde",
  "serde_json",
  "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -482,6 +485,7 @@ name = "convergio-daemon"
 version = "0.1.0"
 dependencies = [
  "convergio-agent-runtime",
+ "convergio-agents",
  "convergio-backup",
  "convergio-billing",
  "convergio-db",

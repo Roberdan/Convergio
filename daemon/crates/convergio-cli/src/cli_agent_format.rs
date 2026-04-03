@@ -118,6 +118,27 @@ pub(crate) async fn dispatch(cmd: AgentCommands) -> Result<(), CliError> {
             crate::cli_agent_history::handle_history(&api_url, since, until, status, model, limit)
                 .await?;
         }
+        AgentCommands::Spawn {
+            name,
+            task,
+            human,
+            api_url,
+        } => {
+            let body = serde_json::json!({
+                "agent_name": name,
+                "org_id": "convergio",
+                "task_id": task,
+                "capabilities": [],
+                "budget_usd": 0.0,
+                "priority": 0,
+            });
+            crate::cli_http::post_and_print(
+                &format!("{api_url}/api/agents/runtime/spawn"),
+                &body,
+                human,
+            )
+            .await?;
+        }
         AgentCommands::Create {
             name,
             category,

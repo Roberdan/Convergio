@@ -48,6 +48,7 @@ convergio-ipc = { path = "crates/convergio-ipc" }
 convergio-mesh = { path = "crates/convergio-mesh" }
 convergio-server = { path = "crates/convergio-server" }
 convergio-orchestrator = { path = "crates/convergio-orchestrator" }
+convergio-agents = { path = "crates/convergio-agents" }
 convergio-kernel = { path = "crates/convergio-kernel" }
 convergio-org = { path = "crates/convergio-org" }
 convergio-voice = { path = "crates/convergio-voice" }

@@ -24,6 +24,7 @@ fn register_extensions(pool: ConnPool) -> Vec<Arc<dyn Extension>> {
             notify,
         )),
         Arc::new(convergio_inference::InferenceExtension::new(pool.clone())),
+        Arc::new(convergio_agents::AgentsCatalogExtension::new(pool.clone())),
         Arc::new(convergio_prompts::ext::PromptsExtension::new(pool.clone())),
         Arc::new(convergio_agent_runtime::AgentRuntimeExtension::new(
             pool.clone(),
