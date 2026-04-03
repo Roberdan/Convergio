@@ -1,0 +1,26 @@
+[package]
+name = "convergio-backup"
+description = "Data retention, backup, disaster recovery, and org data export/import"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+convergio-types = { path = "../convergio-types" }
+convergio-db = { path = "../convergio-db" }
+convergio-security = { path = "../convergio-security" }
+convergio-telemetry = { path = "../convergio-telemetry" }
+tracing = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+rusqlite = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+r2d2 = { workspace = true }
+sha2 = { workspace = true }
+axum = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
