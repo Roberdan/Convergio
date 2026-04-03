@@ -101,8 +101,7 @@ fn import_table_rows(
             placeholders.join(", "),
         );
 
-        let values: Vec<Box<dyn rusqlite::ToSql>> =
-            obj.values().map(json_to_tosql).collect();
+        let values: Vec<Box<dyn rusqlite::ToSql>> = obj.values().map(json_to_tosql).collect();
 
         let refs: Vec<&dyn rusqlite::ToSql> = values.iter().map(|b| b.as_ref()).collect();
 
