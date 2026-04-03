@@ -22,6 +22,7 @@ members = [
     "crates/convergio-longrunning",
     "crates/convergio-mcp",
     "crates/convergio-agent-runtime",
+    "crates/convergio-billing",
 ]
 
 [package]
