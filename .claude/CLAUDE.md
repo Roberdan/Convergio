@@ -10,8 +10,8 @@ Value is in the organizations and agents, not the daemon itself.
 
 Three layers:
 - **Infrastructure** (core, must be perfect): types, telemetry, db, security, ipc, mesh, server, cli
-- **Platform services** (orchestration): orchestrator, agents
-- **Extensions** (pluggable): kernel, org, voice — plus HTTP-bridged external extensions
+- **Platform services** (orchestration): orchestrator, agents, inference, prompts, agent-runtime
+- **Extensions** (pluggable): kernel, org, voice, http-bridge, org-package, longrunning, billing, backup, multitenancy, evidence, observatory, depgraph, mcp
 
 Every module implements the `Extension` trait defined in `convergio-types`.
 No alternative, no workaround. If it doesn't implement Extension, it doesn't exist.
@@ -20,53 +20,64 @@ No alternative, no workaround. If it doesn't implement Extension, it doesn't exi
 
 ```
 daemon/
-  Cargo.toml              # workspace root
-  src/main.rs             # binary entry point
-  crates/
-    convergio-types/      # Extension trait, Manifest, DomainEvent, errors
-    convergio-telemetry/  # tracing, metrics, health
-    convergio-db/         # SQLite pool, migration runner
-    convergio-security/   # auth, HMAC, audit
-    convergio-ipc/        # message bus, SSE, agent registry
-    convergio-mesh/       # peer discovery, sync, delegation
-    convergio-server/     # Axum routing shell
-    convergio-cli/        # cvg (HTTP client only)
-    convergio-orchestrator/ # plans, tasks, waves, Thor
-    convergio-agents/     # agent catalog, org routing
-    convergio-kernel/     # Jarvis (extension)
-    convergio-org/        # org chart (extension)
-    convergio-voice/      # STT/TTS (extension)
-```
-
-## Dependency graph
-
-```
-types (zero deps)
-  ├── telemetry -> types
-  ├── db -> types
-  ├── security -> types
-  ├── ipc -> types, db, telemetry
-  ├── mesh -> types, db, security, telemetry
-  ├── orchestrator -> types, db, ipc, telemetry
-  ├── server -> types, db, telemetry + all extensions
-  ├── cli -> types (HTTP only)
-  └── extensions -> types, db, telemetry (+ specific deps)
+  Cargo.toml              # workspace root (26 crates)
+  src/main.rs             # binary: registers extensions, runs server
+  crates/                 # 26 crates
 ```
 
 ## Rules
 
 - Code and docs in **English**. Conversation in Italian.
-- Max **250 lines per file** (enforced by hook in ConvergioPlatform, best practice here).
+- Max **250 lines per file**.
 - CLI = pure HTTP client. Zero internal imports.
 - Server = routing shell. Logic lives in crates.
-- Every extension owns its DB tables, registered via migrations().
+- Every extension owns its DB tables via migrations().
 - Conventional commits.
+
+## Agent operational rules (MUST be in every agent prompt)
+
+These rules come from hard-won learnings building this repo. They are non-negotiable.
+
+### Workspace isolation
+- Every task runs in its own git worktree under `.worktrees/`
+- NEVER work in the main checkout at `/Users/Roberdan/GitHub/convergio`
+- One worktree = one branch = one PR
+- Worktree path: `.worktrees/<task-name>`
+
+### Checklist before "done"
+1. `cargo check --workspace` — whole workspace compiles
+2. `cargo test -p <your-crate>` — your tests pass
+3. `cargo test --workspace` — no regressions
+4. Commit with conventional message + Co-Authored-By
+5. Push and create PR with `gh pr create`
+6. Check PR review comments: fix valid ones, respond to invalid ones
+7. Do NOT merge until all comments resolved and CI green
+8. After merge: remove worktree, delete branch, prune remote
+
+### What NOT to do
+- NEVER commit on main directly (branch protection enforced)
+- NEVER create long prompts as shell arguments (use file + Read tool)
+- NEVER leave stale worktrees or branches after merge
+- NEVER modify files outside your task scope
+- NEVER skip tests or force-push
+
+### Prompt pattern for spawning agents
+Short prompt that tells the agent to READ a file:
+```
+claude -p "Leggi <file> per le istruzioni. Poi inizia."
+```
+NEVER inline long prompts as -p arguments — they silently hang.
 
 ## Migration source
 
-Old monolite: `/Users/Roberdan/GitHub/ConvergioPlatform/daemon/`
+Old monolith: `/Users/Roberdan/GitHub/ConvergioPlatform/daemon/`
 This repo is the clean-room destination. Move and adapt code, don't rewrite.
 
-## Tracker
+## Running the daemon
 
-Progress tracked in `~/Desktop/WORKSPACE-SPLIT.md`.
+```bash
+cd daemon
+CONVERGIO_CONFIG=/path/to/config.toml cargo run
+# Default port: 8420
+# Health: curl http://localhost:8420/api/health
+```
