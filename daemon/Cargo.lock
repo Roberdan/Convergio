@@ -548,6 +548,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-mcp"
+version = "0.1.0"
+dependencies = [
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "convergio-mesh"
 version = "0.1.0"
 dependencies = [
