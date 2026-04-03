@@ -18,6 +18,7 @@ members = [
     "crates/convergio-inference",
     "crates/convergio-org-package",
     "crates/convergio-http-bridge",
+    "crates/convergio-depgraph",
 ]
 
 [package]
