@@ -99,8 +99,14 @@ pub fn autoscale_check(
 /// Autoscaling decision.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
 pub enum AutoscaleDecision {
-    ScaleUp { backlog: usize, threshold: usize },
-    ScaleDown { idle: usize, threshold: usize },
+    ScaleUp {
+        backlog: usize,
+        threshold: usize,
+    },
+    ScaleDown {
+        idle: usize,
+        threshold: usize,
+    },
     #[default]
     Steady,
 }
