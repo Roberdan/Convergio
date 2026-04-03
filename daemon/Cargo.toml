@@ -19,6 +19,7 @@ members = [
     "crates/convergio-org-package",
     "crates/convergio-http-bridge",
     "crates/convergio-depgraph",
+    "crates/convergio-longrunning",
 ]
 
 [package]

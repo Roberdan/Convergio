@@ -529,6 +529,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-longrunning"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "convergio-db",
+ "convergio-ipc",
+ "convergio-telemetry",
+ "convergio-types",
+ "r2d2",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "convergio-mesh"
 version = "0.1.0"
 dependencies = [
