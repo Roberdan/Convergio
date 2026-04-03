@@ -36,7 +36,7 @@ pub fn render(
 pub fn estimate_tokens(text: &str) -> u64 {
     let chars = text.len() as u64;
     // Rough approximation: 1 token ~ 4 characters.
-    (chars + 3) / 4
+    chars.div_ceil(4)
 }
 
 #[cfg(test)]
