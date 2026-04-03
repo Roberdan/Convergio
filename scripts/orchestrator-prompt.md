@@ -56,6 +56,21 @@ Fasi 11 e 12 NON dipendono da 9 e 10. Possono partire subito.
 - Se il contesto si sta riempiendo (>60 turni): scrivi lo stato in ~/Desktop/ORCHESTRATOR-STATE.md e lancia:
   cd /Users/Roberdan/GitHub/convergio && nohup ./scripts/orchestrator.sh >> .worktrees/orchestrator.log 2>&1 &
 
+## Gestione conflitti merge
+
+Quando mergi una PR con gh pr merge e fallisce per conflitto:
+
+1. Vai nel worktree della PR:
+   cd /Users/Roberdan/GitHub/convergio/.worktrees/fase-N
+2. Aggiorna main e fai rebase:
+   git fetch origin main
+   git rebase origin/main
+3. Se il conflitto e solo Cargo.lock: rigenera con cd daemon && cargo check e committa
+4. Se il conflitto e su file che NON sono del tuo crate: qualcun altro ha toccato roba tua. FERMATI e scrivi in ~/Desktop/ORCHESTRATOR-STATE.md cosa e successo. Non risolvere conflitti su codice altrui.
+5. Se il conflitto e su file del tuo crate (es. lib.rs che un linter ha modificato): risolvi, testa, committa, pusha. La PR si aggiorna.
+6. Dopo il rebase: cargo test --workspace. Se rosso, fixa prima di pushare.
+7. Ri-tenta il merge.
+
 ## Adesso
 
 1. Controlla lo stato: PR aperte, worktree attivi, fasi completate
