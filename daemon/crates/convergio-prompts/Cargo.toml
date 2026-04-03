@@ -1,0 +1,22 @@
+[package]
+name = "convergio-prompts"
+description = "Prompt management, template rendering, skill registry, A/B testing"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+convergio-types = { path = "../convergio-types" }
+convergio-db = { path = "../convergio-db" }
+convergio-telemetry = { path = "../convergio-telemetry" }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+rusqlite = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+axum = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
