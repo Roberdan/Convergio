@@ -81,11 +81,23 @@ Quando mergi una PR con gh pr merge e fallisce per conflitto:
 6. Dopo il rebase: cargo test --workspace. Se rosso, fixa prima di pushare.
 7. Ri-tenta il merge.
 
+## Quando TUTTE le fasi sono completate
+
+Quando tutte le checkbox in WORKSPACE-SPLIT.md sono [x]:
+
+1. Build release: cd /Users/Roberdan/GitHub/convergio/daemon && cargo build --release
+2. Esegui cutover: /Users/Roberdan/GitHub/convergio/scripts/cutover.sh
+3. Verifica: curl http://localhost:8420/api/health deve rispondere con il NUOVO daemon
+4. Segna le precondizioni in ~/Desktop/FRONTEND-SPEC.md come soddisfatte
+5. Lancia il piano frontend: chmod +x ~/Desktop/frontend-orchestrator.sh && tmux new-session -d -s frontend ~/Desktop/frontend-orchestrator.sh
+6. Scrivi in ~/Desktop/ORCHESTRATOR-STATE.md: "WORKSPACE-SPLIT completato. Cutover fatto. Frontend plan lanciato."
+
 ## Adesso
 
 1. Controlla lo stato: PR aperte, worktree attivi, fasi completate
-2. Se fasi 9/10 sono in corso, monitora. Se hanno PR, controlla CI e mergia.
+2. Se ci sono PR aperte, controlla CI e mergia
 3. Lancia le prossime fasi pronte
 4. Loop: monitora, mergia, lancia, monitora
+5. Quando tutto done: esegui la sezione "Quando TUTTE le fasi sono completate"
 
 Vai.
