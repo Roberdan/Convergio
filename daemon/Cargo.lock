@@ -417,6 +417,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-backup"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "convergio-db",
+ "convergio-security",
+ "convergio-telemetry",
+ "convergio-types",
+ "r2d2",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "convergio-billing"
 version = "0.1.0"
 dependencies = [
