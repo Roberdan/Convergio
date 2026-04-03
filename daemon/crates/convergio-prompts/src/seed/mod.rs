@@ -98,12 +98,8 @@ mod tests {
     fn setup() -> Connection {
         let conn = Connection::open_in_memory().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
-        convergio_db::migration::apply_migrations(
-            &conn,
-            "prompts",
-            &crate::schema::migrations(),
-        )
-        .unwrap();
+        convergio_db::migration::apply_migrations(&conn, "prompts", &crate::schema::migrations())
+            .unwrap();
         conn
     }
 

@@ -5,22 +5,29 @@ use super::seed_agents::AgentMeta;
 const APP_RELEASE_MANAGER: &str = include_str!("../../data/agents/app-release-manager.md");
 const ECOSYSTEM_SYNC: &str = include_str!("../../data/agents/ecosystem-sync.md");
 const FEATURE_RELEASE_MANAGER: &str = include_str!("../../data/agents/feature-release-manager.md");
-const MIRRORBUDDY_HARDENING_CHECKS: &str = include_str!("../../data/agents/mirrorbuddy-hardening-checks.md");
-const RESEARCH_REPORT_GENERATOR: &str = include_str!("../../data/agents/research-report-generator.md");
+const MIRRORBUDDY_HARDENING_CHECKS: &str =
+    include_str!("../../data/agents/mirrorbuddy-hardening-checks.md");
+const RESEARCH_REPORT_GENERATOR: &str =
+    include_str!("../../data/agents/research-report-generator.md");
 const BEHICE_CULTURAL_COACH: &str = include_str!("../../data/agents/behice-cultural-coach.md");
 const COACH_TEAM_COACH: &str = include_str!("../../data/agents/coach-team-coach.md");
 const FIONA_MARKET_ANALYST: &str = include_str!("../../data/agents/fiona-market-analyst.md");
-const GIULIA_HR_TALENT_ACQUISITION: &str = include_str!("../../data/agents/giulia-hr-talent-acquisition.md");
-const JENNY_INCLUSIVE_ACCESSIBILITY_CHAMPION: &str = include_str!("../../data/agents/jenny-inclusive-accessibility-champion.md");
+const GIULIA_HR_TALENT_ACQUISITION: &str =
+    include_str!("../../data/agents/giulia-hr-talent-acquisition.md");
+const JENNY_INCLUSIVE_ACCESSIBILITY_CHAMPION: &str =
+    include_str!("../../data/agents/jenny-inclusive-accessibility-champion.md");
 const SAM_STARTUPPER: &str = include_str!("../../data/agents/sam-startupper.md");
-const WIZ_INVESTOR_VENTURE_CAPITAL: &str = include_str!("../../data/agents/wiz-investor-venture-capital.md");
+const WIZ_INVESTOR_VENTURE_CAPITAL: &str =
+    include_str!("../../data/agents/wiz-investor-venture-capital.md");
 const ADVERSARIAL_DEBUGGER: &str = include_str!("../../data/agents/adversarial-debugger.md");
 const BACCIO_TECH_ARCHITECT: &str = include_str!("../../data/agents/baccio-tech-architect.md");
 const DARIO_DEBUGGER: &str = include_str!("../../data/agents/dario-debugger.md");
 const MARCO_DEVOPS_ENGINEER: &str = include_str!("../../data/agents/marco-devops-engineer.md");
 const OMRI_DATA_SCIENTIST: &str = include_str!("../../data/agents/omri-data-scientist.md");
-const OTTO_PERFORMANCE_OPTIMIZER: &str = include_str!("../../data/agents/otto-performance-optimizer.md");
-const PAOLO_BEST_PRACTICES_ENFORCER: &str = include_str!("../../data/agents/paolo-best-practices-enforcer.md");
+const OTTO_PERFORMANCE_OPTIMIZER: &str =
+    include_str!("../../data/agents/otto-performance-optimizer.md");
+const PAOLO_BEST_PRACTICES_ENFORCER: &str =
+    include_str!("../../data/agents/paolo-best-practices-enforcer.md");
 const REX_CODE_REVIEWER: &str = include_str!("../../data/agents/rex-code-reviewer.md");
 const TASK_EXECUTOR_TDD: &str = include_str!("../../data/agents/task-executor-tdd.md");
 const TASK_EXECUTOR: &str = include_str!("../../data/agents/task-executor.md");

@@ -4,19 +4,29 @@ use super::seed_agents::AgentMeta;
 
 const CEO: &str = include_str!("../../data/agents/ceo.md");
 const PR_COMMENT_RESOLVER: &str = include_str!("../../data/agents/pr-comment-resolver.md");
-const ANDREA_CUSTOMER_SUCCESS_MANAGER: &str = include_str!("../../data/agents/andrea-customer-success-manager.md");
-const ANNA_EXECUTIVE_ASSISTANT: &str = include_str!("../../data/agents/anna-executive-assistant.md");
-const DAVE_CHANGE_MANAGEMENT_SPECIALIST: &str = include_str!("../../data/agents/dave-change-management-specialist.md");
+const ANDREA_CUSTOMER_SUCCESS_MANAGER: &str =
+    include_str!("../../data/agents/andrea-customer-success-manager.md");
+const ANNA_EXECUTIVE_ASSISTANT: &str =
+    include_str!("../../data/agents/anna-executive-assistant.md");
+const DAVE_CHANGE_MANAGEMENT_SPECIALIST: &str =
+    include_str!("../../data/agents/dave-change-management-specialist.md");
 const DAVIDE_PROJECT_MANAGER: &str = include_str!("../../data/agents/davide-project-manager.md");
-const ENRICO_BUSINESS_PROCESS_ENGINEER: &str = include_str!("../../data/agents/enrico-business-process-engineer.md");
-const FABIO_SALES_BUSINESS_DEVELOPMENT: &str = include_str!("../../data/agents/fabio-sales-business-development.md");
+const ENRICO_BUSINESS_PROCESS_ENGINEER: &str =
+    include_str!("../../data/agents/enrico-business-process-engineer.md");
+const FABIO_SALES_BUSINESS_DEVELOPMENT: &str =
+    include_str!("../../data/agents/fabio-sales-business-development.md");
 const LUKE_PROGRAM_MANAGER: &str = include_str!("../../data/agents/luke-program-manager.md");
 const MARCELLO_PM: &str = include_str!("../../data/agents/marcello-pm.md");
-const SOFIA_MARKETING_STRATEGIST: &str = include_str!("../../data/agents/sofia-marketing-strategist.md");
-const STEVE_EXECUTIVE_COMMUNICATION_STRATEGIST: &str = include_str!("../../data/agents/steve-executive-communication-strategist.md");
-const DR_ENZO_HEALTHCARE_COMPLIANCE_MANAGER: &str = include_str!("../../data/agents/dr-enzo-healthcare-compliance-manager.md");
-const ELENA_LEGAL_COMPLIANCE_EXPERT: &str = include_str!("../../data/agents/elena-legal-compliance-expert.md");
-const GUARDIAN_AI_SECURITY_VALIDATOR: &str = include_str!("../../data/agents/guardian-ai-security-validator.md");
+const SOFIA_MARKETING_STRATEGIST: &str =
+    include_str!("../../data/agents/sofia-marketing-strategist.md");
+const STEVE_EXECUTIVE_COMMUNICATION_STRATEGIST: &str =
+    include_str!("../../data/agents/steve-executive-communication-strategist.md");
+const DR_ENZO_HEALTHCARE_COMPLIANCE_MANAGER: &str =
+    include_str!("../../data/agents/dr-enzo-healthcare-compliance-manager.md");
+const ELENA_LEGAL_COMPLIANCE_EXPERT: &str =
+    include_str!("../../data/agents/elena-legal-compliance-expert.md");
+const GUARDIAN_AI_SECURITY_VALIDATOR: &str =
+    include_str!("../../data/agents/guardian-ai-security-validator.md");
 const LUCA_SECURITY_EXPERT: &str = include_str!("../../data/agents/luca-security-expert.md");
 const SOPHIA_GOVAFFAIRS: &str = include_str!("../../data/agents/sophia-govaffairs.md");
 const ALI_ORCHESTRATOR: &str = include_str!("../../data/agents/ali-orchestrator.md");
@@ -24,7 +34,8 @@ const COMPLIANCE_VALIDATOR: &str = include_str!("../../data/agents/compliance-va
 const CONTEXT_OPTIMIZER: &str = include_str!("../../data/agents/context-optimizer.md");
 const DEEP_REPO_AUDITOR: &str = include_str!("../../data/agents/deep-repo-auditor.md");
 const DESIGN_VALIDATOR: &str = include_str!("../../data/agents/design-validator.md");
-const DIANA_PERFORMANCE_DASHBOARD: &str = include_str!("../../data/agents/diana-performance-dashboard.md");
+const DIANA_PERFORMANCE_DASHBOARD: &str =
+    include_str!("../../data/agents/diana-performance-dashboard.md");
 const DOC_VALIDATOR: &str = include_str!("../../data/agents/doc-validator.md");
 
 pub static AGENTS: &[AgentMeta] = &[
