@@ -437,6 +437,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-http-bridge"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "convergio-db",
+ "convergio-telemetry",
+ "convergio-types",
+ "r2d2",
+ "r2d2_sqlite",
+ "reqwest",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "convergio-inference"
 version = "0.1.0"
 dependencies = [
