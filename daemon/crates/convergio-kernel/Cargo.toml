@@ -10,7 +10,12 @@ convergio-types = { path = "../convergio-types" }
 convergio-db = { path = "../convergio-db" }
 convergio-ipc = { path = "../convergio-ipc" }
 convergio-telemetry = { path = "../convergio-telemetry" }
+convergio-voice = { path = "../convergio-voice" }
+thiserror = { workspace = true }
 tracing = { workspace = true }
 tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+chrono = { workspace = true }
+axum = { workspace = true }
+reqwest = { workspace = true, features = ["blocking"] }
