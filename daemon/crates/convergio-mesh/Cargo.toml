@@ -1,0 +1,18 @@
+[package]
+name = "convergio-mesh"
+description = "Peer discovery, delta sync, delegation tracking"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+convergio-types = { path = "../convergio-types" }
+convergio-db = { path = "../convergio-db" }
+convergio-security = { path = "../convergio-security" }
+convergio-telemetry = { path = "../convergio-telemetry" }
+tracing = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+reqwest = { workspace = true }

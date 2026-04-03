@@ -1,0 +1,14 @@
+[package]
+name = "convergio-org"
+description = "Org chart, inter-org communication, provisioner"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+convergio-types = { path = "../convergio-types" }
+convergio-db = { path = "../convergio-db" }
+convergio-telemetry = { path = "../convergio-telemetry" }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }

@@ -1,0 +1,14 @@
+[package]
+name = "convergio-types"
+description = "Core types, Extension trait, Manifest, DomainEvent — the contract everything builds on"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+axum = { workspace = true }
+dirs = "6"

@@ -1,0 +1,54 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/convergio-types",
+    "crates/convergio-telemetry",
+    "crates/convergio-db",
+    "crates/convergio-security",
+    "crates/convergio-ipc",
+    "crates/convergio-mesh",
+    "crates/convergio-server",
+    "crates/convergio-cli",
+    "crates/convergio-orchestrator",
+    "crates/convergio-agents",
+    "crates/convergio-kernel",
+    "crates/convergio-org",
+    "crates/convergio-voice",
+]
+
+[package]
+name = "convergio-daemon"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "convergio"
+path = "src/main.rs"
+
+[dependencies]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/Roberdan/convergio"
+
+[workspace.dependencies]
+# Shared across crates — add here, reference in member Cargo.toml as { workspace = true }
+thiserror = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.44", features = ["macros", "rt-multi-thread", "signal", "sync", "time"] }
+tracing = "0.1"
+axum = { version = "0.7", features = ["ws"] }
+rusqlite = { version = "0.32", features = ["bundled", "functions"] }
+r2d2 = "0.8"
+r2d2_sqlite = "0.25"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+hmac = "0.12"
+sha2 = "0.10"
+base64 = "0.22"
+rand = "0.8"

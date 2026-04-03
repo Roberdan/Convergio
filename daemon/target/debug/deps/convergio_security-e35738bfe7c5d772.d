@@ -1,0 +1,9 @@
+/Users/Roberdan/GitHub/convergio/daemon/target/debug/deps/convergio_security-e35738bfe7c5d772.d: crates/convergio-security/src/lib.rs crates/convergio-security/src/audit.rs crates/convergio-security/src/jwt.rs crates/convergio-security/src/rbac.rs crates/convergio-security/src/types.rs
+
+/Users/Roberdan/GitHub/convergio/daemon/target/debug/deps/libconvergio_security-e35738bfe7c5d772.rmeta: crates/convergio-security/src/lib.rs crates/convergio-security/src/audit.rs crates/convergio-security/src/jwt.rs crates/convergio-security/src/rbac.rs crates/convergio-security/src/types.rs
+
+crates/convergio-security/src/lib.rs:
+crates/convergio-security/src/audit.rs:
+crates/convergio-security/src/jwt.rs:
+crates/convergio-security/src/rbac.rs:
+crates/convergio-security/src/types.rs:
