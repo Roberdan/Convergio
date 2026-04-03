@@ -1,0 +1,28 @@
+# Build
+daemon/target/
+target/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Logs
+*.log
+
+# SQLite
+*.db
+*.db-wal
+*.db-shm
