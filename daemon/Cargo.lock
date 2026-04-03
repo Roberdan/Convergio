@@ -463,12 +463,17 @@ dependencies = [
 name = "convergio-kernel"
 version = "0.1.0"
 dependencies = [
+ "axum",
+ "chrono",
  "convergio-db",
  "convergio-ipc",
  "convergio-telemetry",
  "convergio-types",
+ "convergio-voice",
+ "reqwest",
  "serde",
  "serde_json",
+ "thiserror 1.0.69",
  "tokio",
  "tracing",
 ]
@@ -523,8 +528,10 @@ dependencies = [
  "convergio-db",
  "convergio-telemetry",
  "convergio-types",
+ "reqwest",
  "serde",
  "serde_json",
+ "thiserror 1.0.69",
  "tracing",
 ]
 
@@ -597,10 +604,12 @@ dependencies = [
 name = "convergio-voice"
 version = "0.1.0"
 dependencies = [
- "convergio-kernel",
  "convergio-telemetry",
  "convergio-types",
+ "dirs 6.0.0",
  "serde",
+ "serde_json",
+ "thiserror 1.0.69",
  "tokio",
  "tracing",
 ]

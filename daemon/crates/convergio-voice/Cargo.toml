@@ -1,14 +1,16 @@
 [package]
 name = "convergio-voice"
-description = "STT/TTS engine, used by kernel"
+description = "STT/TTS engine — standalone audio processing for Convergio"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 [dependencies]
 convergio-types = { path = "../convergio-types" }
-convergio-kernel = { path = "../convergio-kernel" }
 convergio-telemetry = { path = "../convergio-telemetry" }
+thiserror = { workspace = true }
 tracing = { workspace = true }
 tokio = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
+dirs = { workspace = true }
