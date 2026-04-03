@@ -40,6 +40,31 @@ name = "convergio"
 path = "src/main.rs"
 
 [dependencies]
+convergio-types = { path = "crates/convergio-types" }
+convergio-telemetry = { path = "crates/convergio-telemetry" }
+convergio-db = { path = "crates/convergio-db" }
+convergio-security = { path = "crates/convergio-security" }
+convergio-ipc = { path = "crates/convergio-ipc" }
+convergio-mesh = { path = "crates/convergio-mesh" }
+convergio-server = { path = "crates/convergio-server" }
+convergio-orchestrator = { path = "crates/convergio-orchestrator" }
+convergio-kernel = { path = "crates/convergio-kernel" }
+convergio-org = { path = "crates/convergio-org" }
+convergio-voice = { path = "crates/convergio-voice" }
+convergio-prompts = { path = "crates/convergio-prompts" }
+convergio-inference = { path = "crates/convergio-inference" }
+convergio-org-package = { path = "crates/convergio-org-package" }
+convergio-http-bridge = { path = "crates/convergio-http-bridge" }
+convergio-depgraph = { path = "crates/convergio-depgraph" }
+convergio-longrunning = { path = "crates/convergio-longrunning" }
+convergio-agent-runtime = { path = "crates/convergio-agent-runtime" }
+convergio-billing = { path = "crates/convergio-billing" }
+convergio-backup = { path = "crates/convergio-backup" }
+convergio-multitenancy = { path = "crates/convergio-multitenancy" }
+convergio-evidence = { path = "crates/convergio-evidence" }
+convergio-observatory = { path = "crates/convergio-observatory" }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [workspace.package]
 version = "0.1.0"
