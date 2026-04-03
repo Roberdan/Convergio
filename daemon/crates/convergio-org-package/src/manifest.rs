@@ -16,6 +16,30 @@ pub struct OrgManifest {
     pub budget: PackageBudget,
     #[serde(default)]
     pub delegation: DelegationConfig,
+    #[serde(default)]
+    pub templates: TemplatesConfig,
+}
+
+/// Custom project templates declared by the org package.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct TemplatesConfig {
+    /// Named templates mapping to relative paths inside the package.
+    #[serde(default)]
+    pub project: Vec<ProjectTemplate>,
+}
+
+/// A single project template available for `cvg project init --template`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProjectTemplate {
+    /// Template name (used via --template flag).
+    pub name: String,
+    /// Language this template targets (rust/typescript/python).
+    pub language: String,
+    /// Relative path to the template directory inside the package.
+    pub path: String,
+    /// Human-readable description.
+    #[serde(default)]
+    pub description: Option<String>,
 }
 
 /// Package identity and metadata.
