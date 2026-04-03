@@ -17,6 +17,7 @@ members = [
     "crates/convergio-prompts",
     "crates/convergio-inference",
     "crates/convergio-org-package",
+    "crates/convergio-http-bridge",
 ]
 
 [package]
