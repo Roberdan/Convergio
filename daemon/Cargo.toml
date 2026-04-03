@@ -26,6 +26,7 @@ members = [
     "crates/convergio-backup",
     "crates/convergio-multitenancy",
     "crates/convergio-evidence",
+    "crates/convergio-observatory",
 ]
 
 [package]

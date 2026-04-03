@@ -676,6 +676,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-observatory"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "convergio-db",
+ "convergio-telemetry",
+ "convergio-types",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
 name = "convergio-orchestrator"
 version = "0.1.0"
 dependencies = [
