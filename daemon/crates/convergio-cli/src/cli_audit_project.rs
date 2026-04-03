@@ -133,10 +133,7 @@ fn next_audit_version(output_dir: &std::path::Path, date_prefix: &str) -> u32 {
             .filter_map(|e| {
                 let name = e.file_name().to_string_lossy().to_string();
                 name.strip_prefix(&pattern)
-                    .and_then(|v| match v.parse::<u32>() {
-                        Ok(n) => Some(n),
-                        Err(_) => None,
-                    })
+                    .and_then(|v| v.parse::<u32>().ok())
             })
             .max()
             .unwrap_or(0),

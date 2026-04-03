@@ -109,6 +109,7 @@ pub trait Extension: Send + Sync {
 ///
 /// Contains the database pool, event bus handle, and configuration.
 /// Extensions receive this at startup and when building routes.
+#[derive(Default)]
 pub struct AppContext {
     // Will hold: db pool, event bus sender, config, telemetry handle
     // Filled in during Fase 2-3 when convergio-db and convergio-telemetry exist.
@@ -117,6 +118,6 @@ pub struct AppContext {
 
 impl AppContext {
     pub fn new() -> Self {
-        Self { _placeholder: () }
+        Self::default()
     }
 }

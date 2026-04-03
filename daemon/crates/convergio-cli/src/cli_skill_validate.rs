@@ -55,10 +55,7 @@ pub(crate) fn semver_ge(ver: &str, min: &str) -> bool {
     let parse = |s: &str| -> (u32, u32, u32) {
         let p: Vec<u32> = s
             .split('.')
-            .filter_map(|p| match p.parse::<u32>() {
-                Ok(v) => Some(v),
-                Err(_) => None,
-            })
+            .filter_map(|p| p.parse::<u32>().ok())
             .collect();
         (
             p.first().copied().unwrap_or(0),

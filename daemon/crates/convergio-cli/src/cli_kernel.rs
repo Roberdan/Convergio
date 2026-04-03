@@ -193,7 +193,7 @@ fn print_status_table(val: &serde_json::Value) {
             val["last_check"].as_str().unwrap_or("—").to_string(),
         ),
     ];
-    println!("{:<16} {}", "field", "value");
+    println!("{:<16} value", "field");
     println!("{}", "-".repeat(40));
     for (k, v) in &rows {
         println!("{k:<16} {v}");
@@ -208,7 +208,7 @@ fn print_logs_table(val: &serde_json::Value) {
         println!("(no events)");
         return;
     }
-    println!("{:<24} {:<8} {}", "timestamp", "level", "message");
+    println!("{:<24} {:<8} message", "timestamp", "level");
     println!("{}", "-".repeat(72));
     for ev in events {
         let ts = ev["timestamp"].as_str().unwrap_or("?");
@@ -230,7 +230,7 @@ fn print_test_table(val: &serde_json::Value) {
         );
         return;
     }
-    println!("{:<28} {:<8} {}", "check", "status", "detail");
+    println!("{:<28} {:<8} detail", "check", "status");
     println!("{}", "-".repeat(72));
     for ch in checks {
         let name = ch["name"].as_str().unwrap_or("?");

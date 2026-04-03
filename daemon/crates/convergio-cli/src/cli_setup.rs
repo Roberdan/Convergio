@@ -61,9 +61,9 @@ pub(crate) async fn handle_setup(defaults: bool) -> Result<(), CliError> {
     let config_path = crate::paths::config_path();
     let content = steps::render_config(&node_name, role, use_tailscale);
     if let Some(parent) = config_path.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| CliError::Io(e))?;
+        std::fs::create_dir_all(parent).map_err(CliError::Io)?;
     }
-    std::fs::write(&config_path, &content).map_err(|e| CliError::Io(e))?;
+    std::fs::write(&config_path, &content).map_err(CliError::Io)?;
 
     // Generate default aliases if not present
     let aliases_path = config_path

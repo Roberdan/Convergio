@@ -124,12 +124,9 @@ pub fn resolve_best_addr(name: &str, fields: &HashMap<String, String>) -> Option
             warn!(peer = name, "bad addr {addr} via {transport}");
             continue;
         };
-        match TcpStream::connect_timeout(&sock_addr, Duration::from_secs(2)) {
-            Ok(_) => {
-                info!(peer = name, "reachable via {transport} ({addr})");
-                return Some(addr);
-            }
-            Err(_) => {}
+        if TcpStream::connect_timeout(&sock_addr, Duration::from_secs(2)).is_ok() {
+            info!(peer = name, "reachable via {transport} ({addr})");
+            return Some(addr);
         }
     }
     None

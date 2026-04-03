@@ -21,13 +21,18 @@ impl RiskLevel {
         }
     }
 
-    pub fn from_str(s: &str) -> Option<Self> {
+}
+
+impl std::str::FromStr for RiskLevel {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_uppercase().as_str() {
-            "LOW" => Some(Self::Low),
-            "MEDIUM" => Some(Self::Medium),
-            "HIGH" => Some(Self::High),
-            "CRITICAL" => Some(Self::Critical),
-            _ => None,
+            "LOW" => Ok(Self::Low),
+            "MEDIUM" => Ok(Self::Medium),
+            "HIGH" => Ok(Self::High),
+            "CRITICAL" => Ok(Self::Critical),
+            _ => Err(format!("unknown risk level: {s}")),
         }
     }
 }
