@@ -120,14 +120,8 @@ impl HealthCheck for PromptsExtension {
 
     fn check(&self) -> ComponentHealth {
         let (status, message) = match (self.prompt_count(), self.skill_count()) {
-            (Ok(p), Ok(s)) => (
-                Health::Ok,
-                Some(format!("{p} templates, {s} skills")),
-            ),
-            (Err(e), _) | (_, Err(e)) => (
-                Health::Degraded { reason: e.clone() },
-                None,
-            ),
+            (Ok(p), Ok(s)) => (Health::Ok, Some(format!("{p} templates, {s} skills"))),
+            (Err(e), _) | (_, Err(e)) => (Health::Degraded { reason: e.clone() }, None),
         };
         ComponentHealth {
             name: "prompts".into(),

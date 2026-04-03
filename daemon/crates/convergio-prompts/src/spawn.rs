@@ -76,7 +76,10 @@ pub fn get_spawned(conn: &Connection, spawn_id: &str) -> rusqlite::Result<Spawne
 }
 
 /// Get all spawned prompts for a task (useful for audit).
-pub fn get_spawned_for_task(conn: &Connection, task_id: &str) -> rusqlite::Result<Vec<SpawnedPrompt>> {
+pub fn get_spawned_for_task(
+    conn: &Connection,
+    task_id: &str,
+) -> rusqlite::Result<Vec<SpawnedPrompt>> {
     let mut stmt = conn.prepare(
         "SELECT spawn_id, agent, task_id, rendered_body, prompt_template_id, prompt_version, spawned_at
          FROM prompt_spawned WHERE task_id = ?1 ORDER BY spawned_at",
@@ -115,21 +118,29 @@ mod tests {
     #[test]
     fn spawn_freezes_prompt() {
         let conn = setup();
-        store::create_prompt(&conn, &PromptInput {
-            name: "agent-system".into(),
-            body: "You are {{role}}. Rules: {{rules}}".into(),
-            variables: vec![
-                PromptVariable {
-                    name: "role".into(), description: "Agent role".into(),
-                    required: true, default_value: None,
-                },
-                PromptVariable {
-                    name: "rules".into(), description: "Rules".into(),
-                    required: true, default_value: None,
-                },
-            ],
-            category: Some("system".into()),
-        }).unwrap();
+        store::create_prompt(
+            &conn,
+            &PromptInput {
+                name: "agent-system".into(),
+                body: "You are {{role}}. Rules: {{rules}}".into(),
+                variables: vec![
+                    PromptVariable {
+                        name: "role".into(),
+                        description: "Agent role".into(),
+                        required: true,
+                        default_value: None,
+                    },
+                    PromptVariable {
+                        name: "rules".into(),
+                        description: "Rules".into(),
+                        required: true,
+                        default_value: None,
+                    },
+                ],
+                category: Some("system".into()),
+            },
+        )
+        .unwrap();
 
         let mut values = HashMap::new();
         values.insert("role".into(), "legal reviewer".into());
@@ -140,12 +151,16 @@ mod tests {
         assert!(spawned.rendered_body.contains("conventional commits"));
 
         // Updating the template does NOT affect the frozen spawn.
-        store::create_prompt(&conn, &PromptInput {
-            name: "agent-system".into(),
-            body: "CHANGED template".into(),
-            variables: vec![],
-            category: Some("system".into()),
-        }).unwrap();
+        store::create_prompt(
+            &conn,
+            &PromptInput {
+                name: "agent-system".into(),
+                body: "CHANGED template".into(),
+                variables: vec![],
+                category: Some("system".into()),
+            },
+        )
+        .unwrap();
 
         let frozen = get_spawned(&conn, &spawned.spawn_id).unwrap();
         assert!(frozen.rendered_body.contains("legal reviewer"));
@@ -155,15 +170,21 @@ mod tests {
     #[test]
     fn get_spawned_for_task_returns_all() {
         let conn = setup();
-        store::create_prompt(&conn, &PromptInput {
-            name: "simple".into(),
-            body: "Do {{task}}".into(),
-            variables: vec![PromptVariable {
-                name: "task".into(), description: "Task".into(),
-                required: true, default_value: None,
-            }],
-            category: None,
-        }).unwrap();
+        store::create_prompt(
+            &conn,
+            &PromptInput {
+                name: "simple".into(),
+                body: "Do {{task}}".into(),
+                variables: vec![PromptVariable {
+                    name: "task".into(),
+                    description: "Task".into(),
+                    required: true,
+                    default_value: None,
+                }],
+                category: None,
+            },
+        )
+        .unwrap();
 
         let mut v1 = HashMap::new();
         v1.insert("task".into(), "review".into());

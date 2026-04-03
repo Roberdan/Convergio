@@ -19,7 +19,14 @@ pub fn create_prompt(conn: &Connection, input: &PromptInput) -> rusqlite::Result
     conn.execute(
         "INSERT INTO prompt_templates (id, name, version, body, variables, category, active)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, 1)",
-        params![id, input.name, next_version, input.body, vars_json, input.category],
+        params![
+            id,
+            input.name,
+            next_version,
+            input.body,
+            vars_json,
+            input.category
+        ],
     )?;
     Ok(id)
 }
@@ -69,7 +76,8 @@ pub fn list_prompts(
     }
     sql.push_str(" ORDER BY name, version DESC");
 
-    let params_ref: Vec<&dyn rusqlite::types::ToSql> = param_values.iter().map(|p| p.as_ref()).collect();
+    let params_ref: Vec<&dyn rusqlite::types::ToSql> =
+        param_values.iter().map(|p| p.as_ref()).collect();
     let mut stmt = conn.prepare(&sql)?;
     let rows = stmt.query_map(params_ref.as_slice(), row_to_prompt)?;
     rows.collect()
@@ -94,8 +102,7 @@ fn next_version_for(conn: &Connection, name: &str) -> rusqlite::Result<u32> {
 
 fn row_to_prompt(row: &rusqlite::Row) -> rusqlite::Result<PromptTemplate> {
     let vars_str: String = row.get(4)?;
-    let variables: Vec<PromptVariable> =
-        serde_json::from_str(&vars_str).unwrap_or_default();
+    let variables: Vec<PromptVariable> = serde_json::from_str(&vars_str).unwrap_or_default();
     Ok(PromptTemplate {
         id: row.get(0)?,
         name: row.get(1)?,

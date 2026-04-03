@@ -69,7 +69,10 @@ pub fn get_test(conn: &Connection, test_id: &str) -> rusqlite::Result<AbTestResu
 }
 
 /// List all tests for a given task reference.
-pub fn list_tests_for_task(conn: &Connection, task_ref: &str) -> rusqlite::Result<Vec<AbTestResult>> {
+pub fn list_tests_for_task(
+    conn: &Connection,
+    task_ref: &str,
+) -> rusqlite::Result<Vec<AbTestResult>> {
     let mut stmt = conn.prepare(
         "SELECT test_id, prompt_a_id, prompt_b_id, task_ref, winner,
                 tokens_a, tokens_b, score_a, score_b, created_at

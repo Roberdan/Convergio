@@ -26,25 +26,20 @@ async fn create_prompt(
     State(pool): State<ConnPool>,
     Json(input): Json<PromptInput>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
-    let id = crate::store::create_prompt(&conn, &input).map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
+    let conn = pool
+        .get()
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let id = crate::store::create_prompt(&conn, &input)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     Ok::<_, (StatusCode, String)>((StatusCode::CREATED, Json(serde_json::json!({ "id": id }))))
 }
 
-async fn get_prompt(
-    State(pool): State<ConnPool>,
-    Path(id): Path<String>,
-) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
-    let prompt = crate::store::get_prompt(&conn, &id).map_err(|_| {
-        (StatusCode::NOT_FOUND, "prompt not found".to_string())
-    })?;
+async fn get_prompt(State(pool): State<ConnPool>, Path(id): Path<String>) -> impl IntoResponse {
+    let conn = pool
+        .get()
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let prompt = crate::store::get_prompt(&conn, &id)
+        .map_err(|_| (StatusCode::NOT_FOUND, "prompt not found".to_string()))?;
     Ok::<_, (StatusCode, String)>(Json(prompt))
 }
 
@@ -52,12 +47,11 @@ async fn get_active_prompt(
     State(pool): State<ConnPool>,
     Path(name): Path<String>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
-    let prompt = crate::store::get_active_prompt(&conn, &name).map_err(|_| {
-        (StatusCode::NOT_FOUND, "no active prompt".to_string())
-    })?;
+    let conn = pool
+        .get()
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let prompt = crate::store::get_active_prompt(&conn, &name)
+        .map_err(|_| (StatusCode::NOT_FOUND, "no active prompt".to_string()))?;
     Ok::<_, (StatusCode, String)>(Json(prompt))
 }
 
@@ -65,25 +59,20 @@ async fn list_prompts(
     State(pool): State<ConnPool>,
     Query(query): Query<PromptQuery>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
-    let prompts = crate::store::list_prompts(&conn, &query).map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
+    let conn = pool
+        .get()
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let prompts = crate::store::list_prompts(&conn, &query)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     Ok::<_, (StatusCode, String)>(Json(prompts))
 }
 
-async fn delete_prompt(
-    State(pool): State<ConnPool>,
-    Path(id): Path<String>,
-) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
-    let deleted = crate::store::delete_prompt(&conn, &id).map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
+async fn delete_prompt(State(pool): State<ConnPool>, Path(id): Path<String>) -> impl IntoResponse {
+    let conn = pool
+        .get()
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let deleted = crate::store::delete_prompt(&conn, &id)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     if deleted {
         Ok::<_, (StatusCode, String)>(StatusCode::NO_CONTENT)
     } else {
@@ -95,12 +84,11 @@ async fn register_skill(
     State(pool): State<ConnPool>,
     Json(input): Json<SkillInput>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
-    let id = crate::skills::register_skill(&conn, &input).map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
+    let conn = pool
+        .get()
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let id = crate::skills::register_skill(&conn, &input)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     Ok::<_, (StatusCode, String)>((StatusCode::CREATED, Json(serde_json::json!({ "id": id }))))
 }
 
@@ -108,12 +96,11 @@ async fn search_skills(
     State(pool): State<ConnPool>,
     Query(query): Query<SkillQuery>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
-    let skills = crate::skills::search_skills(&conn, &query).map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
+    let conn = pool
+        .get()
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let skills = crate::skills::search_skills(&conn, &query)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     Ok::<_, (StatusCode, String)>(Json(skills))
 }
 
@@ -121,11 +108,10 @@ async fn search_skills_query(
     State(pool): State<ConnPool>,
     Query(query): Query<SkillQuery>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
-    let skills = crate::skills::search_skills(&conn, &query).map_err(|e| {
-        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    })?;
+    let conn = pool
+        .get()
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let skills = crate::skills::search_skills(&conn, &query)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     Ok::<_, (StatusCode, String)>(Json(skills))
 }
