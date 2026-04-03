@@ -36,7 +36,11 @@ pub struct CiInfo {
 }
 
 const MANIFEST_NAMES: &[&str] = &[
-    "Cargo.toml", "package.json", "requirements.txt", "go.mod", "Package.swift",
+    "Cargo.toml",
+    "package.json",
+    "requirements.txt",
+    "go.mod",
+    "Package.swift",
 ];
 
 /// Scan a repository at `path` and produce a RepoProfile.

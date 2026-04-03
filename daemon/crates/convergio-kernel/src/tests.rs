@@ -80,7 +80,10 @@ mod engine_tests {
     #[test]
     fn route_inference_local_for_short() {
         let engine = KernelEngine::default();
-        assert_eq!(engine.route_inference("what is the status?"), InferenceLevel::Local);
+        assert_eq!(
+            engine.route_inference("what is the status?"),
+            InferenceLevel::Local
+        );
     }
 
     #[test]
@@ -154,10 +157,16 @@ mod recover_tests {
     #[test]
     fn critical_checkpoints_and_notifies() {
         let actions = plan_recovery(KernelSeverity::Critical, 0, "daemon down");
-        assert!(actions.iter().any(|a| matches!(a, RecoveryAction::Checkpoint)));
-        assert!(actions.iter().any(|a| matches!(a, RecoveryAction::Notify {
-            channel: NotifyChannel::Telegram, ..
-        })));
+        assert!(actions
+            .iter()
+            .any(|a| matches!(a, RecoveryAction::Checkpoint)));
+        assert!(actions.iter().any(|a| matches!(
+            a,
+            RecoveryAction::Notify {
+                channel: NotifyChannel::Telegram,
+                ..
+            }
+        )));
     }
 }
 
@@ -167,37 +176,31 @@ mod monitor_tests {
 
     #[test]
     fn classify_all_ok() {
-        let results = vec![
-            crate::types::KernelCheckResult {
-                check_name: "test".to_string(),
-                ok: true,
-                details: "fine".to_string(),
-            },
-        ];
+        let results = vec![crate::types::KernelCheckResult {
+            check_name: "test".to_string(),
+            ok: true,
+            details: "fine".to_string(),
+        }];
         assert_eq!(classify_results(&results), KernelSeverity::Ok);
     }
 
     #[test]
     fn classify_critical_on_daemon_health() {
-        let results = vec![
-            crate::types::KernelCheckResult {
-                check_name: "daemon_health".to_string(),
-                ok: false,
-                details: "down".to_string(),
-            },
-        ];
+        let results = vec![crate::types::KernelCheckResult {
+            check_name: "daemon_health".to_string(),
+            ok: false,
+            details: "down".to_string(),
+        }];
         assert_eq!(classify_results(&results), KernelSeverity::Critical);
     }
 
     #[test]
     fn classify_warn_on_non_critical_failure() {
-        let results = vec![
-            crate::types::KernelCheckResult {
-                check_name: "disk_space".to_string(),
-                ok: false,
-                details: "low".to_string(),
-            },
-        ];
+        let results = vec![crate::types::KernelCheckResult {
+            check_name: "disk_space".to_string(),
+            ok: false,
+            details: "low".to_string(),
+        }];
         assert_eq!(classify_results(&results), KernelSeverity::Warn);
     }
 }

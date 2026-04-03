@@ -15,8 +15,8 @@ pub mod verify;
 
 pub use ext::KernelExtension;
 pub use types::{
-    EvidenceCheck, EvidenceReport, InferenceLevel, KernelAction, KernelCheckResult,
-    KernelConfig, KernelSeverity, KernelStatus, VoiceIntent,
+    EvidenceCheck, EvidenceReport, InferenceLevel, KernelAction, KernelCheckResult, KernelConfig,
+    KernelSeverity, KernelStatus, VoiceIntent,
 };
 
 #[cfg(test)]

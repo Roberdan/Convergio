@@ -88,7 +88,11 @@ pub fn design_org_from_repo(
     budget: f64,
 ) -> OrgBlueprint {
     let repo_name = name.unwrap_or_else(|| {
-        profile.path.rsplit('/').find(|s| !s.is_empty()).unwrap_or("org")
+        profile
+            .path
+            .rsplit('/')
+            .find(|s| !s.is_empty())
+            .unwrap_or("org")
     });
     let slug = slugify(repo_name);
     let departments = repo_departments(profile, &slug);
@@ -112,30 +116,66 @@ fn mission_departments(lower: &str, slug: &str) -> Vec<Department> {
 
     if kw_fit.iter().any(|k| lower.contains(k)) {
         vec![
-            dept(slug, "Nutrition", &[("nutritionist", MODEL_SONNET, "meal planning")]),
-            dept(slug, "Training", &[
-                ("trainer", MODEL_SONNET, "workout programming"),
-                ("form-checker", MODEL_HAIKU, "exercise form review"),
-            ]),
-            dept(slug, "Analytics", &[("analyst", MODEL_HAIKU, "progress tracking")]),
+            dept(
+                slug,
+                "Nutrition",
+                &[("nutritionist", MODEL_SONNET, "meal planning")],
+            ),
+            dept(
+                slug,
+                "Training",
+                &[
+                    ("trainer", MODEL_SONNET, "workout programming"),
+                    ("form-checker", MODEL_HAIKU, "exercise form review"),
+                ],
+            ),
+            dept(
+                slug,
+                "Analytics",
+                &[("analyst", MODEL_HAIKU, "progress tracking")],
+            ),
         ]
     } else if kw_sw.iter().any(|k| lower.contains(k)) {
         vec![
-            dept(slug, "Development", &[("lead-dev", MODEL_SONNET, "architecture")]),
+            dept(
+                slug,
+                "Development",
+                &[("lead-dev", MODEL_SONNET, "architecture")],
+            ),
             dept(slug, "QA", &[("tester", MODEL_HAIKU, "testing")]),
             dept(slug, "DevOps", &[("ci-ops", MODEL_HAIKU, "CI/CD")]),
         ]
     } else if kw_mkt.iter().any(|k| lower.contains(k)) {
         vec![
-            dept(slug, "Marketing", &[("strategist", MODEL_SONNET, "campaign strategy")]),
-            dept(slug, "Analytics", &[("data-analyst", MODEL_HAIKU, "metrics")]),
+            dept(
+                slug,
+                "Marketing",
+                &[("strategist", MODEL_SONNET, "campaign strategy")],
+            ),
+            dept(
+                slug,
+                "Analytics",
+                &[("data-analyst", MODEL_HAIKU, "metrics")],
+            ),
             dept(slug, "Content", &[("writer", MODEL_SONNET, "copywriting")]),
         ]
     } else {
         vec![
-            dept(slug, "Strategy", &[("strategist", MODEL_SONNET, "planning")]),
-            dept(slug, "Execution", &[("executor", MODEL_SONNET, "task execution")]),
-            dept(slug, "Analytics", &[("analyst", MODEL_HAIKU, "data analysis")]),
+            dept(
+                slug,
+                "Strategy",
+                &[("strategist", MODEL_SONNET, "planning")],
+            ),
+            dept(
+                slug,
+                "Execution",
+                &[("executor", MODEL_SONNET, "task execution")],
+            ),
+            dept(
+                slug,
+                "Analytics",
+                &[("analyst", MODEL_HAIKU, "data analysis")],
+            ),
         ]
     }
 }
@@ -154,33 +194,61 @@ fn mission_night_agents(lower: &str, slug: &str) -> Vec<NightAgentSpec> {
 
 fn repo_departments(profile: &RepoProfile, slug: &str) -> Vec<Department> {
     let mut depts = Vec::new();
-    let langs: Vec<String> = profile.languages.iter().map(|(l, _)| l.to_lowercase()).collect();
+    let langs: Vec<String> = profile
+        .languages
+        .iter()
+        .map(|(l, _)| l.to_lowercase())
+        .collect();
     if langs.iter().any(|l| l == "rust") {
-        depts.push(dept(slug, "Backend", &[
-            ("rust-dev", MODEL_SONNET, "Rust development"),
-            ("clippy-reviewer", MODEL_HAIKU, "Rust lint review"),
-        ]));
+        depts.push(dept(
+            slug,
+            "Backend",
+            &[
+                ("rust-dev", MODEL_SONNET, "Rust development"),
+                ("clippy-reviewer", MODEL_HAIKU, "Rust lint review"),
+            ],
+        ));
     }
     if langs.iter().any(|l| l == "typescript" || l == "javascript") {
-        depts.push(dept(slug, "Frontend", &[
-            ("component-dev", MODEL_SONNET, "UI components"),
-            ("design-reviewer", MODEL_HAIKU, "design review"),
-        ]));
+        depts.push(dept(
+            slug,
+            "Frontend",
+            &[
+                ("component-dev", MODEL_SONNET, "UI components"),
+                ("design-reviewer", MODEL_HAIKU, "design review"),
+            ],
+        ));
     }
     if langs.iter().any(|l| l == "python") {
-        depts.push(dept(slug, "Backend", &[
-            ("python-dev", MODEL_SONNET, "Python development"),
-            ("test-runner", MODEL_HAIKU, "test execution"),
-        ]));
+        depts.push(dept(
+            slug,
+            "Backend",
+            &[
+                ("python-dev", MODEL_SONNET, "Python development"),
+                ("test-runner", MODEL_HAIKU, "test execution"),
+            ],
+        ));
     }
     if profile.structure.has_ci {
-        depts.push(dept(slug, "DevOps", &[("ci-monitor", MODEL_HAIKU, "CI monitoring")]));
+        depts.push(dept(
+            slug,
+            "DevOps",
+            &[("ci-monitor", MODEL_HAIKU, "CI monitoring")],
+        ));
     }
     if profile.structure.has_tests {
-        depts.push(dept(slug, "QA", &[("test-runner", MODEL_HAIKU, "test management")]));
+        depts.push(dept(
+            slug,
+            "QA",
+            &[("test-runner", MODEL_HAIKU, "test management")],
+        ));
     }
     if depts.is_empty() {
-        depts.push(dept(slug, "General", &[("dev", MODEL_SONNET, "general development")]));
+        depts.push(dept(
+            slug,
+            "General",
+            &[("dev", MODEL_SONNET, "general development")],
+        ));
     }
     depts
 }
@@ -188,7 +256,12 @@ fn repo_departments(profile: &RepoProfile, slug: &str) -> Vec<Department> {
 fn repo_night_agents(profile: &RepoProfile, slug: &str) -> Vec<NightAgentSpec> {
     let mut agents = vec![
         night(slug, "daily-report", "daily_report", "0 2 * * *"),
-        night(slug, "stale-branch-cleanup", "stale_branch_cleanup", "0 3 * * *"),
+        night(
+            slug,
+            "stale-branch-cleanup",
+            "stale_branch_cleanup",
+            "0 3 * * *",
+        ),
     ];
     if profile.structure.has_ci {
         agents.push(night(slug, "pr-monitor", "monitor_prs", "*/30 0-6 * * *"));

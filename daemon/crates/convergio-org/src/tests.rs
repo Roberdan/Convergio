@@ -64,14 +64,20 @@ mod factory_tests {
         let bp = design_org_from_mission("DevCorp", "software development platform", 1000.0);
         assert!(bp.departments.iter().any(|d| d.name == "Development"));
         assert!(bp.departments.iter().any(|d| d.name == "QA"));
-        assert!(bp.night_agents.iter().any(|na| na.name.contains("pr-monitor")));
+        assert!(bp
+            .night_agents
+            .iter()
+            .any(|na| na.name.contains("pr-monitor")));
     }
 
     #[test]
     fn design_from_mission_marketing() {
         let bp = design_org_from_mission("AdCorp", "marketing growth", 200.0);
         assert!(bp.departments.iter().any(|d| d.name == "Marketing"));
-        assert!(bp.night_agents.iter().any(|na| na.name.contains("metrics-digest")));
+        assert!(bp
+            .night_agents
+            .iter()
+            .any(|na| na.name.contains("metrics-digest")));
     }
 
     #[test]
@@ -149,7 +155,10 @@ mod repo_scanner_tests {
         let profile = scan_repo(&dir).unwrap();
         assert!(profile.languages.iter().any(|(l, _)| l == "Rust"));
         assert!(profile.structure.has_src);
-        assert!(profile.structure.manifest_files.contains(&"Cargo.toml".to_string()));
+        assert!(profile
+            .structure
+            .manifest_files
+            .contains(&"Cargo.toml".to_string()));
         let _ = fs::remove_dir_all(&dir);
     }
 

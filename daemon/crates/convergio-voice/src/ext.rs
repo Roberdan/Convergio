@@ -38,7 +38,8 @@ impl Extension for VoiceExtension {
     }
 
     fn health(&self) -> Health {
-        if TtsEngine::say_available() || TtsEngine::qwen3_tts_available()
+        if TtsEngine::say_available()
+            || TtsEngine::qwen3_tts_available()
             || TtsEngine::voxtral_available()
         {
             Health::Ok

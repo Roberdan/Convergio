@@ -49,7 +49,11 @@ impl KernelEngine {
     pub fn classify(&self, situation: &str) -> KernelAction {
         let lower = situation.to_lowercase();
         let (severity, action, reason) = if lower.contains("daemon") && lower.contains("down") {
-            (KernelSeverity::Critical, "restart", "daemon health check failed")
+            (
+                KernelSeverity::Critical,
+                "restart",
+                "daemon health check failed",
+            )
         } else if lower.contains("disk") && lower.contains("full") {
             (KernelSeverity::Critical, "alert", "disk space critical")
         } else if lower.contains("stall") || lower.contains("stuck") {
@@ -69,8 +73,10 @@ impl KernelEngine {
     /// Determine inference level for a query based on complexity heuristics.
     pub fn route_inference(&self, query: &str) -> InferenceLevel {
         let word_count = query.split_whitespace().count();
-        let has_code_markers = query.contains("```") || query.contains("fn ")
-            || query.contains("def ") || query.contains("class ");
+        let has_code_markers = query.contains("```")
+            || query.contains("fn ")
+            || query.contains("def ")
+            || query.contains("class ");
         if word_count > 100 || has_code_markers {
             InferenceLevel::Cloud
         } else {

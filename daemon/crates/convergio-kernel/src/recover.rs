@@ -9,11 +9,20 @@ use super::types::KernelSeverity;
 #[derive(Debug, Clone, PartialEq)]
 pub enum RecoveryAction {
     None,
-    Log { message: String },
-    Notify { channel: NotifyChannel, message: String },
+    Log {
+        message: String,
+    },
+    Notify {
+        channel: NotifyChannel,
+        message: String,
+    },
     Checkpoint,
-    RestartPeer { hostname: String },
-    Reap { agent_id: String },
+    RestartPeer {
+        hostname: String,
+    },
+    Reap {
+        agent_id: String,
+    },
 }
 
 /// Notification channel for recovery alerts.
@@ -40,7 +49,9 @@ pub fn plan_recovery(
                     },
                     RecoveryAction::Notify {
                         channel: NotifyChannel::Local,
-                        message: format!("persistent warning: {source} ({consecutive_warns} cycles)"),
+                        message: format!(
+                            "persistent warning: {source} ({consecutive_warns} cycles)"
+                        ),
                     },
                 ]
             } else {

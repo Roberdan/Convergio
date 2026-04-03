@@ -12,8 +12,8 @@ mod repo_scanner_helpers;
 
 pub use ext::OrgExtension;
 pub use factory::{
-    design_org_from_mission, design_org_from_repo, slugify, AgentSpec, Department,
-    NightAgentSpec, OrgBlueprint,
+    design_org_from_mission, design_org_from_repo, slugify, AgentSpec, Department, NightAgentSpec,
+    OrgBlueprint,
 };
 pub use orgchart::{render_orgchart, render_orgchart_compact};
 pub use provisioner::{provision_org, ProvisionResult};

@@ -53,7 +53,11 @@ pub fn provision_org(
     let org_id = org_resp
         .get("org_id")
         .or_else(|| org_resp.get("id"))
-        .and_then(|v| v.as_str().map(String::from).or_else(|| v.as_i64().map(|n| n.to_string())))
+        .and_then(|v| {
+            v.as_str()
+                .map(String::from)
+                .or_else(|| v.as_i64().map(|n| n.to_string()))
+        })
         .ok_or("missing org_id in response")?;
 
     let mut agents_created: usize = 0;

@@ -6,8 +6,15 @@ use std::path::Path;
 
 use super::repo_scanner::CiInfo;
 
-const SKIP_DIRS: &[&str] =
-    &[".git", "node_modules", "target", "__pycache__", ".next", "dist", "build"];
+const SKIP_DIRS: &[&str] = &[
+    ".git",
+    "node_modules",
+    "target",
+    "__pycache__",
+    ".next",
+    "dist",
+    "build",
+];
 const MAX_FILES_FOR_LINES: usize = 1000;
 
 fn ext_to_lang(ext: &str) -> Option<&'static str> {
@@ -154,7 +161,10 @@ pub(crate) fn detect_ci(root: &Path) -> Option<CiInfo> {
             })
             .collect();
         if !workflows.is_empty() {
-            return Some(CiInfo { provider: "github-actions".to_string(), workflows });
+            return Some(CiInfo {
+                provider: "github-actions".to_string(),
+                workflows,
+            });
         }
     }
     if root.join(".gitlab-ci.yml").exists() {

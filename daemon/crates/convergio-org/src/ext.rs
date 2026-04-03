@@ -10,7 +10,8 @@ impl Extension for OrgExtension {
     fn manifest(&self) -> Manifest {
         Manifest {
             id: "convergio-org".to_string(),
-            description: "Organization chart, provisioning, notifications, decision log".to_string(),
+            description: "Organization chart, provisioning, notifications, decision log"
+                .to_string(),
             version: env!("CARGO_PKG_VERSION").to_string(),
             kind: ModuleKind::Extension,
             provides: vec![

@@ -33,10 +33,7 @@ pub fn render_orgchart(blueprint: &OrgBlueprint) -> String {
         for agent in &dept.agents {
             let prefix = if is_last { "      " } else { "  │   " };
             let caps = agent.capabilities.join(",");
-            let label = format!(
-                "{prefix}└── {} ({}) [{caps}]",
-                agent.name, agent.model,
-            );
+            let label = format!("{prefix}└── {} ({}) [{caps}]", agent.name, agent.model,);
             lines.push(pad_line(&label, w));
         }
     }
@@ -46,7 +43,11 @@ pub fn render_orgchart(blueprint: &OrgBlueprint) -> String {
         lines.push(pad_line("  Night Agents (off-peak):", w));
         let na_count = blueprint.night_agents.len();
         for (i, na) in blueprint.night_agents.iter().enumerate() {
-            let branch = if i == na_count - 1 { "└──" } else { "├──" };
+            let branch = if i == na_count - 1 {
+                "└──"
+            } else {
+                "├──"
+            };
             let label = format!("  {branch} {:18} {:5}  {}", na.name, na.time, na.schedule);
             lines.push(pad_line(&label, w));
         }

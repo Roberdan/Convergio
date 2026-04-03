@@ -51,7 +51,11 @@ pub fn verify_task(
     let reason = if all_passed {
         "all evidence checks passed".to_string()
     } else {
-        let failed: Vec<&str> = checks.iter().filter(|c| !c.passed).map(|c| c.name.as_str()).collect();
+        let failed: Vec<&str> = checks
+            .iter()
+            .filter(|c| !c.passed)
+            .map(|c| c.name.as_str())
+            .collect();
         format!("failed checks: {}", failed.join(", "))
     };
 

@@ -132,8 +132,8 @@ mod intent_tests {
 }
 
 mod whisper_tests {
-    use super::whisper::*;
     use super::types::SpeechSegment;
+    use super::whisper::*;
 
     #[test]
     fn empty_segment_errors() {
