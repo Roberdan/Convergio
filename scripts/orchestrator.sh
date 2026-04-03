@@ -11,14 +11,13 @@ echo "[$(date)] Orchestrator starting" >> "$LOG"
 
 cd "$REPO"
 
-# Key fixes from research:
-# 1. </dev/null — prevents stdin hang in tmux
-# 2. --allowedTools — explicit tool permissions
-timeout 7200 claude -p \
+# -p takes prompt as argument (NOT stdin)
+# Do NOT use </dev/null — it conflicts with -p
+timeout 7200 claude --dangerously-skip-permissions \
     --allowedTools "Bash,Read,Write,Edit,Glob,Grep,Agent" \
     --add-dir "$REPO" \
     --model claude-opus-4-6 \
-    "$(cat "$PROMPT_FILE")" </dev/null 2>&1 | tee -a "$LOG"
+    -p "$(cat "$PROMPT_FILE")" 2>&1 | tee -a "$LOG"
 
 EXIT_CODE=$?
 echo "[$(date)] Claude exited (code=$EXIT_CODE). Re-launching in 10s..." >> "$LOG"
