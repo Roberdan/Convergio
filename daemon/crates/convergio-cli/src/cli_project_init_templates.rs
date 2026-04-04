@@ -73,8 +73,7 @@ Describe your architecture here.
     }
 
     fn ci_yml_rust(&self) -> String {
-        format!(
-            r#"name: CI
+        r#"name: CI
 on:
   push:
     branches: [main]
@@ -95,12 +94,11 @@ jobs:
       - name: cargo clippy
         run: cargo clippy --workspace -- -D warnings
 "#
-        )
+        .to_string()
     }
 
     fn ci_yml_typescript(&self) -> String {
-        format!(
-            r#"name: CI
+        r#"name: CI
 on:
   push:
     branches: [main]
@@ -118,12 +116,11 @@ jobs:
       - run: npm run lint
       - run: npm test
 "#
-        )
+        .to_string()
     }
 
     fn ci_yml_python(&self) -> String {
-        format!(
-            r#"name: CI
+        r#"name: CI
 on:
   push:
     branches: [main]
@@ -141,7 +138,7 @@ jobs:
       - run: ruff check .
       - run: pytest
 "#
-        )
+        .to_string()
     }
 }
 

@@ -48,7 +48,11 @@ pub async fn handle_init(opts: &InitOpts<'_>) -> Result<(), CliError> {
     run_cmd_in("git", &["add", "."], opts.name).await?;
     run_cmd_in(
         "git",
-        &["commit", "-m", "feat: initial project scaffold by Convergio"],
+        &[
+            "commit",
+            "-m",
+            "feat: initial project scaffold by Convergio",
+        ],
         opts.name,
     )
     .await?;
@@ -63,7 +67,9 @@ pub async fn handle_init(opts: &InitOpts<'_>) -> Result<(), CliError> {
 
 fn validate_name(name: &str) -> Result<(), CliError> {
     if name.is_empty() {
-        return Err(CliError::InvalidInput("project name cannot be empty".into()));
+        return Err(CliError::InvalidInput(
+            "project name cannot be empty".into(),
+        ));
     }
     let valid = name
         .chars()
@@ -88,7 +94,11 @@ fn write_file(root: &Path, rel: &str, content: &str) -> Result<(), CliError> {
 fn write_lang_files(root: &Path, lang: &str) -> Result<(), CliError> {
     match lang {
         "rust" => {
-            write_file(root, "src/main.rs", "fn main() {\n    println!(\"hello\");\n}\n")?;
+            write_file(
+                root,
+                "src/main.rs",
+                "fn main() {\n    println!(\"hello\");\n}\n",
+            )?;
         }
         "typescript" => {
             write_file(root, "src/index.ts", "console.log('hello');\n")?;
