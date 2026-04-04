@@ -74,12 +74,12 @@ Non passare a Step 1 senza questa verifica.
     - Repo: /Users/Roberdan/GitHub/convergio-frontend
 
 ### Step 4: Production hardening (Wave I)
-13. Fase 41: Artifact model (output non-code: report, PDF, screenshot)
-14. Fase 42: Human-in-the-loop (approvazione umana con soglie)
-15. Fase 43: Compensation/rollback (wave failure recovery)
-16. Fase 44: Scheduler policy (capability, costo, privacy, locality)
-17. Fase 45: Security remote execution (trust, secrets, sandbox)
-18. Fase 46: Evaluation framework (misurare planner/Thor precision/recall)
+13. Fase 41: Artifact model (output non-code: report, PDF, screenshot, bundle)
+14. Fase 42: Human-in-the-loop (approvazione umana formale con soglie)
+15. Fase 43: Compensation/rollback (se wave fallisce, compensazione automatica)
+16. Fase 44: Scheduler policy (capability, costo, privacy, locality, load balancing)
+17. Fase 45: Security remote execution (trust levels, secrets filtering, sandbox, mTLS)
+18. Fase 46: Evaluation framework (misurare planner e Thor: precision, recall, false positive)
 
 ### Step 5: Self-hosting
 19. Fase 26: Convergio costruisce convergio
