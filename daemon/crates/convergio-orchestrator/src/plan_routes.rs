@@ -102,10 +102,10 @@ pub struct CreatePlan {
     pub execution_mode: Option<String>,
     #[serde(default)]
     pub tasks_total: i64,
-    /// Protocol fields (24f): optional but logged if missing.
-    pub objective: Option<String>,
-    pub motivation: Option<String>,
-    pub requester: Option<String>,
+    /// Protocol fields (32c): required for every plan.
+    pub objective: String,
+    pub motivation: String,
+    pub requester: String,
 }
 
 async fn handle_create(
@@ -142,14 +142,12 @@ async fn handle_create(
                     },
                 ));
             }
-            // Auto-create plan_metadata if protocol fields provided (24f)
-            if body.objective.is_some() || body.motivation.is_some() || body.requester.is_some() {
-                let _ = conn.execute(
-                    "INSERT OR IGNORE INTO plan_metadata (plan_id, objective, motivation, requester) \
-                     VALUES (?1, ?2, ?3, ?4)",
-                    params![id, body.objective, body.motivation, body.requester],
-                );
-            }
+            // Always create plan_metadata (32c: protocol fields required)
+            let _ = conn.execute(
+                "INSERT OR IGNORE INTO plan_metadata (plan_id, objective, motivation, requester) \
+                 VALUES (?1, ?2, ?3, ?4)",
+                params![id, body.objective, body.motivation, body.requester],
+            );
             Json(json!({"id": id, "status": "created"}))
         }
         Err(e) => Json(json!({"error": e.to_string()})),
