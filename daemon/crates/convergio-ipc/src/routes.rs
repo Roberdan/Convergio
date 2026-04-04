@@ -40,6 +40,7 @@ pub fn ipc_routes(state: IpcState) -> Router {
         .route("/api/ipc/models", get(list_models))
         .route("/api/ipc/status", get(ipc_status))
         .route("/api/ipc/stream", get(sse_stream))
+        .route("/api/events/stream", get(sse_stream))
         .with_state(state)
 }
 
@@ -164,12 +165,7 @@ async fn receive_messages(
     Query(q): Query<RecvQuery>,
 ) -> impl IntoResponse {
     let msgs = crate::messaging::receive(
-        &st.pool,
-        &q.agent,
-        q.from.as_deref(),
-        q.channel.as_deref(),
-        q.limit,
-        false,
+        &st.pool, &q.agent, q.from.as_deref(), q.channel.as_deref(), q.limit, false,
     )
     .map_err(|e| err(e))?;
     ok(json!(msgs))
@@ -186,16 +182,12 @@ async fn get_skill_pool(State(st): State<IpcState>) -> impl IntoResponse {
 }
 
 #[derive(Deserialize)]
-struct BudgetQuery {
-    subscription: String,
-}
+struct BudgetQuery { subscription: String }
 
 async fn get_budget_status(
-    State(st): State<IpcState>,
-    Query(q): Query<BudgetQuery>,
+    State(st): State<IpcState>, Query(q): Query<BudgetQuery>,
 ) -> impl IntoResponse {
-    let status =
-        crate::budget::get_budget_status(&st.pool, &q.subscription).map_err(|e| err(e))?;
+    let status = crate::budget::get_budget_status(&st.pool, &q.subscription).map_err(|e| err(e))?;
     ok(json!(status))
 }
 
@@ -215,18 +207,20 @@ async fn ipc_status(State(st): State<IpcState>) -> impl IntoResponse {
     ok(json!({"agents": agents, "channels": channels}))
 }
 
-async fn sse_stream(
-    State(st): State<IpcState>,
-    Query(q): Query<SseFilter>,
-) -> Sse<impl futures_core::Stream<Item = Result<Event, std::convert::Infallible>>> {
-    let stream = crate::sse::create_sse_stream(st.event_bus, q.agent);
-    Sse::new(stream).keep_alive(KeepAlive::default())
-}
-
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 struct SseFilter {
     #[serde(default)]
     agent: Option<String>,
+    #[serde(default)]
+    agent_filter: Option<String>,
+}
+
+async fn sse_stream(
+    State(st): State<IpcState>, Query(q): Query<SseFilter>,
+) -> Sse<impl futures_core::Stream<Item = Result<Event, std::convert::Infallible>>> {
+    let filter = q.agent.or(q.agent_filter);
+    let stream = crate::sse::create_sse_stream(st.event_bus, filter);
+    Sse::new(stream).keep_alive(KeepAlive::default())
 }
 
 fn err(e: impl std::fmt::Display) -> (StatusCode, String) {

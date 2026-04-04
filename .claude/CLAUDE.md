@@ -87,6 +87,11 @@ NEVER take the quick path. ALWAYS fix the root cause.
   introduces a new problem → STOP. Explain root cause, propose rebuild.
 Band-aid chains are REJECTED. Workarounds become permanent. Fix it right or don't fix it.
 
+### CRITICAL: explore before building (Constitution Rule #7)
+NEVER build without first checking what exists. Read existing crates, components,
+old repo solutions. Duplicating or using wrong tools because you didn't look is
+a planning failure. Explore → understand → decide → build.
+
 ### Full reference
 All learnings, rules, architecture decisions, and phase status are in:
 ~/Desktop/WORKSPACE-SPLIT.md — READ IT for any non-trivial decision.

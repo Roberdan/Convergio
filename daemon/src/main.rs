@@ -57,9 +57,7 @@ async fn main() {
     // 0. Load env file (auth tokens, API keys)
     // Check ~/.convergio/env first (legacy), then data_dir/env
     let env_candidates = [
-        dirs::home_dir()
-            .unwrap_or_default()
-            .join(".convergio/env"),
+        dirs::home_dir().unwrap_or_default().join(".convergio/env"),
         convergio_types::platform_paths::convergio_data_dir().join("env"),
     ];
     for env_path in &env_candidates {
