@@ -18,3 +18,4 @@ chrono = { workspace = true }
 rusqlite = { workspace = true }
 axum = { workspace = true }
 reqwest = { workspace = true }
+toml = { workspace = true }
