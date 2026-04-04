@@ -24,6 +24,7 @@ use convergio_types::events::DomainEventSink;
 pub struct PlanState {
     pub pool: ConnPool,
     pub event_sink: Option<Arc<dyn DomainEventSink>>,
+    pub notify: Arc<tokio::sync::Notify>,
 }
 
 pub fn plan_routes(state: Arc<PlanState>) -> Router {

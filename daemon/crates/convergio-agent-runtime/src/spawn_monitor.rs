@@ -64,6 +64,11 @@ pub fn monitor_agent(
                     );
                 }
             }
+            // Update plan task status if agent was working on a plan task
+            update_plan_task(&pool, &agent_id, "submitted");
+        } else {
+            // Agent failed — mark task as failed too
+            update_plan_task(&pool, &agent_id, "failed");
         }
 
         // Log summary
@@ -212,3 +217,7 @@ fn resolve_gh_path() -> String {
     }
     "gh".into()
 }
+
+#[path = "plan_task_update.rs"]
+mod plan_task_update;
+use plan_task_update::update_plan_task;

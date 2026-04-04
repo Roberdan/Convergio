@@ -64,6 +64,7 @@ impl Extension for OrchestratorExtension {
         let state = Arc::new(crate::plan_routes::PlanState {
             pool: self.pool.clone(),
             event_sink: sink.map(|s| (*s).clone()),
+            notify: self.notify.clone(),
         });
         let router = crate::scaffold::scaffold_routes()
             .merge(crate::plan_routes::plan_routes(Arc::clone(&state)))
