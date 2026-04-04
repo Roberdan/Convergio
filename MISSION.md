@@ -26,7 +26,7 @@ Non un set di crate che compilano. Non un API layer passivo. Un sistema che:
 
 ## Stato attuale
 
-Leggi `~/Desktop/WORKSPACE-SPLIT.md` per lo stato dettagliato.
+Leggi `WORKSPACE-SPLIT.md` per lo stato dettagliato.
 Il daemon gira come servizio launchd su :8420. Token: `Bearer dev-local`.
 CLI: `cvg status`, `cvg plan list`, `cvg cheatsheet`.
 
@@ -101,7 +101,7 @@ Non passare a Step 1 senza questa verifica.
 
 | Cosa | Dove |
 |------|------|
-| Tracker completo | `~/Desktop/WORKSPACE-SPLIT.md` |
+| Tracker completo | `WORKSPACE-SPLIT.md` |
 | Regole | CONSTITUTION.md nella root |
 | Vecchio repo | `/Users/Roberdan/GitHub/ConvergioPlatform` |
 | Frontend | `/Users/Roberdan/GitHub/convergio-frontend` |
