@@ -21,6 +21,7 @@ thiserror = { workspace = true }
 r2d2 = { workspace = true }
 axum = { workspace = true }
 hostname = "0.4"
+dirs = { workspace = true }
 tempfile = { version = "3", optional = true }
 
 [dev-dependencies]

@@ -70,9 +70,11 @@ pub fn spawn_process(
     let child = match backend {
         SpawnBackend::ClaudeCli { model } => {
             // Learning #7: short prompt, instructions in file
+            // Learning #19: launchd has minimal PATH — resolve claude absolute path
+            let claude_bin = resolve_claude_path();
             let mut cmd = Command::new("timeout");
             cmd.arg(timeout_secs.to_string());
-            cmd.arg("claude");
+            cmd.arg(&claude_bin);
             cmd.args(["--dangerously-skip-permissions"]);
             cmd.args(["--model", model]);
             cmd.args(["-p", "Leggi TASK.md per le istruzioni. Poi inizia."]);
@@ -137,6 +139,33 @@ pub fn cleanup_worktree(repo_root: &Path, wt_path: &Path) -> RuntimeResult<()> {
         tracing::warn!("worktree cleanup failed: {stderr}");
     }
     Ok(())
+}
+
+/// Resolve the absolute path to the claude binary.
+/// launchd services have a minimal PATH — "claude" alone won't be found.
+fn resolve_claude_path() -> String {
+    // Check env override first
+    if let Ok(p) = std::env::var("CONVERGIO_CLAUDE_BIN") {
+        return p;
+    }
+    // Common install locations
+    let candidates = [
+        dirs::home_dir()
+            .unwrap_or_default()
+            .join(".local/bin/claude"),
+        dirs::home_dir()
+            .unwrap_or_default()
+            .join(".claude/bin/claude"),
+        std::path::PathBuf::from("/usr/local/bin/claude"),
+        std::path::PathBuf::from("/opt/homebrew/bin/claude"),
+    ];
+    for c in &candidates {
+        if c.exists() {
+            return c.to_string_lossy().to_string();
+        }
+    }
+    // Fallback: hope it's in PATH
+    "claude".into()
 }
 
 /// Choose backend based on model tier.
