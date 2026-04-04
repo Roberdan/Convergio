@@ -22,8 +22,7 @@ pub fn spawn_sync_loop(pool: ConnPool, interval: Duration) {
         loop {
             tokio::time::sleep(interval).await;
             let pool_clone = pool.clone();
-            if let Err(e) = tokio::task::spawn_blocking(move || run_sync_round(&pool_clone)).await
-            {
+            if let Err(e) = tokio::task::spawn_blocking(move || run_sync_round(&pool_clone)).await {
                 error!("sync round task panicked: {e}");
             }
         }
@@ -66,14 +65,7 @@ fn run_sync_round(pool: &ConnPool) {
             total_received += received;
             total_applied += applied;
             if sent > 0 || received > 0 || applied > 0 {
-                info!(
-                    peer = name,
-                    table,
-                    sent,
-                    received,
-                    applied,
-                    "table synced"
-                );
+                info!(peer = name, table, sent, received, applied, "table synced");
             }
         }
 
@@ -142,7 +134,10 @@ mod tests {
     fn peer_to_fields_includes_tailscale() {
         let peer = make_peer("100.0.0.1");
         let fields = peer_to_fields(&peer);
-        assert_eq!(fields.get("tailscale_ip").map(String::as_str), Some("100.0.0.1"));
+        assert_eq!(
+            fields.get("tailscale_ip").map(String::as_str),
+            Some("100.0.0.1")
+        );
     }
 
     #[test]
