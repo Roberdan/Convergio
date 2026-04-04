@@ -98,6 +98,9 @@ impl convergio_types::events::DomainEventSink for EventBus {
             convergio_types::events::EventKind::WaveCompleted { .. } => "wave_completed",
             convergio_types::events::EventKind::MessageSent { .. } => "message_sent",
             convergio_types::events::EventKind::DelegationStarted { .. } => "delegation_started",
+            convergio_types::events::EventKind::DelegationCompleted { .. } => {
+                "delegation_completed"
+            }
             convergio_types::events::EventKind::AgentOnline { .. } => "agent_online",
             convergio_types::events::EventKind::AgentOffline { .. } => "agent_offline",
             convergio_types::events::EventKind::HealthDegraded { .. } => "health_degraded",

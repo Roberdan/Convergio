@@ -4,6 +4,7 @@
 //! monitoring, and sync-back into a complete delegation pipeline.
 
 pub mod ext;
+pub mod monitor;
 pub mod pipeline;
 pub mod queries;
 pub mod remote_spawn;

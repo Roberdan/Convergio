@@ -1,8 +1,13 @@
 //! DelegationExtension — impl Extension for delegation orchestrator.
 
+use std::sync::Arc;
+
 use convergio_db::pool::ConnPool;
+use convergio_types::events::DomainEventSink;
 use convergio_types::extension::{AppContext, ExtResult, Extension, Health, Metric, Migration};
 use convergio_types::manifest::{Capability, Dependency, Manifest, ModuleKind};
+
+use crate::routes::DelegationState;
 
 /// Extension entry point for the delegation orchestrator.
 pub struct DelegationExtension {
@@ -66,8 +71,15 @@ impl Extension for DelegationExtension {
         crate::schema::migrations()
     }
 
-    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
-        Some(crate::routes::delegation_routes(self.pool.clone()))
+    fn routes(&self, ctx: &AppContext) -> Option<axum::Router> {
+        let event_sink = ctx
+            .get_arc::<Arc<dyn DomainEventSink>>()
+            .map(|s| (*s).clone());
+        let state = DelegationState {
+            pool: self.pool.clone(),
+            event_sink,
+        };
+        Some(crate::routes::delegation_routes(state))
     }
 
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {

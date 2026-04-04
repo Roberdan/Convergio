@@ -70,6 +70,11 @@ pub enum EventKind {
         to_org: String,
         task: String,
     },
+    DelegationCompleted {
+        delegation_id: String,
+        plan_id: i64,
+        peer_name: String,
+    },
 
     // Agent lifecycle
     AgentOnline {
