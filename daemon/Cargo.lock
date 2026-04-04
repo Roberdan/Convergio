@@ -546,10 +546,13 @@ dependencies = [
  "convergio-mesh",
  "convergio-telemetry",
  "convergio-types",
+ "http-body-util",
+ "hyper",
  "rusqlite",
  "serde",
  "serde_json",
  "tokio",
+ "tower 0.5.3",
  "tracing",
  "uuid",
 ]
