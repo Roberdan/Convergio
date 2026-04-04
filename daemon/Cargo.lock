@@ -393,6 +393,7 @@ dependencies = [
  "convergio-ipc",
  "convergio-telemetry",
  "convergio-types",
+ "dirs 6.0.0",
  "hostname",
  "r2d2",
  "rusqlite",
