@@ -1,6 +1,6 @@
 # Convergio — Master Tracker
 
-> Creato: 03 Aprile 2026 | Ultimo aggiornamento: 04 Aprile 2026 (sessione 5)
+> Creato: 03 Aprile 2026 | Ultimo aggiornamento: 04 Aprile 2026 (sessione 6)
 > Da monolite (129K righe) a sistema modulare espandibile.
 
 ## 1. VISION
@@ -52,7 +52,7 @@ types (zero deps)
   +- extensions (kernel, org, voice) -> types, db, telemetry
 ```
 
-## 3. STATO ATTUALE (04 Aprile 2026 sessione 5 — onesto)
+## 3. STATO ATTUALE (04 Aprile 2026 sessione 6 — onesto)
 
 ### Numeri
 
@@ -60,11 +60,11 @@ types (zero deps)
 |---------|--------|
 | Crate nel workspace | 26 |
 | Extension registrate in main.rs | 19 (tutte con `routes()` -> `Some`) |
-| Test passanti (`cargo test --workspace`) | 850 |
+| Test passanti (`cargo test --workspace`) | 921 |
 | Righe Rust totali | ~51.000 |
-| Endpoint HTTP unici | ~115 |
+| Endpoint HTTP unici | ~125 |
 | Tabelle DB (via migrations) | 59+ |
-| PR mergiate | 69 |
+| PR mergiate | 83 |
 
 ### Cosa funziona realmente (verificato con smoke test)
 
@@ -88,22 +88,23 @@ types (zero deps)
 - **Depgraph**: wired in main.rs, 19 componenti, graph validation
 - **Health/Metrics**: /api/health/deep (19 componenti), /api/metrics (33+ metriche)
 - **launchd**: plist con PATH completo, daemon rebuild dopo PR merge
+- **File transport**: rsync push/pull tra nodi via SSH (4 endpoint)
+- **Node capability registry**: register/query peer capabilities con scoring (5 endpoint mesh)
+- **Delegation orchestrator**: copy -> spawn -> monitor -> sync back -> DelegationCompleted event (completo)
+- **Inference model config**: modelli registrati al startup da TOML config, cloud health check automatico
+- **Artifact model**: upload/download non-code artifacts, multipart, evidence type artifact/document
+- **E2E HTTP tests**: plan lifecycle, delegation pipeline, task CRUD (13 integration test)
 
 ### Cosa NON funziona (remaining gaps)
 
 | Componente | Stato | Gap |
 |-----------|-------|-----|
-| **File transport (rsync)** | ASSENTE | Nessun modo di copiare repo + .env a nodo remoto |
-| **Delegation orchestrator** | ASSENTE | Nessun componente che lega copy -> spawn -> monitor -> sync back |
-| **Node capability registry** | ASSENTE | Tutti i nodi identici, nessun routing per capability |
 | **Worktree cleanup** | ASSENTE | Worktree e branch non puliti dopo plan done |
 | **Learning automatico** | ASSENTE | PM compila manualmente, non automatico |
 
-**Diagnosi sessione 5**: Il loop si chiude. Il daemon non e' piu' un API layer passivo —
-spawna agenti, monitora, avanza wave/piani automaticamente, emette domain events per la UI.
-Il gap critico e' la delegation multi-nodo (rsync + remote spawn).
+Diagnosi sessione 6: Step 2 (delegation pipeline) completo. Step 3 quasi completo (36b, 39b, 40b done, frontend deferred). Il daemon ora ha inference reale, artifact model, delegation multi-nodo con monitoring completo.
 
-### Workflow — stato buchi (aggiornato sessione 5)
+### Workflow — stato buchi (aggiornato sessione 6)
 
 | Step | Stato | Note |
 |------|-------|------|
@@ -220,29 +221,40 @@ Il gap critico e' la delegation multi-nodo (rsync + remote spawn).
 
 **Smoke test verificato**: create -> review(pass) -> start -> evidence -> submit -> reactor chain -> plan done (automatico).
 
+### Step 1: Fondamenta — DONE (sessione 6)
+
+| Fase | Titolo | PR | Note |
+|------|--------|-----|------|
+| 23e | DepgraphExtension wiring | #48 | Verificato: wired, routes, health, startup validation |
+
+### Step 2: Delegation pipeline — DONE (sessione 6)
+
+| Fase | Titolo | PR | Note |
+|------|--------|-----|------|
+| 31 | File transport (rsync) | #75 | Push/pull via SSH, transfer tracking, 4 endpoint |
+| 37b | Node capability registry | #74 | Register/query/score peer capabilities, 5 endpoint |
+| 34 | Delegation orchestrator monitoring | #79 | Remote tmux monitor, sync_back, DelegationCompleted event |
+| 35 | E2E integration test delegation | #80 | 4 integration test axum::oneshot |
+
+### Step 3: Completamento — PARTIAL (sessione 6)
+
+| Fase | Titolo | PR | Note |
+|------|--------|-----|------|
+| 36b | Inference model config | #81 | TOML config, startup registration, cloud health check |
+| 39b | Artifact model + non-code | #82 | Upload/download, multipart, new evidence types |
+| 40b | E2E HTTP tests | #83 | 9 plan lifecycle integration tests |
+| -- | Frontend | -- | DEFERRED — repo separato, richiede agenti UI |
+
 ## 5. FASI IN CORSO
 
-### Step 1: Fondamenta
-- **23e**: DepgraphExtension gia' wired in main.rs (PR #48). Verificare.
+Nessuna fase in corso — in attesa di nuova sessione.
 
 ## 6. FASI FUTURE (ordinate per priorita')
 
-### Step 1: Fondamenta (NEXT)
-- **23e**: DepgraphExtension gia' wired (PR #48). Verificare startup validation.
-
-### Step 2: Delegation pipeline
-- **31**: File transport (rsync wrapper tra nodi)
-- **37b**: Node capability registry (GPU, voice, compute)
-- **34**: Delegation orchestrator (copy -> spawn -> monitor -> sync back -> notify)
-- **35**: E2E integration test (delegate hello-world a localhost)
-
-### Step 3: Completamento
+### Step 3: Completamento (remaining)
 - **32e**: Agent context API (contesto live dal DB, non file statici)
 - **32f**: Agent live adaptation (checkpoint polling, IPC alerts, file sentinel)
 - **32g**: Long-run autonomo (daemon gestisce checkpoint/resume/respawn — NON script bash)
-- **36b**: Inference reale (Ollama/API, non echo per tutti i tier)
-- **39b**: Progetti non-codice (report, business docs, evidence non-code)
-- **40b**: Integration test HTTP (830 unit + E2E)
 - **Frontend**: rifare convergio-frontend dentro Convergio (agenti via daemon)
 
 ### Step 3b: Documentation (quando il sistema funziona E2E)
@@ -283,7 +295,7 @@ Il gap critico e' la delegation multi-nodo (rsync + remote spawn).
 11. **Workflow = contratto** — solve->planner->execute->thor enforced dal sistema. Ogni transizione validata, registrata, emessa, verificabile.
 12. **Auto-organizzazione = osservabilita'** — ogni azione ha un costo, ogni risultato una qualita', ogni errore un learning.
 
-## 8. WORKFLOW CONTRATTO (aggiornato sessione 5 — tutto OK tranne cleanup/learning)
+## 8. WORKFLOW CONTRATTO (aggiornato sessione 6 — tutto OK tranne cleanup/learning)
 
 ```
 1. PROBLEMA -> POST /api/plan-db/create (objective+motivation+requester REQUIRED)
@@ -353,7 +365,7 @@ Le 4 domande: chi produce input? chi consuma output? come l'utente lo vede? come
 5. Observatory persiste in DB (non solo SSE volatile)
 6. Inference con backend HTTP reali (Ollama/OpenAI-compatible)
 
-### Dove il codice NON chiude il loop (aggiornato sessione 5)
+### Dove il codice NON chiude il loop (aggiornato sessione 6)
 1. ~~Spawn monitor incompleto~~ FIXED (#63): monitor -> task submitted -> reactor chain
 2. ~~Eventi sottoutilizzati~~ FIXED (#63): PlanCompleted, WaveCompleted, TaskCompleted emessi
 3. ~~Gate non enforced~~ FIXED (#68,#69): StartGate + ThorPreReview enforced
