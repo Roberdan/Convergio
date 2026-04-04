@@ -1,7 +1,7 @@
 # Convergio — Mission Orders
 
-Questo file è il comando operativo per ogni sessione Claude.
-Leggilo. Eseguilo. Aggiorna WORKSPACE-SPLIT.md. Non inventare.
+Questo file è il comando operativo per ogni sessione (Claude, Copilot, o altro).
+Leggi prima AGENTS.md (regole universali), poi questo file (cosa fare), poi WORKSPACE-SPLIT.md (dettagli).
 
 ## Come lanciare
 

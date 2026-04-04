@@ -2098,6 +2098,22 @@ Ogni agente lo legge PRIMA di fare qualsiasi cosa. Le regole sono non-negoziabil
 
 ---
 
+## Learnings sessione 3 — agenti multi-provider (04 aprile 2026)
+
+20. **CLAUDE.md è accoppiato a un solo provider**: CLAUDE.md viene letto solo da Claude Code.
+    Se deleghi a Copilot, Codex, Qwen, o un LLM locale → non leggono CLAUDE.md → non conoscono le regole → producono codice che viola le convenzioni.
+    **Fix**: AGENTS.md nella root del repo — file universale per QUALSIASI agente LLM.
+    CLAUDE.md diventa un wrapper minimale che punta ad AGENTS.md.
+    `.github/copilot-instructions.md` punta ad AGENTS.md per Copilot.
+    Per LLM locali/API: il daemon scrive TASK.md nel worktree con le istruzioni + riferimento ad AGENTS.md.
+    **Struttura file agenti**:
+    - `AGENTS.md` — regole universali (qualsiasi LLM)
+    - `.claude/CLAUDE.md` — wrapper per Claude Code (punta ad AGENTS.md)
+    - `.github/copilot-instructions.md` — wrapper per Copilot (punta ad AGENTS.md)
+    - `MISSION.md` — cosa fare (ordine delle fasi)
+    - `WORKSPACE-SPLIT.md` — storia completa, learnings, dettagli
+    **Regola**: ogni nuovo provider LLM supportato DEVE avere un file wrapper che punta ad AGENTS.md. Le regole vivono in UN SOLO posto.
+
 ## Learnings sessione 4 (04 aprile 2026)
 
 12. **kill(pid, 0) non rileva zombie processes**: il monitor usava `libc::kill(pid, 0)` che restituisce 0 per processi zombie. Risultato: monitor non rileva mai la morte dell'agente. **Fix**: `waitpid(pid, WNOHANG)` raccoglie il zombie E restituisce l'exit code. (Learning #21)
