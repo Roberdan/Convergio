@@ -12,6 +12,7 @@ pub mod handlers;
 pub mod plan_hierarchy;
 pub mod plan_routes;
 pub mod plan_routes_ext;
+pub mod plan_validate;
 pub mod pm_routes;
 pub mod policy;
 pub mod reactor;
