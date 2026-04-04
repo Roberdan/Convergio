@@ -91,6 +91,24 @@ Se WORKSPACE-SPLIT.md non è ancora ristrutturato (>2200 righe):
 2. Ristruttura secondo la struttura target
 3. Poi riprendi dall'ordine sopra
 
+## Come lavorare — delega il più possibile
+
+**Tu (la sessione Claude principale) sei il COORDINATORE, non l'esecutore.**
+Il tuo contesto è prezioso — non sprecarlo a scrivere codice meccanico.
+
+1. **Usa il daemon** per spawnare agenti: `POST /api/agents/spawn` con tier appropriato
+2. **Usa Copilot con Opus** per task meccanici nel worktree:
+   ```bash
+   cd .worktrees/<task> && gh copilot --model claude-opus-4-6
+   ```
+3. **Usa Agent tool** per task paralleli indipendenti (con `isolation: "worktree"`)
+4. **Tu decidi**: cosa fare, in che ordine, chi delega a chi, cosa verificare
+5. **Tu verifichi**: che il loop sia chiuso, che i test passino, che la UI mostri il risultato
+6. **Tu documenti**: aggiorna WORKSPACE-SPLIT.md con stato, learnings, decisioni
+
+**Regola del contesto**: se un task richiede >50 righe di codice e non richiede
+decisioni architetturali → delegalo. Se richiede decisioni → fallo tu.
+
 ## Regole NON negoziabili
 
 1. **Loop chiuso** (Regola 10): ogni feature deve avere input→output→feedback→stato→visibile all'utente
@@ -102,6 +120,7 @@ Se WORKSPACE-SPLIT.md non è ancora ristrutturato (>2200 righe):
 7. **Non dichiarare done** senza evidence verificabile
 8. **Aggiorna WORKSPACE-SPLIT.md** dopo ogni fase completata
 9. **Quando il contesto si riempie**: aggiorna il tracker, poi di' a Roberto di lanciare una nuova sessione
+10. **No squash merge** — solo merge commit (enforced dal repo)
 
 ## Cosa NON fare
 
