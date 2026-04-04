@@ -1,0 +1,16 @@
+[package]
+name = "convergio-scheduler"
+description = "Policy-based task scheduling with capability matching, cost optimization, and load balancing"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+convergio-types = { path = "../convergio-types" }
+convergio-db = { path = "../convergio-db" }
+convergio-telemetry = { path = "../convergio-telemetry" }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+rusqlite = { workspace = true }
+axum = { workspace = true }

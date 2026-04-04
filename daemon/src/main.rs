@@ -59,6 +59,7 @@ fn register_extensions(
         Arc::new(convergio_observatory::ObservatoryExtension::new(
             pool.clone(),
         )),
+        Arc::new(convergio_scheduler::SchedulerExtension::new(pool.clone())),
     ]
 }
 
@@ -239,7 +240,6 @@ impl convergio_telemetry::health::HealthCheck for ExtHealthAdapter {
 
 /// Adapter: wraps an Extension as a MetricSource for the MetricsCollector.
 struct ExtMetricAdapter(String, Arc<dyn Extension>);
-
 impl convergio_telemetry::metrics::MetricSource for ExtMetricAdapter {
     fn name(&self) -> &str {
         &self.0
