@@ -1561,6 +1561,74 @@ GET /api/agents/context/:agent_id → {
 - [ ] L'API context include warnings: budget basso, task simili falliti, agenti colleghi attivi
 - [ ] Test: spawna agente → verifica che /api/agents/context ritorna dati completi
 
+### Fase 32f: Agent live adaptation — reagire a cambiamenti in corso d'opera
+
+**Obiettivo**: Un agente in esecuzione si accorge se il piano cambia, il budget si esaurisce,
+un altro agente scopre qualcosa, o le regole vengono aggiornate — e si adatta.
+**Motivazione**: Roberto: "se il WORKSPACE-SPLIT.md cambia come ora che un altro agente ci sta
+lavorando, come facciamo a far si che l'agente se ne renda conto e si riadatti al volo?"
+Oggi l'agente è cieco dopo lo spawn — lavora con contesto frozen.
+**Committente**: Roberto
+**Deps**: Fase 32e (context API)
+
+#### Come funziona (3 meccanismi)
+
+**1. Checkpoint polling (l'agente chiede)**
+Il TASK.md include un'istruzione: "ogni N step, chiama GET /api/agents/context/:id
+e verifica se qualcosa è cambiato". L'API ritorna un campo `version` (hash del contesto).
+Se il version cambia → l'agente rilegge il contesto fresco e si adatta.
+
+```
+# Nel TASK.md generato dallo spawner:
+REGOLA: Ogni 5 operazioni significative (commit, file creation, test),
+chiama: curl -sf http://localhost:8420/api/agents/context/$CONVERGIO_AGENT_ID
+Controlla il campo "alerts". Se non è vuoto, leggi e adattati.
+```
+
+**2. Alert via IPC (il daemon avvisa)**
+Il daemon pubblica messaggi sull'IPC bus destinati all'agente:
+- Piano modificato → `{"to": "agent-id", "type": "plan_changed", "detail": "task 3 cancelled"}`
+- Budget warning → `{"to": "agent-id", "type": "budget_alert", "detail": "80% spent"}`
+- Altro agente fallito → `{"to": "agent-id", "type": "peer_failed", "detail": "baccio failed on task 2"}`
+- Stop richiesto → `{"to": "agent-id", "type": "stop", "detail": "user requested stop"}`
+
+L'agente che fa checkpoint polling legge anche i messaggi IPC.
+
+**3. File sentinel (fallback semplice)**
+Il daemon scrive un file `STOP` o `REPLAN` nel worktree dell'agente.
+L'agente controlla `[ -f STOP ] && exit` o `[ -f REPLAN ] && curl context API`.
+Funziona anche con LLM che non sanno fare HTTP calls.
+
+#### Cosa cambia nel TASK.md generato
+```markdown
+# Task: <title>
+
+## Istruzioni
+<instructions from spawner>
+
+## Contesto live
+Prima di iniziare: `curl -sf $CONVERGIO_DAEMON_URL/api/agents/context/$CONVERGIO_AGENT_ID`
+
+## Checkpoint (OGNI 5 operazioni)
+1. Controlla: `[ -f STOP ] && echo "FERMATI" && exit 0`
+2. Controlla: `[ -f REPLAN ] && curl context API → aggiorna le tue istruzioni`
+3. Chiama: `curl -sf $CONVERGIO_DAEMON_URL/api/agents/context/$CONVERGIO_AGENT_ID`
+4. Se `alerts` non vuoto → leggi e adattati
+5. Se `budget.remaining < 1.0` → committa quello che hai e esci
+
+## Regole
+Leggi AGENTS.md per tutte le regole operative.
+```
+
+#### Task
+- [ ] API context: aggiungere campo `version` (hash SHA-256 del contesto) e campo `alerts` (lista)
+- [ ] API: `POST /api/agents/:id/alert` — il daemon o un umano manda un alert a un agente specifico
+- [ ] API: `POST /api/agents/:id/stop` — scrive file STOP nel worktree + manda alert IPC
+- [ ] API: `POST /api/agents/:id/replan` — scrive file REPLAN + manda alert IPC con nuovo contesto
+- [ ] Spawner: TASK.md template include la sezione "Checkpoint" con le istruzioni di polling
+- [ ] Test: spawna agente → manda alert via API → verifica che l'agente lo vede al prossimo checkpoint
+- [ ] Test: spawna agente → POST /api/agents/:id/stop → verifica che l'agente si ferma
+
 ### Fase 23e: Depgraph wiring in main.rs
 
 **Obiettivo**: Registrare DepgraphExtension in main.rs con i manifest di tutte le extension.
