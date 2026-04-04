@@ -54,7 +54,9 @@ impl Extension for OrchestratorExtension {
     }
 
     fn migrations(&self) -> Vec<Migration> {
-        crate::schema::migrations()
+        let mut m = crate::schema::migrations();
+        m.extend(crate::schema_tracking::tracking_migrations());
+        m
     }
 
     fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
@@ -64,7 +66,11 @@ impl Extension for OrchestratorExtension {
         let router = crate::scaffold::scaffold_routes()
             .merge(crate::plan_routes::plan_routes(Arc::clone(&state)))
             .merge(crate::plan_routes_ext::plan_routes_ext(Arc::clone(&state)))
-            .merge(crate::task_routes::task_routes(state));
+            .merge(crate::task_routes::task_routes(state))
+            .merge(crate::tracking_routes::tracking_routes(self.pool.clone()))
+            .merge(crate::aggregation_routes::aggregation_routes(
+                self.pool.clone(),
+            ));
         Some(router)
     }
 
