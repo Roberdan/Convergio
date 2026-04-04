@@ -100,16 +100,20 @@ pub struct CheckpointSave {
     pub plan_id: i64,
 }
 
+/// Build checkpoint file path. plan_id is validated by callers to be > 0.
+/// Since plan_id is i64 (integer only), no path traversal is possible.
 fn checkpoint_path(plan_id: i64) -> std::path::PathBuf {
-    convergio_types::platform_paths::convergio_data_dir()
-        .join("checkpoints")
-        .join(format!("plan-{plan_id}.json"))
+    let base = convergio_types::platform_paths::convergio_data_dir().join("checkpoints");
+    base.join(format!("plan-{plan_id}.json"))
 }
 
 async fn handle_checkpoint_save(
     State(state): State<Arc<PlanState>>,
     Json(body): Json<CheckpointSave>,
 ) -> Json<serde_json::Value> {
+    if body.plan_id <= 0 {
+        return Json(json!({"error": "invalid plan_id"}));
+    }
     let conn = match state.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"error": e.to_string()})),
@@ -145,6 +149,9 @@ async fn handle_checkpoint_restore(
     State(_state): State<Arc<PlanState>>,
     Query(q): Query<CheckpointQuery>,
 ) -> Json<serde_json::Value> {
+    if q.plan_id <= 0 {
+        return Json(json!({"error": "invalid plan_id"}));
+    }
     let path = checkpoint_path(q.plan_id);
     match std::fs::read_to_string(&path) {
         Ok(contents) => {

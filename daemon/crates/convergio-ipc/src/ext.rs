@@ -143,10 +143,6 @@ impl Extension for IpcExtension {
         }
     }
 
-    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
-        Some(crate::routes::ipc_routes(self.state()))
-    }
-
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
         tracing::info!("IPC extension started");
         Ok(())
