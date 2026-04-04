@@ -58,11 +58,11 @@ pub fn start_gate(conn: &Connection, plan_id: i64) -> Result<(), GateError> {
 
 /// TestGate: task cannot move to `submitted` without evidence of type test_pass.
 pub fn test_gate(conn: &Connection, task_id: i64) -> Result<(), GateError> {
-    // Check task_evidence table (from convergio-evidence crate, if exists)
+    // task_evidence uses task_db_id and evidence_type columns
     let has_test: bool = conn
         .query_row(
             "SELECT EXISTS(SELECT 1 FROM task_evidence \
-             WHERE task_id = ?1 AND kind = 'test_pass')",
+             WHERE task_db_id = ?1 AND evidence_type = 'test_pass')",
             [task_id],
             |r| r.get(0),
         )
@@ -80,7 +80,7 @@ pub fn test_gate(conn: &Connection, task_id: i64) -> Result<(), GateError> {
 pub fn evidence_gate(conn: &Connection, task_id: i64) -> Result<(), GateError> {
     let count: i64 = conn
         .query_row(
-            "SELECT count(*) FROM task_evidence WHERE task_id = ?1",
+            "SELECT count(*) FROM task_evidence WHERE task_db_id = ?1",
             [task_id],
             |r| r.get(0),
         )
