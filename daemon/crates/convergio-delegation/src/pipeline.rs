@@ -10,6 +10,14 @@ use std::path::Path;
 
 type BoxErr = Box<dyn std::error::Error + Send + Sync>;
 
+/// Info returned by a successful pipeline run, used to start the monitor.
+pub struct PipelineResult {
+    pub ssh_target: String,
+    pub tmux_session: String,
+    pub tmux_window: String,
+    pub remote_path: String,
+}
+
 /// Resolve the SSH target string for a peer from the peers registry.
 fn resolve_ssh_target(peer_name: &str) -> Result<String, BoxErr> {
     let conf_path = peers_conf_path_from_env();
@@ -25,14 +33,15 @@ fn resolve_ssh_target(peer_name: &str) -> Result<String, BoxErr> {
     }
 }
 
-/// Run the full delegation pipeline: copy -> spawn -> monitor -> sync back.
+/// Run the full delegation pipeline: copy -> spawn -> set Running.
+/// Returns info needed to start the remote monitor.
 pub async fn run_delegation_pipeline(
     pool: &ConnPool,
     delegation_id: &str,
     plan_id: i64,
     peer_name: &str,
     config: &PipelineConfig,
-) -> Result<(), BoxErr> {
+) -> Result<PipelineResult, BoxErr> {
     let ssh_target = resolve_ssh_target(peer_name)?;
     let remote_path = format!("{}/{}", config.remote_base, delegation_id);
 
@@ -89,7 +98,12 @@ pub async fn run_delegation_pipeline(
     )?;
     update_remote_path(pool, delegation_id, &remote_path)?;
     tracing::info!(delegation_id, peer_name, "delegation running on peer");
-    Ok(())
+    Ok(PipelineResult {
+        ssh_target,
+        tmux_session,
+        tmux_window,
+        remote_path,
+    })
 }
 
 /// Sync results back from the remote peer after completion.

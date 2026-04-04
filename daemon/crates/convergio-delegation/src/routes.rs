@@ -1,14 +1,17 @@
 //! HTTP routes for the delegation API.
 
+use std::sync::Arc;
+
 use axum::extract::{Path, Query, State};
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use convergio_db::pool::ConnPool;
+use convergio_types::events::DomainEventSink;
 use serde::Deserialize;
 use serde_json::{json, Value};
 
 use crate::types::{DelegateMarkRequest, DelegateRequest, PipelineConfig};
-use crate::{pipeline, queries};
+use crate::{monitor, pipeline, queries};
 
 /// Query parameters for listing delegations.
 #[derive(Deserialize)]
@@ -17,23 +20,30 @@ pub struct ListParams {
     pub limit: Option<u32>,
 }
 
+/// Shared state for delegation routes.
+#[derive(Clone)]
+pub struct DelegationState {
+    pub pool: ConnPool,
+    pub event_sink: Option<Arc<dyn DomainEventSink>>,
+}
+
 /// Build the delegation router.
-pub fn delegation_routes(pool: ConnPool) -> Router {
+pub fn delegation_routes(state: DelegationState) -> Router {
     Router::new()
         .route("/api/mesh/delegate", post(mark_delegated))
         .route("/api/delegate/spawn", post(spawn_delegation))
         .route("/api/delegate/status/:delegation_id", get(get_status))
         .route("/api/delegate/list", get(list_delegations))
-        .with_state(pool)
+        .with_state(state)
 }
 
 /// POST /api/mesh/delegate — mark a plan as delegated to a peer.
 async fn mark_delegated(
-    State(pool): State<ConnPool>,
+    State(st): State<DelegationState>,
     Json(req): Json<DelegateMarkRequest>,
 ) -> Json<Value> {
     let delegation_id = uuid::Uuid::new_v4().to_string();
-    let conn = match pool.get() {
+    let conn = match st.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"ok": false, "error": e.to_string()})),
     };
@@ -52,7 +62,7 @@ async fn mark_delegated(
 
 /// POST /api/delegate/spawn — create delegation record and launch pipeline.
 async fn spawn_delegation(
-    State(pool): State<ConnPool>,
+    State(st): State<DelegationState>,
     Json(req): Json<DelegateRequest>,
 ) -> Json<Value> {
     let delegation_id = uuid::Uuid::new_v4().to_string();
@@ -69,7 +79,7 @@ async fn spawn_delegation(
     };
 
     // Insert delegation record
-    let conn = match pool.get() {
+    let conn = match st.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"ok": false, "error": e.to_string()})),
     };
@@ -82,18 +92,38 @@ async fn spawn_delegation(
     }
     drop(conn);
 
-    // Spawn pipeline in background
-    let pool_bg = pool.clone();
+    // Spawn pipeline + monitor in background
+    let pool_bg = st.pool.clone();
     let del_id = delegation_id.clone();
     let peer = req.peer.clone();
+    let sink = st.event_sink.clone();
     tokio::spawn(async move {
-        if let Err(e) =
-            pipeline::run_delegation_pipeline(&pool_bg, &del_id, req.plan_id, &peer, &config).await
+        match pipeline::run_delegation_pipeline(&pool_bg, &del_id, req.plan_id, &peer, &config)
+            .await
         {
-            tracing::error!(delegation_id = %del_id, error = %e, "delegation pipeline failed");
-            let fail = crate::types::DelegationStatus::Failed(e.to_string());
-            let step = crate::types::DelegationStep::Init;
-            let _ = queries::update_delegation_status(&pool_bg, &del_id, &fail, &step);
+            Ok(pr) => {
+                // Pipeline succeeded (status=Running) — start monitor
+                monitor::monitor_remote_delegation(
+                    pool_bg,
+                    del_id,
+                    peer,
+                    pr.ssh_target,
+                    pr.tmux_session,
+                    pr.tmux_window,
+                    config,
+                    sink,
+                );
+            }
+            Err(e) => {
+                tracing::error!(
+                    delegation_id = %del_id,
+                    error = %e,
+                    "delegation pipeline failed"
+                );
+                let fail = crate::types::DelegationStatus::Failed(e.to_string());
+                let step = crate::types::DelegationStep::Init;
+                let _ = queries::update_delegation_status(&pool_bg, &del_id, &fail, &step);
+            }
         }
     });
 
@@ -106,10 +136,10 @@ async fn spawn_delegation(
 
 /// GET /api/delegate/status/:delegation_id
 async fn get_status(
-    State(pool): State<ConnPool>,
+    State(st): State<DelegationState>,
     Path(delegation_id): Path<String>,
 ) -> Json<Value> {
-    let conn = match pool.get() {
+    let conn = match st.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"ok": false, "error": e.to_string()})),
     };
@@ -121,10 +151,10 @@ async fn get_status(
 
 /// GET /api/delegate/list?plan_id=N&limit=50
 async fn list_delegations(
-    State(pool): State<ConnPool>,
+    State(st): State<DelegationState>,
     Query(params): Query<ListParams>,
 ) -> Json<Value> {
-    let conn = match pool.get() {
+    let conn = match st.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"ok": false, "error": e.to_string()})),
     };
