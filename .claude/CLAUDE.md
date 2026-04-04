@@ -62,6 +62,37 @@ Building crates that compile and pass unit tests but don't work together is a
 GRAVE PLANNING MISTAKE. Every wave must end with a working system, not just
 passing tests. Auth, routing, config loading, env files — test them end-to-end.
 
+### CRITICAL: automated orchestrators produce hollow crates (Learning #14)
+An automated orchestrator (phases 11-20) produced 10 crates that compile, have
+green unit tests, and implement the Extension trait — but return `None` from
+`routes()` and have stub handlers that do nothing. The code LOOKS complete but
+is not wired to the daemon. 9/19 extensions had no HTTP routes exposed.
+3 crates (org, org-package, kernel) were pure scaffolding: migrations +
+`health() → Ok` with zero real logic.
+**Rules**:
+1. Every Extension with business logic MUST return `Some(router)` from routes()
+2. Every phase MUST end with `curl` verification that new endpoints respond
+3. Never trust unit tests alone — an Extension that returns None from routes()
+   will pass all its internal tests but contribute nothing to the running daemon
+4. The planner MUST include mandatory integration test for every phase
+5. Never declare "done" without end-to-end smoke test against the running daemon
+
+### CRITICAL: fix root causes, never shortcuts (Constitution Rule #1)
+NEVER take the quick path. ALWAYS fix the root cause.
+- Bug in auth? Don't add a workaround — fix the auth middleware.
+- Extension returns None from routes()? Don't skip it — implement the routes.
+- Script doesn't work? Don't retry the same thing — understand WHY and fix it.
+- Test fails? Don't delete the test — fix the code.
+- Cascading fix threshold: 3 consecutive fixes for the same issue where each
+  introduces a new problem → STOP. Explain root cause, propose rebuild.
+Band-aid chains are REJECTED. Workarounds become permanent. Fix it right or don't fix it.
+
+### Full reference
+All learnings, rules, architecture decisions, and phase status are in:
+~/Desktop/WORKSPACE-SPLIT.md — READ IT for any non-trivial decision.
+This CLAUDE.md has the critical rules that apply to every session.
+WORKSPACE-SPLIT.md has the full context, history, and reasoning.
+
 ### What NOT to do
 - NEVER commit on main directly (branch protection enforced)
 - NEVER create long prompts as shell arguments (use file + Read tool)
