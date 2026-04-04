@@ -61,6 +61,7 @@ pub fn write_instructions(workspace: &Path, instructions: &str) -> RuntimeResult
 }
 
 /// Spawn the agent process in the workspace.
+/// `timeout_secs` reserved for future use (reaper handles actual timeout).
 pub fn spawn_process(
     workspace: &Path,
     backend: &SpawnBackend,
@@ -70,11 +71,10 @@ pub fn spawn_process(
     let child = match backend {
         SpawnBackend::ClaudeCli { model } => {
             // Learning #7: short prompt, instructions in file
-            // Learning #19: launchd has minimal PATH — resolve claude absolute path
+            // Learning #19+20: launchd has minimal PATH — use absolute paths
+            // Don't use external `timeout` — it's also missing. Reaper handles timeouts.
             let claude_bin = resolve_claude_path();
-            let mut cmd = Command::new("timeout");
-            cmd.arg(timeout_secs.to_string());
-            cmd.arg(&claude_bin);
+            let mut cmd = Command::new(&claude_bin);
             cmd.args(["--dangerously-skip-permissions"]);
             cmd.args(["--model", model]);
             cmd.args(["-p", "Leggi TASK.md per le istruzioni. Poi inizia."]);
@@ -94,9 +94,7 @@ pub fn spawn_process(
                 .map_err(|e| RuntimeError::Internal(format!("spawn claude: {e}")))?
         }
         SpawnBackend::Script { command, args } => {
-            let mut cmd = Command::new("timeout");
-            cmd.arg(timeout_secs.to_string());
-            cmd.arg(command);
+            let mut cmd = Command::new(command);
             cmd.args(args);
             cmd.current_dir(workspace);
             for (k, v) in env_vars {
