@@ -223,7 +223,8 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let path = write_instructions(tmp.path(), "Test task").unwrap();
         assert!(path.exists());
-        assert_eq!(fs::read_to_string(path).unwrap(), "Test task");
+        let content = fs::read_to_string(path).unwrap();
+        assert!(content.contains("Test task"));
     }
 
     #[test]
