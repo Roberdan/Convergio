@@ -45,6 +45,10 @@ struct SpawnBody {
     timeout_secs: u64,
     #[serde(default)]
     priority: i32,
+    /// Override repo root for spawning in external repos.
+    repo_override: Option<String>,
+    /// Override the instruction file name (default: TASK.md).
+    instruction_file: Option<String>,
 }
 
 fn default_tier() -> String {
@@ -61,7 +65,8 @@ async fn handle_spawn(
     State(state): State<Arc<SpawnState>>,
     Json(body): Json<SpawnBody>,
 ) -> Json<Value> {
-    let repo_root = std::path::Path::new(&state.repo_root);
+    let repo_path = body.repo_override.as_deref().unwrap_or(&state.repo_root);
+    let repo_root = std::path::Path::new(repo_path);
     let wt_name = format!("agent-{}", &body.agent_name);
 
     // 1. Register in DB
@@ -92,9 +97,11 @@ async fn handle_spawn(
         Err(e) => return Json(json!({"error": format!("worktree: {e}"), "agent_id": agent_id})),
     };
 
-    // 3. Write instructions
-    if let Err(e) = spawner::write_instructions(&workspace, &body.instructions) {
-        return Json(json!({"error": format!("instructions: {e}"), "agent_id": agent_id}));
+    // 3. Write instructions (skip if using a pre-existing instruction file)
+    if body.instruction_file.is_none() {
+        if let Err(e) = spawner::write_instructions(&workspace, &body.instructions) {
+            return Json(json!({"error": format!("instructions: {e}"), "agent_id": agent_id}));
+        }
     }
 
     // 4. Choose backend via tier
@@ -111,7 +118,13 @@ async fn handle_spawn(
         ("CONVERGIO_DAEMON_URL", state.daemon_url.as_str()),
         ("CONVERGIO_AGENT_ID", agent_id.as_str()),
     ];
-    let result = spawner::spawn_process(&workspace, &backend, &env_vars, body.timeout_secs);
+    let result = spawner::spawn_process(
+        &workspace,
+        &backend,
+        &env_vars,
+        body.timeout_secs,
+        body.instruction_file.as_deref(),
+    );
 
     match result {
         Ok(spawned) => {
