@@ -6,7 +6,7 @@ use tokio::sync::Notify;
 use convergio_db::pool::ConnPool;
 use convergio_ipc::messaging;
 
-use crate::reactor::{ALI_AGENT, CHANNEL};
+use crate::reactor::CHANNEL;
 
 type AliResult = Result<(), Box<dyn std::error::Error + Send + Sync>>;
 
@@ -113,6 +113,8 @@ pub fn check_unblocked_plans(
 }
 
 /// Emit a structured event to the #orchestration channel.
+/// Uses "orchestrator-reactor" as sender so the reactor (ali-orchestrator)
+/// picks up the message. The reactor skips messages from ALI_AGENT (itself).
 pub fn emit(
     pool: &ConnPool,
     notify: &Arc<Notify>,
@@ -126,7 +128,7 @@ pub fn emit(
     messaging::broadcast(
         pool,
         notify,
-        ALI_AGENT,
+        "orchestrator-reactor",
         &content.to_string(),
         "event",
         Some(CHANNEL),
