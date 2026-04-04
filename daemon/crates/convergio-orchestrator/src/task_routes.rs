@@ -40,6 +40,22 @@ async fn handle_task_update(
         Ok(c) => c,
         Err(e) => return Json(json!({"error": e.to_string()})),
     };
+    // Lifecycle gate check (24f): validate transition before applying
+    if let Some(ref new_status) = body.status {
+        if let Err(gate_err) =
+            crate::gates::check_task_transition(&state.pool, body.task_id, new_status)
+        {
+            tracing::warn!(
+                task_id = body.task_id,
+                gate = gate_err.gate,
+                "gate blocked transition"
+            );
+            return Json(
+                json!({"error": format!("gate blocked: {gate_err}"), "gate": gate_err.gate}),
+            );
+        }
+    }
+
     let mut sets: Vec<String> = Vec::new();
     let mut p: Vec<Box<dyn rusqlite::types::ToSql>> = Vec::new();
     if let Some(ref s) = body.status {
