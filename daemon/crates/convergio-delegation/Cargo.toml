@@ -19,3 +19,8 @@ axum = { workspace = true }
 rusqlite = { workspace = true }
 chrono = { workspace = true }
 uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+hyper = "1"
+http-body-util = "0.1"
