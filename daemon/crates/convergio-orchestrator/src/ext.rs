@@ -56,6 +56,7 @@ impl Extension for OrchestratorExtension {
     fn migrations(&self) -> Vec<Migration> {
         let mut m = crate::schema::migrations();
         m.extend(crate::schema_tracking::tracking_migrations());
+        m.extend(crate::schema_compensation::compensation_migrations());
         m
     }
 
@@ -78,7 +79,10 @@ impl Extension for OrchestratorExtension {
                 self.pool.clone(),
             ))
             .merge(crate::artifact_routes::artifact_routes(self.pool.clone()))
-            .merge(crate::bundle_routes::bundle_routes(self.pool.clone()));
+            .merge(crate::bundle_routes::bundle_routes(self.pool.clone()))
+            .merge(crate::compensation_routes::compensation_routes(
+                self.pool.clone(),
+            ));
         Some(router)
     }
 
