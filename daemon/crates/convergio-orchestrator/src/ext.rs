@@ -63,7 +63,8 @@ impl Extension for OrchestratorExtension {
         });
         let router = crate::scaffold::scaffold_routes()
             .merge(crate::plan_routes::plan_routes(Arc::clone(&state)))
-            .merge(crate::plan_routes_ext::plan_routes_ext(state));
+            .merge(crate::plan_routes_ext::plan_routes_ext(Arc::clone(&state)))
+            .merge(crate::task_routes::task_routes(state));
         Some(router)
     }
 

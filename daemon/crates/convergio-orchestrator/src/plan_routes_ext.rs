@@ -29,11 +29,6 @@ pub fn plan_routes_ext(state: Arc<PlanState>) -> Router {
             "/api/plan-db/checkpoint/restore",
             get(handle_checkpoint_restore),
         )
-        .route("/api/plan-db/task/evidence", post(handle_record_evidence))
-        .route(
-            "/api/plan-db/task/evidence/:task_id",
-            get(handle_get_evidence),
-        )
         .route(
             "/api/plan-db/execution-tree/:plan_id",
             get(handle_execution_tree),
@@ -121,8 +116,12 @@ async fn handle_checkpoint_save(
     let plan = match conn.query_row(
         "SELECT id, name, status, project_id FROM plans WHERE id = ?1",
         params![body.plan_id],
-        |r| Ok(json!({"id": r.get::<_,i64>(0)?, "name": r.get::<_,String>(1)?,
-                       "status": r.get::<_,String>(2)?, "project_id": r.get::<_,String>(3)?})),
+        |r| {
+            Ok(
+                json!({"id": r.get::<_,i64>(0)?, "name": r.get::<_,String>(1)?,
+                       "status": r.get::<_,String>(2)?, "project_id": r.get::<_,String>(3)?}),
+            )
+        },
     ) {
         Ok(p) => p,
         Err(e) => return Json(json!({"error": e.to_string()})),
@@ -133,7 +132,10 @@ async fn handle_checkpoint_save(
     if let Some(parent) = path.parent() {
         let _ = std::fs::create_dir_all(parent);
     }
-    match std::fs::write(&path, serde_json::to_string_pretty(&checkpoint).unwrap_or_default()) {
+    match std::fs::write(
+        &path,
+        serde_json::to_string_pretty(&checkpoint).unwrap_or_default(),
+    ) {
         Ok(()) => Json(json!({"plan_id": body.plan_id, "saved": true,
                               "path": path.to_string_lossy()})),
         Err(e) => Json(json!({"error": e.to_string()})),
@@ -163,57 +165,6 @@ async fn handle_checkpoint_restore(
     }
 }
 
-#[derive(Debug, Deserialize)]
-pub struct RecordEvidence {
-    pub task_id: i64,
-    pub evidence_type: String,
-    pub content: String,
-}
-
-async fn handle_record_evidence(
-    State(state): State<Arc<PlanState>>,
-    Json(body): Json<RecordEvidence>,
-) -> Json<serde_json::Value> {
-    let conn = match state.pool.get() {
-        Ok(c) => c,
-        Err(e) => return Json(json!({"error": e.to_string()})),
-    };
-    // Store evidence as a note/output on the task
-    match conn.execute(
-        "UPDATE tasks SET notes = COALESCE(notes, '') || ?1, \
-         output_data = ?2 WHERE id = ?3",
-        params![
-            format!("\n[{}] {}", body.evidence_type, body.content),
-            body.content,
-            body.task_id,
-        ],
-    ) {
-        Ok(0) => Json(json!({"error": "task not found"})),
-        Ok(_) => Json(json!({"task_id": body.task_id, "recorded": true})),
-        Err(e) => Json(json!({"error": e.to_string()})),
-    }
-}
-
-async fn handle_get_evidence(
-    State(state): State<Arc<PlanState>>,
-    Path(task_id): Path<i64>,
-) -> Json<serde_json::Value> {
-    let conn = match state.pool.get() {
-        Ok(c) => c,
-        Err(e) => return Json(json!({"error": e.to_string()})),
-    };
-    match conn.query_row(
-        "SELECT notes, output_data FROM tasks WHERE id = ?1",
-        params![task_id],
-        |row| Ok((row.get::<_, Option<String>>(0)?, row.get::<_, Option<String>>(1)?)),
-    ) {
-        Ok((notes, output)) => Json(json!({
-            "task_id": task_id, "notes": notes, "output_data": output
-        })),
-        Err(e) => Json(json!({"error": e.to_string()})),
-    }
-}
-
 async fn handle_execution_tree(
     State(state): State<Arc<PlanState>>,
     Path(plan_id): Path<i64>,
@@ -226,9 +177,13 @@ async fn handle_execution_tree(
     let plan = match conn.query_row(
         "SELECT id, name, status, tasks_done, tasks_total FROM plans WHERE id = ?1",
         params![plan_id],
-        |r| Ok(json!({"id": r.get::<_,i64>(0)?, "name": r.get::<_,String>(1)?,
+        |r| {
+            Ok(
+                json!({"id": r.get::<_,i64>(0)?, "name": r.get::<_,String>(1)?,
                        "status": r.get::<_,String>(2)?, "tasks_done": r.get::<_,i64>(3)?,
-                       "tasks_total": r.get::<_,i64>(4)?})),
+                       "tasks_total": r.get::<_,i64>(4)?}),
+            )
+        },
     ) {
         Ok(p) => p,
         Err(e) => return Json(json!({"error": e.to_string()})),
@@ -240,8 +195,11 @@ async fn handle_execution_tree(
         Err(e) => return Json(json!({"error": e.to_string()})),
     };
     let waves: Vec<serde_json::Value> = match wave_stmt.query_map(params![plan_id], |r| {
-        Ok((r.get::<_, i64>(0)?, json!({"id": r.get::<_,i64>(0)?, "wave_id": r.get::<_,String>(1)?,
-             "name": r.get::<_,String>(2)?, "status": r.get::<_,String>(3)?})))
+        Ok((
+            r.get::<_, i64>(0)?,
+            json!({"id": r.get::<_,i64>(0)?, "wave_id": r.get::<_,String>(1)?,
+             "name": r.get::<_,String>(2)?, "status": r.get::<_,String>(3)?}),
+        ))
     }) {
         Ok(rows) => rows.filter_map(|r| r.ok()).map(|(_, v)| v).collect(),
         Err(_) => vec![],

@@ -18,6 +18,7 @@ pub mod scaffold;
 pub mod scaffold_gen;
 pub mod scaffold_templates;
 pub mod schema;
+pub mod task_routes;
 pub mod types;
 pub mod validator;
 

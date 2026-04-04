@@ -37,9 +37,7 @@ pub fn mesh_routes(state: Arc<MeshState>) -> Router {
         .with_state(state)
 }
 
-async fn handle_status(
-    State(state): State<Arc<MeshState>>,
-) -> Json<serde_json::Value> {
+async fn handle_status(State(state): State<Arc<MeshState>>) -> Json<serde_json::Value> {
     let conn = match state.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"error": e.to_string()})),
@@ -65,9 +63,7 @@ async fn handle_status(
     }))
 }
 
-async fn handle_peers(
-    State(state): State<Arc<MeshState>>,
-) -> Json<serde_json::Value> {
+async fn handle_peers(State(state): State<Arc<MeshState>>) -> Json<serde_json::Value> {
     let conn = match state.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"error": e.to_string()})),
@@ -109,11 +105,7 @@ async fn handle_export(
         Ok(c) => c,
         Err(e) => return Json(json!({"error": e.to_string()})),
     };
-    match sync_apply::export_changes_since(
-        &conn,
-        &params.table,
-        params.since.as_deref(),
-    ) {
+    match sync_apply::export_changes_since(&conn, &params.table, params.since.as_deref()) {
         Ok(changes) => Json(json!({"changes": changes})),
         Err(e) => Json(json!({"error": e.to_string()})),
     }
@@ -133,9 +125,7 @@ async fn handle_import(
     }
 }
 
-async fn handle_sync_status(
-    State(state): State<Arc<MeshState>>,
-) -> Json<serde_json::Value> {
+async fn handle_sync_status(State(state): State<Arc<MeshState>>) -> Json<serde_json::Value> {
     let conn = match state.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"error": e.to_string()})),

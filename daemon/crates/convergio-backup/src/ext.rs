@@ -70,8 +70,7 @@ impl Extension for BackupExtension {
             pool: self.pool.clone(),
             db_path: data_dir.join("convergio.db"),
             backup_dir: crate::snapshot::backup_dir(&data_dir),
-            node_name: std::env::var("CONVERGIO_NODE_NAME")
-                .unwrap_or_else(|_| "local".into()),
+            node_name: std::env::var("CONVERGIO_NODE_NAME").unwrap_or_else(|_| "local".into()),
         });
         Some(crate::routes::router(state))
     }

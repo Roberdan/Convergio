@@ -63,9 +63,7 @@ async fn legacy_stream_handler(
     Sse::new(create_sse_stream(bus, q.agent_filter)).keep_alive(sse::KeepAlive::default())
 }
 
-async fn handle_status(
-    State(state): State<Arc<IpcState>>,
-) -> Json<serde_json::Value> {
+async fn handle_status(State(state): State<Arc<IpcState>>) -> Json<serde_json::Value> {
     let conn = match state.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(serde_json::json!({"error": e.to_string()})),
@@ -86,27 +84,21 @@ async fn handle_status(
     }))
 }
 
-async fn handle_agents(
-    State(state): State<Arc<IpcState>>,
-) -> Json<serde_json::Value> {
+async fn handle_agents(State(state): State<Arc<IpcState>>) -> Json<serde_json::Value> {
     match crate::agents::list(&state.pool) {
         Ok(agents) => Json(serde_json::json!(agents)),
         Err(e) => Json(serde_json::json!({"error": e.to_string()})),
     }
 }
 
-async fn handle_channels(
-    State(state): State<Arc<IpcState>>,
-) -> Json<serde_json::Value> {
+async fn handle_channels(State(state): State<Arc<IpcState>>) -> Json<serde_json::Value> {
     match crate::channels::list_channels(&state.pool) {
         Ok(ch) => Json(serde_json::json!(ch)),
         Err(e) => Json(serde_json::json!({"error": e.to_string()})),
     }
 }
 
-async fn handle_context(
-    State(state): State<Arc<IpcState>>,
-) -> Json<serde_json::Value> {
+async fn handle_context(State(state): State<Arc<IpcState>>) -> Json<serde_json::Value> {
     match crate::channels::context_list(&state.pool) {
         Ok(ctx) => Json(serde_json::json!(ctx)),
         Err(e) => Json(serde_json::json!({"error": e.to_string()})),
@@ -145,8 +137,7 @@ pub struct StreamQuery {
 async fn handle_stream(
     State(state): State<Arc<IpcState>>,
     Query(params): Query<StreamQuery>,
-) -> Sse<impl futures_core::Stream<Item = Result<sse::Event, std::convert::Infallible>>>
-{
+) -> Sse<impl futures_core::Stream<Item = Result<sse::Event, std::convert::Infallible>>> {
     Sse::new(create_sse_stream(
         Arc::clone(&state.event_bus),
         params.agent,
