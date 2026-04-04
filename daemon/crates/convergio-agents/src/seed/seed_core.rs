@@ -1,4 +1,4 @@
-//! Seed data: core_utility agents (19 agents).
+//! Seed data: core_utility agents (20 agents).
 
 use crate::types::{AgentCategory, AgentInput};
 
@@ -29,6 +29,12 @@ pub fn agents() -> Vec<AgentInput> {
             "thor",
             "Validation guardian — reviews all submitted work",
             "t4",
+            Some("ali-orchestrator"),
+        ),
+        a(
+            "convergio-pm",
+            "Convergio Project Manager — audits plans, tracks costs, extracts learnings, writes reports",
+            "t3",
             Some("ali-orchestrator"),
         ),
         a(
