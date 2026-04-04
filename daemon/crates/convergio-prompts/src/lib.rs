@@ -12,6 +12,7 @@ pub mod render;
 pub mod routes;
 pub mod schema;
 pub mod seed;
+pub mod seed_skills;
 pub mod skills;
 pub mod spawn;
 pub mod store;

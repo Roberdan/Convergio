@@ -111,6 +111,12 @@ impl Extension for PromptsExtension {
         if let Err(e) = crate::seed::run(&conn) {
             tracing::warn!("prompt seed failed: {e}");
         }
+        // Seed workflow skills (solve, planner, execute, etc.)
+        match crate::seed_skills::seed(&self.pool) {
+            Ok(n) if n > 0 => tracing::info!(inserted = n, "workflow skills seeded"),
+            Err(e) => tracing::warn!("skill seed failed: {e}"),
+            _ => {}
+        }
         tracing::info!("Prompts extension started");
         Ok(())
     }
