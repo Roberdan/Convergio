@@ -17,6 +17,8 @@ pub mod routes;
 pub mod scheduler;
 pub mod schema;
 pub mod scope;
+pub mod spawn_routes;
+pub mod spawner;
 pub mod types;
 
 pub use ext::AgentRuntimeExtension;
