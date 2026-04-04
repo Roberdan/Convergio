@@ -53,12 +53,35 @@ pub fn create_worktree(repo_root: &Path, name: &str) -> RuntimeResult<PathBuf> {
 }
 
 /// Write task instructions to a file the agent will read.
+/// Prepends delegation rules to save tokens.
 pub fn write_instructions(workspace: &Path, instructions: &str) -> RuntimeResult<PathBuf> {
     let path = workspace.join("TASK.md");
-    std::fs::write(&path, instructions)
+    let content = format!(
+        "{DELEGATION_HEADER}\n\n---\n\n{instructions}",
+        DELEGATION_HEADER = DELEGATION_HEADER
+    );
+    std::fs::write(&path, content)
         .map_err(|e| RuntimeError::Internal(format!("write TASK.md: {e}")))?;
     Ok(path)
 }
+
+const DELEGATION_HEADER: &str = "\
+# REGOLE OPERATIVE (leggere PRIMA di iniziare)
+
+## Risparmia token — DELEGA il lavoro meccanico
+Tu sei il COORDINATORE. Non scrivere codice meccanico direttamente.
+Per ogni task >50 righe che non richiede decisioni architetturali:
+```bash
+cd <worktree> && gh copilot --model claude-opus-4-6
+```
+Tu decidi COSA fare. Copilot fa il lavoro. Tu verifichi il risultato.
+
+## Regole
+- Leggi AGENTS.md per tutte le regole
+- Worktree isolato, max 250 righe/file
+- cargo check + test + fmt prima di commit
+- Loop chiuso: chi produce input? chi consuma output? l'utente lo vede?
+- NO squash merge (repo setting: solo merge commit)";
 
 /// Spawn the agent process in the workspace.
 /// `instruction_file` overrides the default "TASK.md" prompt target.
