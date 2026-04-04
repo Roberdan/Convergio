@@ -66,10 +66,7 @@ async fn has_evidence(
     ok(json!({"has_evidence": exists}))
 }
 
-async fn list_commits(
-    State(pool): State<ConnPool>,
-    Path(task_id): Path<i64>,
-) -> impl IntoResponse {
+async fn list_commits(State(pool): State<ConnPool>, Path(task_id): Path<i64>) -> impl IntoResponse {
     let conn = pool.get().map_err(|e| err(e))?;
     let commits = crate::evidence::list_commit_matches(&conn, task_id);
     ok(json!(commits))
@@ -93,7 +90,9 @@ async fn run_gates(
     let conn = pool.get().map_err(|e| err(e))?;
     match crate::gates::run_all_gates(&conn, task_id, &r.target_status) {
         Ok(()) => ok(json!({"passed": true})),
-        Err(violation) => Ok(Json(json!({"passed": false, "violation": format!("{violation:?}")}))),
+        Err(violation) => Ok(Json(
+            json!({"passed": false, "violation": format!("{violation:?}")}),
+        )),
     }
 }
 

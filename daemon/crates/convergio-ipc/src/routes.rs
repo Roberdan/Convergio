@@ -129,10 +129,7 @@ fn default_msg_type() -> String {
     "text".into()
 }
 
-async fn send_message(
-    State(st): State<IpcState>,
-    Json(r): Json<SendReq>,
-) -> impl IntoResponse {
+async fn send_message(State(st): State<IpcState>, Json(r): Json<SendReq>) -> impl IntoResponse {
     let params = crate::messaging::SendParams {
         from: &r.from,
         to: &r.to,
@@ -165,7 +162,12 @@ async fn receive_messages(
     Query(q): Query<RecvQuery>,
 ) -> impl IntoResponse {
     let msgs = crate::messaging::receive(
-        &st.pool, &q.agent, q.from.as_deref(), q.channel.as_deref(), q.limit, false,
+        &st.pool,
+        &q.agent,
+        q.from.as_deref(),
+        q.channel.as_deref(),
+        q.limit,
+        false,
     )
     .map_err(|e| err(e))?;
     ok(json!(msgs))
@@ -182,10 +184,13 @@ async fn get_skill_pool(State(st): State<IpcState>) -> impl IntoResponse {
 }
 
 #[derive(Deserialize)]
-struct BudgetQuery { subscription: String }
+struct BudgetQuery {
+    subscription: String,
+}
 
 async fn get_budget_status(
-    State(st): State<IpcState>, Query(q): Query<BudgetQuery>,
+    State(st): State<IpcState>,
+    Query(q): Query<BudgetQuery>,
 ) -> impl IntoResponse {
     let status = crate::budget::get_budget_status(&st.pool, &q.subscription).map_err(|e| err(e))?;
     ok(json!(status))
@@ -203,7 +208,9 @@ async fn list_models(State(st): State<IpcState>) -> impl IntoResponse {
 
 async fn ipc_status(State(st): State<IpcState>) -> impl IntoResponse {
     let agents = crate::agents::list(&st.pool).map_err(|e| err(e))?.len();
-    let channels = crate::channels::list_channels(&st.pool).map_err(|e| err(e))?.len();
+    let channels = crate::channels::list_channels(&st.pool)
+        .map_err(|e| err(e))?
+        .len();
     ok(json!({"agents": agents, "channels": channels}))
 }
 
@@ -216,7 +223,8 @@ struct SseFilter {
 }
 
 async fn sse_stream(
-    State(st): State<IpcState>, Query(q): Query<SseFilter>,
+    State(st): State<IpcState>,
+    Query(q): Query<SseFilter>,
 ) -> Sse<impl futures_core::Stream<Item = Result<Event, std::convert::Infallible>>> {
     let filter = q.agent.or(q.agent_filter);
     let stream = crate::sse::create_sse_stream(st.event_bus, filter);

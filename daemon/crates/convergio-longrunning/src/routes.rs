@@ -15,11 +15,20 @@ pub fn longrunning_routes(pool: ConnPool) -> Router {
         .route("/api/longrunning/heartbeat", post(register_heartbeat))
         .route("/api/longrunning/heartbeat/beat", post(beat))
         .route("/api/longrunning/heartbeat/stale", get(find_stale))
-        .route("/api/longrunning/checkpoint/{id}", get(load_checkpoint).post(save_checkpoint))
-        .route("/api/longrunning/checkpoint/{id}/clear", post(clear_checkpoint))
+        .route(
+            "/api/longrunning/checkpoint/{id}",
+            get(load_checkpoint).post(save_checkpoint),
+        )
+        .route(
+            "/api/longrunning/checkpoint/{id}/clear",
+            post(clear_checkpoint),
+        )
         .route("/api/longrunning/progress/{id}", get(load_progress))
         .route("/api/longrunning/delegation/{id}", get(delegation_tree))
-        .route("/api/longrunning/delegation/{id}/children", get(list_children))
+        .route(
+            "/api/longrunning/delegation/{id}/children",
+            get(list_children),
+        )
         .route("/api/longrunning/budget/{id}", get(budget_status))
         .with_state(pool)
 }
@@ -88,10 +97,7 @@ async fn clear_checkpoint(
     ok(json!({"cleared": cleared}))
 }
 
-async fn load_progress(
-    State(pool): State<ConnPool>,
-    Path(id): Path<String>,
-) -> impl IntoResponse {
+async fn load_progress(State(pool): State<ConnPool>, Path(id): Path<String>) -> impl IntoResponse {
     let conn = pool.get().map_err(|e| err(e))?;
     let snap = crate::progress::load(&conn, &id).map_err(|e| err(e))?;
     ok(json!(snap))
@@ -106,19 +112,13 @@ async fn delegation_tree(
     ok(json!(tree))
 }
 
-async fn list_children(
-    State(pool): State<ConnPool>,
-    Path(id): Path<String>,
-) -> impl IntoResponse {
+async fn list_children(State(pool): State<ConnPool>, Path(id): Path<String>) -> impl IntoResponse {
     let conn = pool.get().map_err(|e| err(e))?;
     let children = crate::delegation::list_children(&conn, &id).map_err(|e| err(e))?;
     ok(json!(children))
 }
 
-async fn budget_status(
-    State(pool): State<ConnPool>,
-    Path(id): Path<String>,
-) -> impl IntoResponse {
+async fn budget_status(State(pool): State<ConnPool>, Path(id): Path<String>) -> impl IntoResponse {
     let conn = pool.get().map_err(|e| err(e))?;
     let (spent, limit) = crate::budget::status(&conn, &id).map_err(|e| err(e))?;
     ok(json!({"spent_usd": spent, "limit_usd": limit}))

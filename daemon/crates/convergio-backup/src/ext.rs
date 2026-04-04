@@ -25,8 +25,7 @@ impl BackupExtension {
             pool,
             db_path: base.join("convergio.db"),
             backup_dir: base.join("backups"),
-            node_name: std::env::var("CONVERGIO_NODE_NAME")
-                .unwrap_or_else(|_| "local".into()),
+            node_name: std::env::var("CONVERGIO_NODE_NAME").unwrap_or_else(|_| "local".into()),
         }
     }
 

@@ -25,8 +25,13 @@ pub fn voice_routes(state: VoiceState) -> Router {
         .with_state(state)
 }
 
-async fn voice_status(axum::extract::State(st): axum::extract::State<VoiceState>) -> impl IntoResponse {
-    let backend = st.tts.lock().map(|e| e.backend().display_name().to_string())
+async fn voice_status(
+    axum::extract::State(st): axum::extract::State<VoiceState>,
+) -> impl IntoResponse {
+    let backend = st
+        .tts
+        .lock()
+        .map(|e| e.backend().display_name().to_string())
         .unwrap_or_else(|_| "unknown".into());
     ok(json!({"status": "ok", "tts_backend": backend}))
 }
@@ -46,17 +51,13 @@ async fn speak(
     axum::extract::State(st): axum::extract::State<VoiceState>,
     Json(r): Json<SpeakReq>,
 ) -> impl IntoResponse {
-    let result = st.tts.lock()
+    let result = st
+        .tts
+        .lock()
         .map_err(|e| err(e))
-        .and_then(|mut engine| {
-            engine.speak(&r.text, &r.locale).map_err(|e| err(e))
-        });
+        .and_then(|mut engine| engine.speak(&r.text, &r.locale).map_err(|e| err(e)));
     match result {
-        Ok(audio) => Ok((
-            StatusCode::OK,
-            [("content-type", "audio/wav")],
-            audio,
-        )),
+        Ok(audio) => Ok((StatusCode::OK, [("content-type", "audio/wav")], audio)),
         Err(e) => Err(e),
     }
 }
