@@ -1517,6 +1517,50 @@ Solo quando Thor approva → piano va in `done`.
 - [ ] Se Thor trova > 3 problemi critici → piano bloccato, notifica Roberto
 - [ ] Test: crea piano incompleto (senza test E2E) → Thor lo rifiuta
 
+### Fase 32e: Agent context API — contesto live dal DB, non file statici
+
+**Obiettivo**: Gli agenti ricevono contesto dal daemon via API, non da un file .md scritto una volta.
+**Motivazione**: Oggi il daemon scrive TASK.md al momento dello spawn con istruzioni inline.
+Il file è frozen — se il piano cambia, i learnings si aggiornano, o un altro agente scopre qualcosa,
+l'agente in corso non lo sa. Roberto: "non sarebbe meglio che leggessero direttamente dal DB?"
+**Committente**: Roberto
+**Deps**: Fase 32b (lifecycle wiring), Fase 24 (tracking tables)
+
+#### Approccio: file base + API live
+Il file .md resta come fallback (se il daemon è down, l'agente ha comunque le istruzioni).
+Ma l'agente chiama l'API per il contesto fresco:
+
+```
+GET /api/agents/context/:agent_id → {
+  task: { id, title, description, acceptance_criteria, status },
+  plan: { id, name, objective, status, waves, all_tasks_with_status },
+  learnings: [ relevant learnings for this task type ],
+  rules: [ operative rules from prompt registry ],
+  org: { id, budget_remaining, colleagues, escalation_target },
+  previous_results: [ output dei task precedenti nella stessa wave ],
+  budget: { allocated, spent, remaining },
+  warnings: [ "altro agente ha fallito su task simile", "budget al 80%" ]
+}
+```
+
+#### Vantaggi vs file statico
+| | File .md | API /context |
+|---|---|---|
+| Contesto | Frozen al momento spawn | Sempre fresco |
+| Learnings | Solo quelli noti allo spawn | Cumulativi in tempo reale |
+| Budget | Fisso | Live (può avvisare "stai sforando") |
+| Piano status | Non visibile | Vede chi ha finito cosa |
+| Fallback se daemon down | ✅ funziona | ❌ non disponibile |
+
+#### Task
+- [ ] API: `GET /api/agents/context/:agent_id` — assembla contesto completo dal DB
+- [ ] Il TASK.md scritto dallo spawner include: `curl http://localhost:8420/api/agents/context/$CONVERGIO_AGENT_ID` come prima istruzione
+- [ ] L'agente al primo turno chiama l'API context e usa la risposta come contesto operativo
+- [ ] L'API context include learnings filtrati per tipo di task (se task è "mesh sync", include learnings su mesh)
+- [ ] L'API context include risultati dei task precedenti nella stessa wave (così l'agente sa cosa è già stato fatto)
+- [ ] L'API context include warnings: budget basso, task simili falliti, agenti colleghi attivi
+- [ ] Test: spawna agente → verifica che /api/agents/context ritorna dati completi
+
 ### Fase 23e: Depgraph wiring in main.rs
 
 **Obiettivo**: Registrare DepgraphExtension in main.rs con i manifest di tutte le extension.
@@ -2075,6 +2119,7 @@ Requisiti per l'auto-organizzazione:
 | **6. Learning** | ❌ | Manuale, non automatico | future |
 
 **Fase 32b è il FIX per i buchi 3f→5. È la priorità assoluta.**
+**Fase 32e completa il quadro: contesto live dal DB, non file statici.**
 
 ### Come viene letta la constitution
 - **CLAUDE.md** nei repo (backend + frontend): caricato automaticamente ad ogni sessione Claude.
