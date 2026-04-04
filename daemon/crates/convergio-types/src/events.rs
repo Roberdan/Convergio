@@ -100,3 +100,23 @@ pub struct EventFilter {
     /// Only events from this actor.
     pub actor: Option<String>,
 }
+
+/// Trait for publishing domain events. Implemented by the IPC EventBus.
+/// Extensions retrieve `Arc<dyn DomainEventSink>` from AppContext to emit events.
+pub trait DomainEventSink: Send + Sync {
+    fn emit(&self, event: DomainEvent);
+}
+
+/// Helper: create and emit a simple domain event.
+pub fn make_event(actor_name: &str, kind: EventKind, context: EventContext) -> DomainEvent {
+    DomainEvent {
+        actor: ActorName {
+            name: actor_name.to_string(),
+            org: None,
+            node: None,
+        },
+        kind,
+        timestamp: Utc::now(),
+        context,
+    }
+}

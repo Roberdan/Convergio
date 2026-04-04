@@ -19,9 +19,11 @@ use serde::Deserialize;
 use serde_json::json;
 
 use convergio_db::pool::ConnPool;
+use convergio_types::events::DomainEventSink;
 
 pub struct PlanState {
     pub pool: ConnPool,
+    pub event_sink: Option<Arc<dyn DomainEventSink>>,
 }
 
 pub fn plan_routes(state: Arc<PlanState>) -> Router {
@@ -122,6 +124,19 @@ async fn handle_create(
     ) {
         Ok(_) => {
             let id = conn.last_insert_rowid();
+            if let Some(ref sink) = state.event_sink {
+                sink.emit(convergio_types::events::make_event(
+                    "orchestrator",
+                    convergio_types::events::EventKind::PlanCreated {
+                        plan_id: id,
+                        name: body.name.clone(),
+                    },
+                    convergio_types::events::EventContext {
+                        plan_id: Some(id),
+                        ..Default::default()
+                    },
+                ));
+            }
             Json(json!({"id": id, "status": "created"}))
         }
         Err(e) => Json(json!({"error": e.to_string()})),

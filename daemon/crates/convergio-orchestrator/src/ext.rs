@@ -59,9 +59,11 @@ impl Extension for OrchestratorExtension {
         m
     }
 
-    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+    fn routes(&self, ctx: &AppContext) -> Option<axum::Router> {
+        let sink = ctx.get_arc::<Arc<dyn convergio_types::events::DomainEventSink>>();
         let state = Arc::new(crate::plan_routes::PlanState {
             pool: self.pool.clone(),
+            event_sink: sink.map(|s| (*s).clone()),
         });
         let router = crate::scaffold::scaffold_routes()
             .merge(crate::plan_routes::plan_routes(Arc::clone(&state)))
