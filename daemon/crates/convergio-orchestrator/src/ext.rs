@@ -77,7 +77,8 @@ impl Extension for OrchestratorExtension {
             .merge(crate::aggregation_routes::aggregation_routes(
                 self.pool.clone(),
             ))
-            .merge(crate::artifact_routes::artifact_routes(self.pool.clone()));
+            .merge(crate::artifact_routes::artifact_routes(self.pool.clone()))
+            .merge(crate::bundle_routes::bundle_routes(self.pool.clone()));
         Some(router)
     }
 

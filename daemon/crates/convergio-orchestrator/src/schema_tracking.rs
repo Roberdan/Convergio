@@ -113,6 +113,36 @@ pub fn tracking_migrations() -> Vec<Migration> {
                  CREATE INDEX IF NOT EXISTS idx_artifacts_plan ON artifacts(plan_id);\
                  CREATE INDEX IF NOT EXISTS idx_artifacts_type ON artifacts(artifact_type);",
         },
+        Migration {
+            version: 9,
+            description: "artifact metadata: mime_type and content_hash",
+            up: "ALTER TABLE artifacts ADD COLUMN mime_type TEXT \
+                     DEFAULT 'application/octet-stream';\
+                 ALTER TABLE artifacts ADD COLUMN content_hash TEXT;",
+        },
+        Migration {
+            version: 10,
+            description: "artifact bundles for grouped deliverables",
+            up: "CREATE TABLE IF NOT EXISTS artifact_bundles (\
+                     id           INTEGER PRIMARY KEY AUTOINCREMENT,\
+                     plan_id      INTEGER NOT NULL,\
+                     name         TEXT NOT NULL,\
+                     bundle_type  TEXT NOT NULL DEFAULT 'deliverable',\
+                     status       TEXT NOT NULL DEFAULT 'draft',\
+                     created_at   TEXT NOT NULL DEFAULT (datetime('now')),\
+                     published_at TEXT\
+                 );\
+                 CREATE TABLE IF NOT EXISTS bundle_artifacts (\
+                     bundle_id   INTEGER NOT NULL,\
+                     artifact_id INTEGER NOT NULL,\
+                     added_at    TEXT NOT NULL DEFAULT (datetime('now')),\
+                     PRIMARY KEY (bundle_id, artifact_id)\
+                 );\
+                 CREATE INDEX IF NOT EXISTS idx_bundles_plan \
+                     ON artifact_bundles(plan_id);\
+                 CREATE INDEX IF NOT EXISTS idx_bundles_status \
+                     ON artifact_bundles(status);",
+        },
     ]
 }
 
@@ -132,6 +162,6 @@ mod tests {
         let tracking = tracking_migrations();
         let applied =
             convergio_db::migration::apply_migrations(&conn, "orchestrator", &tracking).unwrap();
-        assert_eq!(applied, 5);
+        assert_eq!(applied, 7);
     }
 }
