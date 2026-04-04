@@ -1,7 +1,4 @@
-//! Convergio daemon — collects extensions, starts the server.
-//!
-//! This binary wires all extensions together and launches the daemon.
-//! Business logic lives in the crates; this is just the entry point.
+//! Convergio daemon — wires extensions together and launches the server.
 
 use convergio_db::pool::{create_pool, ConnPool};
 use convergio_server::config_watcher::spawn_config_watcher;
@@ -47,6 +44,9 @@ fn register_extensions(
         )),
         Arc::new(convergio_http_bridge::HttpBridgeExtension::new()),
         // Platform tools
+        Arc::new(convergio_file_transport::FileTransportExtension::new(
+            pool.clone(),
+        )),
         Arc::new(convergio_longrunning::LongRunningExtension::new(
             pool.clone(),
         )),
