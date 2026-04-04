@@ -53,6 +53,10 @@ impl Extension for EvidenceExtension {
         crate::schema::migrations()
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        Some(crate::routes::evidence_routes(self.pool.clone()))
+    }
+
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
         tracing::info!("evidence: starting workflow monitor");
         crate::workflow::spawn_workflow_monitor(self.pool.clone());

@@ -131,6 +131,10 @@ impl Extension for MeshExtension {
         }
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        Some(crate::routes::mesh_routes(self.pool.clone()))
+    }
+
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
         tracing::info!("Mesh extension started");
         Ok(())

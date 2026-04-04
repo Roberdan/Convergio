@@ -130,6 +130,16 @@ impl Extension for IpcExtension {
         }
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        let state = crate::routes::IpcState {
+            pool: self.pool.clone(),
+            notify: self.notify.clone(),
+            event_bus: self.event_bus.clone(),
+            rate_limit: self.rate_limit,
+        };
+        Some(crate::routes::ipc_routes(state))
+    }
+
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
         tracing::info!("IPC extension started");
         Ok(())

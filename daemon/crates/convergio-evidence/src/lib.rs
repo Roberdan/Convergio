@@ -8,6 +8,7 @@ pub mod evidence;
 pub mod ext;
 pub mod gates;
 pub mod preflight;
+pub mod routes;
 pub mod schema;
 pub mod types;
 pub mod workflow;

@@ -1,5 +1,8 @@
 //! BackupExtension — impl Extension for the backup module.
 
+use std::path::PathBuf;
+use std::sync::Arc;
+
 use convergio_db::pool::ConnPool;
 use convergio_types::extension::{
     AppContext, ExtResult, Extension, Health, Metric, Migration, ScheduledTask,
@@ -9,22 +12,47 @@ use convergio_types::manifest::{Capability, Manifest, ModuleKind};
 /// The Extension entry point for data retention, backup & disaster recovery.
 pub struct BackupExtension {
     pool: ConnPool,
+    db_path: PathBuf,
+    backup_dir: PathBuf,
+    node_name: String,
 }
 
 impl BackupExtension {
     pub fn new(pool: ConnPool) -> Self {
-        Self { pool }
+        let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+        let base = home.join(".convergio");
+        Self {
+            pool,
+            db_path: base.join("convergio.db"),
+            backup_dir: base.join("backups"),
+            node_name: std::env::var("CONVERGIO_NODE_NAME")
+                .unwrap_or_else(|_| "local".into()),
+        }
     }
 
     pub fn pool(&self) -> &ConnPool {
         &self.pool
+    }
+
+    fn state(&self) -> Arc<crate::routes::BackupState> {
+        Arc::new(crate::routes::BackupState {
+            pool: self.pool.clone(),
+            db_path: self.db_path.clone(),
+            backup_dir: self.backup_dir.clone(),
+            node_name: self.node_name.clone(),
+        })
     }
 }
 
 impl Default for BackupExtension {
     fn default() -> Self {
         let pool = convergio_db::pool::create_memory_pool().expect("in-memory pool for default");
-        Self { pool }
+        Self {
+            pool,
+            db_path: PathBuf::from(":memory:"),
+            backup_dir: PathBuf::from("/tmp/convergio-backup-test"),
+            node_name: "test".into(),
+        }
     }
 }
 
@@ -66,6 +94,10 @@ impl Extension for BackupExtension {
 
     fn migrations(&self) -> Vec<Migration> {
         crate::schema::migrations()
+    }
+
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        Some(crate::routes::router(self.state()))
     }
 
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {

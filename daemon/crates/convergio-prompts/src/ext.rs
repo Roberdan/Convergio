@@ -102,6 +102,10 @@ impl Extension for PromptsExtension {
         metrics
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        Some(crate::routes::routes(self.pool.clone()))
+    }
+
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
         let conn = self.pool.get().map_err(|e| e.to_string())?;
         if let Err(e) = crate::seed::run(&conn) {

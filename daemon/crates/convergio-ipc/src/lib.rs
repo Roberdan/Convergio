@@ -9,6 +9,7 @@ pub mod ext;
 pub mod locks;
 pub mod messaging;
 pub mod models;
+pub mod routes;
 pub mod schema;
 pub mod skills;
 pub mod sse;

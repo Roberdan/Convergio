@@ -429,6 +429,7 @@ dependencies = [
  "convergio-security",
  "convergio-telemetry",
  "convergio-types",
+ "dirs 6.0.0",
  "r2d2",
  "rusqlite",
  "serde",
@@ -508,6 +509,7 @@ dependencies = [
  "convergio-telemetry",
  "convergio-types",
  "convergio-voice",
+ "dirs 6.0.0",
  "tokio",
  "tracing",
 ]
@@ -543,6 +545,7 @@ dependencies = [
 name = "convergio-evidence"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "chrono",
  "convergio-db",
  "convergio-orchestrator",
@@ -638,6 +641,7 @@ dependencies = [
 name = "convergio-longrunning"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "chrono",
  "convergio-db",
  "convergio-ipc",
@@ -668,6 +672,7 @@ dependencies = [
 name = "convergio-mesh"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "base64",
  "chrono",
  "convergio-db",
@@ -861,6 +866,7 @@ dependencies = [
 name = "convergio-voice"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "convergio-telemetry",
  "convergio-types",
  "dirs 6.0.0",

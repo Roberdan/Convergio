@@ -70,6 +70,10 @@ impl Extension for LongRunningExtension {
         crate::schema::migrations()
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        Some(crate::routes::longrunning_routes(self.pool.clone()))
+    }
+
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
         tracing::info!("longrunning: starting heartbeat reaper");
         let reaper_interval = Duration::from_secs(60);

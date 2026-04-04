@@ -12,6 +12,7 @@ pub mod ext;
 pub mod heartbeat;
 pub mod progress;
 pub mod reaper;
+pub mod routes;
 pub mod schema;
 pub mod traits;
 pub mod types;

@@ -11,6 +11,7 @@ pub mod ext;
 pub mod peers_parser;
 pub mod peers_registry;
 pub mod peers_types;
+pub mod routes;
 pub mod schema;
 pub mod sync;
 pub mod sync_apply;

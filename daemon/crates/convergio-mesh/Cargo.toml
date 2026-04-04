@@ -22,6 +22,7 @@ hmac = { workspace = true }
 sha2 = { workspace = true }
 rand = { workspace = true }
 rusqlite = { workspace = true }
+axum = { workspace = true }
 hex = "0.4"
 hostname = "0.4"
 
