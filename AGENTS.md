@@ -88,6 +88,21 @@ If the user can't see the result, it's not done.
 - NEVER re-read files already read in this session
 - NEVER bypass hooks, tests, or gates without explicit user approval
 
+### Merge protocol (CRITICAL — parallel agents)
+Multiple agents may work in parallel. Merging without coordination causes:
+- Conflicts that nobody resolves
+- Squash merges that lose work from other branches
+- WORKSPACE-SPLIT.md overwritten with stale version
+
+**Rules:**
+1. **NEVER merge with --admin if other PRs are open on the same files** — wait or coordinate
+2. **Squash merge DISABLED at repo level** — only merge commits allowed (preserves history)
+3. **Check open PRs before merging**: `gh pr list` — if another agent has a PR, check for conflicts first
+4. **Shared files** (WORKSPACE-SPLIT.md, main.rs, Cargo.lock) require sequential merge, not parallel
+5. **Code files** in different crates CAN merge in parallel (no overlap)
+6. **If conflict**: pull main, rebase your branch, resolve, push —force-with-lease (not --force)
+7. **The daemon should enforce this**: future Fase — POST /api/merge/request that queues merges and prevents conflicts
+
 ### Key learnings (from real incidents — read these)
 - Unit tests green ≠ system works (#13). Always test E2E.
 - Automated orchestrators produce hollow crates (#14). Verify routes() returns Some.
@@ -95,6 +110,7 @@ If the user can't see the result, it's not done.
 - Agents don't update plan status (#19). The monitor MUST close the loop.
 - `claude -p` with long prompts hangs (#7). Use short prompt + file.
 - launchd has minimal PATH (#19-20). Use absolute paths for binaries.
+- Parallel agents merging same files lose work (#23). Sequential merge for shared files.
 
 Full learnings list in WORKSPACE-SPLIT.md.
 
