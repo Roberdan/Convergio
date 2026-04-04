@@ -207,6 +207,31 @@ async fn handle_start(
     State(s): State<Arc<PlanState>>,
     Path(id): Path<i64>,
 ) -> Json<serde_json::Value> {
+    let conn = match s.pool.get() {
+        Ok(c) => c,
+        Err(e) => return Json(json!({"error": e.to_string()})),
+    };
+    // StartGate: must have at least 1 task
+    if let Err(e) = crate::gates::start_gate(&conn, id) {
+        return Json(json!({"error": format!("gate blocked: {e}"), "gate": e.gate}));
+    }
+    // Thor pre-review: check plan_metadata.report_json has a passing pre_review
+    let has_review: bool = conn
+        .query_row(
+            "SELECT EXISTS(SELECT 1 FROM plan_metadata WHERE plan_id = ?1 \
+             AND report_json LIKE '%\"verdict\":\"pass\"%' \
+             AND report_json LIKE '%pre_review%')",
+            params![id],
+            |r| r.get(0),
+        )
+        .unwrap_or(false);
+    if !has_review {
+        return Json(json!({
+            "error": "Thor pre-review required. Call POST /api/plan-db/review first.",
+            "gate": "ThorPreReview"
+        }));
+    }
+    drop(conn);
     Json(set_plan_status(&s.pool, id, "in_progress"))
 }
 
