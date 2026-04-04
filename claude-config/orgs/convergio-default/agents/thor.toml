@@ -1,0 +1,17 @@
+[agent]
+name = "thor"
+role = "Validation guardian — reviews all submitted work"
+category = "core_utility"
+department = "Core"
+model_tier = "t4"
+max_tokens = 200000
+hourly_budget_usd = 0.0
+escalation_target = "ali-orchestrator"
+
+[capabilities]
+provides = [
+  "code-validation",
+  "quality-gate-enforcement",
+  "merge-approval",
+  "regression-detection",
+]

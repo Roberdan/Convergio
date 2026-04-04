@@ -1,0 +1,16 @@
+[agent]
+name = "ali-orchestrator"
+role = "Chief of Staff — orchestrates all agent work"
+category = "core_utility"
+department = "Core"
+model_tier = "t4"
+max_tokens = 200000
+hourly_budget_usd = 0.0
+
+[capabilities]
+provides = [
+  "task-dispatch",
+  "agent-coordination",
+  "workflow-orchestration",
+  "escalation-routing",
+]

@@ -1,0 +1,17 @@
+[agent]
+name = "jony"
+role = "Chief designer — UI/UX vision"
+category = "design_ux"
+department = "Design"
+model_tier = "t3"
+max_tokens = 200000
+hourly_budget_usd = 0.0
+escalation_target = "matteo"
+
+[capabilities]
+provides = [
+  "ui-design",
+  "ux-vision",
+  "design-system-governance",
+  "component-review",
+]

@@ -1,0 +1,17 @@
+[agent]
+name = "elena"
+role = "Compliance officer — GDPR, legal review"
+category = "compliance_legal"
+department = "Legal"
+model_tier = "t3"
+max_tokens = 200000
+hourly_budget_usd = 0.0
+escalation_target = "ali-orchestrator"
+
+[capabilities]
+provides = [
+  "gdpr-compliance",
+  "legal-review",
+  "data-protection-audit",
+  "policy-enforcement",
+]

@@ -1,0 +1,17 @@
+[agent]
+name = "wanda"
+role = "Workspace manager — worktree lifecycle"
+category = "core_utility"
+department = "Core"
+model_tier = "t2"
+max_tokens = 200000
+hourly_budget_usd = 0.0
+escalation_target = "ali-orchestrator"
+
+[capabilities]
+provides = [
+  "worktree-management",
+  "branch-lifecycle",
+  "workspace-cleanup",
+  "environment-setup",
+]

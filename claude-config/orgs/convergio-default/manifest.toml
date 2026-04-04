@@ -1,0 +1,16 @@
+[package]
+name = "convergio-default"
+version = "1.0.0"
+description = "Default Convergio organization with 69 agents across 9 categories"
+author = "Roberto D'Angelo"
+
+[categories]
+core_utility = { label = "Core Utility", agent_count = 20 }
+technical_development = { label = "Technical Development", agent_count = 10 }
+business_operations = { label = "Business Operations", agent_count = 10 }
+leadership_strategy = { label = "Leadership & Strategy", agent_count = 7 }
+compliance_legal = { label = "Compliance & Legal", agent_count = 5 }
+specialized_experts = { label = "Specialized Experts", agent_count = 7 }
+design_ux = { label = "Design & UX", agent_count = 4 }
+release_management = { label = "Release Management", agent_count = 5 }
+research_report = { label = "Research & Reports", agent_count = 1 }
