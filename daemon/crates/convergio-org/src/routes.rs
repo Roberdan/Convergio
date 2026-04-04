@@ -9,6 +9,7 @@
 //! - GET    /api/orgs/:id/orgchart         — render orgchart
 //! - POST   /api/notify                    — queue notification
 //! - GET    /api/notify/queue              — list pending notifications
+//! - POST   /api/notify/telegram/test      — send test notification to Telegram
 //! - POST   /api/decisions                 — log decision
 //! - GET    /api/decisions                 — query decisions
 
@@ -35,6 +36,7 @@ pub fn org_routes(state: Arc<OrgState>) -> Router {
         .route("/api/orgs/:id/orgchart", get(get_orgchart))
         .route("/api/notify", post(queue_notification))
         .route("/api/notify/queue", get(list_notifications))
+        .route("/api/notify/telegram/test", post(test_telegram))
         .route("/api/decisions", post(log_decision).get(query_decisions))
         .with_state(state)
 }
@@ -206,4 +208,13 @@ async fn query_decisions(
     Query(q): Query<DecisionQuery>,
 ) -> Json<Value> {
     crate::routes_decisions::query(&s.pool, q)
+}
+
+// --- Telegram notifications ---
+
+async fn test_telegram(
+    State(s): State<Arc<OrgState>>,
+    Json(body): Json<crate::routes_notify::TelegramTestBody>,
+) -> Json<Value> {
+    crate::routes_notify::test_telegram(&s.pool, body).await
 }
