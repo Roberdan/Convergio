@@ -1,14 +1,186 @@
 {
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(cargo check*)",
+      "Bash(cargo test*)",
+      "Bash(cargo build*)",
+      "Bash(cargo clippy*)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Bash(git rev-parse*)",
+      "Bash(git worktree*)",
+      "Bash(curl http://localhost*)",
+      "Bash(curl -sf http://localhost*)",
+      "Bash(cvg *)",
+      "Bash(~/.local/bin/cvg *)",
+      "Bash(ls *)",
+      "Bash(wc *)",
+      "Bash(gh auth status*)",
+      "Bash(gh pr *)",
+      "Bash(tailscale status*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(git checkout -- *)",
+      "Bash(git clean -f*)",
+      "Bash(sqlite3 *)",
+      "Bash(*credentials*)",
+      "Bash(*.env *)",
+      "Bash(*secrets*)"
+    ]
+  },
   "hooks": {
-    "PostToolUse": [
+    "PreToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "cd /Users/Roberdan/GitHub/convergio/daemon && CHANGED=\"$CLAUDE_TOOL_ARG_FILE_PATH\" && case \"$CHANGED\" in *.rs) CRATE=$(echo \"$CHANGED\" | sed -n 's|.*/crates/\\([^/]*\\)/.*|\\1|p') && if [ -n \"$CRATE\" ]; then cargo clippy -p \"$CRATE\" -- -D warnings 2>&1; else cargo clippy --workspace -- -D warnings 2>&1; fi ;; esac",
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); cat | \"$ROOT/scripts/hooks/pre-tool-guard.sh\" bash",
+            "timeout": 10,
+            "statusMessage": "Pre-tool guard (bash)"
+          },
+          {
+            "type": "command",
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); cat | \"$ROOT/scripts/hooks/block-branch-creation.sh\"",
+            "timeout": 5,
+            "statusMessage": "Block branch creation"
+          },
+          {
+            "type": "command",
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); cat | \"$ROOT/scripts/hooks/thor-gate-guard.sh\"",
+            "timeout": 5,
+            "statusMessage": "ThorGateGuard"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); cat | \"$ROOT/scripts/hooks/pre-tool-guard.sh\" edit",
+            "timeout": 10,
+            "statusMessage": "Pre-tool guard (edit)"
+          },
+          {
+            "type": "command",
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); cat | \"$ROOT/scripts/hooks/main-guard.sh\"",
+            "timeout": 5,
+            "statusMessage": "MainGuard"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); cat | \"$ROOT/scripts/hooks/main-guard.sh\"",
+            "timeout": 5,
+            "statusMessage": "MainGuard"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r '.file_path // empty' 2>/dev/null); if [ -n \"$FILE\" ] && [ -f \"$FILE\" ]; then LINES=$(wc -l < \"$FILE\"); if [ \"$LINES\" -gt 250 ]; then echo \"BLOCKED: FileSizeGuard — $FILE has $LINES lines (max 250). Split this file.\" >&2; exit 2; fi; fi",
+            "timeout": 5,
+            "statusMessage": "FileSizeGuard"
+          },
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r '.file_path // empty' 2>/dev/null); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -qE 'daemon/src/.*\\.rs$'; then ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); OUTPUT=$(\"$ROOT/scripts/hooks/check-rust-wiring.sh\" 2>&1) || echo \"$OUTPUT\" >&2; fi",
+            "timeout": 15,
+            "statusMessage": "Rust module wiring check"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r '.file_path // empty' 2>/dev/null); if [ -n \"$FILE\" ] && [ -f \"$FILE\" ]; then LINES=$(wc -l < \"$FILE\"); if [ \"$LINES\" -gt 250 ]; then echo \"BLOCKED: FileSizeGuard — $FILE has $LINES lines (max 250). Split this file.\" >&2; exit 2; fi; fi",
+            "timeout": 5,
+            "statusMessage": "FileSizeGuard"
+          },
+          {
+            "type": "command",
+            "command": "cd $(git rev-parse --show-toplevel 2>/dev/null || echo '.')/daemon && CHANGED=$(cat | jq -r '.file_path // empty' 2>/dev/null) && case \"$CHANGED\" in *.rs) if [ \"$(git rev-parse --is-inside-work-tree 2>/dev/null)\" = 'true' ]; then _wt=$(git rev-parse --show-toplevel 2>/dev/null); _main=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null | sed 's|/\\.git$||'); if [ -n \"$_main\" ] && [ \"$_wt\" != \"$_main\" ]; then export CARGO_TARGET_DIR=\"/tmp/convergio-target-$(basename \"$_wt\")\"; fi; fi; CRATE=$(echo \"$CHANGED\" | sed -n 's|.*/crates/\\([^/]*\\)/.*|\\1|p'); if [ -n \"$CRATE\" ]; then cargo clippy -p \"$CRATE\" -- -D warnings 2>&1; else cargo clippy --workspace -- -D warnings 2>&1; fi ;; esac",
             "timeout": 30,
+            "statusMessage": "Rust clippy check",
             "blocking": true
+          },
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r '.file_path // empty' 2>/dev/null); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -qE 'daemon/src/.*\\.rs$'; then ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); OUTPUT=$(\"$ROOT/scripts/hooks/check-rust-wiring.sh\" 2>&1) || echo \"$OUTPUT\" >&2; fi",
+            "timeout": 15,
+            "statusMessage": "Rust module wiring check"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "AGENT=\"${CONVERGIO_AGENT_NAME:-}\"; [ -z \"$AGENT\" ] && exit 0; API=\"${CONVERGIO_API_URL:-http://localhost:8420}\"; JSON=$(curl -sf \"$API/api/ipc/messages?to_agent=$AGENT&limit=5\" 2>/dev/null || true); [ -z \"$JSON\" ] && exit 0; COUNT=$(echo \"$JSON\" | python3 -c \"import sys,json; msgs=json.load(sys.stdin).get('messages',[]); unread=[m for m in msgs if not m.get('read_at')]; print(len(unread))\" 2>/dev/null || echo 0); [ \"${COUNT:-0}\" -gt 0 ] && echo \"INBOX: $COUNT message(s) for $AGENT. Read: cvg bus read $AGENT\" >&2; exit 0"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); \"$ROOT/scripts/hooks/main-dirty-check.sh\"",
+            "timeout": 5,
+            "statusMessage": "Main repo dirty check"
+          },
+          {
+            "type": "command",
+            "command": "FAIL=0; gh auth status >/dev/null 2>&1 || { echo '{\"systemMessage\":\"PRE-FLIGHT FAIL: gh auth expired. Run: gh auth login\"}'; FAIL=1; }; command -v cvg >/dev/null 2>&1 || { echo '{\"systemMessage\":\"PRE-FLIGHT FAIL: cvg not in PATH\"}'; FAIL=1; }; curl -sf http://localhost:8420/api/health >/dev/null 2>&1 || echo '{\"systemMessage\":\"PRE-FLIGHT WARN: daemon not running on :8420\"}'; [ -z \"${CONVERGIO_AGENT_NAME:-}\" ] && echo '{\"systemMessage\":\"WARNING: AgentIdentity — CONVERGIO_AGENT_NAME not set. Run: cvg agent start <name>\"}'; exit 0",
+            "timeout": 10,
+            "statusMessage": "Pre-flight checks"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); cat | \"$ROOT/scripts/hooks/subagent-completion-gate.sh\"",
+            "timeout": 15,
+            "statusMessage": "Subagent completion gate"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo '.'); \"$ROOT/scripts/hooks/pre-compaction-snapshot.sh\"",
+            "timeout": 10
           }
         ]
       }
