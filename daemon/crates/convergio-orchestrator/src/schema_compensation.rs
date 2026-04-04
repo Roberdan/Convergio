@@ -38,13 +38,22 @@ mod tests {
         let pool = convergio_db::pool::create_memory_pool().unwrap();
         let conn = pool.get().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
-        let base = crate::schema::migrations();
-        convergio_db::migration::apply_migrations(&conn, "orchestrator", &base).unwrap();
-        let tracking = crate::schema_tracking::tracking_migrations();
-        convergio_db::migration::apply_migrations(&conn, "orchestrator", &tracking).unwrap();
-        let comp = compensation_migrations();
+        // Apply all migrations sorted by version (same as production ext.migrations())
+        let mut all = crate::schema::migrations();
+        all.extend(crate::schema_tracking::tracking_migrations());
+        all.extend(compensation_migrations());
+        all.sort_by_key(|m| m.version);
         let applied =
-            convergio_db::migration::apply_migrations(&conn, "orchestrator", &comp).unwrap();
-        assert_eq!(applied, 1);
+            convergio_db::migration::apply_migrations(&conn, "orchestrator", &all).unwrap();
+        assert!(applied >= 1, "at least one migration should apply");
+        // Verify compensation table exists
+        let count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='compensation_actions'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 1);
     }
 }
