@@ -2655,3 +2655,69 @@ Memory: ~/.claude/projects/.../memory/project_workspace_split_vision.md
 11. Aggiornato convergio.yaml (rimosso /preview), maranello.yaml (nav completa con 12 categorie)
 12. Fix guide docs: adding-a-theme.md paths corretti, aggiunto step Cmd-K
 13. Stato finale: main pulito, CI verde, 0 lint errors, 58 E2E ✅, 96 unit ✅
+
+---
+
+## Architecture Review — 04 Aprile 2026 (feedback esterno)
+
+### Giudizio
+> Dal codice Convergio non è fuori strada; ha una base forte e rara.
+> Però il centro di gravità reale oggi è:
+> **daemon modulare + worktree runtime + DB/SSE observability + automazioni**
+> non ancora:
+> **sistema distribuito che pianifica/esegue/valida/sincronizza/chiude il loop da solo.**
+
+### Cosa è vero nel codice (verificato)
+1. Architettura plugin-based reale (Extension, Manifest, AppContext)
+2. Boot daemon serio (registra, migra, monta, health, metrics, on_start)
+3. Spawn agenti reale (worktree, TASK.md, processo, log, monitor, push, PR)
+4. Mesh sync con background loop reale
+5. Observatory persiste in DB (non solo SSE volatile)
+6. Inference con backend HTTP reali (Ollama/OpenAI-compatible)
+
+### Dove il codice NON chiude il loop (da fixare)
+1. **Orchestrazione E2E**: executor chiama /api/mesh/delegate e /api/delegate/spawn
+   ma nel repo NON ci sono handler per questi endpoint. Frattura control→execution plane.
+2. **Spawn monitor incompleto**: aggiorna art_agents ma non task/piano (PR #55 fixa questo)
+3. **Eventi sottoutilizzati**: TaskCompleted, AgentOnline, etc. definiti ma
+   solo PlanCreated è emesso esplicitamente. Wiring applicativo incompleto.
+4. **Gate non enforced nelle route**: StartGate esiste ma plan-db/start bypassa
+   direttamente. POST /api/plan-db/validate non esiste come route.
+5. **tasks_done mai aggiornato**: è un campo di reporting ma nessuno lo incrementa
+6. **Extension contract parziale**: routes/migrations/health/metrics sì,
+   ma subscriptions/on_event/scheduled_tasks/on_config_change → nessun dispatcher
+7. **Runtime provider-coupled**: spawner ha solo ClaudeCli e Script,
+   il multi-provider è nell'inference ma non nell'agent runtime
+
+### Confronto competitivo (basato su codice reale)
+
+| vs | Convergio più forte | Convergio più debole |
+|---|---|---|
+| CrewAI/AutoGen | Infrastruttura: DB, routes, health, Git/PR reali | Collaboration patterns meno maturi |
+| LangGraph | Più "OS" e meno libreria | State machine/debuggability |
+| Temporal | Più vicino al mondo agenti/coding | Durable workflow, idempotenza, compensation |
+| OpenHands | Governance, modularità, control plane | Loop esecutivo agentico puro |
+
+### Il differenziatore
+> Non sarà "26 crate + 800 test". Sarà chiudere davvero il loop:
+> runtime → task → wave → plan → event → UI.
+> Finché quello non è blindato, siete più vicini a un ottimo control plane
+> modulare che al sistema finale.
+
+### Rischi omissione identificati → fasi aggiunte
+
+| Rischio | Fase | Status |
+|---|---|---|
+| Artifact model (output non-code) | 41 | Pianificata |
+| Human approval model esplicito | 42 | Pianificata |
+| Compensation/rollback wave failure | 43 | Pianificata |
+| Scheduler policy (capability, costo, privacy) | 44 | Pianificata |
+| Security remote execution | 45 | Pianificata |
+| Evaluation planner/Thor (precision, recall) | 46 | Pianificata |
+
+### Learning #22: Il differenziatore è il loop chiuso, non la quantità di codice
+26 crate e 830 test sono necessari ma non sufficienti. Il valore è nella
+COMPOSIZIONE dei pezzi in un flusso end-to-end blindato. Ogni pezzo che
+"funziona in isolamento" ma non è wired nel loop è debito, non asset.
+Il test finale non è `cargo test` — è "Roberto delega un progetto e vede
+il risultato nella UI senza mai aprire un terminale."
