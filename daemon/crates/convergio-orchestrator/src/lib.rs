@@ -3,9 +3,11 @@
 //! Implements Extension: owns plans, tasks, waves, deliverables, projects.
 
 pub mod actions;
+pub mod aggregation_routes;
 pub mod approval;
 pub mod executor;
 pub mod ext;
+pub mod gates;
 pub mod handlers;
 pub mod plan_hierarchy;
 pub mod plan_routes;
@@ -18,7 +20,9 @@ pub mod scaffold;
 pub mod scaffold_gen;
 pub mod scaffold_templates;
 pub mod schema;
+pub mod schema_tracking;
 pub mod task_routes;
+pub mod tracking_routes;
 pub mod types;
 pub mod validator;
 
