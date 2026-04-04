@@ -143,6 +143,34 @@ pub fn tracking_migrations() -> Vec<Migration> {
                  CREATE INDEX IF NOT EXISTS idx_bundles_status \
                      ON artifact_bundles(status);",
         },
+        Migration {
+            version: 12,
+            description: "human-in-the-loop approval gates and thresholds",
+            up: "CREATE TABLE IF NOT EXISTS approval_requests (\
+                     id              INTEGER PRIMARY KEY AUTOINCREMENT,\
+                     plan_id         INTEGER NOT NULL,\
+                     task_id         INTEGER,\
+                     approval_type   TEXT NOT NULL,\
+                     requester       TEXT NOT NULL,\
+                     reason          TEXT NOT NULL DEFAULT '',\
+                     status          TEXT NOT NULL DEFAULT 'pending',\
+                     reviewer        TEXT,\
+                     review_comment  TEXT,\
+                     reviewed_at     TEXT,\
+                     created_at      TEXT NOT NULL DEFAULT (datetime('now'))\
+                 );\
+                 CREATE INDEX IF NOT EXISTS idx_approvals_status \
+                     ON approval_requests(status);\
+                 CREATE INDEX IF NOT EXISTS idx_approvals_plan \
+                     ON approval_requests(plan_id);\
+                 CREATE TABLE IF NOT EXISTS approval_thresholds (\
+                     id                 INTEGER PRIMARY KEY AUTOINCREMENT,\
+                     trigger_type       TEXT NOT NULL UNIQUE,\
+                     threshold_value    REAL NOT NULL DEFAULT 0,\
+                     require_approval   INTEGER NOT NULL DEFAULT 1,\
+                     auto_approve_below REAL NOT NULL DEFAULT 0\
+                 );",
+        },
     ]
 }
 
@@ -162,6 +190,6 @@ mod tests {
         let tracking = tracking_migrations();
         let applied =
             convergio_db::migration::apply_migrations(&conn, "orchestrator", &tracking).unwrap();
-        assert_eq!(applied, 7);
+        assert_eq!(applied, 8);
     }
 }
