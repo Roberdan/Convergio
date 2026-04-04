@@ -107,10 +107,7 @@ impl ModelRouter {
         decision: &RoutingDecision,
     ) -> InferenceResponse {
         InferenceResponse {
-            content: format!(
-                "[echo:{}] {}",
-                decision.selected_model, &request.prompt
-            ),
+            content: format!("[echo:{}] {}", decision.selected_model, &request.prompt),
             model_used: decision.selected_model.clone(),
             latency_ms: 0,
             tokens_used: request.max_tokens,

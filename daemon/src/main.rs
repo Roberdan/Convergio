@@ -124,7 +124,9 @@ async fn main() {
 
     // 5b. Wire depgraph with manifests from all registered extensions
     let manifests: Vec<_> = extensions.iter().map(|e| e.manifest()).collect();
-    extensions.push(Arc::new(convergio_depgraph::DepgraphExtension::new(manifests)));
+    extensions.push(Arc::new(convergio_depgraph::DepgraphExtension::new(
+        manifests,
+    )));
 
     let mut ctx = AppContext::new();
     let sink: Arc<dyn convergio_types::events::DomainEventSink> = event_bus.clone();

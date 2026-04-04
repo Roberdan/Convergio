@@ -14,10 +14,7 @@ use crate::types::EventSource;
 
 /// Spawn a background task that subscribes to the EventBus and
 /// writes every event to obs_timeline.
-pub fn spawn_timeline_sink(
-    pool: ConnPool,
-    bus: Arc<EventBus>,
-) -> tokio::task::JoinHandle<()> {
+pub fn spawn_timeline_sink(pool: ConnPool, bus: Arc<EventBus>) -> tokio::task::JoinHandle<()> {
     let mut rx = bus.subscribe();
     tokio::spawn(async move {
         loop {
@@ -61,12 +58,8 @@ pub fn spawn_timeline_sink(
 
 fn classify_source(event_type: &str) -> EventSource {
     match event_type {
-        t if t.starts_with("plan_") || t.starts_with("task_") => {
-            EventSource::Orchestrator
-        }
-        t if t.starts_with("agent_") || t.starts_with("delegation_") => {
-            EventSource::Agent
-        }
+        t if t.starts_with("plan_") || t.starts_with("task_") => EventSource::Orchestrator,
+        t if t.starts_with("agent_") || t.starts_with("delegation_") => EventSource::Agent,
         t if t.starts_with("budget_") => EventSource::Billing,
         t if t.starts_with("health_") => EventSource::System,
         _ => EventSource::System,

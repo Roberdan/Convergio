@@ -86,8 +86,7 @@ async fn wait_for_exit(pid: u32) -> i32 {
         tokio::time::sleep(std::time::Duration::from_secs(5)).await;
         // Try waitpid first — catches zombies that kill(0) reports as alive
         let mut status: i32 = 0;
-        let result =
-            unsafe { libc::waitpid(pid as i32, &mut status, libc::WNOHANG) };
+        let result = unsafe { libc::waitpid(pid as i32, &mut status, libc::WNOHANG) };
         if result > 0 {
             // Process exited (or was zombie, now reaped)
             if libc::WIFEXITED(status) {
