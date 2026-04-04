@@ -12,12 +12,18 @@ use convergio_types::extension::{AppContext, Extension};
 use std::sync::{Arc, RwLock};
 use tokio::sync::Notify;
 
-fn register_extensions(pool: ConnPool) -> Vec<Arc<dyn Extension>> {
+fn register_extensions(
+    pool: ConnPool,
+    event_bus: Arc<convergio_ipc::sse::EventBus>,
+) -> Vec<Arc<dyn Extension>> {
     let notify = Arc::new(Notify::new());
 
     vec![
         // Infrastructure
-        Arc::new(convergio_ipc::IpcExtension::new(pool.clone())),
+        Arc::new(convergio_ipc::IpcExtension::with_bus(
+            pool.clone(),
+            event_bus,
+        )),
         Arc::new(convergio_mesh::ext::MeshExtension::new(pool.clone())),
         // Platform services
         Arc::new(convergio_orchestrator::OrchestratorExtension::new(
@@ -112,9 +118,12 @@ async fn main() {
             .expect("core migrations failed");
     }
 
-    // 5. Register extensions
-    let extensions = register_extensions(pool.clone());
-    let ctx = AppContext::new();
+    // 5. Register extensions (shared EventBus for domain events → SSE)
+    let event_bus = Arc::new(convergio_ipc::sse::EventBus::new(1024));
+    let extensions = register_extensions(pool.clone(), Arc::clone(&event_bus));
+    let mut ctx = AppContext::new();
+    let sink: Arc<dyn convergio_types::events::DomainEventSink> = event_bus;
+    ctx.insert(sink);
 
     // 6. Extension migrations
     {

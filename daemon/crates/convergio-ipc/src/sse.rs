@@ -88,6 +88,31 @@ fn futures_core_stream(
     }
 }
 
+impl convergio_types::events::DomainEventSink for EventBus {
+    fn emit(&self, event: convergio_types::events::DomainEvent) {
+        let event_type = match &event.kind {
+            convergio_types::events::EventKind::PlanCreated { .. } => "plan_created",
+            convergio_types::events::EventKind::TaskAssigned { .. } => "task_assigned",
+            convergio_types::events::EventKind::TaskCompleted { .. } => "task_completed",
+            convergio_types::events::EventKind::MessageSent { .. } => "message_sent",
+            convergio_types::events::EventKind::DelegationStarted { .. } => "delegation_started",
+            convergio_types::events::EventKind::AgentOnline { .. } => "agent_online",
+            convergio_types::events::EventKind::AgentOffline { .. } => "agent_offline",
+            convergio_types::events::EventKind::HealthDegraded { .. } => "health_degraded",
+            convergio_types::events::EventKind::BudgetAlert { .. } => "budget_alert",
+            convergio_types::events::EventKind::ExtensionLoaded { .. } => "extension_loaded",
+        };
+        let content = serde_json::to_string(&event).unwrap_or_default();
+        self.publish(IpcEvent {
+            from: event.actor.name,
+            to: None,
+            content,
+            event_type: event_type.into(),
+            ts: event.timestamp.to_rfc3339(),
+        });
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -19,10 +19,15 @@ pub struct IpcExtension {
 
 impl IpcExtension {
     pub fn new(pool: ConnPool) -> Self {
+        Self::with_bus(pool, Arc::new(EventBus::new(1024)))
+    }
+
+    /// Create with an externally-provided EventBus (for sharing via AppContext).
+    pub fn with_bus(pool: ConnPool, event_bus: Arc<EventBus>) -> Self {
         Self {
             pool,
             notify: Arc::new(Notify::new()),
-            event_bus: Arc::new(EventBus::new(1024)),
+            event_bus,
             rate_limit: crate::messaging::DEFAULT_RATE_LIMIT,
         }
     }
