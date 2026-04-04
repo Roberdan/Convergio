@@ -34,8 +34,10 @@ pub fn create_worktree(repo_root: &Path, name: &str) -> RuntimeResult<PathBuf> {
             wt_path.display()
         )));
     }
+    // Create worktree WITH a branch (not detached) so agent can push + PR
+    let branch = format!("agent/{name}");
     let output = Command::new("git")
-        .args(["worktree", "add", "--detach"])
+        .args(["worktree", "add", "-b", &branch])
         .arg(&wt_path)
         .arg("HEAD")
         .current_dir(repo_root)
@@ -78,10 +80,14 @@ pub fn spawn_process(
             for (k, v) in env_vars {
                 cmd.env(k, v);
             }
-            // Detach: don't inherit stdin, capture nothing
+            // Log output to files in worktree (Learning #18: /dev/null hides errors)
+            let log_out = std::fs::File::create(workspace.join("agent.log"))
+                .map_err(|e| RuntimeError::Internal(format!("create log: {e}")))?;
+            let log_err = std::fs::File::create(workspace.join("agent.err"))
+                .map_err(|e| RuntimeError::Internal(format!("create err: {e}")))?;
             cmd.stdin(std::process::Stdio::null());
-            cmd.stdout(std::process::Stdio::null());
-            cmd.stderr(std::process::Stdio::null());
+            cmd.stdout(std::process::Stdio::from(log_out));
+            cmd.stderr(std::process::Stdio::from(log_err));
             cmd.spawn()
                 .map_err(|e| RuntimeError::Internal(format!("spawn claude: {e}")))?
         }
@@ -94,9 +100,13 @@ pub fn spawn_process(
             for (k, v) in env_vars {
                 cmd.env(k, v);
             }
+            let log_out = std::fs::File::create(workspace.join("agent.log"))
+                .map_err(|e| RuntimeError::Internal(format!("create log: {e}")))?;
+            let log_err = std::fs::File::create(workspace.join("agent.err"))
+                .map_err(|e| RuntimeError::Internal(format!("create err: {e}")))?;
             cmd.stdin(std::process::Stdio::null());
-            cmd.stdout(std::process::Stdio::null());
-            cmd.stderr(std::process::Stdio::null());
+            cmd.stdout(std::process::Stdio::from(log_out));
+            cmd.stderr(std::process::Stdio::from(log_err));
             cmd.spawn()
                 .map_err(|e| RuntimeError::Internal(format!("spawn script: {e}")))?
         }

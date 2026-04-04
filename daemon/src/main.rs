@@ -149,9 +149,22 @@ async fn main() {
         }
     }
 
-    // 7. Health + metrics
+    // 7. Health + metrics — register extensions as health/metric sources
     let health = Arc::new(HealthRegistry::new());
     let metrics = Arc::new(MetricsCollector::new());
+    for ext in &extensions {
+        let manifest = ext.manifest();
+        // Wrap each extension as a health check source
+        let ext_clone = Arc::clone(ext);
+        let name = manifest.id.clone();
+        health.register(Arc::new(ExtHealthAdapter(name, ext_clone)));
+    }
+    for ext in &extensions {
+        let manifest = ext.manifest();
+        let ext_clone = Arc::clone(ext);
+        let name = manifest.id.clone();
+        metrics.register(Arc::new(ExtMetricAdapter(name, ext_clone)));
+    }
 
     // 8. Start extensions
     for ext in &extensions {
@@ -197,4 +210,33 @@ async fn main() {
         let _ = ext.on_shutdown();
     }
     tracing::info!("daemon stopped");
+}
+
+/// Adapter: wraps an Extension as a HealthCheck for the HealthRegistry.
+struct ExtHealthAdapter(String, Arc<dyn Extension>);
+
+impl convergio_telemetry::health::HealthCheck for ExtHealthAdapter {
+    fn name(&self) -> &str {
+        &self.0
+    }
+    fn check(&self) -> convergio_telemetry::health::ComponentHealth {
+        let status = self.1.health();
+        convergio_telemetry::health::ComponentHealth {
+            name: self.0.clone(),
+            status,
+            message: None,
+        }
+    }
+}
+
+/// Adapter: wraps an Extension as a MetricSource for the MetricsCollector.
+struct ExtMetricAdapter(String, Arc<dyn Extension>);
+
+impl convergio_telemetry::metrics::MetricSource for ExtMetricAdapter {
+    fn name(&self) -> &str {
+        &self.0
+    }
+    fn collect(&self) -> Vec<convergio_types::extension::Metric> {
+        self.1.metrics()
+    }
 }
