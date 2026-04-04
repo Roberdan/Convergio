@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Skill Protocol v1.0 — skill.yaml",
+  "type": "object",
+  "required": ["name", "version", "description", "domain", "constitution-version", "license", "copyright"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Kebab-case skill identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver skill version"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Human-readable summary of what this skill does"
+    },
+    "domain": {
+      "type": "string",
+      "enum": ["workflow", "technical", "business", "legal", "creative", "security", "data", "design"],
+      "description": "Functional domain this skill belongs to"
+    },
+    "constitution-version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver of the Skill Protocol constitution this skill targets"
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX license identifier (e.g. MPL-2.0, MIT, Apache-2.0)"
+    },
+    "copyright": {
+      "type": "string",
+      "description": "Copyright statement (e.g. Copyright 2026 Acme Corp)"
+    },
+    "repo": {
+      "type": "string",
+      "description": "Source repository URL"
+    },
+    "tools": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tool names this skill uses (e.g. Bash, Read, Grep)"
+    },
+    "model": {
+      "type": "string",
+      "description": "Canonical model ID required by this skill"
+    },
+    "min-context": {
+      "type": "integer",
+      "minimum": 4000,
+      "description": "Minimum context window in tokens required to run this skill"
+    },
+    "arguments": {
+      "type": "string",
+      "enum": ["none", "required", "optional"],
+      "description": "Whether the skill accepts invocation arguments"
+    },
+    "triggers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Slash-command or keyword triggers (e.g. /planner)"
+    },
+    "provider-formats": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["claude-code", "copilot-cli", "generic-llm"]
+      },
+      "description": "Target provider formats this skill is packaged for"
+    }
+  },
+  "additionalProperties": false
+}
