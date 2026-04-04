@@ -87,6 +87,13 @@ impl Extension for MeshExtension {
         }
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        let state = std::sync::Arc::new(crate::routes::MeshState {
+            pool: self.pool.clone(),
+        });
+        Some(crate::routes::mesh_routes(state))
+    }
+
     fn migrations(&self) -> Vec<Migration> {
         crate::schema::migrations()
     }

@@ -8,6 +8,8 @@ pub mod executor;
 pub mod ext;
 pub mod handlers;
 pub mod plan_hierarchy;
+pub mod plan_routes;
+pub mod plan_routes_ext;
 pub mod policy;
 pub mod reactor;
 pub mod reaper;

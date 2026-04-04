@@ -669,6 +669,7 @@ dependencies = [
 name = "convergio-mesh"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "base64",
  "chrono",
  "convergio-db",

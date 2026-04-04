@@ -4,6 +4,7 @@
 //! Business logic lives in the crates; this is just the entry point.
 
 use convergio_db::pool::{create_pool, ConnPool};
+use convergio_server::config_watcher::spawn_config_watcher;
 use convergio_server::{build_router, load_config, run_server, ServerState};
 use convergio_telemetry::health::HealthRegistry;
 use convergio_telemetry::metrics::MetricsCollector;
@@ -89,6 +90,11 @@ async fn main() {
     let port = config.daemon.port;
     let config = Arc::new(RwLock::new(config));
 
+    // 2b. Config hot-reload watcher
+    if let Err(e) = spawn_config_watcher(Arc::clone(&config)) {
+        tracing::warn!("config watcher not started: {e}");
+    }
+
     // 3. Database
     let db_path = convergio_types::platform_paths::convergio_data_dir().join("convergio.db");
     if let Some(parent) = db_path.parent() {
@@ -155,6 +161,7 @@ async fn main() {
     if dev_mode {
         tracing::info!("dev-mode enabled (no CONVERGIO_AUTH_TOKEN set)");
     }
+    let shutdown_pool = pool.clone();
     let state = ServerState::new(pool, config, health, metrics, dev_mode);
     let router = build_router(state, &extensions, &ctx);
 
@@ -168,6 +175,13 @@ async fn main() {
     }
 
     // 11. Shutdown
+    // WAL checkpoint: flush pending writes to main DB before dropping pool
+    if let Ok(conn) = shutdown_pool.get() {
+        match conn.execute_batch("PRAGMA wal_checkpoint(TRUNCATE);") {
+            Ok(()) => tracing::info!("WAL checkpoint completed"),
+            Err(e) => tracing::warn!("WAL checkpoint failed: {e}"),
+        }
+    }
     for ext in extensions.iter().rev() {
         let _ = ext.on_shutdown();
     }
