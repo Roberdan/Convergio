@@ -101,6 +101,10 @@ pub struct CreatePlan {
     pub execution_mode: Option<String>,
     #[serde(default)]
     pub tasks_total: i64,
+    /// Protocol fields (24f): optional but logged if missing.
+    pub objective: Option<String>,
+    pub motivation: Option<String>,
+    pub requester: Option<String>,
 }
 
 async fn handle_create(
@@ -136,6 +140,14 @@ async fn handle_create(
                         ..Default::default()
                     },
                 ));
+            }
+            // Auto-create plan_metadata if protocol fields provided (24f)
+            if body.objective.is_some() || body.motivation.is_some() || body.requester.is_some() {
+                let _ = conn.execute(
+                    "INSERT OR IGNORE INTO plan_metadata (plan_id, objective, motivation, requester) \
+                     VALUES (?1, ?2, ?3, ?4)",
+                    params![id, body.objective, body.motivation, body.requester],
+                );
             }
             Json(json!({"id": id, "status": "created"}))
         }
