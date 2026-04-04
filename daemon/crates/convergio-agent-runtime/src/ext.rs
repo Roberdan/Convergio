@@ -86,7 +86,20 @@ impl Extension for AgentRuntimeExtension {
     }
 
     fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
-        Some(runtime_routes(self.state()))
+        // Determine repo root for worktree creation
+        let repo_root = std::env::current_dir()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_else(|_| ".".into());
+        let daemon_url = std::env::var("CONVERGIO_DAEMON_URL")
+            .unwrap_or_else(|_| "http://localhost:8420".into());
+        let spawn_state = Arc::new(crate::spawn_routes::SpawnState {
+            pool: self.pool.clone(),
+            repo_root,
+            daemon_url,
+        });
+        let router =
+            runtime_routes(self.state()).merge(crate::spawn_routes::spawn_routes(spawn_state));
+        Some(router)
     }
 
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
