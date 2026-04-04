@@ -67,9 +67,14 @@ pub fn write_default_config(path: &Path) -> io::Result<()> {
 mod tests {
     use super::*;
     use std::io::Write;
+    use std::sync::Mutex;
+
+    // Tests share CONVERGIO_CONFIG env var — must run sequentially.
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn load_from_custom_path() {
+        let _guard = ENV_LOCK.lock().unwrap();
         let dir = std::env::temp_dir().join("cvg-cfg-test");
         let _ = std::fs::create_dir_all(&dir);
         let path = dir.join("test.toml");
@@ -77,16 +82,17 @@ mod tests {
         writeln!(f, "[daemon]\nport = 9999").unwrap();
         std::env::set_var("CONVERGIO_CONFIG", path.to_str().unwrap());
         let cfg = load_config();
-        assert_eq!(cfg.daemon.port, 9999);
         std::env::remove_var("CONVERGIO_CONFIG");
         let _ = std::fs::remove_dir_all(&dir);
+        assert_eq!(cfg.daemon.port, 9999);
     }
 
     #[test]
     fn missing_file_returns_defaults() {
+        let _guard = ENV_LOCK.lock().unwrap();
         std::env::set_var("CONVERGIO_CONFIG", "/tmp/nonexistent.toml");
         let cfg = load_config();
-        assert_eq!(cfg.daemon.port, 8420);
         std::env::remove_var("CONVERGIO_CONFIG");
+        assert_eq!(cfg.daemon.port, 8420);
     }
 }
