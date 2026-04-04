@@ -15,5 +15,6 @@ pub mod routes;
 pub mod schema;
 pub mod sync;
 pub mod sync_apply;
+pub mod sync_loop;
 pub mod transport;
 pub mod types;

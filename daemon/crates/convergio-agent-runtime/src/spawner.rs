@@ -66,7 +66,7 @@ pub fn spawn_process(
     workspace: &Path,
     backend: &SpawnBackend,
     env_vars: &[(&str, &str)],
-    timeout_secs: u64,
+    _timeout_secs: u64,
 ) -> RuntimeResult<SpawnedProcess> {
     let child = match backend {
         SpawnBackend::ClaudeCli { model } => {

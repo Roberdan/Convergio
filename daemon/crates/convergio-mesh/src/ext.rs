@@ -140,6 +140,7 @@ impl Extension for MeshExtension {
 
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
         tracing::info!("Mesh extension started");
+        crate::sync_loop::spawn_sync_loop(self.pool.clone(), std::time::Duration::from_secs(30));
         Ok(())
     }
 
