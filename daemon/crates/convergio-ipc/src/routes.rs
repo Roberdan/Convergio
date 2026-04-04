@@ -208,9 +208,7 @@ async fn list_models(State(st): State<IpcState>) -> impl IntoResponse {
 
 async fn ipc_status(State(st): State<IpcState>) -> impl IntoResponse {
     let agents = crate::agents::list(&st.pool).map_err(err)?.len();
-    let channels = crate::channels::list_channels(&st.pool)
-        .map_err(err)?
-        .len();
+    let channels = crate::channels::list_channels(&st.pool).map_err(err)?.len();
     ok(json!({"agents": agents, "channels": channels}))
 }
 
