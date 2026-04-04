@@ -23,6 +23,7 @@ axum = { workspace = true }
 hostname = "0.4"
 dirs = { workspace = true }
 libc = "0.2"
+reqwest = { workspace = true }
 tempfile = { version = "3", optional = true }
 
 [dev-dependencies]

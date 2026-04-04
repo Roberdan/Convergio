@@ -138,6 +138,25 @@ pub fn on_wave_validated(
 pub fn on_plan_done(pool: &ConnPool, notify: &Arc<Notify>, plan_id: i64) -> AliResult {
     let conn = pool.get()?;
 
+    // Mark plan as done in DB
+    conn.execute(
+        "UPDATE plans SET status = 'done', updated_at = datetime('now') WHERE id = ?1",
+        params![plan_id],
+    )?;
+
+    let plan_name: String = conn
+        .query_row(
+            "SELECT name FROM plans WHERE id = ?1",
+            params![plan_id],
+            |r| r.get(0),
+        )
+        .unwrap_or_else(|_| format!("Plan #{plan_id}"));
+
+    tracing::info!("ali: plan {plan_id} ({plan_name}) marked done");
+
+    // Send Telegram notification (fire-and-forget)
+    notify_plan_done(plan_id, &plan_name);
+
     let parent_id: Option<i64> = match conn.query_row(
         "SELECT parent_plan_id FROM plans WHERE id = ?1",
         params![plan_id],
@@ -159,6 +178,10 @@ pub fn on_plan_done(pool: &ConnPool, notify: &Arc<Notify>, plan_id: i64) -> AliR
 
     Ok(())
 }
+
+#[path = "handlers_notify.rs"]
+mod notify;
+use notify::notify_plan_done;
 
 pub async fn on_wave_ready(
     pool: &ConnPool,

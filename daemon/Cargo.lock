@@ -397,6 +397,7 @@ dependencies = [
  "hostname",
  "libc",
  "r2d2",
+ "reqwest",
  "rusqlite",
  "serde",
  "serde_json",
