@@ -8,7 +8,8 @@ mod ext_tests {
 
     #[test]
     fn manifest_is_extension_kind() {
-        let ext = KernelExtension;
+        let pool = convergio_db::pool::create_memory_pool().unwrap();
+        let ext = KernelExtension::new(pool);
         let m = ext.manifest();
         assert_eq!(m.id, "convergio-kernel");
         assert!(matches!(m.kind, ModuleKind::Extension));
@@ -19,7 +20,8 @@ mod ext_tests {
 
     #[test]
     fn has_four_migrations() {
-        let ext = KernelExtension;
+        let pool = convergio_db::pool::create_memory_pool().unwrap();
+        let ext = KernelExtension::new(pool);
         let migs = ext.migrations();
         assert_eq!(migs.len(), 4);
         assert_eq!(migs[0].description, "kernel_events table");
@@ -32,7 +34,7 @@ mod ext_tests {
     fn migrations_sql_is_valid() {
         let pool = convergio_db::pool::create_memory_pool().unwrap();
         let conn = pool.get().unwrap();
-        let ext = KernelExtension;
+        let ext = KernelExtension::new(pool.clone());
         for mig in ext.migrations() {
             conn.execute_batch(mig.up).unwrap_or_else(|e| {
                 panic!("migration {} failed: {e}", mig.description);
@@ -42,7 +44,8 @@ mod ext_tests {
 
     #[test]
     fn has_scheduled_tasks() {
-        let ext = KernelExtension;
+        let pool = convergio_db::pool::create_memory_pool().unwrap();
+        let ext = KernelExtension::new(pool);
         let tasks = ext.scheduled_tasks();
         assert_eq!(tasks.len(), 2);
         assert!(tasks.iter().any(|t| t.name == "kernel-monitor"));

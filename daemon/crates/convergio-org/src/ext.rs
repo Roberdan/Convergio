@@ -1,10 +1,29 @@
 //! Extension trait implementation for convergio-org.
 
-use convergio_types::extension::{Extension, Health, Migration};
+use std::sync::Arc;
+
+use convergio_db::pool::ConnPool;
+use convergio_types::extension::{AppContext, Extension, Health, Metric, Migration};
 use convergio_types::manifest::{Capability, Dependency, Manifest, ModuleKind};
 
+use crate::routes::{org_routes, OrgState};
+
 /// Org extension — organization design, provisioning, notifications, decisions.
-pub struct OrgExtension;
+pub struct OrgExtension {
+    pool: ConnPool,
+}
+
+impl OrgExtension {
+    pub fn new(pool: ConnPool) -> Self {
+        Self { pool }
+    }
+
+    fn state(&self) -> Arc<OrgState> {
+        Arc::new(OrgState {
+            pool: self.pool.clone(),
+        })
+    }
+}
 
 impl Extension for OrgExtension {
     fn manifest(&self) -> Manifest {
@@ -45,13 +64,16 @@ impl Extension for OrgExtension {
         }
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        Some(org_routes(self.state()))
+    }
+
     fn migrations(&self) -> Vec<Migration> {
         vec![
             Migration {
                 version: 1,
                 description: "notifications table",
-                up: "\
-                    CREATE TABLE IF NOT EXISTS notifications (\
+                up: "CREATE TABLE IF NOT EXISTS notifications (\
                         id INTEGER PRIMARY KEY AUTOINCREMENT,\
                         type TEXT NOT NULL DEFAULT '',\
                         title TEXT NOT NULL DEFAULT '',\
@@ -59,14 +81,12 @@ impl Extension for OrgExtension {
                         is_read INTEGER DEFAULT 0,\
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,\
                         updated_at DATETIME\
-                    );\
-                ",
+                    );",
             },
             Migration {
                 version: 2,
                 description: "notification_queue table",
-                up: "\
-                    CREATE TABLE IF NOT EXISTS notification_queue (\
+                up: "CREATE TABLE IF NOT EXISTS notification_queue (\
                         id INTEGER PRIMARY KEY,\
                         severity TEXT DEFAULT 'info',\
                         title TEXT NOT NULL DEFAULT '',\
@@ -78,14 +98,12 @@ impl Extension for OrgExtension {
                         delivered_at TEXT\
                     );\
                     CREATE INDEX IF NOT EXISTS idx_nq_status \
-                        ON notification_queue(status);\
-                ",
+                        ON notification_queue(status);",
             },
             Migration {
                 version: 3,
                 description: "notification_deliveries table",
-                up: "\
-                    CREATE TABLE IF NOT EXISTS notification_deliveries (\
+                up: "CREATE TABLE IF NOT EXISTS notification_deliveries (\
                         id INTEGER PRIMARY KEY AUTOINCREMENT,\
                         notification_id INTEGER NOT NULL,\
                         trace_id TEXT NOT NULL,\
@@ -98,14 +116,12 @@ impl Extension for OrgExtension {
                     CREATE INDEX IF NOT EXISTS idx_nd_notification \
                         ON notification_deliveries(notification_id);\
                     CREATE INDEX IF NOT EXISTS idx_nd_trace \
-                        ON notification_deliveries(trace_id);\
-                ",
+                        ON notification_deliveries(trace_id);",
             },
             Migration {
                 version: 4,
                 description: "decision_log table",
-                up: "\
-                    CREATE TABLE IF NOT EXISTS decision_log (\
+                up: "CREATE TABLE IF NOT EXISTS decision_log (\
                         id INTEGER PRIMARY KEY,\
                         plan_id INTEGER,\
                         task_id INTEGER,\
@@ -116,13 +132,57 @@ impl Extension for OrgExtension {
                         outcome TEXT,\
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,\
                         agent TEXT\
-                    );\
-                ",
+                    );",
             },
         ]
     }
 
     fn health(&self) -> Health {
-        Health::Ok
+        match self.pool.get() {
+            Ok(conn) => {
+                let count: i64 = conn
+                    .query_row("SELECT count(*) FROM ipc_orgs", [], |r| r.get(0))
+                    .unwrap_or(0);
+                if count >= 0 {
+                    Health::Ok
+                } else {
+                    Health::Degraded {
+                        reason: "negative org count".into(),
+                    }
+                }
+            }
+            Err(e) => Health::Degraded {
+                reason: format!("db: {e}"),
+            },
+        }
+    }
+
+    fn metrics(&self) -> Vec<Metric> {
+        let conn = match self.pool.get() {
+            Ok(c) => c,
+            Err(_) => return vec![],
+        };
+        let orgs: f64 = conn
+            .query_row("SELECT count(*) FROM ipc_orgs", [], |r| r.get(0))
+            .unwrap_or(0.0);
+        let notifs: f64 = conn
+            .query_row(
+                "SELECT count(*) FROM notification_queue WHERE status = 'pending'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap_or(0.0);
+        vec![
+            Metric {
+                name: "org_count".into(),
+                value: orgs,
+                labels: vec![],
+            },
+            Metric {
+                name: "org_pending_notifications".into(),
+                value: notifs,
+                labels: vec![],
+            },
+        ]
     }
 }

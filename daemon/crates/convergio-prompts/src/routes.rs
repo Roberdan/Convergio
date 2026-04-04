@@ -15,8 +15,8 @@ use crate::types::{PromptInput, PromptQuery, SkillInput, SkillQuery};
 pub fn routes(pool: ConnPool) -> Router {
     Router::new()
         .route("/api/prompts", post(create_prompt).get(list_prompts))
-        .route("/api/prompts/{id}", get(get_prompt).delete(delete_prompt))
-        .route("/api/prompts/active/{name}", get(get_active_prompt))
+        .route("/api/prompts/:id", get(get_prompt).delete(delete_prompt))
+        .route("/api/prompts/active/:name", get(get_active_prompt))
         .route("/api/skills", post(register_skill).get(search_skills))
         .route("/api/skills/search", get(search_skills_query))
         .with_state(pool)

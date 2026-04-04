@@ -1,10 +1,37 @@
 //! Extension trait implementation for convergio-kernel (Jarvis).
 
-use convergio_types::extension::{Extension, Health, Metric, Migration, ScheduledTask};
+use std::sync::Arc;
+
+use convergio_db::pool::ConnPool;
+use convergio_types::extension::{AppContext, Extension, Health, Metric, Migration, ScheduledTask};
 use convergio_types::manifest::{Capability, Dependency, Manifest, ModuleKind};
+use tokio::sync::RwLock;
+
+use crate::engine::KernelEngine;
+use crate::routes::{kernel_routes, KernelState};
 
 /// Kernel extension — Jarvis: local LLM assistant with monitoring and recovery.
-pub struct KernelExtension;
+pub struct KernelExtension {
+    pool: ConnPool,
+    #[allow(dead_code)]
+    engine: Arc<RwLock<KernelEngine>>,
+}
+
+impl KernelExtension {
+    pub fn new(pool: ConnPool) -> Self {
+        Self {
+            pool,
+            engine: Arc::new(RwLock::new(KernelEngine::default())),
+        }
+    }
+
+    fn state(&self) -> Arc<KernelState> {
+        Arc::new(KernelState {
+            pool: self.pool.clone(),
+            engine: RwLock::new(KernelEngine::default()),
+        })
+    }
+}
 
 impl Extension for KernelExtension {
     fn manifest(&self) -> Manifest {
@@ -58,13 +85,16 @@ impl Extension for KernelExtension {
         }
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        Some(kernel_routes(self.state()))
+    }
+
     fn migrations(&self) -> Vec<Migration> {
         vec![
             Migration {
                 version: 1,
                 description: "kernel_events table",
-                up: "\
-                    CREATE TABLE IF NOT EXISTS kernel_events (\
+                up: "CREATE TABLE IF NOT EXISTS kernel_events (\
                         id INTEGER PRIMARY KEY,\
                         timestamp TEXT DEFAULT (datetime('now')),\
                         severity TEXT CHECK(severity IN ('ok','warn','critical')),\
@@ -75,14 +105,12 @@ impl Extension for KernelExtension {
                     CREATE INDEX IF NOT EXISTS idx_ke_severity \
                         ON kernel_events(severity);\
                     CREATE INDEX IF NOT EXISTS idx_ke_ts \
-                        ON kernel_events(timestamp);\
-                ",
+                        ON kernel_events(timestamp);",
             },
             Migration {
                 version: 2,
                 description: "kernel_verifications table",
-                up: "\
-                    CREATE TABLE IF NOT EXISTS kernel_verifications (\
+                up: "CREATE TABLE IF NOT EXISTS kernel_verifications (\
                         id INTEGER PRIMARY KEY,\
                         task_id INTEGER,\
                         timestamp TEXT DEFAULT (datetime('now')),\
@@ -91,39 +119,39 @@ impl Extension for KernelExtension {
                         blocked_reason TEXT\
                     );\
                     CREATE INDEX IF NOT EXISTS idx_kv_task \
-                        ON kernel_verifications(task_id);\
-                ",
+                        ON kernel_verifications(task_id);",
             },
             Migration {
                 version: 3,
                 description: "kernel_config table",
-                up: "\
-                    CREATE TABLE IF NOT EXISTS kernel_config (\
+                up: "CREATE TABLE IF NOT EXISTS kernel_config (\
                         key TEXT PRIMARY KEY,\
                         value TEXT,\
                         updated_at TEXT DEFAULT (datetime('now'))\
-                    );\
-                ",
+                    );",
             },
             Migration {
                 version: 4,
                 description: "knowledge_base table",
-                up: "\
-                    CREATE TABLE IF NOT EXISTS knowledge_base (\
+                up: "CREATE TABLE IF NOT EXISTS knowledge_base (\
                         id INTEGER PRIMARY KEY,\
                         domain TEXT,\
                         title TEXT,\
                         content TEXT,\
                         created_at TEXT,\
                         hit_count INTEGER DEFAULT 0\
-                    );\
-                ",
+                    );",
             },
         ]
     }
 
     fn health(&self) -> Health {
-        Health::Ok
+        match self.pool.get() {
+            Ok(_) => Health::Ok,
+            Err(e) => Health::Degraded {
+                reason: format!("db: {e}"),
+            },
+        }
     }
 
     fn metrics(&self) -> Vec<Metric> {

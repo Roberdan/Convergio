@@ -71,7 +71,7 @@ impl Extension for HttpBridgeExtension {
                 axum::routing::get(handlers::list_extensions),
             )
             .route(
-                "/api/extensions/{id}",
+                "/api/extensions/:id",
                 axum::routing::get(handlers::get_extension).delete(handlers::remove_extension),
             )
             .merge(proxy::proxy_routes());

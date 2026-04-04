@@ -16,7 +16,7 @@ pub fn catalog_routes(pool: ConnPool) -> Router {
     Router::new()
         .route("/api/agents/catalog", get(list_agents).post(create_agent))
         .route(
-            "/api/agents/catalog/{name}",
+            "/api/agents/catalog/:name",
             get(get_agent).put(update_agent).delete(delete_agent),
         )
         .with_state(pool)

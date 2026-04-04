@@ -10,6 +10,7 @@ pub mod engine;
 pub mod ext;
 pub mod monitor;
 pub mod recover;
+pub mod routes;
 pub mod types;
 pub mod verify;
 

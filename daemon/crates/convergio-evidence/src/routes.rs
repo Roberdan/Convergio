@@ -13,11 +13,11 @@ use serde_json::json;
 pub fn evidence_routes(pool: ConnPool) -> Router {
     Router::new()
         .route("/api/evidence", post(record_evidence))
-        .route("/api/evidence/{task_id}", get(list_evidence))
-        .route("/api/evidence/{task_id}/has/{kind}", get(has_evidence))
-        .route("/api/evidence/{task_id}/commits", get(list_commits))
-        .route("/api/evidence/gates/{task_id}", post(run_gates))
-        .route("/api/evidence/preflight/{task_id}", get(run_preflight))
+        .route("/api/evidence/:task_id", get(list_evidence))
+        .route("/api/evidence/:task_id/has/:kind", get(has_evidence))
+        .route("/api/evidence/:task_id/commits", get(list_commits))
+        .route("/api/evidence/gates/:task_id", post(run_gates))
+        .route("/api/evidence/preflight/:task_id", get(run_preflight))
         .route("/api/evidence/commit-match", post(match_commit))
         .with_state(pool)
 }
