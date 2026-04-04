@@ -61,12 +61,13 @@ pub fn write_instructions(workspace: &Path, instructions: &str) -> RuntimeResult
 }
 
 /// Spawn the agent process in the workspace.
-/// `timeout_secs` reserved for future use (reaper handles actual timeout).
+/// `instruction_file` overrides the default "TASK.md" prompt target.
 pub fn spawn_process(
     workspace: &Path,
     backend: &SpawnBackend,
     env_vars: &[(&str, &str)],
     _timeout_secs: u64,
+    instruction_file: Option<&str>,
 ) -> RuntimeResult<SpawnedProcess> {
     let child = match backend {
         SpawnBackend::ClaudeCli { model } => {
@@ -80,7 +81,9 @@ pub fn spawn_process(
             // Learning: claude -p sometimes hangs after completing its task.
             // --max-turns caps conversation turns so the process exits reliably.
             cmd.args(["--max-turns", "50"]);
-            cmd.args(["-p", "Leggi TASK.md per le istruzioni. Poi inizia."]);
+            let target = instruction_file.unwrap_or("TASK.md");
+            let prompt = format!("Leggi {target} per le istruzioni. Poi inizia.");
+            cmd.args(["-p", &prompt]);
             cmd.current_dir(workspace);
             for (k, v) in env_vars {
                 cmd.env(k, v);
