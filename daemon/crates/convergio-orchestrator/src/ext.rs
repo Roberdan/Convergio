@@ -57,6 +57,7 @@ impl Extension for OrchestratorExtension {
         let mut m = crate::schema::migrations();
         m.extend(crate::schema_tracking::tracking_migrations());
         m.extend(crate::schema_compensation::compensation_migrations());
+        m.extend(crate::schema_evaluation::evaluation_migrations());
         m.sort_by_key(|mig| mig.version);
         m
     }
@@ -84,7 +85,10 @@ impl Extension for OrchestratorExtension {
             .merge(crate::compensation_routes::compensation_routes(
                 self.pool.clone(),
             ))
-            .merge(crate::approval_routes::approval_routes(self.pool.clone()));
+            .merge(crate::approval_routes::approval_routes(self.pool.clone()))
+            .merge(crate::evaluation_routes::evaluation_routes(
+                self.pool.clone(),
+            ));
         Some(router)
     }
 
