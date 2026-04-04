@@ -4,6 +4,9 @@
 //! host_heartbeats, mesh_peer_state, coordinator_events, delegation_progress.
 
 pub mod auth;
+pub mod capability_registry;
+pub mod capability_routes;
+pub mod capability_types;
 pub mod convergence;
 pub mod delegation;
 pub mod error;
