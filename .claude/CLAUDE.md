@@ -87,6 +87,13 @@ NEVER take the quick path. ALWAYS fix the root cause.
   introduces a new problem → STOP. Explain root cause, propose rebuild.
 Band-aid chains are REJECTED. Workarounds become permanent. Fix it right or don't fix it.
 
+### CRITICAL: conserve context tokens (Constitution Rule #9)
+Context is finite. Every wasted token shortens the agent's life.
+- Don't re-read files already read in this session — reference earlier reads.
+- Use offset/limit for large files — don't read 1200 lines when you need 10.
+- Delegate mechanical tasks to Copilot to save your context for decisions.
+- At 70-80% context usage: save checkpoint, prepare handoff to next agent.
+
 ### CRITICAL: explore before building (Constitution Rule #7)
 NEVER build without first checking what exists. Read existing crates, components,
 old repo solutions. Duplicating or using wrong tools because you didn't look is
