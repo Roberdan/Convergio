@@ -1,0 +1,21 @@
+[package]
+name = "convergio-delegation"
+description = "Delegation orchestrator — copy, spawn, monitor, sync, notify"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+convergio-types = { path = "../convergio-types" }
+convergio-db = { path = "../convergio-db" }
+convergio-telemetry = { path = "../convergio-telemetry" }
+convergio-file-transport = { path = "../convergio-file-transport" }
+convergio-mesh = { path = "../convergio-mesh" }
+tracing = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+axum = { workspace = true }
+rusqlite = { workspace = true }
+chrono = { workspace = true }
+uuid = { version = "1", features = ["v4"] }

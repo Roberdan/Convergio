@@ -28,6 +28,7 @@ members = [
     "crates/convergio-evidence",
     "crates/convergio-observatory",
     "crates/convergio-file-transport",
+    "crates/convergio-delegation",
 ]
 
 [package]
@@ -66,6 +67,7 @@ convergio-multitenancy = { path = "crates/convergio-multitenancy" }
 convergio-evidence = { path = "crates/convergio-evidence" }
 convergio-observatory = { path = "crates/convergio-observatory" }
 convergio-file-transport = { path = "crates/convergio-file-transport" }
+convergio-delegation = { path = "crates/convergio-delegation" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 dirs = { workspace = true }

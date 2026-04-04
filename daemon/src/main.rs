@@ -1,5 +1,4 @@
 //! Convergio daemon — wires extensions together and launches the server.
-
 use convergio_db::pool::{create_pool, ConnPool};
 use convergio_server::config_watcher::spawn_config_watcher;
 use convergio_server::{build_router, load_config, run_server, ServerState};
@@ -28,6 +27,7 @@ fn register_extensions(
             pool.clone(),
             notify,
         )),
+        Arc::new(convergio_delegation::DelegationExtension::new(pool.clone())),
         Arc::new(convergio_inference::InferenceExtension::new(pool.clone())),
         Arc::new(convergio_agents::AgentsCatalogExtension::new(pool.clone())),
         Arc::new(convergio_prompts::ext::PromptsExtension::new(pool.clone())),
