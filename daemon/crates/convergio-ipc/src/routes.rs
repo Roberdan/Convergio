@@ -1,22 +1,28 @@
-//! HTTP routes for IPC — agent registry, messaging, channels, SSE, skills.
+//! HTTP API routes for IPC.
+//!
+//! - GET  /api/ipc/status   — IPC stats (agents, messages, channels)
+//! - GET  /api/ipc/agents   — registered agents list
+//! - GET  /api/ipc/channels — channel list
+//! - GET  /api/ipc/context  — shared context entries
+//! - GET  /api/ipc/messages — message history (query: agent, channel, limit)
+//! - GET  /api/ipc/stream   — SSE event stream (query: agent filter)
+//! - GET  /api/events/stream — SSE event stream (legacy path)
+//! - POST /api/ipc/send     — send a direct message
 
 use std::sync::Arc;
 
 use axum::extract::{Query, State};
-use axum::http::StatusCode;
-use axum::response::sse::{Event, KeepAlive};
-use axum::response::{IntoResponse, Sse};
+use axum::response::sse::{self, Sse};
+use axum::response::Json;
 use axum::routing::{get, post};
-use axum::{Json, Router};
-use convergio_db::pool::ConnPool;
+use axum::Router;
 use serde::Deserialize;
-use serde_json::json;
 use tokio::sync::Notify;
 
-use crate::sse::EventBus;
+use convergio_db::pool::ConnPool;
 
-/// Shared state for IPC routes.
-#[derive(Clone)]
+use crate::sse::{create_sse_stream, EventBus};
+
 pub struct IpcState {
     pub pool: ConnPool,
     pub notify: Arc<Notify>,
@@ -24,215 +30,149 @@ pub struct IpcState {
     pub rate_limit: u32,
 }
 
-/// Build all IPC routes.
-pub fn ipc_routes(state: IpcState) -> Router {
+pub fn ipc_routes(state: Arc<IpcState>) -> Router {
+    let bus = Arc::clone(&state.event_bus);
     Router::new()
-        .route("/api/ipc/agents", get(list_agents))
-        .route("/api/ipc/agents/register", post(register_agent))
-        .route("/api/ipc/agents/unregister", post(unregister_agent))
-        .route("/api/ipc/agents/heartbeat", post(agent_heartbeat))
-        .route("/api/ipc/send", post(send_message))
-        .route("/api/ipc/messages", get(receive_messages))
-        .route("/api/ipc/channels", get(list_channels))
-        .route("/api/ipc/skills", get(get_skill_pool))
-        .route("/api/ipc/budget", get(get_budget_status))
-        .route("/api/ipc/locks", get(list_locks))
-        .route("/api/ipc/models", get(list_models))
-        .route("/api/ipc/status", get(ipc_status))
-        .route("/api/ipc/stream", get(sse_stream))
-        .route("/api/events/stream", get(sse_stream))
+        .route("/api/ipc/status", get(handle_status))
+        .route("/api/ipc/agents", get(handle_agents))
+        .route("/api/ipc/channels", get(handle_channels))
+        .route("/api/ipc/context", get(handle_context))
+        .route("/api/ipc/messages", get(handle_messages))
+        .route("/api/ipc/stream", get(handle_stream))
+        .route("/api/ipc/send", post(handle_send))
         .with_state(state)
+        .merge(event_routes(bus))
 }
 
-async fn list_agents(State(st): State<IpcState>) -> impl IntoResponse {
-    let agents = crate::agents::list(&st.pool).map_err(err)?;
-    ok(json!(agents))
+/// Legacy SSE stream at /api/events/stream (from main branch).
+pub fn event_routes(bus: Arc<EventBus>) -> Router {
+    Router::new()
+        .route("/api/events/stream", get(legacy_stream_handler))
+        .with_state(bus)
 }
 
-#[derive(Deserialize)]
-struct RegisterReq {
-    name: String,
-    agent_type: String,
-    #[serde(default)]
-    pid: Option<u32>,
-    #[serde(default = "default_host")]
-    host: String,
-    #[serde(default)]
-    metadata: Option<String>,
-    #[serde(default)]
-    parent_agent: Option<String>,
+#[derive(serde::Deserialize, Default)]
+pub struct LegacyStreamQuery {
+    agent_filter: Option<String>,
 }
 
-fn default_host() -> String {
-    "local".into()
+async fn legacy_stream_handler(
+    State(bus): State<Arc<EventBus>>,
+    Query(q): Query<LegacyStreamQuery>,
+) -> Sse<impl futures_core::Stream<Item = Result<sse::Event, std::convert::Infallible>>> {
+    Sse::new(create_sse_stream(bus, q.agent_filter)).keep_alive(sse::KeepAlive::default())
 }
 
-async fn register_agent(
-    State(st): State<IpcState>,
-    Json(r): Json<RegisterReq>,
-) -> impl IntoResponse {
-    crate::agents::register(
-        &st.pool,
-        &r.name,
-        &r.agent_type,
-        r.pid,
-        &r.host,
-        r.metadata.as_deref(),
-        r.parent_agent.as_deref(),
-    )
-    .map_err(err)?;
-    ok(json!({"registered": r.name}))
+async fn handle_status(State(state): State<Arc<IpcState>>) -> Json<serde_json::Value> {
+    let conn = match state.pool.get() {
+        Ok(c) => c,
+        Err(e) => return Json(serde_json::json!({"error": e.to_string()})),
+    };
+    let agents: u64 = conn
+        .query_row("SELECT count(*) FROM ipc_agents", [], |r| r.get(0))
+        .unwrap_or(0);
+    let messages: u64 = conn
+        .query_row("SELECT count(*) FROM ipc_messages", [], |r| r.get(0))
+        .unwrap_or(0);
+    let channels: u64 = conn
+        .query_row("SELECT count(*) FROM ipc_channels", [], |r| r.get(0))
+        .unwrap_or(0);
+    Json(serde_json::json!({
+        "agents": agents,
+        "messages": messages,
+        "channels": channels,
+    }))
 }
 
-#[derive(Deserialize)]
-struct UnregReq {
-    name: String,
-    #[serde(default = "default_host")]
-    host: String,
+async fn handle_agents(State(state): State<Arc<IpcState>>) -> Json<serde_json::Value> {
+    match crate::agents::list(&state.pool) {
+        Ok(agents) => Json(serde_json::json!(agents)),
+        Err(e) => Json(serde_json::json!({"error": e.to_string()})),
+    }
 }
 
-async fn unregister_agent(
-    State(st): State<IpcState>,
-    Json(r): Json<UnregReq>,
-) -> impl IntoResponse {
-    crate::agents::unregister(&st.pool, &r.name, &r.host).map_err(err)?;
-    ok(json!({"unregistered": r.name}))
+async fn handle_channels(State(state): State<Arc<IpcState>>) -> Json<serde_json::Value> {
+    match crate::channels::list_channels(&state.pool) {
+        Ok(ch) => Json(serde_json::json!(ch)),
+        Err(e) => Json(serde_json::json!({"error": e.to_string()})),
+    }
 }
 
-#[derive(Deserialize)]
-struct HeartbeatReq {
-    name: String,
-    #[serde(default = "default_host")]
-    host: String,
+async fn handle_context(State(state): State<Arc<IpcState>>) -> Json<serde_json::Value> {
+    match crate::channels::context_list(&state.pool) {
+        Ok(ctx) => Json(serde_json::json!(ctx)),
+        Err(e) => Json(serde_json::json!({"error": e.to_string()})),
+    }
 }
 
-async fn agent_heartbeat(
-    State(st): State<IpcState>,
-    Json(r): Json<HeartbeatReq>,
-) -> impl IntoResponse {
-    crate::agents::heartbeat(&st.pool, &r.name, &r.host).map_err(err)?;
-    ok(json!({"ok": true}))
+#[derive(Debug, Deserialize)]
+pub struct MessagesQuery {
+    pub agent: Option<String>,
+    pub channel: Option<String>,
+    pub limit: Option<u32>,
 }
 
-#[derive(Deserialize)]
-struct SendReq {
-    from: String,
-    to: String,
-    content: String,
+async fn handle_messages(
+    State(state): State<Arc<IpcState>>,
+    Query(params): Query<MessagesQuery>,
+) -> Json<serde_json::Value> {
+    let limit = params.limit.unwrap_or(50).min(200);
+    match crate::messaging::history(
+        &state.pool,
+        params.agent.as_deref(),
+        params.channel.as_deref(),
+        limit,
+        None,
+    ) {
+        Ok(msgs) => Json(serde_json::json!(msgs)),
+        Err(e) => Json(serde_json::json!({"error": e.to_string()})),
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct StreamQuery {
+    pub agent: Option<String>,
+}
+
+async fn handle_stream(
+    State(state): State<Arc<IpcState>>,
+    Query(params): Query<StreamQuery>,
+) -> Sse<impl futures_core::Stream<Item = Result<sse::Event, std::convert::Infallible>>> {
+    Sse::new(create_sse_stream(
+        Arc::clone(&state.event_bus),
+        params.agent,
+    ))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SendRequest {
+    pub from: String,
+    pub to: String,
+    pub content: String,
     #[serde(default = "default_msg_type")]
-    msg_type: String,
+    pub msg_type: String,
     #[serde(default)]
-    priority: i32,
+    pub priority: i32,
 }
 
 fn default_msg_type() -> String {
     "text".into()
 }
 
-async fn send_message(State(st): State<IpcState>, Json(r): Json<SendReq>) -> impl IntoResponse {
+async fn handle_send(
+    State(state): State<Arc<IpcState>>,
+    Json(body): Json<SendRequest>,
+) -> Json<serde_json::Value> {
     let params = crate::messaging::SendParams {
-        from: &r.from,
-        to: &r.to,
-        content: &r.content,
-        msg_type: &r.msg_type,
-        priority: r.priority,
-        rate_limit: st.rate_limit,
+        from: &body.from,
+        to: &body.to,
+        content: &body.content,
+        msg_type: &body.msg_type,
+        priority: body.priority,
+        rate_limit: state.rate_limit,
     };
-    let id = crate::messaging::send(&st.pool, &st.notify, &params).map_err(err)?;
-    ok(json!({"id": id}))
-}
-
-#[derive(Deserialize)]
-struct RecvQuery {
-    agent: String,
-    #[serde(default)]
-    from: Option<String>,
-    #[serde(default)]
-    channel: Option<String>,
-    #[serde(default = "default_limit")]
-    limit: u32,
-}
-
-fn default_limit() -> u32 {
-    50
-}
-
-async fn receive_messages(
-    State(st): State<IpcState>,
-    Query(q): Query<RecvQuery>,
-) -> impl IntoResponse {
-    let msgs = crate::messaging::receive(
-        &st.pool,
-        &q.agent,
-        q.from.as_deref(),
-        q.channel.as_deref(),
-        q.limit,
-        false,
-    )
-    .map_err(err)?;
-    ok(json!(msgs))
-}
-
-async fn list_channels(State(st): State<IpcState>) -> impl IntoResponse {
-    let ch = crate::channels::list_channels(&st.pool).map_err(err)?;
-    ok(json!(ch))
-}
-
-async fn get_skill_pool(State(st): State<IpcState>) -> impl IntoResponse {
-    let skills = crate::skills::get_skill_pool(&st.pool).map_err(err)?;
-    ok(json!(skills))
-}
-
-#[derive(Deserialize)]
-struct BudgetQuery {
-    subscription: String,
-}
-
-async fn get_budget_status(
-    State(st): State<IpcState>,
-    Query(q): Query<BudgetQuery>,
-) -> impl IntoResponse {
-    let status = crate::budget::get_budget_status(&st.pool, &q.subscription).map_err(err)?;
-    ok(json!(status))
-}
-
-async fn list_locks(State(st): State<IpcState>) -> impl IntoResponse {
-    let locks = crate::locks::list_locks(&st.pool).map_err(err)?;
-    ok(json!(locks))
-}
-
-async fn list_models(State(st): State<IpcState>) -> impl IntoResponse {
-    let models = crate::models::get_all_models(&st.pool).map_err(err)?;
-    ok(json!(models))
-}
-
-async fn ipc_status(State(st): State<IpcState>) -> impl IntoResponse {
-    let agents = crate::agents::list(&st.pool).map_err(err)?.len();
-    let channels = crate::channels::list_channels(&st.pool).map_err(err)?.len();
-    ok(json!({"agents": agents, "channels": channels}))
-}
-
-#[derive(Deserialize, Default)]
-struct SseFilter {
-    #[serde(default)]
-    agent: Option<String>,
-    #[serde(default)]
-    agent_filter: Option<String>,
-}
-
-async fn sse_stream(
-    State(st): State<IpcState>,
-    Query(q): Query<SseFilter>,
-) -> Sse<impl futures_core::Stream<Item = Result<Event, std::convert::Infallible>>> {
-    let filter = q.agent.or(q.agent_filter);
-    let stream = crate::sse::create_sse_stream(st.event_bus, filter);
-    Sse::new(stream).keep_alive(KeepAlive::default())
-}
-
-fn err(e: impl std::fmt::Display) -> (StatusCode, String) {
-    (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-}
-
-fn ok(v: serde_json::Value) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
-    Ok(Json(v))
+    match crate::messaging::send(&state.pool, &state.notify, &params) {
+        Ok(id) => Json(serde_json::json!({"id": id})),
+        Err(e) => Json(serde_json::json!({"error": e.to_string()})),
+    }
 }

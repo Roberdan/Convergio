@@ -58,7 +58,14 @@ impl Extension for OrchestratorExtension {
     }
 
     fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
-        Some(crate::scaffold::scaffold_routes())
+        let state = Arc::new(crate::plan_routes::PlanState {
+            pool: self.pool.clone(),
+        });
+        let router = crate::scaffold::scaffold_routes()
+            .merge(crate::plan_routes::plan_routes(Arc::clone(&state)))
+            .merge(crate::plan_routes_ext::plan_routes_ext(Arc::clone(&state)))
+            .merge(crate::task_routes::task_routes(state));
+        Some(router)
     }
 
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {

@@ -91,12 +91,19 @@ impl Extension for BackupExtension {
         }
     }
 
-    fn migrations(&self) -> Vec<Migration> {
-        crate::schema::migrations()
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        let data_dir = convergio_types::platform_paths::convergio_data_dir();
+        let state = std::sync::Arc::new(crate::routes::BackupState {
+            pool: self.pool.clone(),
+            db_path: data_dir.join("convergio.db"),
+            backup_dir: crate::snapshot::backup_dir(&data_dir),
+            node_name: std::env::var("CONVERGIO_NODE_NAME").unwrap_or_else(|_| "local".into()),
+        });
+        Some(crate::routes::router(state))
     }
 
-    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
-        Some(crate::routes::router(self.state()))
+    fn migrations(&self) -> Vec<Migration> {
+        crate::schema::migrations()
     }
 
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
