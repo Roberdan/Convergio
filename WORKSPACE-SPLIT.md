@@ -245,6 +245,9 @@ Il gap critico e' la delegation multi-nodo (rsync + remote spawn).
 - **40b**: Integration test HTTP (830 unit + E2E)
 - **Frontend**: rifare convergio-frontend dentro Convergio (agenti via daemon)
 
+### Step 3b: Documentation (quando il sistema funziona E2E)
+- **47**: ADR + documentazione completa (estratta da codice e tracker)
+
 ### Step 4: Production hardening (Wave I)
 - **41**: Artifact model (output non-code: report, PDF, screenshot)
 - **42**: Human-in-the-loop (approvazione umana con soglie)
@@ -437,6 +440,41 @@ NON delegare: decisioni architetturali, risoluzione conflitti, validazione final
 | G4 | SqliteBlock | `scripts/hooks/git-pre-commit.sh` |
 | G5 | CommitLint | `scripts/hooks/git-commit-msg.sh` |
 | C1-C10 | Claude hooks | `.claude/settings.json` |
+
+### Fase 47: ADR + documentazione completa
+
+**Obiettivo**: Estrarre tutte le decisioni architetturali dal tracker e dal codice, generare docs.
+**Motivazione**: Zero ADR documentate. Zero documentazione API. Zero guide per contributor.
+Il tracker ha le decisioni implicite ma nessun documento formale. Un nuovo sviluppatore
+non può capire PERCHÉ le cose sono fatte in un certo modo.
+**Committente**: Roberto — "non ci sono ADR documentate e in generale non c'è documentazione"
+**Deps**: Step 3 (il sistema deve funzionare E2E prima di documentarlo)
+
+**ADR da estrarre dal tracker e dal codice** (ogni decisione ha un PERCHÉ):
+
+| # | Decisione | Dove nel tracker | Perche' |
+|---|-----------|-----------------|---------|
+| ADR-001 | Nuovo repo vs refactor | Sezione "Decisione strategica" | 845 commit, 784MB .git, cruft ovunque |
+| ADR-002 | Extension trait come unico contratto | Sezione "Extension Contract" | Zero alternative, zero workaround |
+| ADR-003 | SQLite + WAL vs Postgres | Fase 3 | Portabilita', zero setup, embedded |
+| ADR-004 | CLI = pure HTTP client | Regola | Disaccoppiamento, testabilita' |
+| ADR-005 | Worktree isolati per ogni task | Learning #4 | Agenti paralleli si pestano i piedi |
+| ADR-006 | No squash merge | Learning #23 | Merge paralleli perdono lavoro |
+| ADR-007 | AGENTS.md universale vs CLAUDE.md | Learning #20 | Provider-agnostic |
+| ADR-008 | DomainEventSink via AppContext | Fase 23d | Cross-crate event sharing senza dipendenze circolari |
+| ADR-009 | Agent spawning con processo reale | Fase 32 | Non solo DB insert, processo fork+exec |
+| ADR-010 | Thor pre+post review | Fase 32d | Challenger del piano, non solo validatore wave |
+| ADR-011 | Merge commit only | Learning #23-24 | Regole enforced dal sistema, non dai doc |
+| ADR-012 | launchd + PATH assoluti | Learning #19-20 | Daemon come servizio, non processo manuale |
+| ADR-013 | Inference multi-tier | Fase 11, 32 | t1-t4 con routing budget-aware |
+| ADR-014 | Monitor con waitpid | Learning sessione 4 | kill(0) non rileva zombie |
+
+**Task**:
+- Generare `docs/adr/` con un file per ADR (formato: titolo, contesto, decisione, conseguenze)
+- Generare `docs/api/` con OpenAPI spec (il crate depgraph gia' lo genera, servire via endpoint)
+- Generare `docs/guides/` con: getting-started, architecture, contributing, deployment
+- Aggiornare README.md con link alla documentazione
+- L'agente puo' estrarre le ADR direttamente dal WORKSPACE-SPLIT.md — ogni learning e' una ADR implicita
 
 ### Competitive analysis detail
 - **vs mesh-llm**: orthogonal (GPU pooling vs agent orchestration). Da rubare: subprocess plugin, blackboard gossip, Nostr discovery.

@@ -73,6 +73,9 @@ Non passare a Step 1 senza questa verifica.
     - Admin + monitoring completo
     - Repo: /Users/Roberdan/GitHub/convergio-frontend
 
+### Step 3b: Documentation (quando Step 3 e' done)
+13. Fase 47: ADR + docs completa (estrarre ADR dal tracker, OpenAPI, guide contributor)
+
 ### Step 4: Production hardening (Wave I)
 13. Fase 41: Artifact model (output non-code: report, PDF, screenshot, bundle)
 14. Fase 42: Human-in-the-loop (approvazione umana formale con soglie)
