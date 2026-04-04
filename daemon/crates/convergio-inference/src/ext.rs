@@ -88,7 +88,22 @@ impl Extension for InferenceExtension {
     }
 
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
-        tracing::info!("inference: extension started");
+        let config_path = std::env::var("CONVERGIO_MODELS_CONFIG")
+            .unwrap_or_else(|_| "config/inference-models.toml".to_string());
+        let endpoints = crate::model_config::load_model_endpoints(Some(&config_path));
+
+        let mut router = self.router.blocking_write();
+        for ep in endpoints {
+            tracing::info!(
+                model = ep.name.as_str(),
+                provider = ?ep.provider,
+                healthy = ep.healthy,
+                "registered model"
+            );
+            router.register_model(ep);
+        }
+        let count = router.model_names().len();
+        tracing::info!(count, "inference: models registered");
         Ok(())
     }
 

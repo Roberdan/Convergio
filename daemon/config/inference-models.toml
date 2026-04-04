@@ -1,0 +1,41 @@
+# Default model endpoints for the inference router.
+# Set environment variables to enable cloud providers:
+#   CONVERGIO_OLLAMA_URL (default: http://localhost:11434)
+#   CONVERGIO_OPENAI_TOKEN
+#   CONVERGIO_ANTHROPIC_TOKEN
+
+[[models]]
+name = "llama3"
+provider = "local"
+url = "${CONVERGIO_OLLAMA_URL:-http://localhost:11434}/v1/chat/completions"
+cost_per_1k_input = 0.0
+cost_per_1k_output = 0.0
+tier_min = "t1"
+tier_max = "t3"
+
+[[models]]
+name = "claude-sonnet"
+provider = "cloud"
+url = "https://api.anthropic.com/v1/messages"
+cost_per_1k_input = 3.0
+cost_per_1k_output = 15.0
+tier_min = "t2"
+tier_max = "t3"
+
+[[models]]
+name = "claude-opus"
+provider = "cloud"
+url = "https://api.anthropic.com/v1/messages"
+cost_per_1k_input = 15.0
+cost_per_1k_output = 75.0
+tier_min = "t3"
+tier_max = "t4"
+
+[[models]]
+name = "gpt-4o"
+provider = "cloud"
+url = "https://api.openai.com/v1/chat/completions"
+cost_per_1k_input = 2.5
+cost_per_1k_output = 10.0
+tier_min = "t2"
+tier_max = "t4"

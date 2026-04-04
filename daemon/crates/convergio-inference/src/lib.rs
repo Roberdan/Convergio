@@ -8,6 +8,7 @@ pub mod budget;
 pub mod classifier;
 pub mod ext;
 pub mod metrics;
+pub mod model_config;
 pub mod router;
 pub mod routes;
 pub mod schema;
