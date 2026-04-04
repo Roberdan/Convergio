@@ -14,8 +14,8 @@ pub struct TelegramClient {
 
 impl TelegramClient {
     pub fn from_env() -> Result<Self, String> {
-        let bot_token =
-            env::var("CONVERGIO_TELEGRAM_BOT_TOKEN").map_err(|_| "CONVERGIO_TELEGRAM_BOT_TOKEN not set".to_string())?;
+        let bot_token = env::var("CONVERGIO_TELEGRAM_BOT_TOKEN")
+            .map_err(|_| "CONVERGIO_TELEGRAM_BOT_TOKEN not set".to_string())?;
         let chat_id = env::var("CONVERGIO_TELEGRAM_CHAT_ID")
             .map_err(|_| "CONVERGIO_TELEGRAM_CHAT_ID not set".to_string())?;
         Ok(TelegramClient { bot_token, chat_id })
