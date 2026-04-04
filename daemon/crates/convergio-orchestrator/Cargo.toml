@@ -20,3 +20,7 @@ reqwest = { workspace = true }
 axum = { workspace = true }
 libc = { workspace = true }
 tokio-util = { workspace = true }
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+convergio-ipc = { path = "../convergio-ipc" }
