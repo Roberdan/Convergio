@@ -96,6 +96,23 @@ pub fn tracking_migrations() -> Vec<Migration> {
                  ALTER TABLE waves ADD COLUMN completed_at TEXT;\
                  ALTER TABLE waves ADD COLUMN cancelled_at TEXT;",
         },
+        Migration {
+            version: 8,
+            description: "artifact storage for non-code projects",
+            up: "CREATE TABLE IF NOT EXISTS artifacts (\
+                     id            INTEGER PRIMARY KEY AUTOINCREMENT,\
+                     task_id       INTEGER NOT NULL,\
+                     plan_id       INTEGER NOT NULL,\
+                     name          TEXT NOT NULL,\
+                     artifact_type TEXT NOT NULL DEFAULT 'document',\
+                     path          TEXT NOT NULL,\
+                     size_bytes    INTEGER NOT NULL DEFAULT 0,\
+                     created_at    TEXT NOT NULL DEFAULT (datetime('now'))\
+                 );\
+                 CREATE INDEX IF NOT EXISTS idx_artifacts_task ON artifacts(task_id);\
+                 CREATE INDEX IF NOT EXISTS idx_artifacts_plan ON artifacts(plan_id);\
+                 CREATE INDEX IF NOT EXISTS idx_artifacts_type ON artifacts(artifact_type);",
+        },
     ]
 }
 
@@ -115,6 +132,6 @@ mod tests {
         let tracking = tracking_migrations();
         let applied =
             convergio_db::migration::apply_migrations(&conn, "orchestrator", &tracking).unwrap();
-        assert_eq!(applied, 4);
+        assert_eq!(applied, 5);
     }
 }

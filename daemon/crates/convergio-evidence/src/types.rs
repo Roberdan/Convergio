@@ -12,6 +12,8 @@ pub enum EvidenceKind {
     CommitHash,
     Artifact,
     CurlOutput,
+    ReviewPass,
+    Document,
 }
 
 impl EvidenceKind {
@@ -23,6 +25,8 @@ impl EvidenceKind {
             Self::CommitHash => "commit_hash",
             Self::Artifact => "artifact",
             Self::CurlOutput => "curl_output",
+            Self::ReviewPass => "review_pass",
+            Self::Document => "document",
         }
     }
 
@@ -34,6 +38,8 @@ impl EvidenceKind {
             "commit_hash" => Some(Self::CommitHash),
             "artifact" => Some(Self::Artifact),
             "curl_output" => Some(Self::CurlOutput),
+            "review_pass" => Some(Self::ReviewPass),
+            "document" => Some(Self::Document),
             _ => None,
         }
     }
@@ -131,6 +137,8 @@ mod tests {
             EvidenceKind::CommitHash,
             EvidenceKind::Artifact,
             EvidenceKind::CurlOutput,
+            EvidenceKind::ReviewPass,
+            EvidenceKind::Document,
         ] {
             let s = kind.as_str();
             assert_eq!(EvidenceKind::parse(s), Some(kind));
