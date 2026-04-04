@@ -58,7 +58,11 @@ pub async fn call_model(
         .map_err(|e| format!("http client: {e}"))?;
 
     // Ollama model name: strip provider prefix if present
-    let model_name = endpoint.name.split('/').next_back().unwrap_or(&endpoint.name);
+    let model_name = endpoint
+        .name
+        .split('/')
+        .next_back()
+        .unwrap_or(&endpoint.name);
 
     let url = format!("{}/v1/chat/completions", endpoint.url.trim_end_matches('/'));
 
