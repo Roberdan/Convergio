@@ -28,7 +28,13 @@ pub fn queue(pool: &ConnPool, body: NotifyBody) -> Json<Value> {
     match conn.execute(
         "INSERT INTO notification_queue (severity, title, message, plan_id, link) \
          VALUES (?1, ?2, ?3, ?4, ?5)",
-        rusqlite::params![body.severity, body.title, body.message, body.plan_id, body.link],
+        rusqlite::params![
+            body.severity,
+            body.title,
+            body.message,
+            body.plan_id,
+            body.link
+        ],
     ) {
         Ok(_) => {
             let id = conn.last_insert_rowid();

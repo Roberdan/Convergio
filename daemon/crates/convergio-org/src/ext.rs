@@ -6,7 +6,7 @@ use convergio_db::pool::ConnPool;
 use convergio_types::extension::{AppContext, Extension, Health, Metric, Migration};
 use convergio_types::manifest::{Capability, Dependency, Manifest, ModuleKind};
 
-use crate::routes::{OrgState, org_routes};
+use crate::routes::{org_routes, OrgState};
 
 /// Org extension — organization design, provisioning, notifications, decisions.
 pub struct OrgExtension {

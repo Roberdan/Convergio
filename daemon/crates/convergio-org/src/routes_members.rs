@@ -89,10 +89,7 @@ pub fn get_orgchart(pool: &ConnPool, org_id: &str) -> Json<Value> {
     let mut departments: std::collections::HashMap<String, Vec<String>> =
         std::collections::HashMap::new();
     for m in &members {
-        let dept = m["department"]
-            .as_str()
-            .unwrap_or("General")
-            .to_string();
+        let dept = m["department"].as_str().unwrap_or("General").to_string();
         let agent = m["agent"].as_str().unwrap_or("?").to_string();
         departments.entry(dept).or_default().push(agent);
     }

@@ -80,12 +80,9 @@ async fn install_package(
     let sandbox = crate::sandbox::create_sandbox(&manifest);
 
     // Sign if secret provided
-    let signature = body
-        .signing_secret
-        .as_ref()
-        .and_then(|secret| {
-            crate::signing::sign_package(manifest_str.as_bytes(), secret.as_bytes()).ok()
-        });
+    let signature = body.signing_secret.as_ref().and_then(|secret| {
+        crate::signing::sign_package(manifest_str.as_bytes(), secret.as_bytes()).ok()
+    });
     let digest = crate::signing::content_digest(manifest_str.as_bytes());
 
     // Insert into DB
@@ -153,10 +150,7 @@ async fn list_packages(State(s): State<Arc<OrgPkgState>>) -> Json<Value> {
     Json(json!({"packages": rows}))
 }
 
-async fn get_package(
-    State(s): State<Arc<OrgPkgState>>,
-    Path(id): Path<i64>,
-) -> Json<Value> {
+async fn get_package(State(s): State<Arc<OrgPkgState>>, Path(id): Path<i64>) -> Json<Value> {
     let conn = match s.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"error": e.to_string()})),
@@ -189,10 +183,7 @@ async fn get_package(
     }
 }
 
-async fn uninstall_package(
-    State(s): State<Arc<OrgPkgState>>,
-    Path(id): Path<i64>,
-) -> Json<Value> {
+async fn uninstall_package(State(s): State<Arc<OrgPkgState>>, Path(id): Path<i64>) -> Json<Value> {
     let conn = match s.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"error": e.to_string()})),

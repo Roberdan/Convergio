@@ -8,7 +8,7 @@ use convergio_db::pool::ConnPool;
 use convergio_types::extension::{AppContext, Extension, Health, Metric, Migration};
 use convergio_types::manifest::{Capability, Dependency, Manifest, ModuleKind};
 
-use crate::routes::{OrgPkgState, org_package_routes};
+use crate::routes::{org_package_routes, OrgPkgState};
 
 /// Org-as-package extension — install, sandbox, sign, delegate.
 pub struct OrgPackageExtension {

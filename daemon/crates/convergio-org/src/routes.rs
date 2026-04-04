@@ -110,10 +110,7 @@ async fn list_orgs(State(s): State<Arc<OrgState>>) -> Json<Value> {
     Json(json!({"orgs": rows}))
 }
 
-async fn get_org(
-    State(s): State<Arc<OrgState>>,
-    Path(id): Path<String>,
-) -> Json<Value> {
+async fn get_org(State(s): State<Arc<OrgState>>, Path(id): Path<String>) -> Json<Value> {
     let conn = match s.pool.get() {
         Ok(c) => c,
         Err(e) => return Json(json!({"error": e.to_string()})),
@@ -170,10 +167,7 @@ async fn remove_member(
     crate::routes_members::remove_member(&s.pool, &id, &agent)
 }
 
-async fn get_orgchart(
-    State(s): State<Arc<OrgState>>,
-    Path(id): Path<String>,
-) -> Json<Value> {
+async fn get_orgchart(State(s): State<Arc<OrgState>>, Path(id): Path<String>) -> Json<Value> {
     crate::routes_members::get_orgchart(&s.pool, &id)
 }
 

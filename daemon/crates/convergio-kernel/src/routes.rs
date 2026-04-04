@@ -80,10 +80,7 @@ struct AskBody {
     query: String,
 }
 
-async fn handle_ask(
-    State(s): State<Arc<KernelState>>,
-    Json(body): Json<AskBody>,
-) -> Json<Value> {
+async fn handle_ask(State(s): State<Arc<KernelState>>, Json(body): Json<AskBody>) -> Json<Value> {
     let engine = s.engine.read().await;
     let level = engine.route_inference(&body.query);
     Json(json!({

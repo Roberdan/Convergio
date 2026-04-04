@@ -8,7 +8,7 @@ use convergio_types::manifest::{Capability, Dependency, Manifest, ModuleKind};
 use tokio::sync::RwLock;
 
 use crate::engine::KernelEngine;
-use crate::routes::{KernelState, kernel_routes};
+use crate::routes::{kernel_routes, KernelState};
 
 /// Kernel extension — Jarvis: local LLM assistant with monitoring and recovery.
 pub struct KernelExtension {
