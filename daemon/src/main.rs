@@ -125,7 +125,14 @@ async fn main() {
     }
 
     // 9. Build router
-    let state = ServerState::new(pool, config, health, metrics, false);
+    // Dev mode: enable localhost bypass when no auth token is configured
+    let dev_mode = std::env::var("CONVERGIO_AUTH_TOKEN")
+        .map(|v| v.is_empty())
+        .unwrap_or(true);
+    if dev_mode {
+        tracing::info!("dev-mode enabled (no CONVERGIO_AUTH_TOKEN set)");
+    }
+    let state = ServerState::new(pool, config, health, metrics, dev_mode);
     let router = build_router(state, &extensions, &ctx);
 
     // 10. Serve
