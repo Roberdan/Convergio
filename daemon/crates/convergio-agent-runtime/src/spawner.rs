@@ -77,6 +77,9 @@ pub fn spawn_process(
             let mut cmd = Command::new(&claude_bin);
             cmd.args(["--dangerously-skip-permissions"]);
             cmd.args(["--model", model]);
+            // Learning: claude -p sometimes hangs after completing its task.
+            // --max-turns caps conversation turns so the process exits reliably.
+            cmd.args(["--max-turns", "50"]);
             cmd.args(["-p", "Leggi TASK.md per le istruzioni. Poi inizia."]);
             cmd.current_dir(workspace);
             for (k, v) in env_vars {

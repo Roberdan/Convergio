@@ -80,7 +80,16 @@ impl Extension for ObservatoryExtension {
         Some(crate::routes::observatory_routes(self.state()))
     }
 
-    fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
+    fn on_start(&self, ctx: &AppContext) -> ExtResult<()> {
+        // Subscribe to EventBus and persist domain events to timeline
+        if let Some(bus) = ctx.get::<std::sync::Arc<convergio_ipc::sse::EventBus>>() {
+            crate::sink::spawn_timeline_sink(self.pool.clone(), bus.clone());
+            tracing::info!("observatory: timeline sink started");
+        } else {
+            tracing::warn!(
+                "observatory: no EventBus in context, timeline sink disabled"
+            );
+        }
         tracing::info!("observatory: extension started");
         Ok(())
     }

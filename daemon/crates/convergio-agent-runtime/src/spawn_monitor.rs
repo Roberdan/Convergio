@@ -80,13 +80,28 @@ pub fn monitor_agent(
 }
 
 /// Poll until process exits. Returns exit code or -1.
+/// Uses waitpid(WNOHANG) to detect zombie processes that kill(0) misses.
 async fn wait_for_exit(pid: u32) -> i32 {
     loop {
         tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-        // Check if process is still alive
-        let alive = unsafe { libc::kill(pid as i32, 0) } == 0;
-        if !alive {
-            return -1; // Process gone, can't get exit code from detached child
+        // Try waitpid first — catches zombies that kill(0) reports as alive
+        let mut status: i32 = 0;
+        let result =
+            unsafe { libc::waitpid(pid as i32, &mut status, libc::WNOHANG) };
+        if result > 0 {
+            // Process exited (or was zombie, now reaped)
+            if libc::WIFEXITED(status) {
+                return libc::WEXITSTATUS(status);
+            }
+            return -1;
+        }
+        // waitpid returns 0 = still running, -1 = not our child
+        if result < 0 {
+            // ECHILD: not our child process (already reaped or not a child)
+            let alive = unsafe { libc::kill(pid as i32, 0) } == 0;
+            if !alive {
+                return -1;
+            }
         }
     }
 }
