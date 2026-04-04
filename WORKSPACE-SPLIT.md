@@ -1752,6 +1752,112 @@ Learning #13: unit test verdi ≠ sistema funzionante.
 - [ ] Test: SSE stream → create plan → verify event received
 - [ ] Aggiungere a CI come job separato (integration-test)
 
+### WAVE I — Production Hardening (i buchi che nessuno ha visto)
+
+Feedback review: 6 rischi architetturali che mancano dal piano.
+Senza questi, convergio funziona in demo ma non in produzione.
+
+### Fase 41: Artifact model — output non solo codice
+
+**Obiettivo**: Il sistema gestisce qualsiasi tipo di output, non solo commit/PR.
+**Motivazione**: Un agente può produrre: report PDF, screenshot, dataset, bundle di evidenze,
+documento legale, analisi dati. Oggi l'unico "output" riconosciuto è un git commit.
+Se l'agente produce un report, il sistema non sa che esiste.
+
+#### Task
+- [ ] `task_artifacts` table: task_id, artifact_type (code/document/report/screenshot/data), path, size, checksum, created_at
+- [ ] API: POST /api/tasks/:id/artifacts — registra un artifact prodotto
+- [ ] API: GET /api/tasks/:id/artifacts — lista artifacts di un task
+- [ ] Il monitor registra automaticamente: file committati come artifacts tipo "code", file non-git come "document"
+- [ ] Evidence gate accetta artifacts non-code: un PDF con checksum è evidence valida
+- [ ] Thor validation per artifacts: per codice→test passano, per documenti→file esiste e non è vuoto, per report→contiene le sezioni richieste
+- [ ] UI: mostra artifacts per task con link/preview
+
+### Fase 42: Human-in-the-loop — il ruolo di Roberto nel workflow
+
+**Obiettivo**: Formalizzare quando serve approvazione umana e come chiederla.
+**Motivazione**: Thor valida automaticamente, ma alcune decisioni richiedono Roberto:
+budget >$50, cambio architettura, merge su main, deploy, decisioni di business.
+Oggi non c'è un meccanismo formale — o tutto automatico o Roberto controlla a mano.
+
+#### Task
+- [ ] `approval_required` flag su task: se true, il task non può passare a done senza approval umano
+- [ ] `approval_policy` per piano: auto (tutto automatico), manual (tutto umano), hybrid (soglie)
+- [ ] API: POST /api/approvals/request — chiede approvazione a Roberto (+ notifica Telegram)
+- [ ] API: POST /api/approvals/grant/:id — Roberto approva
+- [ ] API: POST /api/approvals/deny/:id — Roberto rifiuta con feedback
+- [ ] Soglie configurabili: budget >X → richiedi approval, risk_level=critical → richiedi approval
+- [ ] Gate: task con approval_required non può essere done senza grant
+- [ ] Il workflow si BLOCCA in attesa di approval, non procede e spera
+
+### Fase 43: Compensation e rollback — cosa succede se una wave fallisce
+
+**Obiettivo**: Se un task o una wave fallisce a metà, il sistema sa come compensare.
+**Motivazione**: Oggi se un agente fallisce, il task resta "in_progress" per sempre.
+Non c'è rollback del codice, non c'è compensazione per task dipendenti,
+non c'è notifica ai task successivi che il loro input non arriverà.
+
+#### Task
+- [ ] `rollback_strategy` per task: none, git_revert, manual, compensate
+- [ ] Se task fallisce: rollback automatico (git revert del commit se rollback_strategy=git_revert)
+- [ ] Se wave fallisce: tutti i task non-started della wave vanno in "blocked"
+- [ ] Se wave fallisce: wave successive che dipendono vanno in "blocked" con motivo
+- [ ] Notifica agenti attivi nella stessa wave: "il tuo collega ha fallito, verifica le dipendenze"
+- [ ] Retry policy: max 2 retry automatici, poi escalation all'umano
+- [ ] Compensazione economica: se un agente ha speso budget inutilmente, registrare come "wasted"
+- [ ] API: POST /api/plan-db/wave/:id/rollback — rollback manuale di una wave
+
+### Fase 44: Scheduler policy — chi decide dove e come eseguire
+
+**Obiettivo**: Decisioni di scheduling basate su capability, costo, privacy, località.
+**Motivazione**: Oggi lo spawner sceglie il tier (t1-t4) e basta. Non considera:
+quale nodo ha la GPU, quale ha accesso ai dati sensibili, quale è più economico,
+quale ha meno carico. Il model router decide il modello ma non il nodo.
+
+#### Task
+- [ ] `SchedulingPolicy` struct: preferred_node, required_capabilities, max_cost, data_locality, privacy_level
+- [ ] Il planner specifica la policy per ogni task: "questo task richiede GPU" → va su nodo con GPU
+- [ ] Il scheduler consulta il node capability registry (Fase 37b) per trovare il nodo giusto
+- [ ] Costo-aware: se un nodo locale è disponibile → preferisci locale (costo zero per compute)
+- [ ] Privacy-aware: task con dati sensibili → solo nodi trusted, mai nodi external
+- [ ] Load balancing: se un nodo ha 5 agenti attivi e un altro ne ha 0 → distribuisci
+- [ ] Fallback chain: nodo preferito → qualsiasi nodo con capability → errore con spiegazione
+- [ ] API: GET /api/scheduler/decision — mostra perché un task è stato assegnato a un nodo
+
+### Fase 45: Security per remote execution — non fidarsi di nessuno
+
+**Obiettivo**: Esecuzione remota sicura — repo sync, secrets, sandbox, trust.
+**Motivazione**: Quando il daemon copia un repo su un nodo remoto e spawna un agente,
+sta dando accesso al codice, ai segreti (.env), e al network. Se il nodo è compromesso,
+tutto è compromesso. Oggi non c'è nessun livello di trust o sandbox.
+
+#### Task
+- [ ] Node trust levels: trusted (nodi propri), verified (nodi partner), untrusted (community)
+- [ ] Secrets filtering: quando sync repo a nodo non-trusted, escludere .env, credentials, API keys
+- [ ] Secrets injection: il daemon trusted inietta secrets via variabili d'ambiente, non via file
+- [ ] Sandbox remote: l'agente su nodo untrusted gira in container/sandbox con network limitato
+- [ ] Audit: ogni file sincronizzato è loggato con checksum, ogni accesso ai secrets è auditato
+- [ ] mTLS tra nodi mesh: non solo HMAC per i messaggi, ma TLS per il trasporto
+- [ ] Token scoped per nodo: ogni nodo ha un token con permessi limitati (solo le API che gli servono)
+- [ ] Post-execution cleanup: dopo che l'agente finisce, il nodo remoto cancella il worktree e i file temporanei
+
+### Fase 46: Evaluation framework — misurare planner e Thor
+
+**Obiettivo**: Misurare quantitativamente se il planner produce buoni piani e se Thor cattura i problemi.
+**Motivazione**: Oggi "Thor funziona" = "non ha dato errori". Ma quanti problemi reali ha mancato?
+Quanti falsi positivi ha prodotto (bloccando lavoro valido)? Il planner produce piani completi
+o lascia buchi sistematicamente? Senza metriche, non possiamo migliorare.
+
+#### Task
+- [ ] `evaluation_log` table: evaluator (planner/thor), decision, ground_truth, correct (bool), timestamp
+- [ ] Per il planner: dopo che un piano è completato, confronta "cosa era pianificato" vs "cosa è stato fatto realmente". Task aggiunti in corso = il planner aveva dimenticato qualcosa.
+- [ ] Per Thor: dopo ogni validazione, registra verdict. Quando Roberto fa review manuale, registra se concorda. Discordanza = false positive/negative.
+- [ ] Metriche planner: completeness_rate (task pianificati vs necessari), accuracy (stime costo vs reale), rework_rate (task rifatti)
+- [ ] Metriche Thor: precision (problemi reali trovati / problemi segnalati), recall (problemi reali trovati / problemi totali), false_positive_rate
+- [ ] Dashboard: trend nel tempo, confronto tra modelli usati per planner/Thor
+- [ ] Feedback loop: se Thor ha un false_positive_rate >20% → aggiusta i criteri di validazione
+- [ ] API: GET /api/evaluation/planner, GET /api/evaluation/thor
+
 ---
 
 ## FRONTEND — Convergio Cockpit UI
