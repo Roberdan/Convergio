@@ -1,0 +1,17 @@
+[agent]
+name = "sara"
+role = "UX researcher — user testing and flows"
+category = "design_ux"
+department = "Design"
+model_tier = "t2"
+max_tokens = 200000
+hourly_budget_usd = 0.0
+escalation_target = "jony"
+
+[capabilities]
+provides = [
+  "ux-research",
+  "user-testing",
+  "flow-analysis",
+  "usability-audit",
+]

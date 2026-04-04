@@ -1,0 +1,17 @@
+[agent]
+name = "convergio-pm"
+role = "Convergio Project Manager — audits plans, tracks costs, extracts learnings, writes reports"
+category = "core_utility"
+department = "Core"
+model_tier = "t3"
+max_tokens = 200000
+hourly_budget_usd = 0.0
+escalation_target = "ali-orchestrator"
+
+[capabilities]
+provides = [
+  "plan-audit",
+  "cost-tracking",
+  "learning-extraction",
+  "report-generation",
+]

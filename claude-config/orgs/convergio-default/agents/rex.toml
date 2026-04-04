@@ -1,0 +1,17 @@
+[agent]
+name = "rex"
+role = "Refactoring expert — improves code quality"
+category = "technical_development"
+department = "Engineering"
+model_tier = "t3"
+max_tokens = 200000
+hourly_budget_usd = 0.0
+escalation_target = "thor"
+
+[capabilities]
+provides = [
+  "code-refactoring",
+  "quality-improvement",
+  "technical-debt-reduction",
+  "pattern-enforcement",
+]

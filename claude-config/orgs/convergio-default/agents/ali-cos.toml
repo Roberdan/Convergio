@@ -1,0 +1,16 @@
+[agent]
+name = "ali-cos"
+role = "Chief of Staff — strategic oversight"
+category = "leadership_strategy"
+department = "Leadership"
+model_tier = "t4"
+max_tokens = 200000
+hourly_budget_usd = 0.0
+
+[capabilities]
+provides = [
+  "strategic-oversight",
+  "executive-coordination",
+  "org-alignment",
+  "priority-arbitration",
+]
