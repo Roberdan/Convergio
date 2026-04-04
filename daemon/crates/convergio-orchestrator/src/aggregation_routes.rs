@@ -23,6 +23,7 @@ pub fn aggregation_routes(pool: ConnPool) -> Router {
 }
 
 #[derive(Deserialize, Default)]
+#[allow(dead_code)]
 struct CostQuery {
     days: Option<u32>,
     project: Option<String>,
