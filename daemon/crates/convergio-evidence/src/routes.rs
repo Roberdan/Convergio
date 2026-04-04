@@ -35,7 +35,7 @@ async fn record_evidence(
     State(pool): State<ConnPool>,
     Json(r): Json<RecordReq>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let id = crate::evidence::record_evidence(
         &conn,
         r.task_id,
@@ -44,7 +44,7 @@ async fn record_evidence(
         &r.output_summary,
         r.exit_code,
     )
-    .map_err(|e| err(e))?;
+    .map_err(err)?;
     ok_created(json!({"id": id}))
 }
 
@@ -52,7 +52,7 @@ async fn list_evidence(
     State(pool): State<ConnPool>,
     Path(task_id): Path<i64>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let records = crate::evidence::list_evidence(&conn, task_id);
     ok(json!(records))
 }
@@ -61,13 +61,13 @@ async fn has_evidence(
     State(pool): State<ConnPool>,
     Path((task_id, kind)): Path<(i64, String)>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let exists = crate::evidence::has_evidence(&conn, task_id, &kind);
     ok(json!({"has_evidence": exists}))
 }
 
 async fn list_commits(State(pool): State<ConnPool>, Path(task_id): Path<i64>) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let commits = crate::evidence::list_commit_matches(&conn, task_id);
     ok(json!(commits))
 }
@@ -87,7 +87,7 @@ async fn run_gates(
     Path(task_id): Path<i64>,
     Json(r): Json<GateReq>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     match crate::gates::run_all_gates(&conn, task_id, &r.target_status) {
         Ok(()) => ok(json!({"passed": true})),
         Err(violation) => Ok(Json(
@@ -100,7 +100,7 @@ async fn run_preflight(
     State(pool): State<ConnPool>,
     Path(task_id): Path<i64>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let result = crate::preflight::run_preflight(&conn, task_id);
     ok(json!(result))
 }
@@ -115,7 +115,7 @@ async fn match_commit(
     State(pool): State<ConnPool>,
     Json(r): Json<CommitMatchReq>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let matched = crate::workflow::match_commit_to_task(&conn, &r.commit_hash, &r.commit_message);
     ok(json!({"matched_tasks": matched}))
 }

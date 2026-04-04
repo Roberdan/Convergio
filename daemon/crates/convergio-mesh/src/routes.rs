@@ -22,7 +22,7 @@ pub fn mesh_routes(pool: ConnPool) -> Router {
 }
 
 async fn mesh_status(State(pool): State<ConnPool>) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let peers: i64 = conn
         .query_row(
             "SELECT count(DISTINCT peer_name) FROM mesh_sync_stats",
@@ -41,14 +41,14 @@ async fn mesh_status(State(pool): State<ConnPool>) -> impl IntoResponse {
 }
 
 async fn sync_stats(State(pool): State<ConnPool>) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let mut stmt = conn
         .prepare(
             "SELECT peer_name, total_sent, total_received, total_applied, \
              last_latency_ms, last_sync_at FROM mesh_sync_stats \
              ORDER BY last_sync_at DESC LIMIT 100",
         )
-        .map_err(|e| err(e))?;
+        .map_err(err)?;
     let rows: Vec<serde_json::Value> = stmt
         .query_map([], |r| {
             Ok(json!({
@@ -60,7 +60,7 @@ async fn sync_stats(State(pool): State<ConnPool>) -> impl IntoResponse {
                 "synced_at": r.get::<_, Option<String>>(5)?,
             }))
         })
-        .map_err(|e| err(e))?
+        .map_err(err)?
         .filter_map(|r| r.ok())
         .collect();
     ok(json!(rows))
@@ -89,7 +89,7 @@ async fn list_peers(State(_pool): State<ConnPool>) -> impl IntoResponse {
 }
 
 async fn convergence_check(State(pool): State<ConnPool>) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let checksum = crate::convergence::compute_local_checksum(&conn);
     ok(json!({"local_checksum": checksum}))
 }
@@ -98,7 +98,7 @@ async fn delegation_progress(
     State(pool): State<ConnPool>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     let progress = crate::delegation::get_progress(&conn, &id);
     ok(json!({"delegation_id": id, "progress": progress}))
 }
@@ -115,7 +115,7 @@ async fn record_delegation_step(
     State(pool): State<ConnPool>,
     Json(r): Json<DelegationStepReq>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
     crate::delegation::record_step(
         &conn,
         &r.delegation_id,

@@ -54,8 +54,8 @@ async fn speak(
     let result = st
         .tts
         .lock()
-        .map_err(|e| err(e))
-        .and_then(|mut engine| engine.speak(&r.text, &r.locale).map_err(|e| err(e)));
+        .map_err(err)
+        .and_then(|mut engine| engine.speak(&r.text, &r.locale).map_err(err));
     match result {
         Ok(audio) => Ok((StatusCode::OK, [("content-type", "audio/wav")], audio)),
         Err(e) => Err(e),
@@ -68,7 +68,7 @@ struct IntentReq {
 }
 
 async fn extract_intent(Json(r): Json<IntentReq>) -> impl IntoResponse {
-    let intent = crate::intent::extract_intent(&r.text).map_err(|e| err(e))?;
+    let intent = crate::intent::extract_intent(&r.text).map_err(err)?;
     ok(json!(intent))
 }
 

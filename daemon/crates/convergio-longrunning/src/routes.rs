@@ -43,8 +43,8 @@ async fn register_heartbeat(
     State(pool): State<ConnPool>,
     Json(r): Json<RegisterReq>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    crate::heartbeat::register(&conn, &r.execution_id, r.interval_secs).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    crate::heartbeat::register(&conn, &r.execution_id, r.interval_secs).map_err(err)?;
     ok(json!({"registered": r.execution_id}))
 }
 
@@ -54,14 +54,14 @@ struct BeatReq {
 }
 
 async fn beat(State(pool): State<ConnPool>, Json(r): Json<BeatReq>) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    crate::heartbeat::beat(&conn, &r.execution_id).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    crate::heartbeat::beat(&conn, &r.execution_id).map_err(err)?;
     ok(json!({"ok": true}))
 }
 
 async fn find_stale(State(pool): State<ConnPool>) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    let stale = crate::heartbeat::find_stale(&conn).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    let stale = crate::heartbeat::find_stale(&conn).map_err(err)?;
     let entries: Vec<serde_json::Value> = stale
         .iter()
         .map(|(id, interval, age)| json!({"id": id, "interval": interval, "age_secs": age}))
@@ -74,8 +74,8 @@ async fn save_checkpoint(
     Path(id): Path<String>,
     Json(state): Json<serde_json::Value>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    crate::checkpoint::save(&conn, &id, &state).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    crate::checkpoint::save(&conn, &id, &state).map_err(err)?;
     ok(json!({"saved": id}))
 }
 
@@ -83,8 +83,8 @@ async fn load_checkpoint(
     State(pool): State<ConnPool>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    let cp = crate::checkpoint::load(&conn, &id).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    let cp = crate::checkpoint::load(&conn, &id).map_err(err)?;
     ok(json!({"checkpoint": cp}))
 }
 
@@ -92,14 +92,14 @@ async fn clear_checkpoint(
     State(pool): State<ConnPool>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    let cleared = crate::checkpoint::clear(&conn, &id).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    let cleared = crate::checkpoint::clear(&conn, &id).map_err(err)?;
     ok(json!({"cleared": cleared}))
 }
 
 async fn load_progress(State(pool): State<ConnPool>, Path(id): Path<String>) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    let snap = crate::progress::load(&conn, &id).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    let snap = crate::progress::load(&conn, &id).map_err(err)?;
     ok(json!(snap))
 }
 
@@ -107,20 +107,20 @@ async fn delegation_tree(
     State(pool): State<ConnPool>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    let tree = crate::delegation::build_tree(&conn, &id).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    let tree = crate::delegation::build_tree(&conn, &id).map_err(err)?;
     ok(json!(tree))
 }
 
 async fn list_children(State(pool): State<ConnPool>, Path(id): Path<String>) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    let children = crate::delegation::list_children(&conn, &id).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    let children = crate::delegation::list_children(&conn, &id).map_err(err)?;
     ok(json!(children))
 }
 
 async fn budget_status(State(pool): State<ConnPool>, Path(id): Path<String>) -> impl IntoResponse {
-    let conn = pool.get().map_err(|e| err(e))?;
-    let (spent, limit) = crate::budget::status(&conn, &id).map_err(|e| err(e))?;
+    let conn = pool.get().map_err(err)?;
+    let (spent, limit) = crate::budget::status(&conn, &id).map_err(err)?;
     ok(json!({"spent_usd": spent, "limit_usd": limit}))
 }
 

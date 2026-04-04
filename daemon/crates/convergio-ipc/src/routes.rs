@@ -45,7 +45,7 @@ pub fn ipc_routes(state: IpcState) -> Router {
 }
 
 async fn list_agents(State(st): State<IpcState>) -> impl IntoResponse {
-    let agents = crate::agents::list(&st.pool).map_err(|e| err(e))?;
+    let agents = crate::agents::list(&st.pool).map_err(err)?;
     ok(json!(agents))
 }
 
@@ -80,7 +80,7 @@ async fn register_agent(
         r.metadata.as_deref(),
         r.parent_agent.as_deref(),
     )
-    .map_err(|e| err(e))?;
+    .map_err(err)?;
     ok(json!({"registered": r.name}))
 }
 
@@ -95,7 +95,7 @@ async fn unregister_agent(
     State(st): State<IpcState>,
     Json(r): Json<UnregReq>,
 ) -> impl IntoResponse {
-    crate::agents::unregister(&st.pool, &r.name, &r.host).map_err(|e| err(e))?;
+    crate::agents::unregister(&st.pool, &r.name, &r.host).map_err(err)?;
     ok(json!({"unregistered": r.name}))
 }
 
@@ -110,7 +110,7 @@ async fn agent_heartbeat(
     State(st): State<IpcState>,
     Json(r): Json<HeartbeatReq>,
 ) -> impl IntoResponse {
-    crate::agents::heartbeat(&st.pool, &r.name, &r.host).map_err(|e| err(e))?;
+    crate::agents::heartbeat(&st.pool, &r.name, &r.host).map_err(err)?;
     ok(json!({"ok": true}))
 }
 
@@ -138,7 +138,7 @@ async fn send_message(State(st): State<IpcState>, Json(r): Json<SendReq>) -> imp
         priority: r.priority,
         rate_limit: st.rate_limit,
     };
-    let id = crate::messaging::send(&st.pool, &st.notify, &params).map_err(|e| err(e))?;
+    let id = crate::messaging::send(&st.pool, &st.notify, &params).map_err(err)?;
     ok(json!({"id": id}))
 }
 
@@ -169,17 +169,17 @@ async fn receive_messages(
         q.limit,
         false,
     )
-    .map_err(|e| err(e))?;
+    .map_err(err)?;
     ok(json!(msgs))
 }
 
 async fn list_channels(State(st): State<IpcState>) -> impl IntoResponse {
-    let ch = crate::channels::list_channels(&st.pool).map_err(|e| err(e))?;
+    let ch = crate::channels::list_channels(&st.pool).map_err(err)?;
     ok(json!(ch))
 }
 
 async fn get_skill_pool(State(st): State<IpcState>) -> impl IntoResponse {
-    let skills = crate::skills::get_skill_pool(&st.pool).map_err(|e| err(e))?;
+    let skills = crate::skills::get_skill_pool(&st.pool).map_err(err)?;
     ok(json!(skills))
 }
 
@@ -192,24 +192,24 @@ async fn get_budget_status(
     State(st): State<IpcState>,
     Query(q): Query<BudgetQuery>,
 ) -> impl IntoResponse {
-    let status = crate::budget::get_budget_status(&st.pool, &q.subscription).map_err(|e| err(e))?;
+    let status = crate::budget::get_budget_status(&st.pool, &q.subscription).map_err(err)?;
     ok(json!(status))
 }
 
 async fn list_locks(State(st): State<IpcState>) -> impl IntoResponse {
-    let locks = crate::locks::list_locks(&st.pool).map_err(|e| err(e))?;
+    let locks = crate::locks::list_locks(&st.pool).map_err(err)?;
     ok(json!(locks))
 }
 
 async fn list_models(State(st): State<IpcState>) -> impl IntoResponse {
-    let models = crate::models::get_all_models(&st.pool).map_err(|e| err(e))?;
+    let models = crate::models::get_all_models(&st.pool).map_err(err)?;
     ok(json!(models))
 }
 
 async fn ipc_status(State(st): State<IpcState>) -> impl IntoResponse {
-    let agents = crate::agents::list(&st.pool).map_err(|e| err(e))?.len();
+    let agents = crate::agents::list(&st.pool).map_err(err)?.len();
     let channels = crate::channels::list_channels(&st.pool)
-        .map_err(|e| err(e))?
+        .map_err(err)?
         .len();
     ok(json!({"agents": agents, "channels": channels}))
 }
