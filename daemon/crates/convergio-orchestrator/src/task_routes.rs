@@ -13,6 +13,7 @@ use crate::plan_routes::PlanState;
 
 pub fn task_routes(state: Arc<PlanState>) -> Router {
     Router::new()
+        .route("/api/plan-db/task/create", post(handle_task_create))
         .route("/api/plan-db/task/update", post(handle_task_update))
         .with_state(state)
 }
@@ -30,6 +31,59 @@ pub struct TaskUpdate {
     pub executor_agent: Option<String>,
     #[serde(default)]
     pub tokens: Option<i64>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TaskCreate {
+    pub plan_id: i64,
+    pub wave_id: i64,
+    pub title: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub task_id: Option<String>,
+    #[serde(default)]
+    pub executor_agent: Option<String>,
+}
+
+async fn handle_task_create(
+    State(state): State<Arc<PlanState>>,
+    Json(body): Json<TaskCreate>,
+) -> Json<serde_json::Value> {
+    let conn = match state.pool.get() {
+        Ok(c) => c,
+        Err(e) => return Json(json!({"error": e.to_string()})),
+    };
+    // ImportGate: only add tasks to plans in draft/todo/approved
+    if let Err(gate_err) = crate::gates::import_gate(&conn, body.plan_id) {
+        return Json(json!({"error": format!("gate blocked: {gate_err}")}));
+    }
+    let task_id_str = body
+        .task_id
+        .unwrap_or_else(|| format!("T-{}", body.plan_id));
+    match conn.execute(
+        "INSERT INTO tasks (task_id, plan_id, wave_id, title, description, executor_agent) \
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        rusqlite::params![
+            task_id_str,
+            body.plan_id,
+            body.wave_id,
+            body.title,
+            body.description.as_deref().unwrap_or(""),
+            body.executor_agent.as_deref().unwrap_or(""),
+        ],
+    ) {
+        Ok(_) => {
+            let id = conn.last_insert_rowid();
+            // Update tasks_total on plan
+            let _ = conn.execute(
+                "UPDATE plans SET tasks_total = tasks_total + 1 WHERE id = ?1",
+                rusqlite::params![body.plan_id],
+            );
+            Json(json!({"id": id, "task_id": task_id_str}))
+        }
+        Err(e) => Json(json!({"error": e.to_string()})),
+    }
 }
 
 async fn handle_task_update(
