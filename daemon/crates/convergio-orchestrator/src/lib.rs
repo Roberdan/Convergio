@@ -5,8 +5,10 @@
 pub mod actions;
 pub mod aggregation_routes;
 pub mod approval;
+pub mod artifact_bundle;
 pub mod artifact_routes;
 pub mod artifacts;
+pub mod bundle_routes;
 pub mod executor;
 pub mod ext;
 pub mod gates;

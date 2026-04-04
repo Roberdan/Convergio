@@ -14,6 +14,8 @@ pub struct Artifact {
     pub artifact_type: String,
     pub path: String,
     pub size_bytes: i64,
+    pub mime_type: Option<String>,
+    pub content_hash: Option<String>,
     pub created_at: String,
 }
 
@@ -27,11 +29,45 @@ pub fn record_artifact(
     path: &str,
     size_bytes: i64,
 ) -> Result<i64, rusqlite::Error> {
+    record_artifact_full(
+        conn,
+        task_id,
+        plan_id,
+        name,
+        artifact_type,
+        path,
+        size_bytes,
+        None,
+        None,
+    )
+}
+
+/// Record an artifact with optional mime_type and content_hash.
+pub fn record_artifact_full(
+    conn: &Connection,
+    task_id: i64,
+    plan_id: i64,
+    name: &str,
+    artifact_type: &str,
+    path: &str,
+    size_bytes: i64,
+    mime_type: Option<&str>,
+    content_hash: Option<&str>,
+) -> Result<i64, rusqlite::Error> {
     conn.execute(
         "INSERT INTO artifacts \
-         (task_id, plan_id, name, artifact_type, path, size_bytes) \
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-        params![task_id, plan_id, name, artifact_type, path, size_bytes],
+         (task_id, plan_id, name, artifact_type, path, size_bytes, mime_type, content_hash) \
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+        params![
+            task_id,
+            plan_id,
+            name,
+            artifact_type,
+            path,
+            size_bytes,
+            mime_type,
+            content_hash
+        ],
     )?;
     Ok(conn.last_insert_rowid())
 }
@@ -40,7 +76,8 @@ pub fn record_artifact(
 pub fn list_artifacts(conn: &Connection, plan_id: i64) -> Vec<Artifact> {
     let mut stmt = match conn.prepare(
         "SELECT id, task_id, plan_id, name, artifact_type, path, \
-         size_bytes, created_at FROM artifacts WHERE plan_id = ?1 ORDER BY id",
+         size_bytes, mime_type, content_hash, created_at \
+         FROM artifacts WHERE plan_id = ?1 ORDER BY id",
     ) {
         Ok(s) => s,
         Err(_) => return vec![],
@@ -55,7 +92,8 @@ pub fn list_artifacts(conn: &Connection, plan_id: i64) -> Vec<Artifact> {
 pub fn get_artifact(conn: &Connection, id: i64) -> Option<Artifact> {
     conn.query_row(
         "SELECT id, task_id, plan_id, name, artifact_type, path, \
-         size_bytes, created_at FROM artifacts WHERE id = ?1",
+         size_bytes, mime_type, content_hash, created_at \
+         FROM artifacts WHERE id = ?1",
         params![id],
         map_artifact,
     )
@@ -66,7 +104,8 @@ pub fn get_artifact(conn: &Connection, id: i64) -> Option<Artifact> {
 pub fn list_task_artifacts(conn: &Connection, task_id: i64) -> Vec<Artifact> {
     let mut stmt = match conn.prepare(
         "SELECT id, task_id, plan_id, name, artifact_type, path, \
-         size_bytes, created_at FROM artifacts WHERE task_id = ?1 ORDER BY id",
+         size_bytes, mime_type, content_hash, created_at \
+         FROM artifacts WHERE task_id = ?1 ORDER BY id",
     ) {
         Ok(s) => s,
         Err(_) => return vec![],
@@ -86,7 +125,9 @@ fn map_artifact(r: &rusqlite::Row) -> rusqlite::Result<Artifact> {
         artifact_type: r.get(4)?,
         path: r.get(5)?,
         size_bytes: r.get(6)?,
-        created_at: r.get(7)?,
+        mime_type: r.get(7)?,
+        content_hash: r.get(8)?,
+        created_at: r.get(9)?,
     })
 }
 
