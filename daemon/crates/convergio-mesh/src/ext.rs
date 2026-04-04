@@ -77,6 +77,11 @@ impl Extension for MeshExtension {
                     version: "0.1.0".into(),
                     description: "Remote task delegation progress".into(),
                 },
+                Capability {
+                    name: "node-capabilities".into(),
+                    version: "1.0.0".into(),
+                    description: "Node capability registry for routing".into(),
+                },
             ],
             requires: vec![Dependency {
                 capability: "db-pool".into(),
@@ -91,7 +96,9 @@ impl Extension for MeshExtension {
         let state = std::sync::Arc::new(crate::routes::MeshState {
             pool: self.pool.clone(),
         });
-        Some(crate::routes::mesh_routes(state))
+        let base = crate::routes::mesh_routes(state);
+        let cap_routes = crate::capability_routes::capability_routes(self.pool.clone());
+        Some(base.merge(cap_routes))
     }
 
     fn migrations(&self) -> Vec<Migration> {

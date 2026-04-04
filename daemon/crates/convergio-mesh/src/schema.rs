@@ -73,6 +73,26 @@ CREATE INDEX IF NOT EXISTS idx_delegation_id
     ON delegation_progress(delegation_id);
 ",
         },
+        Migration {
+            version: 3,
+            description: "node capability registry",
+            up: "
+CREATE TABLE IF NOT EXISTS node_capabilities (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    peer_name           TEXT NOT NULL,
+    capability_name     TEXT NOT NULL,
+    capability_version  TEXT NOT NULL DEFAULT '1.0.0',
+    tags_json           TEXT NOT NULL DEFAULT '[]',
+    metadata_json       TEXT NOT NULL DEFAULT '{}',
+    updated_at          TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(peer_name, capability_name)
+);
+CREATE INDEX IF NOT EXISTS idx_node_cap_peer
+    ON node_capabilities(peer_name);
+CREATE INDEX IF NOT EXISTS idx_node_cap_name
+    ON node_capabilities(capability_name);
+",
+        },
     ]
 }
 
@@ -86,7 +106,7 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         convergio_db::migration::ensure_registry(&conn).unwrap();
         let applied = convergio_db::migration::apply_migrations(&conn, "mesh", &migrations());
-        assert_eq!(applied.unwrap(), 2);
+        assert_eq!(applied.unwrap(), 3);
     }
 
     #[test]
