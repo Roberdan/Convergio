@@ -76,9 +76,19 @@ async fn deep_health_handler(
     let components = state.health.check_all();
     Json(serde_json::json!({
         "components": components.iter().map(|c| {
+            let (status, message) = match &c.status {
+                convergio_types::extension::Health::Ok => ("ok", None),
+                convergio_types::extension::Health::Degraded { reason } => {
+                    ("degraded", Some(reason.as_str()))
+                }
+                convergio_types::extension::Health::Down { reason } => {
+                    ("down", Some(reason.as_str()))
+                }
+            };
             serde_json::json!({
                 "name": c.name,
-                "status": format!("{:?}", c.status),
+                "status": status,
+                "message": message,
             })
         }).collect::<Vec<_>>(),
     }))
