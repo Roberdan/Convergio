@@ -16,3 +16,6 @@ serde_json = { workspace = true }
 reqwest = { workspace = true, features = ["blocking"] }
 axum = { workspace = true }
 rusqlite = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

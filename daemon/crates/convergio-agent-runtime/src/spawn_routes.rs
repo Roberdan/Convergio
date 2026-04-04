@@ -124,12 +124,20 @@ async fn handle_spawn(
                     rusqlite::params![workspace.to_string_lossy().as_ref(), agent_id],
                 );
             }
+            // 7. Start monitor — watches process, handles push/PR on completion
+            crate::spawn_monitor::monitor_agent(
+                state.pool.clone(),
+                agent_id.clone(),
+                spawned.pid,
+                workspace.to_string_lossy().to_string(),
+                state.repo_root.clone(),
+            );
             tracing::info!(
                 agent_id = agent_id.as_str(),
                 pid = spawned.pid,
                 backend = spawned.backend.as_str(),
                 workspace = %workspace.display(),
-                "agent process spawned"
+                "agent process spawned + monitor attached"
             );
             Json(json!({
                 "ok": true,

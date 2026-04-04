@@ -395,6 +395,7 @@ dependencies = [
  "convergio-types",
  "dirs 6.0.0",
  "hostname",
+ "libc",
  "r2d2",
  "rusqlite",
  "serde",
