@@ -120,10 +120,16 @@ async fn main() {
 
     // 5. Register extensions (shared EventBus for domain events → SSE)
     let event_bus = Arc::new(convergio_ipc::sse::EventBus::new(1024));
-    let extensions = register_extensions(pool.clone(), Arc::clone(&event_bus));
+    let mut extensions = register_extensions(pool.clone(), Arc::clone(&event_bus));
+
+    // 5b. Wire depgraph with manifests from all registered extensions
+    let manifests: Vec<_> = extensions.iter().map(|e| e.manifest()).collect();
+    extensions.push(Arc::new(convergio_depgraph::DepgraphExtension::new(manifests)));
+
     let mut ctx = AppContext::new();
-    let sink: Arc<dyn convergio_types::events::DomainEventSink> = event_bus;
+    let sink: Arc<dyn convergio_types::events::DomainEventSink> = event_bus.clone();
     ctx.insert(sink);
+    ctx.insert(Arc::clone(&event_bus));
 
     // 6. Extension migrations
     {

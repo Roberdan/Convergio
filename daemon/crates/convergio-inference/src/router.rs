@@ -49,35 +49,73 @@ impl ModelRouter {
         self.models.keys().cloned().collect()
     }
 
-    /// Route a request, applying semantic classification and budget awareness.
-    /// Returns Err when no healthy model covers the effective tier.
+    /// Route and call a real model backend. Falls back to echo if unreachable.
+    pub async fn route_real(
+        &self,
+        request: &InferenceRequest,
+        budget_downgrade: bool,
+    ) -> Result<(InferenceResponse, RoutingDecision), String> {
+        let decision = self.make_decision(request, budget_downgrade)?;
+        let endpoint = self.models.get(&decision.selected_model);
+
+        let response = match endpoint {
+            Some(ep) if !ep.url.is_empty() => {
+                match crate::backend::call_model(ep, &request.prompt, request.max_tokens).await {
+                    Ok(resp) => resp,
+                    Err(e) => {
+                        tracing::warn!(
+                            model = decision.selected_model.as_str(),
+                            error = e.as_str(),
+                            "model call failed, returning echo"
+                        );
+                        self.echo_response(request, &decision)
+                    }
+                }
+            }
+            _ => self.echo_response(request, &decision),
+        };
+        Ok((response, decision))
+    }
+
+    /// Route without calling a real backend (echo mode for tests/dry-run).
     pub fn route(
         &self,
         request: &InferenceRequest,
         budget_downgrade: bool,
     ) -> Result<(InferenceResponse, RoutingDecision), String> {
-        let classified_tier = classifier::classify(request);
+        let decision = self.make_decision(request, budget_downgrade)?;
+        Ok((self.echo_response(request, &decision), decision))
+    }
 
+    fn make_decision(
+        &self,
+        request: &InferenceRequest,
+        budget_downgrade: bool,
+    ) -> Result<RoutingDecision, String> {
+        let classified_tier = classifier::classify(request);
         let effective_tier = if budget_downgrade {
             budget::downgrade_tier(classified_tier.clone())
         } else {
-            classified_tier.clone()
+            classified_tier
         };
+        self.select(&effective_tier, &request.constraints, budget_downgrade)
+    }
 
-        let decision = self.select(&effective_tier, &request.constraints, budget_downgrade)?;
-
-        let response = InferenceResponse {
+    fn echo_response(
+        &self,
+        request: &InferenceRequest,
+        decision: &RoutingDecision,
+    ) -> InferenceResponse {
+        InferenceResponse {
             content: format!(
-                "[routed to {}] {}",
+                "[echo:{}] {}",
                 decision.selected_model, &request.prompt
             ),
             model_used: decision.selected_model.clone(),
             latency_ms: 0,
             tokens_used: request.max_tokens,
             cost: 0.0,
-        };
-
-        Ok((response, decision))
+        }
     }
 
     /// Build a routing decision for the given tier and constraints.

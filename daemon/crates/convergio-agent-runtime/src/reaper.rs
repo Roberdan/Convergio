@@ -14,6 +14,7 @@ use crate::types::RuntimeResult;
 #[derive(Debug, Clone, Default)]
 pub struct ReaperReport {
     pub stale_agents_reaped: usize,
+    pub zombie_spawning_reaped: usize,
     pub expired_delegations_returned: usize,
     pub orphan_scopes_cleaned: usize,
 }
@@ -41,6 +42,18 @@ pub fn reap_cycle(pool: &ConnPool) -> RuntimeResult<ReaperReport> {
         report.stale_agents_reaped += 1;
     }
 
+    // 1b. Reap zombie agents stuck in 'spawning' for over 1 hour
+    let zombies = conn.execute(
+        "UPDATE art_agents SET stage = 'reaped', updated_at = datetime('now') \
+         WHERE stage = 'spawning' \
+         AND created_at < datetime('now', '-1 hour')",
+        [],
+    )?;
+    if zombies > 0 {
+        tracing::warn!(count = zombies, "reaped zombie spawning agents (>1h old)");
+    }
+    report.zombie_spawning_reaped = zombies;
+
     // 2. Auto-return expired delegations
     let expired = crate::delegation::find_expired(&conn)?;
     for deleg in &expired {
@@ -62,11 +75,13 @@ pub fn reap_cycle(pool: &ConnPool) -> RuntimeResult<ReaperReport> {
     report.orphan_scopes_cleaned = cleaned;
 
     if report.stale_agents_reaped > 0
+        || report.zombie_spawning_reaped > 0
         || report.expired_delegations_returned > 0
         || report.orphan_scopes_cleaned > 0
     {
         tracing::info!(
             stale = report.stale_agents_reaped,
+            zombies = report.zombie_spawning_reaped,
             expired = report.expired_delegations_returned,
             scopes = report.orphan_scopes_cleaned,
             "reaper cycle complete"
@@ -109,6 +124,55 @@ mod tests {
         let report = reap_cycle(&pool).unwrap();
         assert_eq!(report.stale_agents_reaped, 0);
         assert_eq!(report.expired_delegations_returned, 0);
+    }
+
+    #[test]
+    fn reap_cycle_reaps_zombie_spawning_agents() {
+        let pool = convergio_db::pool::create_memory_pool().unwrap();
+        {
+            let conn = pool.get().unwrap();
+            for m in crate::schema::migrations() {
+                conn.execute_batch(m.up).unwrap();
+            }
+            // Insert a zombie agent stuck in spawning for 2 hours
+            conn.execute(
+                "INSERT INTO art_agents (id, agent_name, org_id, node, stage, created_at) \
+                 VALUES ('zombie-1', 'ghost', 'test-org', 'n1', 'spawning', \
+                 datetime('now', '-2 hours'))",
+                [],
+            )
+            .unwrap();
+            // Insert a fresh spawning agent (should NOT be reaped)
+            conn.execute(
+                "INSERT INTO art_agents (id, agent_name, org_id, node, stage, created_at) \
+                 VALUES ('fresh-1', 'alive', 'test-org', 'n1', 'spawning', \
+                 datetime('now', '-5 minutes'))",
+                [],
+            )
+            .unwrap();
+        }
+
+        let report = reap_cycle(&pool).unwrap();
+        assert_eq!(report.zombie_spawning_reaped, 1);
+
+        let conn = pool.get().unwrap();
+        let zombie_stage: String = conn
+            .query_row(
+                "SELECT stage FROM art_agents WHERE id = 'zombie-1'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(zombie_stage, "reaped");
+
+        let fresh_stage: String = conn
+            .query_row(
+                "SELECT stage FROM art_agents WHERE id = 'fresh-1'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(fresh_stage, "spawning");
     }
 
     #[test]

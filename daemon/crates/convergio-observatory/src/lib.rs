@@ -12,6 +12,7 @@ pub mod routes;
 pub mod routes_webhook;
 pub mod schema;
 pub mod search;
+pub mod sink;
 pub mod timeline;
 pub mod types;
 

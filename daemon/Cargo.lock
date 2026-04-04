@@ -592,6 +592,7 @@ dependencies = [
  "convergio-ipc",
  "convergio-telemetry",
  "convergio-types",
+ "reqwest",
  "rusqlite",
  "serde",
  "serde_json",
@@ -723,11 +724,13 @@ dependencies = [
  "axum",
  "chrono",
  "convergio-db",
+ "convergio-ipc",
  "convergio-telemetry",
  "convergio-types",
  "rusqlite",
  "serde",
  "serde_json",
+ "tokio",
  "tracing",
 ]
 
@@ -763,6 +766,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+ "tokio",
  "tracing",
 ]
 

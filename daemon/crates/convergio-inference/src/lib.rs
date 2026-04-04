@@ -3,6 +3,7 @@
 //! Implements Extension: provides semantic model routing that replaces
 //! static fallback chains with intelligent, budget-aware selection.
 
+pub mod backend;
 pub mod budget;
 pub mod classifier;
 pub mod ext;

@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use axum::extract::{Query, State};
 use axum::response::Json;
-use axum::routing::get;
+use axum::routing::{get, post};
 use axum::Router;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -59,6 +59,7 @@ pub fn inference_routes(state: Arc<InferenceState>) -> Router {
     Router::new()
         .route("/api/inference/costs", get(handle_costs))
         .route("/api/inference/routing-decision", get(handle_routing))
+        .route("/api/inference/complete", post(handle_complete))
         .with_state(state)
 }
 
@@ -138,6 +139,36 @@ async fn handle_routing(
         }
         Err(e) => Json(serde_json::json!({
             "error": { "code": "NO_MODEL", "message": e }
+        })),
+    }
+}
+
+/// POST /api/inference/complete — real model inference call.
+async fn handle_complete(
+    State(state): State<Arc<InferenceState>>,
+    Json(request): Json<InferenceRequest>,
+) -> Json<serde_json::Value> {
+    let should_downgrade = {
+        let conn = state.pool.get().ok();
+        conn.map(|c| {
+            budget::should_downgrade(
+                &c,
+                &request.agent_id,
+                &budget::BudgetConfig::default(),
+            )
+            .unwrap_or(false)
+        })
+        .unwrap_or(false)
+    };
+
+    let router = state.router.read().await;
+    match router.route_real(&request, should_downgrade).await {
+        Ok((resp, decision)) => Json(serde_json::json!({
+            "response": resp,
+            "decision": decision,
+        })),
+        Err(e) => Json(serde_json::json!({
+            "error": { "code": "INFERENCE_FAILED", "message": e }
         })),
     }
 }
