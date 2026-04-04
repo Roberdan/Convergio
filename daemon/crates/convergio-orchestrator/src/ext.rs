@@ -78,14 +78,17 @@ impl Extension for OrchestratorExtension {
         Some(router)
     }
 
-    fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
+    fn on_start(&self, ctx: &AppContext) -> ExtResult<()> {
         tracing::info!("orchestrator: starting reactor, validator, reaper");
 
-        // Spawn Ali reactor
+        // Spawn Ali reactor with event sink for domain events
         let pool = self.pool.clone();
         let notify = self.notify.clone();
+        let sink = ctx
+            .get_arc::<Arc<dyn convergio_types::events::DomainEventSink>>()
+            .map(|s| (*s).clone());
         tokio::spawn(async move {
-            crate::reactor::run(pool, notify).await;
+            crate::reactor::run(pool, notify, sink).await;
         });
 
         // Spawn validator loop

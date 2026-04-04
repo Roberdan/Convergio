@@ -94,6 +94,8 @@ impl convergio_types::events::DomainEventSink for EventBus {
             convergio_types::events::EventKind::PlanCreated { .. } => "plan_created",
             convergio_types::events::EventKind::TaskAssigned { .. } => "task_assigned",
             convergio_types::events::EventKind::TaskCompleted { .. } => "task_completed",
+            convergio_types::events::EventKind::PlanCompleted { .. } => "plan_completed",
+            convergio_types::events::EventKind::WaveCompleted { .. } => "wave_completed",
             convergio_types::events::EventKind::MessageSent { .. } => "message_sent",
             convergio_types::events::EventKind::DelegationStarted { .. } => "delegation_started",
             convergio_types::events::EventKind::AgentOnline { .. } => "agent_online",
