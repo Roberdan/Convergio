@@ -10,6 +10,7 @@ pub mod ext;
 pub mod gates;
 pub mod handlers;
 pub mod plan_hierarchy;
+pub mod plan_review;
 pub mod plan_routes;
 pub mod plan_routes_ext;
 pub mod plan_validate;

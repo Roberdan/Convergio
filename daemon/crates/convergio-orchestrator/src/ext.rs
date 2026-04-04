@@ -70,6 +70,7 @@ impl Extension for OrchestratorExtension {
             .merge(crate::plan_routes::plan_routes(Arc::clone(&state)))
             .merge(crate::plan_routes_ext::plan_routes_ext(Arc::clone(&state)))
             .merge(crate::plan_validate::validate_routes(Arc::clone(&state)))
+            .merge(crate::plan_review::review_routes(Arc::clone(&state)))
             .merge(crate::task_routes::task_routes(state))
             .merge(crate::tracking_routes::tracking_routes(self.pool.clone()))
             .merge(crate::pm_routes::pm_routes(self.pool.clone()))
