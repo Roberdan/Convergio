@@ -497,6 +497,7 @@ dependencies = [
  "convergio-db",
  "convergio-depgraph",
  "convergio-evidence",
+ "convergio-file-transport",
  "convergio-http-bridge",
  "convergio-inference",
  "convergio-ipc",
@@ -554,6 +555,22 @@ dependencies = [
  "chrono",
  "convergio-db",
  "convergio-orchestrator",
+ "convergio-telemetry",
+ "convergio-types",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "convergio-file-transport"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "convergio-db",
  "convergio-telemetry",
  "convergio-types",
  "rusqlite",
