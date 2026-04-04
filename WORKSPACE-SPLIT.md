@@ -239,8 +239,8 @@ Il gap critico e' la delegation multi-nodo (rsync + remote spawn).
 ### Step 3: Completamento
 - **32e**: Agent context API (contesto live dal DB, non file statici)
 - **32f**: Agent live adaptation (checkpoint polling, IPC alerts, file sentinel)
+- **32g**: Long-run autonomo (daemon gestisce checkpoint/resume/respawn — NON script bash)
 - **36b**: Inference reale (Ollama/API, non echo per tutti i tier)
-- **36c**: STT Whisper (trascrizione locale reale)
 - **39b**: Progetti non-codice (report, business docs, evidence non-code)
 - **40b**: Integration test HTTP (830 unit + E2E)
 - **Frontend**: rifare convergio-frontend dentro Convergio (agenti via daemon)
@@ -440,6 +440,43 @@ NON delegare: decisioni architetturali, risoluzione conflitti, validazione final
 | G4 | SqliteBlock | `scripts/hooks/git-pre-commit.sh` |
 | G5 | CommitLint | `scripts/hooks/git-commit-msg.sh` |
 | C1-C10 | Claude hooks | `.claude/settings.json` |
+
+### Fase 47: ADR + documentazione completa
+
+### Fase 32g: Long-run autonomo — il daemon gestisce checkpoint/resume/respawn
+
+**Obiettivo**: Un piano con 20 task viene completato SENZA intervento umano, anche se richiede
+piu' sessioni Claude (contesto pieno → checkpoint → nuovo agente → riprende).
+**Motivazione**: Roberto: "e da li e' in grado di finire tutti i task in autonomia?"
+Oggi no — quando Claude esaurisce il contesto, si ferma e serve Roberto per rilanciare.
+Lo script run-mission.sh e' un workaround. La feature nativa usa i pezzi gia' esistenti:
+LongRunnable trait (checkpoint/resume), agent runtime (spawn/monitor), orchestrator (wave ordering).
+**Committente**: Roberto
+**Deps**: Fase 32b (lifecycle wiring), 32e (context API), 32f (live adaptation)
+
+**Come funziona**:
+```
+1. Piano con N task nelle wave
+2. Daemon spawna agente per task 1
+3. Agente lavora → contesto al 80% → salva checkpoint via API
+4. Agente esce con exit code 0 + checkpoint salvato
+5. Monitor rileva exit → legge checkpoint → task non completato
+6. Daemon spawna NUOVO agente per lo stesso task con checkpoint
+7. Nuovo agente legge checkpoint via context API → riprende da dove si era fermato
+8. Task completato → monitor aggiorna → reactor avanza wave → prossimo task
+9. Ripete fino a piano done
+```
+
+**Differenza da run-mission.sh**: NON e' uno script che rilancia Claude.
+E' il DAEMON che gestisce il ciclo. Il daemon sa: quale task, quale checkpoint,
+quale agente, quale contesto. Lo script non sa niente di questo.
+
+**Task**:
+- Checkpoint API gia' esiste: POST /api/plan-db/checkpoint/save
+- Aggiungere: salvataggio stato agente (file modificati, ultimo commit, progresso)
+- Monitor: se agente esce con checkpoint ma task non done → respawn con context
+- LongRunnable: usare il trait per gestire heartbeat + checkpoint + resume
+- Test: piano con 3 task, limite contesto basso → verifica auto-resume
 
 ### Fase 47: ADR + documentazione completa
 
