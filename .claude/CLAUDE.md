@@ -48,11 +48,19 @@ These rules come from hard-won learnings building this repo. They are non-negoti
 1. `cargo check --workspace` — whole workspace compiles
 2. `cargo test -p <your-crate>` — your tests pass
 3. `cargo test --workspace` — no regressions
-4. Commit with conventional message + Co-Authored-By
-5. Push and create PR with `gh pr create`
-6. Check PR review comments: fix valid ones, respond to invalid ones
-7. Do NOT merge until all comments resolved and CI green
-8. After merge: remove worktree, delete branch, prune remote
+4. **Integration smoke test** — if your crate adds routes or changes auth/config:
+   rebuild daemon (`cargo build`), restart, verify `curl http://localhost:8420/api/health`
+   and test YOUR new endpoints actually respond. Unit tests are NOT sufficient evidence.
+5. Commit with conventional message + Co-Authored-By
+6. Push and create PR with `gh pr create`
+7. Check PR review comments: fix valid ones, respond to invalid ones
+8. Do NOT merge until all comments resolved and CI green
+9. After merge: remove worktree, delete branch, prune remote
+
+### CRITICAL: never ship isolated crates without integration (Learning #13)
+Building crates that compile and pass unit tests but don't work together is a
+GRAVE PLANNING MISTAKE. Every wave must end with a working system, not just
+passing tests. Auth, routing, config loading, env files — test them end-to-end.
 
 ### What NOT to do
 - NEVER commit on main directly (branch protection enforced)
