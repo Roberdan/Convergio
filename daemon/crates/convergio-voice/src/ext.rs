@@ -1,6 +1,8 @@
 //! Extension trait implementation for convergio-voice.
 
-use convergio_types::extension::{Extension, Health, Metric};
+use std::sync::{Arc, Mutex};
+
+use convergio_types::extension::{AppContext, Extension, Health, Metric};
 use convergio_types::manifest::{Capability, Manifest, ModuleKind};
 
 use super::tts::TtsEngine;
@@ -9,6 +11,13 @@ use super::tts::TtsEngine;
 pub struct VoiceExtension;
 
 impl Extension for VoiceExtension {
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        let state = crate::routes::VoiceState {
+            tts: Arc::new(Mutex::new(TtsEngine::new())),
+        };
+        Some(crate::routes::voice_routes(state))
+    }
+
     fn manifest(&self) -> Manifest {
         Manifest {
             id: "convergio-voice".to_string(),

@@ -7,6 +7,7 @@
 pub mod audio_util;
 pub mod ext;
 pub mod intent;
+pub mod routes;
 pub mod tts;
 mod tts_backends;
 pub mod types;

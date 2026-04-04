@@ -19,3 +19,4 @@ rusqlite = { workspace = true }
 uuid = { workspace = true }
 thiserror = { workspace = true }
 r2d2 = { workspace = true }
+axum = { workspace = true }
