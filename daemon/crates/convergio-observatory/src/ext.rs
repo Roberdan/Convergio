@@ -86,9 +86,7 @@ impl Extension for ObservatoryExtension {
             crate::sink::spawn_timeline_sink(self.pool.clone(), bus.clone());
             tracing::info!("observatory: timeline sink started");
         } else {
-            tracing::warn!(
-                "observatory: no EventBus in context, timeline sink disabled"
-            );
+            tracing::warn!("observatory: no EventBus in context, timeline sink disabled");
         }
         tracing::info!("observatory: extension started");
         Ok(())

@@ -12,38 +12,47 @@ const RESET: &str = "\x1b[0m";
 pub async fn handle(api_url: &str) -> Result<(), CliError> {
     let health = fetch_json(&format!("{api_url}/api/health")).await;
     let plans = fetch_json(&format!("{api_url}/api/plan-db/list")).await;
-    let recent = fetch_json(&format!("{api_url}/api/plan-db/recent")).await;
-    let project = fetch_json(&format!("{api_url}/api/project/convergio/tree")).await;
+    let summary = fetch_json(&format!("{api_url}/api/metrics/summary")).await;
+    let runtime = fetch_json(&format!("{api_url}/api/agents/runtime")).await;
     let orgs = fetch_json(&format!("{api_url}/api/orgs")).await;
 
-    let proj_total = project
+    let proj_total = summary
         .get("total_tasks")
         .and_then(|v| v.as_i64())
         .unwrap_or(0);
-    let proj_done = project
-        .get("tasks_done")
+    let proj_done = summary
+        .get("done_plans")
         .and_then(|v| v.as_i64())
         .unwrap_or(0);
-    let proj_plans = project
-        .get("plans")
+    let proj_plans = summary
+        .get("total_plans")
+        .and_then(|v| v.as_i64())
+        .unwrap_or(0) as usize;
+    let org_count = orgs
+        .get("orgs")
         .and_then(|v| v.as_array())
         .map(|a| a.len())
         .unwrap_or(0);
-    let org_count = orgs.as_array().map(|a| a.len()).unwrap_or(0);
 
-    let version = health
-        .get("version")
-        .and_then(|v| v.as_str())
-        .unwrap_or("?");
-    let peers = health.get("peers").and_then(|v| v.as_i64()).unwrap_or(0);
-    let ok = health.get("ok").and_then(|v| v.as_bool()).unwrap_or(false);
-    let uptime = health
-        .get("uptime_secs")
+    let ok = health.get("status").and_then(|v| v.as_str()) == Some("ok");
+    let version = "0.1.0";
+    let active_agents = runtime
+        .get("active_agents")
+        .and_then(|v| v.as_array())
+        .map(|a| a.len())
+        .unwrap_or(0);
+    let cost = summary
+        .get("total_cost_usd")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
+    let tokens = summary
+        .get("total_tokens")
         .and_then(|v| v.as_i64())
         .unwrap_or(0);
     let w = term_width();
 
-    let plan_list = plans.get("plans").and_then(|v| v.as_array());
+    // plan-db/list returns a JSON array directly
+    let plan_list = plans.as_array();
     let Some(all) = plan_list else {
         println!("{RED}ERROR: Cannot reach daemon{RESET}");
         return Ok(());
@@ -70,8 +79,7 @@ pub async fn handle(api_url: &str) -> Result<(), CliError> {
         w,
         &format!(
             "Status: {dot}\u{25CF}{RESET} {label}  \u{2502}  \
-         Peers: {peers}  \u{2502}  Uptime: {}",
-            fmt_up(uptime),
+         Agents: {active_agents}  \u{2502}  Cost: ${cost:.2}  \u{2502}  Tokens: {tokens}",
         ),
     );
     border(w, 'M');
@@ -87,14 +95,17 @@ pub async fn handle(api_url: &str) -> Result<(), CliError> {
         border(w, 'M');
     }
 
-    if let Some(list) = recent.get("plans").and_then(|v| v.as_array()) {
-        if !list.is_empty() {
-            row(w, &format!("{BOLD}{CYAN}RECENT{RESET}"));
-            for p in list {
-                plan_row(w, p, "recent");
-            }
-            border(w, 'M');
+    // Show completed plans as "recent"
+    let done_plans: Vec<_> = all
+        .iter()
+        .filter(|p| p.get("status").and_then(|v| v.as_str()) == Some("done"))
+        .collect();
+    if !done_plans.is_empty() {
+        row(w, &format!("{BOLD}{CYAN}COMPLETED{RESET}"));
+        for p in &done_plans {
+            plan_row(w, p, "recent");
         }
+        border(w, 'M');
     }
 
     row(
@@ -195,19 +206,6 @@ fn visible_len(s: &str) -> usize {
         }
     }
     len
-}
-
-fn fmt_up(secs: i64) -> String {
-    let d = secs / 86400;
-    let h = (secs % 86400) / 3600;
-    let m = (secs % 3600) / 60;
-    if d > 0 {
-        format!("{d}d {h}h")
-    } else if h > 0 {
-        format!("{h}h {m}m")
-    } else {
-        format!("{m}m")
-    }
 }
 
 async fn fetch_json(url: &str) -> serde_json::Value {

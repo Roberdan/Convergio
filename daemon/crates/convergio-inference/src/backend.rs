@@ -58,11 +58,7 @@ pub async fn call_model(
         .map_err(|e| format!("http client: {e}"))?;
 
     // Ollama model name: strip provider prefix if present
-    let model_name = endpoint
-        .name
-        .split('/')
-        .last()
-        .unwrap_or(&endpoint.name);
+    let model_name = endpoint.name.split('/').last().unwrap_or(&endpoint.name);
 
     let url = format!("{}/v1/chat/completions", endpoint.url.trim_end_matches('/'));
 
@@ -112,10 +108,7 @@ pub async fn call_model(
         .map(|c| c.message.content)
         .unwrap_or_default();
 
-    let tokens_used = chat
-        .usage
-        .map(|u| u.total_tokens)
-        .unwrap_or(max_tokens);
+    let tokens_used = chat.usage.map(|u| u.total_tokens).unwrap_or(max_tokens);
 
     let cost = (tokens_used as f64 / 1000.0) * endpoint.cost_per_1k_input;
 

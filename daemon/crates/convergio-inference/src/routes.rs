@@ -151,12 +151,8 @@ async fn handle_complete(
     let should_downgrade = {
         let conn = state.pool.get().ok();
         conn.map(|c| {
-            budget::should_downgrade(
-                &c,
-                &request.agent_id,
-                &budget::BudgetConfig::default(),
-            )
-            .unwrap_or(false)
+            budget::should_downgrade(&c, &request.agent_id, &budget::BudgetConfig::default())
+                .unwrap_or(false)
         })
         .unwrap_or(false)
     };
