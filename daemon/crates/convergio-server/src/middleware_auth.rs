@@ -28,9 +28,16 @@ fn compare_tokens(a: &str, b: &str) -> bool {
 
 /// Routes that never require auth.
 const EXEMPT_ROUTES: &[&str] = &["/api/health"];
+const EXEMPT_PREFIXES: &[&str] = &["/api/events/"];
 
 fn needs_auth(path: &str) -> bool {
-    !EXEMPT_ROUTES.contains(&path)
+    if EXEMPT_ROUTES.contains(&path) {
+        return false;
+    }
+    if EXEMPT_PREFIXES.iter().any(|p| path.starts_with(p)) {
+        return false;
+    }
+    true
 }
 
 fn is_localhost(req: &Request<Body>) -> bool {
