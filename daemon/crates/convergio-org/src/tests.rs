@@ -8,7 +8,8 @@ mod ext_tests {
 
     #[test]
     fn manifest_is_extension_kind() {
-        let ext = OrgExtension;
+        let pool = convergio_db::pool::create_memory_pool().unwrap();
+        let ext = OrgExtension::new(pool);
         let m = ext.manifest();
         assert_eq!(m.id, "convergio-org");
         assert!(matches!(m.kind, ModuleKind::Extension));
@@ -17,7 +18,8 @@ mod ext_tests {
 
     #[test]
     fn has_four_migrations() {
-        let ext = OrgExtension;
+        let pool = convergio_db::pool::create_memory_pool().unwrap();
+        let ext = OrgExtension::new(pool);
         let migs = ext.migrations();
         assert_eq!(migs.len(), 4);
         assert_eq!(migs[0].description, "notifications table");
@@ -30,7 +32,7 @@ mod ext_tests {
     fn migrations_sql_is_valid() {
         let pool = convergio_db::pool::create_memory_pool().unwrap();
         let conn = pool.get().unwrap();
-        let ext = OrgExtension;
+        let ext = OrgExtension::new(pool.clone());
         for mig in ext.migrations() {
             conn.execute_batch(mig.up).unwrap_or_else(|e| {
                 panic!("migration {} failed: {e}", mig.description);

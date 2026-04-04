@@ -33,7 +33,7 @@ pub fn router(state: DepgraphState) -> Router {
         .route("/api/capabilities", get(capabilities_handler))
         .route("/api/openapi", get(openapi_handler))
         .route(
-            "/api/depgraph/removal-check/{module_id}",
+            "/api/depgraph/removal-check/:module_id",
             get(removal_check_handler),
         )
         .layer(axum::Extension(state))

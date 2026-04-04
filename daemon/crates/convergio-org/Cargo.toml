@@ -14,3 +14,5 @@ tracing = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 reqwest = { workspace = true, features = ["blocking"] }
+axum = { workspace = true }
+rusqlite = { workspace = true }

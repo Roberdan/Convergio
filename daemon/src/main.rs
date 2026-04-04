@@ -31,11 +31,13 @@ fn register_extensions(pool: ConnPool) -> Vec<Arc<dyn Extension>> {
             pool.clone(),
         )),
         // Extensions
-        Arc::new(convergio_kernel::KernelExtension),
-        Arc::new(convergio_org::OrgExtension),
+        Arc::new(convergio_kernel::KernelExtension::new(pool.clone())),
+        Arc::new(convergio_org::OrgExtension::new(pool.clone())),
         Arc::new(convergio_voice::VoiceExtension),
         // Ecosystem
-        Arc::new(convergio_org_package::OrgPackageExtension),
+        Arc::new(convergio_org_package::OrgPackageExtension::new(
+            pool.clone(),
+        )),
         Arc::new(convergio_http_bridge::HttpBridgeExtension::new()),
         // Platform tools
         Arc::new(convergio_longrunning::LongRunningExtension::new(

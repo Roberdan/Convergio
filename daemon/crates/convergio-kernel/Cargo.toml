@@ -19,3 +19,4 @@ serde_json = { workspace = true }
 chrono = { workspace = true }
 axum = { workspace = true }
 reqwest = { workspace = true, features = ["blocking"] }
+rusqlite = { workspace = true }

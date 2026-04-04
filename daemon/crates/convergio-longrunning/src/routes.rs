@@ -16,20 +16,20 @@ pub fn longrunning_routes(pool: ConnPool) -> Router {
         .route("/api/longrunning/heartbeat/beat", post(beat))
         .route("/api/longrunning/heartbeat/stale", get(find_stale))
         .route(
-            "/api/longrunning/checkpoint/{id}",
+            "/api/longrunning/checkpoint/:id",
             get(load_checkpoint).post(save_checkpoint),
         )
         .route(
-            "/api/longrunning/checkpoint/{id}/clear",
+            "/api/longrunning/checkpoint/:id/clear",
             post(clear_checkpoint),
         )
-        .route("/api/longrunning/progress/{id}", get(load_progress))
-        .route("/api/longrunning/delegation/{id}", get(delegation_tree))
+        .route("/api/longrunning/progress/:id", get(load_progress))
+        .route("/api/longrunning/delegation/:id", get(delegation_tree))
         .route(
-            "/api/longrunning/delegation/{id}/children",
+            "/api/longrunning/delegation/:id/children",
             get(list_children),
         )
-        .route("/api/longrunning/budget/{id}", get(budget_status))
+        .route("/api/longrunning/budget/:id", get(budget_status))
         .with_state(pool)
 }
 

@@ -8,6 +8,7 @@ pub mod delegation;
 pub mod ext;
 pub mod installer;
 pub mod manifest;
+pub mod routes;
 pub mod sandbox;
 pub mod signing;
 pub mod token;
