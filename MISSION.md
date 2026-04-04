@@ -73,8 +73,23 @@ Non passare a Step 1 senza questa verifica.
     - Admin + monitoring completo
     - Repo: /Users/Roberdan/GitHub/convergio-frontend
 
-### Step 4: Self-hosting
-13. Fase 26: Convergio costruisce convergio
+### Step 4: Production hardening (Wave I)
+13. Fase 41: Artifact model (output non-code: report, PDF, screenshot)
+14. Fase 42: Human-in-the-loop (approvazione umana con soglie)
+15. Fase 43: Compensation/rollback (wave failure recovery)
+16. Fase 44: Scheduler policy (capability, costo, privacy, locality)
+17. Fase 45: Security remote execution (trust, secrets, sandbox)
+18. Fase 46: Evaluation framework (misurare planner/Thor precision/recall)
+
+### Step 5: Self-hosting
+19. Fase 26: Convergio costruisce convergio
+
+## Prima cosa da fare in ogni nuova sessione
+
+Se WORKSPACE-SPLIT.md non è ancora ristrutturato (>2200 righe):
+1. Leggi RESTRUCTURE-INSTRUCTIONS.md
+2. Ristruttura secondo la struttura target
+3. Poi riprendi dall'ordine sopra
 
 ## Regole NON negoziabili
 
