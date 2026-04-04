@@ -1,14 +1,10 @@
-// Project init handler — scaffolds a new project via the daemon API,
-// then creates the repo locally or on GitHub.
+// Project init handler — scaffolds a new project locally, then registers
+// with the daemon via POST /api/plan-db/create.
 
 use crate::cli_error::CliError;
+use std::path::Path;
 
-/// Run the full project init flow:
-/// 1. Call POST /api/projects/scaffold to get file tree
-/// 2. Create repo (gh repo create or git init)
-/// 3. Write generated files
-/// 4. Configure branch protection if GitHub
-/// 5. First commit + push
+/// Options for `cvg project init`.
 pub struct InitOpts<'a> {
     pub name: &'a str,
     pub lang: &'a str,
@@ -20,131 +16,36 @@ pub struct InitOpts<'a> {
     pub api_url: &'a str,
 }
 
+/// Run the full project init flow:
+/// 1. Validate name
+/// 2. Create project directory with scaffold files
+/// 3. Initialize git repo
+/// 4. Register project with the daemon API
 pub async fn handle_init(opts: &InitOpts<'_>) -> Result<(), CliError> {
-    let name = opts.name;
-    let lang = opts.lang;
-    let license = opts.license;
-    let visibility = opts.visibility;
-    let org_id = opts.org_id;
-    let template = opts.template;
-    let local = opts.local;
-    let api_url = opts.api_url;
-    // 1. Scaffold via daemon API
-    let mut body = serde_json::json!({
-        "name": name,
-        "description": format!("{name} — scaffolded by Convergio"),
-        "language": lang,
-        "license": license,
-        "visibility": visibility,
-        "org_id": org_id,
-    });
-    if let Some(tpl) = template {
-        body["template"] = serde_json::Value::String(tpl.to_string());
-    }
-    let url = format!("{api_url}/api/projects/scaffold");
-    let scaffold = crate::cli_http::post_and_return(&url, &body)
-        .await
-        .map_err(|_| CliError::ApiCallFailed("scaffold API call failed".into()))?;
-
-    let files = scaffold["files"]
-        .as_array()
-        .ok_or_else(|| CliError::ApiCallFailed("invalid scaffold response".into()))?;
-
-    // 2. Create repo
-    if local {
-        create_local_repo(name).await?;
-    } else {
-        create_github_repo(name, visibility).await?;
+    validate_name(opts.name)?;
+    let root = Path::new(opts.name);
+    if root.exists() {
+        return Err(CliError::InvalidInput(format!(
+            "directory '{}' already exists",
+            opts.name
+        )));
     }
 
-    // 3. Write files
-    write_scaffold_files(name, files)?;
+    // 1. Create directory structure
+    std::fs::create_dir_all(root.join(".github/workflows")).map_err(CliError::Io)?;
+    std::fs::create_dir_all(root.join(".claude")).map_err(CliError::Io)?;
 
-    // 4. Branch protection (GitHub only)
-    if !local {
-        if let Some(bp) = scaffold.get("branch_protection") {
-            configure_branch_protection(name, bp).await;
-        }
-    }
+    // 2. Write scaffold files
+    let templates = crate::cli_project_init_templates::Templates::new(opts.name, opts.lang);
+    write_file(root, ".gitignore", &templates.gitignore())?;
+    write_file(root, ".claude/CLAUDE.md", &templates.claude_md())?;
+    write_file(root, ".github/workflows/ci.yml", &templates.ci_yml())?;
+    write_lang_files(root, opts.lang)?;
+    eprintln!("  created scaffold in {}/", opts.name);
 
-    // 5. First commit + push
-    first_commit(name, local).await?;
-
-    eprintln!("project {name} initialized successfully");
-    Ok(())
-}
-
-async fn create_local_repo(name: &str) -> Result<(), CliError> {
-    run_cmd("git", &["init", name]).await?;
-    Ok(())
-}
-
-async fn create_github_repo(name: &str, visibility: &str) -> Result<(), CliError> {
-    let vis_flag = format!("--{visibility}");
-    run_cmd("gh", &["repo", "create", name, &vis_flag, "--clone"]).await?;
-    Ok(())
-}
-
-fn write_scaffold_files(name: &str, files: &[serde_json::Value]) -> Result<(), CliError> {
-    for file in files {
-        let path_str = file["path"].as_str().unwrap_or("");
-        let content = file["content"].as_str().unwrap_or("");
-        if path_str.is_empty() {
-            continue;
-        }
-        let full = std::path::Path::new(name).join(path_str);
-        if let Some(parent) = full.parent() {
-            std::fs::create_dir_all(parent).map_err(CliError::Io)?;
-        }
-        std::fs::write(&full, content).map_err(CliError::Io)?;
-    }
-    Ok(())
-}
-
-async fn configure_branch_protection(name: &str, bp: &serde_json::Value) {
-    let branch = bp["branch"].as_str().unwrap_or("main");
-    let checks: Vec<String> = bp["required_checks"]
-        .as_array()
-        .map(|arr| {
-            arr.iter()
-                .filter_map(|v| v.as_str().map(String::from))
-                .collect()
-        })
-        .unwrap_or_default();
-
-    let checks_json = serde_json::json!({
-        "required_status_checks": {
-            "strict": true,
-            "contexts": checks,
-        },
-        "enforce_admins": false,
-        "required_pull_request_reviews": {
-            "dismiss_stale_reviews": true,
-            "required_approving_review_count": 1,
-        },
-        "restrictions": null,
-    });
-
-    let endpoint = format!("repos/{{owner}}/{name}/branches/{branch}/protection");
-    let body_str = checks_json.to_string();
-    let _ = std::process::Command::new("gh")
-        .args(["api", &endpoint, "-X", "PUT", "--input", "-"])
-        .current_dir(name)
-        .stdin(std::process::Stdio::piped())
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .spawn()
-        .map(|mut child| {
-            use std::io::Write;
-            if let Some(ref mut stdin) = child.stdin {
-                let _ = stdin.write_all(body_str.as_bytes());
-            }
-            let _ = child.wait();
-        });
-}
-
-async fn first_commit(name: &str, local: bool) -> Result<(), CliError> {
-    run_cmd_in("git", &["add", "."], name).await?;
+    // 3. Initialize git repo
+    run_cmd_in("git", &["init"], opts.name).await?;
+    run_cmd_in("git", &["add", "."], opts.name).await?;
     run_cmd_in(
         "git",
         &[
@@ -152,34 +53,94 @@ async fn first_commit(name: &str, local: bool) -> Result<(), CliError> {
             "-m",
             "feat: initial project scaffold by Convergio",
         ],
-        name,
+        opts.name,
     )
     .await?;
-    if !local {
-        run_cmd_in("git", &["push", "-u", "origin", "main"], name).await?;
+    eprintln!("  git repo initialized with first commit");
+
+    // 4. Register with daemon
+    register_project(opts).await?;
+
+    eprintln!("project '{}' initialized successfully", opts.name);
+    Ok(())
+}
+
+fn validate_name(name: &str) -> Result<(), CliError> {
+    if name.is_empty() {
+        return Err(CliError::InvalidInput(
+            "project name cannot be empty".into(),
+        ));
+    }
+    let valid = name
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_');
+    if !valid {
+        return Err(CliError::InvalidInput(
+            "project name must be alphanumeric, hyphens, or underscores".into(),
+        ));
     }
     Ok(())
 }
 
-async fn run_cmd(prog: &str, args: &[&str]) -> Result<(), CliError> {
-    let status = tokio::process::Command::new(prog)
-        .args(args)
-        .status()
-        .await
-        .map_err(|e| CliError::ApiCallFailed(format!("failed to run {prog}: {e}")))?;
-    if !status.success() {
-        return Err(CliError::ApiCallFailed(format!(
-            "{prog} exited with {}",
-            status.code().unwrap_or(-1)
-        )));
+fn write_file(root: &Path, rel: &str, content: &str) -> Result<(), CliError> {
+    let full = root.join(rel);
+    if let Some(parent) = full.parent() {
+        std::fs::create_dir_all(parent).map_err(CliError::Io)?;
+    }
+    std::fs::write(&full, content).map_err(CliError::Io)?;
+    Ok(())
+}
+
+fn write_lang_files(root: &Path, lang: &str) -> Result<(), CliError> {
+    match lang {
+        "rust" => {
+            write_file(
+                root,
+                "src/main.rs",
+                "fn main() {\n    println!(\"hello\");\n}\n",
+            )?;
+        }
+        "typescript" => {
+            write_file(root, "src/index.ts", "console.log('hello');\n")?;
+            std::fs::create_dir_all(root.join("src")).map_err(CliError::Io)?;
+        }
+        "python" => {
+            write_file(root, "src/__init__.py", "")?;
+            write_file(root, "src/main.py", "def main():\n    print('hello')\n")?;
+        }
+        _ => {} // unknown lang — skip language-specific files
     }
     Ok(())
+}
+
+async fn register_project(opts: &InitOpts<'_>) -> Result<(), CliError> {
+    let body = serde_json::json!({
+        "name": opts.name,
+        "description": format!("{} — scaffolded by Convergio", opts.name),
+        "language": opts.lang,
+        "license": opts.license,
+        "visibility": opts.visibility,
+        "org_id": opts.org_id,
+    });
+    let url = format!("{}/api/plan-db/create", opts.api_url);
+    match crate::cli_http::post_and_return(&url, &body).await {
+        Ok(_) => {
+            eprintln!("  registered project with daemon");
+            Ok(())
+        }
+        Err(_) => {
+            eprintln!("  warning: could not register with daemon (is it running?)");
+            Ok(())
+        }
+    }
 }
 
 async fn run_cmd_in(prog: &str, args: &[&str], dir: &str) -> Result<(), CliError> {
     let status = tokio::process::Command::new(prog)
         .args(args)
         .current_dir(dir)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
         .status()
         .await
         .map_err(|e| CliError::ApiCallFailed(format!("failed to run {prog}: {e}")))?;
@@ -190,4 +151,55 @@ async fn run_cmd_in(prog: &str, args: &[&str], dir: &str) -> Result<(), CliError
         )));
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn valid_names_accepted() {
+        assert!(validate_name("my-project").is_ok());
+        assert!(validate_name("cool_app").is_ok());
+        assert!(validate_name("app123").is_ok());
+    }
+
+    #[test]
+    fn invalid_names_rejected() {
+        assert!(validate_name("").is_err());
+        assert!(validate_name("has space").is_err());
+        assert!(validate_name("path/traversal").is_err());
+        assert!(validate_name("special!chars").is_err());
+    }
+
+    #[test]
+    fn scaffold_creates_files() {
+        let tmp = tempfile::tempdir().unwrap();
+        let root = tmp.path().join("test-proj");
+        std::fs::create_dir_all(root.join(".github/workflows")).unwrap();
+        std::fs::create_dir_all(root.join(".claude")).unwrap();
+
+        let tpl = crate::cli_project_init_templates::Templates::new("test-proj", "rust");
+        write_file(&root, ".gitignore", &tpl.gitignore()).unwrap();
+        write_file(&root, ".claude/CLAUDE.md", &tpl.claude_md()).unwrap();
+        write_file(&root, ".github/workflows/ci.yml", &tpl.ci_yml()).unwrap();
+        write_lang_files(&root, "rust").unwrap();
+
+        assert!(root.join(".gitignore").exists());
+        assert!(root.join(".claude/CLAUDE.md").exists());
+        assert!(root.join(".github/workflows/ci.yml").exists());
+        assert!(root.join("src/main.rs").exists());
+    }
+
+    #[test]
+    fn gitignore_matches_language() {
+        let rust_tpl = crate::cli_project_init_templates::Templates::new("p", "rust");
+        assert!(rust_tpl.gitignore().contains("target/"));
+
+        let ts_tpl = crate::cli_project_init_templates::Templates::new("p", "typescript");
+        assert!(ts_tpl.gitignore().contains("node_modules/"));
+
+        let py_tpl = crate::cli_project_init_templates::Templates::new("p", "python");
+        assert!(py_tpl.gitignore().contains("__pycache__/"));
+    }
 }
