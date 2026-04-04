@@ -200,12 +200,22 @@ fn emit_task_lifecycle(state: &PlanState, task_id: i64) {
         // conn dropped here — pool slot freed for IPC emit
     };
 
-    // Emit IPC message to #orchestration → triggers reactor chain
-    if let Err(e) = crate::actions::emit(
+    // Emit IPC to #orchestration → triggers reactor chain.
+    // Use "task-updater" as sender so the reactor (ali-orchestrator) processes it.
+    // The reactor skips messages from itself to avoid loops.
+    let content = json!({
+        "type": "task_done",
+        "task_id": task_id.to_string(),
+        "plan_id": plan_id
+    });
+    if let Err(e) = convergio_ipc::messaging::broadcast(
         &state.pool,
         &state.notify,
-        "task_done",
-        &json!({"task_id": task_id.to_string(), "plan_id": plan_id}),
+        "task-updater",
+        &content.to_string(),
+        "event",
+        Some("#orchestration"),
+        100,
     ) {
         tracing::warn!(task_id, "failed to emit task_done IPC: {e}");
     }
