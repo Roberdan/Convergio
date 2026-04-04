@@ -2827,3 +2827,50 @@ COMPOSIZIONE dei pezzi in un flusso end-to-end blindato. Ogni pezzo che
 "funziona in isolamento" ma non è wired nel loop è debito, non asset.
 Il test finale non è `cargo test` — è "Roberto delega un progetto e vede
 il risultato nella UI senza mai aprire un terminale."
+
+### Learning #23: Squash merge perde lavoro degli agenti paralleli
+
+Due agenti lavorano su branch diversi. Entrambi toccano WORKSPACE-SPLIT.md.
+Il primo mergia con squash → la storia del suo branch viene compressa in un commit.
+Il secondo fa PR → conflitto → il suo diff è basato su una versione che non esiste più.
+Il merge perde pezzi. Contenuti aggiunti dal primo agente non compaiono nel secondo.
+
+**Root cause**: squash merge riscrive la storia. Con agenti paralleli è distruttivo.
+**Fix applicato**: disabilitato squash e rebase merge a livello repo GitHub.
+Tutti e 3 i repo (convergio, convergio-frontend, ConvergioPlatform) ora accettano
+SOLO merge commit. Enforced dal repo, non dalla buona volontà dell'agente.
+
+**Regola generale per OGNI repo**:
+```bash
+gh api repos/OWNER/REPO -X PATCH \
+  -f allow_squash_merge=false \
+  -f allow_rebase_merge=false \
+  -f allow_merge_commit=true
+```
+
+Documentato in:
+- `ConvergioPlatform/claude-config/rules/best-practices.md` → sezione "Repository Setup"
+- `convergio/AGENTS.md` → sezione "Merge protocol"
+- Fase 13b (`cvg project init`): deve applicare questa regola automaticamente a ogni nuovo repo
+
+### Learning #24: Le regole devono essere enforced dal sistema, non dai documenti
+
+Pattern ricorrente in questo progetto:
+- Scriviamo una regola nel doc → l'agente non la legge → il bug si ripete
+- Scriviamo un learning → l'agente successivo non lo legge → stesso errore
+- Scriviamo un protocollo → nessuno lo enforza → diventa decorazione
+
+Le regole che funzionano sono quelle enforced dal CODICE o dalla PIATTAFORMA:
+- FileSizeGuard (hook) → funziona, nessun file >250 righe
+- MainGuard (hook) → funziona, nessuno committa su main
+- No-squash (GitHub setting) → funziona, nessuno può fare squash
+- Lifecycle gates (codice) → funzionano quando sono wired
+
+Le regole che NON funzionano sono quelle solo nei documenti:
+- "Aggiorna il piano dopo ogni fase" → nessuno lo fa
+- "Testa E2E prima di dichiarare done" → gli agenti dimenticano
+- "Non costruire pezzi sconnessi" → succede ogni volta
+
+**Regola derivata**: per ogni nuova regola, chiediti:
+è enforced dal codice/piattaforma, o è solo un commento in un .md?
+Se è solo un commento → diventerà debito. Trasformala in codice.
