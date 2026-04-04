@@ -54,6 +54,31 @@ fn register_extensions(pool: ConnPool) -> Vec<Arc<dyn Extension>> {
 
 #[tokio::main]
 async fn main() {
+    // 0. Load env file (auth tokens, API keys)
+    // Check ~/.convergio/env first (legacy), then data_dir/env
+    let env_candidates = [
+        dirs::home_dir()
+            .unwrap_or_default()
+            .join(".convergio/env"),
+        convergio_types::platform_paths::convergio_data_dir().join("env"),
+    ];
+    for env_path in &env_candidates {
+        if let Ok(contents) = std::fs::read_to_string(env_path) {
+            for line in contents.lines() {
+                let line = line.trim();
+                if line.is_empty() || line.starts_with('#') {
+                    continue;
+                }
+                if let Some((k, v)) = line.split_once('=') {
+                    if std::env::var(k.trim()).is_err() {
+                        std::env::set_var(k.trim(), v.trim());
+                    }
+                }
+            }
+            break;
+        }
+    }
+
     // 1. Logging
     let _guard = convergio_telemetry::logging::init();
     tracing::info!(

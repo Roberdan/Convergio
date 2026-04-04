@@ -66,6 +66,7 @@ convergio-evidence = { path = "crates/convergio-evidence" }
 convergio-observatory = { path = "crates/convergio-observatory" }
 tokio = { workspace = true }
 tracing = { workspace = true }
+dirs = { workspace = true }
 
 [workspace.package]
 version = "0.1.0"
