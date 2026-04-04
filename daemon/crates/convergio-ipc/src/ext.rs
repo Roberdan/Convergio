@@ -84,22 +84,22 @@ impl Extension for IpcExtension {
         Manifest {
             id: "convergio-ipc".into(),
             description: "Message bus, SSE streaming, agent registry".into(),
-            version: "0.1.0".into(),
+            version: "1.0.0".into(),
             kind: ModuleKind::Core,
             provides: vec![
                 Capability {
                     name: "ipc-bus".into(),
-                    version: "0.1.0".into(),
+                    version: "1.0.0".into(),
                     description: "Agent-to-agent messaging with channels".into(),
                 },
                 Capability {
                     name: "sse-events".into(),
-                    version: "0.1.0".into(),
+                    version: "1.0.0".into(),
                     description: "Real-time event streaming via SSE".into(),
                 },
                 Capability {
                     name: "agent-registry".into(),
-                    version: "0.1.0".into(),
+                    version: "1.0.0".into(),
                     description: "Agent registration and discovery".into(),
                 },
             ],

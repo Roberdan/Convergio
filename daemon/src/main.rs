@@ -20,6 +20,7 @@ fn register_extensions(
 
     vec![
         // Infrastructure
+        Arc::new(convergio_db::DbExtension),
         Arc::new(convergio_ipc::IpcExtension::with_bus(
             pool.clone(),
             event_bus,
@@ -185,8 +186,7 @@ async fn main() {
         }
     }
 
-    // 9. Build router
-    // Dev mode: enable localhost bypass when no auth token is configured
+    // 9. Build router — dev mode when no auth token configured
     let dev_mode = std::env::var("CONVERGIO_AUTH_TOKEN")
         .map(|v| v.is_empty())
         .unwrap_or(true);
