@@ -1,6 +1,6 @@
 # Convergio — Master Tracker
 
-> Creato: 03 Aprile 2026 | Ultimo aggiornamento: 04 Aprile 2026
+> Creato: 03 Aprile 2026 | Ultimo aggiornamento: 04 Aprile 2026 (sessione 5)
 > Da monolite (129K righe) a sistema modulare espandibile.
 
 ## 1. VISION
@@ -52,7 +52,7 @@ types (zero deps)
   +- extensions (kernel, org, voice) -> types, db, telemetry
 ```
 
-## 3. STATO ATTUALE (04 Aprile 2026 — onesto)
+## 3. STATO ATTUALE (04 Aprile 2026 sessione 5 — onesto)
 
 ### Numeri
 
@@ -60,24 +60,27 @@ types (zero deps)
 |---------|--------|
 | Crate nel workspace | 26 |
 | Extension registrate in main.rs | 19 (tutte con `routes()` -> `Some`) |
-| Test passanti (`cargo test --workspace`) | 833+ |
-| Righe Rust totali | ~50.000 |
-| Endpoint HTTP unici | ~110 |
+| Test passanti (`cargo test --workspace`) | 850 |
+| Righe Rust totali | ~51.000 |
+| Endpoint HTTP unici | ~115 |
 | Tabelle DB (via migrations) | 59+ |
-| PR mergiate | 61 |
+| PR mergiate | 69 |
 
-### Cosa funziona realmente (verificato)
+### Cosa funziona realmente (verificato con smoke test)
 
 - **Daemon boot**: main.rs -> pool -> migrations -> 19 extension -> routes -> serve
 - **Auth**: Bearer token + dev-mode localhost bypass
 - **Config hot-reload**: watcher con debounce 500ms
 - **WAL checkpoint**: graceful shutdown
 - **Plan CRUD**: create/list/get/start/complete/cancel/checkpoint
+- **Plan protocol**: objective/motivation/requester required, validate endpoint
+- **Plan lifecycle**: task submitted -> wave done -> plan done (AUTOMATICO, sessione 5)
+- **Thor plan review**: pre-review required before plan start, post-review on completion
 - **IPC**: agents, messages, channels, context, SSE stream
 - **Mesh batch sync**: export/import via HTTP con HMAC auth + background loop
 - **Extension routes**: 19/19 registrate, tutte rispondono a curl
-- **SSE domain events**: DomainEventSink -> EventBus -> /api/events/stream
-- **Evidence gates**: record/query/gates/preflight
+- **SSE domain events**: PlanCreated, TaskCompleted, WaveCompleted, PlanCompleted
+- **Evidence gates**: record/query/gates/preflight (column names fixed sessione 5)
 - **Billing metering**: usage/invoices/rates/alerts
 - **Observatory**: timeline/search/dashboard/anomaly (persiste in DB)
 - **Agent spawning**: reale con monitor, worktree, push, PR automatica
@@ -86,38 +89,35 @@ types (zero deps)
 - **Health/Metrics**: /api/health/deep (19 componenti), /api/metrics (33+ metriche)
 - **launchd**: plist con PATH completo, daemon rebuild dopo PR merge
 
-### Cosa NON funziona (CRITICAL GAP)
+### Cosa NON funziona (remaining gaps)
 
 | Componente | Stato | Gap |
 |-----------|-------|-----|
-| **Agent->Plan lifecycle** | ASSENTE | Monitor aggiorna agente ma non task/piano. Piani restano "todo" per sempre |
-| **Planner E2E** | ASSENTE | Nessuna validazione che i piani siano completi prima dell'esecuzione |
-| **Thor piano-level** | ASSENTE | Thor solo su wave, non review pre/post piano |
 | **File transport (rsync)** | ASSENTE | Nessun modo di copiare repo + .env a nodo remoto |
 | **Delegation orchestrator** | ASSENTE | Nessun componente che lega copy -> spawn -> monitor -> sync back |
 | **Node capability registry** | ASSENTE | Tutti i nodi identici, nessun routing per capability |
+| **Worktree cleanup** | ASSENTE | Worktree e branch non puliti dopo plan done |
+| **Learning automatico** | ASSENTE | PM compila manualmente, non automatico |
 
-**Diagnosi**: Il daemon e' un **API layer** che sta diventando attivo. Spawna agenti,
-monitora, fa push+PR. Ma il loop non si chiude: il piano non si aggiorna dopo che
-l'agente finisce. Il sistema SEMBRA morto anche quando funziona.
+**Diagnosi sessione 5**: Il loop si chiude. Il daemon non e' piu' un API layer passivo —
+spawna agenti, monitora, avanza wave/piani automaticamente, emette domain events per la UI.
+Il gap critico e' la delegation multi-nodo (rsync + remote spawn).
 
-### Buchi nel workflow
+### Workflow — stato buchi (aggiornato sessione 5)
 
-| Step | Stato | Cosa manca | Fase |
-|------|-------|-----------|------|
-| 1. Problema->Piano | OK | -- | -- |
-| 2. Piano->Wave/Task | OK | Planner automatico (oggi manuale) | -- |
-| 3a-e. Spawn->commit->push+PR | OK | -- | 32 |
-| **3f. Task->submitted** | MANCA | Monitor non aggiorna task | **32b** |
-| **3g. TaskCompleted event** | MANCA | Monitor non emette evento | **32b** |
-| **Wave auto-progression** | MANCA | Nessuno conta task e avanza wave | **32b** |
-| **4. Thor validation** | MANCA | Reactor ascolta ma nessuno invoca | **32b** |
-| **5. Plan->done** | MANCA | Resta todo per sempre | **32b** |
-| **5. Notifica Telegram** | MANCA | Client esiste, nessuno lo chiama | **32b** |
-| **5. Cleanup** | MANCA | Worktree restano, branch non puliti | future |
-| **6. Learning auto** | MANCA | Manuale, non automatico | future |
-
-**Fase 32b e' il FIX per i buchi 3f->5. E' la priorita' assoluta.**
+| Step | Stato | Note |
+|------|-------|------|
+| 1. Problema->Piano | OK | objective/motivation/requester required |
+| 2. Piano->Wave/Task | OK | validate endpoint, task create API |
+| 3. Thor pre-review | OK | gate enforced su plan start |
+| 4. Spawn->commit->push+PR | OK | -- |
+| 5. Task->submitted | OK | monitor chiama API, IPC emesso |
+| 6. Wave auto-progression | OK | reactor conta pending, avanza |
+| 7. Plan->done | OK | automatico via reactor chain |
+| 8. Domain events SSE | OK | TaskCompleted, WaveCompleted, PlanCompleted |
+| 9. Telegram notifica | OK | fire-and-forget (serve bot token in env) |
+| **10. Cleanup** | MANCA | Worktree/branch non puliti | future |
+| **11. Learning auto** | MANCA | Manuale | future |
 
 ## 4. FASI COMPLETATE (storia collassata)
 
@@ -200,7 +200,7 @@ l'agente finisce. Il sistema SEMBRA morto anche quando funziona.
 | 27d | Config + reference | #34 | models.yaml, schemas, reference docs |
 | 29a | CONSTITUTION + README | #31 | 9 regole + 16 learnings |
 
-### Agent Spawning (Phase 32) — DONE
+### Agent Spawning + Lifecycle (Phase 32) — DONE
 
 | Fase | Titolo | PR | Note |
 |------|--------|-----|------|
@@ -209,78 +209,26 @@ l'agente finisce. Il sistema SEMBRA morto anche quando funziona.
 | 33 | Telegram client | #44 | Implementato, manca bot token in env |
 | 38c | launchd + daemon ops | PARTIAL | plist + install script. Firewall non gestibile |
 
+### Step 0: Loop chiuso (Phase 32b-d) — DONE (sessione 5)
+
+| Fase | Titolo | PR | Note |
+|------|--------|-----|------|
+| 32b | Agent->Plan lifecycle wiring | #63,#65,#66,#67 | pending count fix, IPC sender fix, domain events, wave/plan auto-progression |
+| 32c | Planner E2E enforcement | #68 | objective/motivation/requester required, POST /api/plan-db/validate |
+| 32d | Thor plan-level review | #69 | POST /api/plan-db/review (pre), /validate-completion (post), gate su plan start |
+| -- | Task create API | #64 | POST /api/plan-db/task/create |
+
+**Smoke test verificato**: create -> review(pass) -> start -> evidence -> submit -> reactor chain -> plan done (automatico).
+
 ## 5. FASI IN CORSO
 
-### Step 0: IL LOOP DEVE CHIUDERSI (priorita' assoluta)
-
-#### Fase 32b: Agent->Plan lifecycle wiring (CRITICO)
-
-**Obiettivo**: Quando un agente finisce, il piano si aggiorna automaticamente.
-**Motivazione**: Il sistema SEMBRA morto — piani restano "todo" anche dopo lavoro fatto e mergiato.
-**Deps**: Fase 32 OK, Fase 24c OK
-
-**Il loop che DEVE chiudersi:**
-```
-POST /api/agents/spawn (con task_id e plan_id)
-  -> agent lavora nel worktree
-  -> agent committa
-  -> monitor rileva exit -> push -> PR
-  -> monitor aggiorna agent stage -> stopped
-  -> [MANCA] monitor aggiorna task status -> submitted
-  -> [MANCA] emette DomainEvent (TaskCompleted)
-  -> [MANCA] reactor avanza wave->done e piano->done
-  -> [MANCA] SSE + Telegram notifica
-```
-
-**Task:**
-- [ ] `spawn_monitor.rs`: dopo push+PR, chiama `POST /api/plan-db/task/update` con `status=submitted`
-- [ ] `spawn_monitor.rs`: emetti DomainEvent::TaskCompleted via EventBus
-- [ ] Orchestrator reactor: task_completed -> conta rimanenti -> wave_done -> plan_done
-- [ ] Plan auto-progression: wave_done automatico quando tutti i task della wave sono done
-- [ ] Telegram: notifica quando piano completo (se bot token e' set)
-- [ ] Test: spawna agente con task_id -> verifica che il piano si aggiorna
-
-#### Fase 32c: Planner E2E — piani completi e validabili (CRITICO)
-
-**Obiettivo**: Il planner produce piani COMPLETI che coprono il loop end-to-end.
-**Motivazione**: Oggi i piani sono liste di task sconnesse senza input/output/verifica.
-**Deps**: Fase 32b
-
-**Task:**
-- [ ] Template piano obbligatorio: objective, motivation, requester (enforced dalla API)
-- [ ] Ogni task: titolo, description con acceptance criteria, agente, tier
-- [ ] Ultimo task di ogni wave = integration test (enforced)
-- [ ] `POST /api/plan-db/validate` — verifica completezza (400 se mancante)
-- [ ] Il planner legge Regola 10 e le 4 domande PRIMA di creare task
-
-#### Fase 32d: Thor piano-level — challenger completo (CRITICO)
-
-**Obiettivo**: Thor valida l'intero piano PRIMA e DOPO l'esecuzione.
-**Deps**: Fase 32c, 32b
-
-**Thor pre-execution** (approved -> in_progress):
-Completezza, realismo budget, rischi, loop E2E, learnings considerati.
-Se problemi -> piano resta `approved`, Thor emette feedback.
-
-**Thor post-execution** (tutti submitted):
-Evidence check, integration check, regression, cost audit, learning extraction.
-Se non approva -> task problematici tornano `in_progress`.
-
-**Task:**
-- [ ] `POST /api/plan-db/review` — Thor review pre-execution
-- [ ] `POST /api/plan-db/validate-completion` — Thor review post-execution
-- [ ] Gate: approved -> in_progress richiede Thor pre-review positiva
-- [ ] Gate: submitted -> done richiede Thor post-review positiva
-- [ ] Thor produce report strutturato salvato in plan_metadata.report_json
-- [ ] Test: piano incompleto -> Thor lo rifiuta
-
-**VERIFICA**: Roberto deve VEDERE nella UI i piani che si aggiornano.
-Non passare a Step 1 senza questa verifica.
+### Step 1: Fondamenta
+- **23e**: DepgraphExtension gia' wired in main.rs (PR #48). Verificare.
 
 ## 6. FASI FUTURE (ordinate per priorita')
 
-### Step 1: Fondamenta
-- **23e**: Wire DepgraphExtension in main.rs (gia' fatto PR #48, verificare)
+### Step 1: Fondamenta (NEXT)
+- **23e**: DepgraphExtension gia' wired (PR #48). Verificare startup validation.
 
 ### Step 2: Delegation pipeline
 - **31**: File transport (rsync wrapper tra nodi)
@@ -332,16 +280,21 @@ Non passare a Step 1 senza questa verifica.
 11. **Workflow = contratto** — solve->planner->execute->thor enforced dal sistema. Ogni transizione validata, registrata, emessa, verificabile.
 12. **Auto-organizzazione = osservabilita'** — ogni azione ha un costo, ogni risultato una qualita', ogni errore un learning.
 
-## 8. WORKFLOW CONTRATTO
+## 8. WORKFLOW CONTRATTO (aggiornato sessione 5 — tutto OK tranne cleanup/learning)
 
 ```
-1. PROBLEMA -> /solve o POST /api/plan-db/create -> piano draft
-2. PIANIFICAZIONE -> planner scompone in wave/task -> piano approved
-3. ESECUZIONE -> per ogni task: spawn -> worktree -> monitor -> commit -> push -> PR
-   -> task submitted [MANCA: 32b] -> TaskCompleted event [MANCA: 32b]
-4. VALIDAZIONE -> Thor: evidence, integration, regression -> task done o failed
-5. COMPLETAMENTO -> piano done -> PM report -> SSE + Telegram -> cleanup
-6. LEARNING -> PM aggrega -> pattern negativi -> nuova regola
+1. PROBLEMA -> POST /api/plan-db/create (objective+motivation+requester REQUIRED)
+2. PIANIFICAZIONE -> planner crea wave/task -> POST /api/plan-db/validate
+3. REVIEW -> POST /api/plan-db/review -> Thor pre-review (GATE: must pass)
+4. START -> POST /api/plan-db/start/:id (blocked senza review pass)
+5. ESECUZIONE -> spawn -> worktree -> monitor -> commit -> push -> PR
+   -> task submitted -> TaskCompleted event -> SSE
+6. REACTOR CHAIN -> task_done -> wave_done -> auto-validate
+   -> tasks promoted to done -> wave done -> plan_done
+7. COMPLETAMENTO -> plan status=done -> PlanCompleted event -> Telegram
+8. POST-REVIEW -> POST /api/plan-db/validate-completion (evidence, cost)
+9. CLEANUP -> worktree/branch cleanup [MANCA]
+10. LEARNING -> PM aggrega [MANCA: manuale]
 ```
 
 ## 9. LEARNINGS (cronologico, 1-24)
@@ -373,6 +326,11 @@ Non passare a Step 1 senza questa verifica.
 | 23 | Squash merge perde lavoro agenti paralleli | Squash riscrive storia | Solo merge commit (enforced) |
 | 24 | EventBus->SSE ma non->DB = eventi persi | Nessun sink persistente | Observatory sink->obs_timeline |
 
+| 25 | Evidence gate column mismatch | Gate usa task_id/kind, tabella ha task_db_id/evidence_type | Fix nomi colonne (#65) |
+| 26 | IPC self-message skip breaks chain | Reactor skips msg from ali-orchestrator, tutti gli emit usano ali-orchestrator | Sender diverso: task-updater, orchestrator-reactor (#66,#67) |
+| 27 | SQL predicate "submitted" non escluso | on_task_done conta submitted come pending | Aggiungere submitted alla exclusion list (#63) |
+| 28 | Tracing logs su stderr, non stdout | launchd scrive stdout/stderr separati, tracing va su stderr | Guardare /tmp/convergio-daemon.err |
+
 **META-LEARNING**: Il sistema costruisce pezzi ma non li collega (pattern ricorrente).
 Pianificazione bottom-up -> pezzi sconnessi. Fix: top-down, loop E2E prima, poi implementa.
 Le 4 domande: chi produce input? chi consuma output? come l'utente lo vede? come il sistema registra?
@@ -392,11 +350,11 @@ Le 4 domande: chi produce input? chi consuma output? come l'utente lo vede? come
 5. Observatory persiste in DB (non solo SSE volatile)
 6. Inference con backend HTTP reali (Ollama/OpenAI-compatible)
 
-### Dove il codice NON chiude il loop
-1. Spawn monitor incompleto (aggiorna agente ma non task/piano)
-2. Eventi sottoutilizzati (solo PlanCreated emesso esplicitamente)
-3. Gate non enforced nelle route (StartGate esiste ma bypassed)
-4. tasks_done mai aggiornato (nessuno lo incrementa)
+### Dove il codice NON chiude il loop (aggiornato sessione 5)
+1. ~~Spawn monitor incompleto~~ FIXED (#63): monitor -> task submitted -> reactor chain
+2. ~~Eventi sottoutilizzati~~ FIXED (#63): PlanCompleted, WaveCompleted, TaskCompleted emessi
+3. ~~Gate non enforced~~ FIXED (#68,#69): StartGate + ThorPreReview enforced
+4. ~~tasks_done mai aggiornato~~ FIXED (#63): incrementato in emit_task_lifecycle
 5. Extension contract parziale (subscriptions/on_event/scheduled_tasks no dispatcher)
 6. Runtime provider-coupled (solo ClaudeCli e Script)
 
