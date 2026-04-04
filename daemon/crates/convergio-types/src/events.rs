@@ -50,6 +50,14 @@ pub enum EventKind {
     TaskCompleted {
         task_id: i64,
     },
+    PlanCompleted {
+        plan_id: i64,
+        name: String,
+    },
+    WaveCompleted {
+        wave_id: i64,
+        plan_id: i64,
+    },
 
     // Communication (visible in real-time UI)
     MessageSent {

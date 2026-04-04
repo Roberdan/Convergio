@@ -5,13 +5,18 @@ use tokio::sync::Notify;
 
 use convergio_db::pool::ConnPool;
 use convergio_ipc::messaging;
+use convergio_types::events::DomainEventSink;
 
 use crate::handlers;
 
 pub const ALI_AGENT: &str = "ali-orchestrator";
 pub const CHANNEL: &str = "#orchestration";
 
-pub async fn run(pool: ConnPool, notify: Arc<Notify>) {
+pub async fn run(
+    pool: ConnPool,
+    notify: Arc<Notify>,
+    event_sink: Option<Arc<dyn DomainEventSink>>,
+) {
     loop {
         let msgs = messaging::receive_wait(
             &pool,
@@ -30,7 +35,7 @@ pub async fn run(pool: ConnPool, notify: Arc<Notify>) {
                     if msg.from_agent == ALI_AGENT {
                         continue;
                     }
-                    if let Err(e) = handle_message(&pool, &notify, msg).await {
+                    if let Err(e) = handle_message(&pool, &notify, &event_sink, msg).await {
                         tracing::error!("ali: handler error for msg {}: {e}", msg.id);
                         emit_error(&pool, &notify, &e.to_string());
                     }
@@ -47,6 +52,7 @@ pub async fn run(pool: ConnPool, notify: Arc<Notify>) {
 async fn handle_message(
     pool: &ConnPool,
     notify: &Arc<Notify>,
+    event_sink: &Option<Arc<dyn DomainEventSink>>,
     msg: &convergio_ipc::types::MessageInfo,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let payload: serde_json::Value = serde_json::from_str(&msg.content)?;
@@ -78,17 +84,17 @@ async fn handle_message(
                 handlers::on_wave_done(pool, notify, wave_id, plan_id)?;
             } else {
                 tracing::info!("ali: auto-validating wave {wave_id} (Thor not yet a service)");
-                handlers::on_wave_validated(pool, notify, wave_id, plan_id)?;
+                handlers::on_wave_validated(pool, notify, event_sink, wave_id, plan_id)?;
             }
         }
         "wave_validated" => {
             let wave_id = require_i64(&payload, "wave_id")?;
             let plan_id = require_i64(&payload, "plan_id")?;
-            handlers::on_wave_validated(pool, notify, wave_id, plan_id)?;
+            handlers::on_wave_validated(pool, notify, event_sink, wave_id, plan_id)?;
         }
         "plan_done" => {
             let plan_id = require_i64(&payload, "plan_id")?;
-            handlers::on_plan_done(pool, notify, plan_id)?;
+            handlers::on_plan_done(pool, notify, event_sink, plan_id)?;
         }
         "wave_ready" => {
             let wave_id = require_i64(&payload, "wave_id")?;

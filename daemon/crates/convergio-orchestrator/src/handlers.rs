@@ -4,6 +4,7 @@ use std::sync::Arc;
 use tokio::sync::Notify;
 
 use convergio_db::pool::ConnPool;
+use convergio_types::events::DomainEventSink;
 use rusqlite::params;
 
 use crate::actions;
@@ -56,9 +57,11 @@ pub fn on_task_done(
         return Ok(());
     };
 
+    // Count tasks not yet submitted/done — wave is ready for validation
+    // when all tasks reach at least "submitted"
     let pending: i64 = conn.query_row(
         "SELECT COUNT(*) FROM tasks WHERE plan_id = ?1 AND wave_id = ?2 \
-         AND status NOT IN ('done', 'cancelled', 'skipped')",
+         AND status NOT IN ('done', 'submitted', 'cancelled', 'skipped')",
         params![plan_id, wave_id],
         |row| row.get(0),
     )?;
@@ -95,10 +98,40 @@ pub fn on_wave_done(
 pub fn on_wave_validated(
     pool: &ConnPool,
     notify: &Arc<Notify>,
+    event_sink: &Option<Arc<dyn DomainEventSink>>,
     wave_id: i64,
     plan_id: i64,
 ) -> AliResult {
     let conn = pool.get()?;
+
+    // Promote submitted tasks to done (auto-validation until Thor is a service)
+    let promoted = conn.execute(
+        "UPDATE tasks SET status = 'done', completed_at = datetime('now') \
+         WHERE plan_id = ?1 AND wave_id = ?2 AND status = 'submitted'",
+        params![plan_id, wave_id],
+    )?;
+    if promoted > 0 {
+        tracing::info!("ali: promoted {promoted} submitted tasks to done in wave {wave_id}");
+    }
+
+    // Mark wave as done
+    conn.execute(
+        "UPDATE waves SET status = 'done', completed_at = datetime('now') \
+         WHERE id = ?1",
+        params![wave_id],
+    )?;
+
+    // Emit WaveCompleted domain event for SSE/UI
+    if let Some(ref sink) = event_sink {
+        sink.emit(convergio_types::events::make_event(
+            "orchestrator",
+            convergio_types::events::EventKind::WaveCompleted { wave_id, plan_id },
+            convergio_types::events::EventContext {
+                plan_id: Some(plan_id),
+                ..Default::default()
+            },
+        ));
+    }
 
     let next_wave: Option<i64> = match conn.query_row(
         "SELECT id FROM waves WHERE plan_id = ?1 AND id > ?2 AND status = 'pending' \
@@ -135,12 +168,18 @@ pub fn on_wave_validated(
     Ok(())
 }
 
-pub fn on_plan_done(pool: &ConnPool, notify: &Arc<Notify>, plan_id: i64) -> AliResult {
+pub fn on_plan_done(
+    pool: &ConnPool,
+    notify: &Arc<Notify>,
+    event_sink: &Option<Arc<dyn DomainEventSink>>,
+    plan_id: i64,
+) -> AliResult {
     let conn = pool.get()?;
 
     // Mark plan as done in DB
     conn.execute(
-        "UPDATE plans SET status = 'done', updated_at = datetime('now') WHERE id = ?1",
+        "UPDATE plans SET status = 'done', completed_at = datetime('now'), \
+         updated_at = datetime('now') WHERE id = ?1",
         params![plan_id],
     )?;
 
@@ -153,6 +192,21 @@ pub fn on_plan_done(pool: &ConnPool, notify: &Arc<Notify>, plan_id: i64) -> AliR
         .unwrap_or_else(|_| format!("Plan #{plan_id}"));
 
     tracing::info!("ali: plan {plan_id} ({plan_name}) marked done");
+
+    // Emit PlanCompleted domain event for SSE/UI
+    if let Some(ref sink) = event_sink {
+        sink.emit(convergio_types::events::make_event(
+            "orchestrator",
+            convergio_types::events::EventKind::PlanCompleted {
+                plan_id,
+                name: plan_name.clone(),
+            },
+            convergio_types::events::EventContext {
+                plan_id: Some(plan_id),
+                ..Default::default()
+            },
+        ));
+    }
 
     // Send Telegram notification (fire-and-forget)
     notify_plan_done(plan_id, &plan_name);
@@ -183,55 +237,6 @@ pub fn on_plan_done(pool: &ConnPool, notify: &Arc<Notify>, plan_id: i64) -> AliR
 mod notify;
 use notify::notify_plan_done;
 
-pub async fn on_wave_ready(
-    pool: &ConnPool,
-    notify: &Arc<Notify>,
-    wave_id: i64,
-    plan_id: i64,
-) -> AliResult {
-    let conn = pool.get()?;
-
-    conn.execute(
-        "UPDATE waves SET status='in_progress', started_at=datetime('now') WHERE id=?1",
-        params![wave_id],
-    )?;
-
-    let task_count: i64 = conn.query_row(
-        "SELECT COUNT(*) FROM tasks WHERE plan_id=?1 AND wave_id=?2 AND status='pending'",
-        params![plan_id, wave_id],
-        |r| r.get(0),
-    )?;
-
-    tracing::info!(
-        "ali: wave {wave_id} starting with {task_count} pending tasks for plan {plan_id}"
-    );
-    actions::delegate_plan(pool, notify, plan_id).await
-}
-
-pub async fn on_delegation_failed(
-    pool: &ConnPool,
-    notify: &Arc<Notify>,
-    plan_id: i64,
-    failed_peer: &str,
-    reason: &str,
-) -> AliResult {
-    tracing::warn!("ali: delegation of plan {plan_id} to {failed_peer} failed: {reason}");
-
-    let alt_peer = actions::find_available_peer(Some(failed_peer)).await;
-
-    if let Some(peer) = alt_peer {
-        tracing::info!("ali: retrying plan {plan_id} on peer {peer}");
-        crate::executor::delegate_to_peer(pool, notify, plan_id, &peer).await
-    } else {
-        tracing::warn!("ali: no peers available for plan {plan_id}, requesting human");
-        actions::emit(
-            pool,
-            notify,
-            "need_human",
-            &serde_json::json!({
-                "plan_id": plan_id,
-                "reason": format!("delegation failed on {failed_peer}: {reason}, no alternative peers"),
-            }),
-        )
-    }
-}
+#[path = "handlers_delegation.rs"]
+mod delegation;
+pub use delegation::{on_delegation_failed, on_wave_ready};
