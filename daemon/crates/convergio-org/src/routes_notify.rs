@@ -5,6 +5,8 @@ use convergio_db::pool::ConnPool;
 use serde::Deserialize;
 use serde_json::{json, Value};
 
+use crate::telegram::{format_notification, TelegramClient};
+
 #[derive(Deserialize)]
 pub struct NotifyBody {
     #[serde(default = "default_severity")]
@@ -73,4 +75,37 @@ pub fn list_pending(pool: &ConnPool) -> Json<Value> {
         Err(_) => vec![],
     };
     Json(json!({"notifications": rows}))
+}
+
+// --- Telegram test ---
+
+#[derive(Deserialize)]
+pub struct TelegramTestBody {
+    #[serde(default = "default_severity")]
+    pub severity: String,
+    pub title: String,
+    #[serde(default)]
+    pub message: String,
+}
+
+pub async fn test_telegram(_pool: &ConnPool, body: TelegramTestBody) -> Json<Value> {
+    match TelegramClient::from_env() {
+        Ok(client) => {
+            let text = format_notification(
+                &body.severity,
+                &body.title,
+                if body.message.is_empty() {
+                    None
+                } else {
+                    Some(&body.message)
+                },
+                None,
+            );
+            match client.send(&text).await {
+                Ok(_) => Json(json!({"ok": true, "message": "Telegram notification sent"})),
+                Err(e) => Json(json!({"error": e})),
+            }
+        }
+        Err(e) => Json(json!({"error": e})),
+    }
 }

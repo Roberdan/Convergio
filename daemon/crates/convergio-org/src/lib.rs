@@ -13,6 +13,7 @@ pub mod routes;
 pub mod routes_decisions;
 pub mod routes_members;
 pub mod routes_notify;
+pub mod telegram;
 
 pub use ext::OrgExtension;
 pub use factory::{
