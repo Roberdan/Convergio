@@ -47,6 +47,15 @@ impl IpcExtension {
         self.rate_limit = limit;
     }
 
+    fn state(&self) -> Arc<crate::routes::IpcState> {
+        Arc::new(crate::routes::IpcState {
+            pool: self.pool.clone(),
+            notify: Arc::clone(&self.notify),
+            event_bus: Arc::clone(&self.event_bus),
+            rate_limit: self.rate_limit,
+        })
+    }
+
     pub fn stats(&self) -> Result<IpcStats, crate::types::IpcError> {
         let conn = self.pool.get()?;
         let agents: u64 = conn.query_row("SELECT count(*) FROM ipc_agents", [], |r| r.get(0))?;
@@ -94,6 +103,10 @@ impl Extension for IpcExtension {
         }
     }
 
+    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
+        Some(crate::routes::ipc_routes(self.state()))
+    }
+
     fn migrations(&self) -> Vec<Migration> {
         crate::schema::migrations()
     }
@@ -128,10 +141,6 @@ impl Extension for IpcExtension {
             ],
             Err(_) => vec![],
         }
-    }
-
-    fn routes(&self, _ctx: &AppContext) -> Option<axum::Router> {
-        Some(crate::routes::event_routes(self.event_bus.clone()))
     }
 
     fn on_start(&self, _ctx: &AppContext) -> ExtResult<()> {
