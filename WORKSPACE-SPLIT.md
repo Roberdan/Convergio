@@ -58,13 +58,13 @@ types (zero deps)
 
 | Metrica | Valore |
 |---------|--------|
-| Crate nel workspace | 26 |
-| Extension registrate in main.rs | 19 (tutte con `routes()` -> `Some`) |
-| Test passanti (`cargo test --workspace`) | 921 |
+| Crate nel workspace | 27 |
+| Extension registrate in main.rs | 20 (tutte con `routes()` -> `Some`) |
+| Test passanti (`cargo test --workspace`) | 949 |
 | Righe Rust totali | ~51.000 |
-| Endpoint HTTP unici | ~125 |
+| Endpoint HTTP unici | ~145 |
 | Tabelle DB (via migrations) | 59+ |
-| PR mergiate | 83 |
+| PR mergiate | 91 |
 
 ### Cosa funziona realmente (verificato con smoke test)
 
@@ -94,132 +94,33 @@ types (zero deps)
 - **Inference model config**: modelli registrati al startup da TOML config, cloud health check automatico
 - **Artifact model**: upload/download non-code artifacts, multipart, evidence type artifact/document
 - **E2E HTTP tests**: plan lifecycle, delegation pipeline, task CRUD (13 integration test)
+- **Scheduler policy**: weighted scoring (capability, cost, load, locality), policy CRUD, decision history
+- **Human approval**: approval requests, thresholds with auto-approve, review/reject flow
+- **Compensation/rollback**: compensation plans, action execution, wave rollback tracking
+- **Security remote**: trust levels (5 livelli), secret filtering, sandbox policies per peer
+- **Evaluation framework**: plan evaluation, Thor precision/recall/F1, review outcome tracking
+- **ADR documentation**: 14 ADR + getting-started + architecture guide
 
-### Cosa NON funziona (remaining gaps)
+### Remaining gaps
+- **Worktree cleanup**: worktree e branch non puliti dopo plan done
+- **Learning automatico**: PM compila manualmente, non automatico
 
-| Componente | Stato | Gap |
-|-----------|-------|-----|
-| **Worktree cleanup** | ASSENTE | Worktree e branch non puliti dopo plan done |
-| **Learning automatico** | ASSENTE | PM compila manualmente, non automatico |
+Diagnosi sessione 6: Step 0-4 tutti completi. 27 crate, 20 extension, 949 test, 91 PR. Sistema ha: plan lifecycle E2E, delegation multi-nodo, inference reale, artifact bundles, human approval, compensation, scheduler policy, security trust levels, evaluation framework. Prossimo: Step 5 (self-hosting) o completamento Step 3 remaining (agent context, live adaptation, long-run autonomo, frontend).
 
-Diagnosi sessione 6: Step 2 (delegation pipeline) completo. Step 3 quasi completo (36b, 39b, 40b done, frontend deferred). Il daemon ora ha inference reale, artifact model, delegation multi-nodo con monitoring completo.
-
-### Workflow — stato buchi (aggiornato sessione 6)
-
-| Step | Stato | Note |
-|------|-------|------|
-| 1. Problema->Piano | OK | objective/motivation/requester required |
-| 2. Piano->Wave/Task | OK | validate endpoint, task create API |
-| 3. Thor pre-review | OK | gate enforced su plan start |
-| 4. Spawn->commit->push+PR | OK | -- |
-| 5. Task->submitted | OK | monitor chiama API, IPC emesso |
-| 6. Wave auto-progression | OK | reactor conta pending, avanza |
-| 7. Plan->done | OK | automatico via reactor chain |
-| 8. Domain events SSE | OK | TaskCompleted, WaveCompleted, PlanCompleted |
-| 9. Telegram notifica | OK | fire-and-forget (serve bot token in env) |
-| **10. Cleanup** | MANCA | Worktree/branch non puliti | future |
-| **11. Learning auto** | MANCA | Manuale | future |
+### Workflow (10/12 step OK — mancano solo cleanup e learning auto)
 
 ## 4. FASI COMPLETATE (storia collassata)
 
-### Infrastruttura core (Wave A) — DONE
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 0 | Pulizia | SKIP | Nuovo repo, niente da pulire |
-| 1 | convergio-types + Extension trait | -- | Config, errors, Extension trait. 2 test |
-| 2 | convergio-telemetry | -- | logging, health, metrics. 6 test |
-| 3 | convergio-db | -- | Pool r2d2, MigrationRunner, helpers. 10 test |
-| 4 | convergio-security | -- | JWT, audit, RBAC. 8 test |
-| 5 | convergio-ipc | -- | 11 moduli, SSE, agent registry. 29 test |
-| 6 | convergio-mesh | -- | 14 moduli, HMAC auth, delta sync, delegation. 36 test |
-
-### Orchestrator + CLI (Wave B) — DONE
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 7 | convergio-orchestrator | -- | Plans, tasks, waves, Thor, reaper. 40 test |
-| 8 | convergio-cli | -- | 75 moduli, pure HTTP client. 209 test |
-
-### Server + Extensions (Wave C) — DONE
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 9 | convergio-server | -- | 12 moduli, middleware, router. 34 test |
-| 10 | Extensions (kernel, org, voice) | #5 | 57 test totali |
-
-### Intelligence + Ecosystem (Wave D) — DONE
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 11 | Inference routing | #7 | Model router semantico, budget-aware. 15 test |
-| 12 | Prompt management + skill registry | #6 | Template engine, A/B test, spawn injection. 23 test |
-| 12b | Skill/agent prompts migration | #33 | 8 skills + workflow pipeline seeded |
-| 13 | Org-as-Package | #8 | Installer, sandbox, signing, delegation. 46 test |
-| 13b | Project scaffolding (`cvg project init`) | #37 | -- |
-| 14 | HTTP Extension bridge | #9 | Health polling, webhook, proxy. 22 test |
-
-### Runtime + Platform (Wave E) — DONE
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 15 | Long-running execution | #11 | Heartbeat, checkpoint, resume, delegation chain. 36 test |
-| 16 | Depgraph validation + OpenAPI | #10 | Kahn's algo, SemVer check, OpenAPI gen. 30 test |
-| 17 | Agent runtime | #13 | Allocator, scope, scheduler, concurrency. 39 test |
-| 18 | MCP server | #12 | JSON-RPC 2.0, 15 tools, ring access control. 29 test |
-| 18b | Billing & inter-org economics | #14 | Metering, budget hierarchy, invoices. 21 test |
-| 18c | Backup & disaster recovery | #15 | Retention, snapshot, restore, export. 30 test |
-| 18d | Multi-tenancy & org isolation | #16 | 5 livelli isolamento. 25 test |
-
-### Observability + Governance (Wave F) — DONE
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 19 | Observatory | #18 | Timeline, FTS5 search, anomaly detection. 15 test |
-| 20 | Evidence gate + workflow | #17 | 3 gates, preflight, Thor auto-enqueue. 31 test |
-
-### Wiring + Integration (Phase 21-24) — DONE
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 21 | Wiring + smoke test | -- | 18 extension, 71+ migrations, 100+ endpoint |
-| 22 | Migrazione dati | -- | PARTIAL — scripts pronti, cutover manuale pending |
-| 23a | Wire existing routes | #25 | prompts, backup |
-| 23b | Create routes.rs | #25,#26 | ipc, mesh, orchestrator, evidence, longrunning, voice |
-| 23c | Replace stubs | #29 | org, org-package, kernel. Path param fix `:id` |
-| 23d | End-to-end verification | #32 | PARTIAL — SSE done, depgraph done. Mesh 2-nodi deferred |
-| 24a-d | Plan protocol | #30 | Schema, tracking, gates, aggregation. 825 test |
-| 24e-f | PM endpoints + protocol | #35 | PM analyze/digest/learnings/forecast |
-
-### Guardrails + Migration (Phase 27-29) — DONE
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 27a | Rules + git hooks | #27 | .claude/settings.json + 10 script hooks |
-| 27b | Skills + commands | #33 | 8 skill prompts + workflow pipeline |
-| 27c | Agent definitions | #36 | Agent TOML definitions |
-| 27d | Config + reference | #34 | models.yaml, schemas, reference docs |
-| 29a | CONSTITUTION + README | #31 | 9 regole + 16 learnings |
-
-### Agent Spawning + Lifecycle (Phase 32) — DONE
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 32 | Agent spawning reale | #38,#40,#41,#42,#45 | spawn -> worktree -> monitor -> push -> PR |
-| 30 | Mesh sync loop | #43 | Background sync attivo |
-| 33 | Telegram client | #44 | Implementato, manca bot token in env |
-| 38c | launchd + daemon ops | PARTIAL | plist + install script. Firewall non gestibile |
-
-### Step 0: Loop chiuso (Phase 32b-d) — DONE (sessione 5)
-
-| Fase | Titolo | PR | Note |
-|------|--------|-----|------|
-| 32b | Agent->Plan lifecycle wiring | #63,#65,#66,#67 | pending count fix, IPC sender fix, domain events, wave/plan auto-progression |
-| 32c | Planner E2E enforcement | #68 | objective/motivation/requester required, POST /api/plan-db/validate |
-| 32d | Thor plan-level review | #69 | POST /api/plan-db/review (pre), /validate-completion (post), gate su plan start |
-| -- | Task create API | #64 | POST /api/plan-db/task/create |
-
-**Smoke test verificato**: create -> review(pass) -> start -> evidence -> submit -> reactor chain -> plan done (automatico).
+Wave A (infra): fasi 0-6 — types, telemetry, db, security, ipc, mesh (91 test)
+Wave B (orch+cli): fasi 7-8 — orchestrator, cli (249 test)
+Wave C (server): fasi 9-10 — server, extensions kernel/org/voice (91 test)
+Wave D (intelligence): fasi 11-14 — inference, prompts, org-package, HTTP bridge (106 test)
+Wave E (runtime): fasi 15-18d — longrun, depgraph, agent runtime, MCP, billing, backup, multitenant (210 test)
+Wave F (observability): fasi 19-20 — observatory, evidence gates (46 test)
+Phase 21-24 (wiring): routes, stubs, E2E, plan protocol, PM endpoints (825 test)
+Phase 27-29 (guardrails): hooks, skills, agent TOML, config, CONSTITUTION
+Phase 32 (spawning): agent spawn, mesh sync, telegram, launchd
+Step 0 (sessione 5): 32b-d lifecycle wiring, planner E2E, Thor review (#63-#69)
 
 ### Step 1: Fondamenta — DONE (sessione 6)
 
@@ -245,6 +146,23 @@ Diagnosi sessione 6: Step 2 (delegation pipeline) completo. Step 3 quasi complet
 | 40b | E2E HTTP tests | #83 | 9 plan lifecycle integration tests |
 | -- | Frontend | -- | DEFERRED — repo separato, richiede agenti UI |
 
+### Step 3b: Documentation — DONE (sessione 6)
+
+| Fase | Titolo | PR | Note |
+|------|--------|-----|------|
+| 47 | ADR + documentazione | #85 | 14 ADR, getting-started guide, architecture guide |
+
+### Step 4: Production hardening — DONE (sessione 6)
+
+| Fase | Titolo | PR | Note |
+|------|--------|-----|------|
+| 41 | Artifact bundles + metadata | #86 | Bundle CRUD, mime_type, content_hash, lifecycle draft→published |
+| 42 | Human-in-the-loop approval | #88 | Approval requests, thresholds, auto-approve below, review flow |
+| 43 | Compensation/rollback | #87 | Compensation plans, action execution, wave rollback |
+| 44 | Scheduler policy | #90 | Weighted scoring, 4 policy weights, decision history |
+| 45 | Security remote execution | #89 | 5 trust levels, secret filtering, sandbox per peer |
+| 46 | Evaluation framework | #91 | Plan evaluation, Thor precision/recall/F1, review outcomes |
+
 ## 5. FASI IN CORSO
 
 Nessuna fase in corso — in attesa di nuova sessione.
@@ -257,18 +175,7 @@ Nessuna fase in corso — in attesa di nuova sessione.
 - **32g**: Long-run autonomo (daemon gestisce checkpoint/resume/respawn — NON script bash)
 - **Frontend**: rifare convergio-frontend dentro Convergio (agenti via daemon)
 
-### Step 3b: Documentation (quando il sistema funziona E2E)
-- **47**: ADR + documentazione completa (estratta da codice e tracker)
-
-### Step 4: Production hardening (Wave I)
-- **41**: Artifact model (output non-code: report, PDF, screenshot)
-- **42**: Human-in-the-loop (approvazione umana con soglie)
-- **43**: Compensation/rollback (wave failure -> compensazione automatica)
-- **44**: Scheduler policy (capability, costo, privacy, locality)
-- **45**: Security remote execution (trust levels, sandbox, mTLS)
-- **46**: Evaluation framework (precision/recall planner e Thor)
-
-### Step 5: Self-hosting
+### Step 5: Self-hosting (next)
 - **26**: Convergio costruisce convergio
 
 ### Fasi non completate (bassa priorita')
@@ -280,252 +187,53 @@ Nessuna fase in corso — in attesa di nuova sessione.
 - **12c**: Agent catalog completo (68 agenti -> TOML specs)
 - **13b**: Project scaffolding completamento
 
-## 7. CONSTITUTION (regole 1-12)
+## 7. CONSTITUTION (12 regole — vedi AGENTS.md per dettaglio)
 
-1. **Mai la via breve** — sempre root cause. 3 fix consecutivi con nuovi problemi -> STOP.
-2. **Integration test obbligatorio** — unit test verdi != "funziona". Smoke test E2E obbligatorio.
-3. **Isolamento workspace** — worktree separato. Mai checkout principale. Un worktree = un branch = una PR.
-4. **Regole prima degli agenti** — le regole esistono PRIMA di lanciare gli agenti.
-5. **Evidence verificabile** — mai "done" senza proof. Thor valida.
-6. **Il planner prevede tutto** — integration test per wave, wiring verification, smoke test finale.
-7. **Prima esplorare, poi costruire** — MAI costruire senza verificare cosa esiste gia'.
-8. **Mai bypassare senza approvazione** — nessun hook/gate/check skippato senza OK esplicito dell'utente.
-9. **Conserva il contesto** — non rileggere file gia' letti. Offset/limit per file grandi. Delega task meccanici.
-10. **Loop chiuso E2E** — input -> elaborazione -> output -> feedback -> stato aggiornato -> visibile all'utente.
-11. **Workflow = contratto** — solve->planner->execute->thor enforced dal sistema. Ogni transizione validata, registrata, emessa, verificabile.
-12. **Auto-organizzazione = osservabilita'** — ogni azione ha un costo, ogni risultato una qualita', ogni errore un learning.
+Root cause sempre (R1), integration test (R2), worktree isolati (R3), regole prima agenti (R4),
+evidence verificabile (R5), planner prevede tutto (R6), esplorare prima (R7), no bypass (R8),
+conserva contesto (R9), loop chiuso E2E (R10), workflow=contratto (R11), osservabilita' (R12).
 
-## 8. WORKFLOW CONTRATTO (aggiornato sessione 6 — tutto OK tranne cleanup/learning)
+## 8. WORKFLOW CONTRATTO (tutto OK tranne cleanup/learning)
 
-```
-1. PROBLEMA -> POST /api/plan-db/create (objective+motivation+requester REQUIRED)
-2. PIANIFICAZIONE -> planner crea wave/task -> POST /api/plan-db/validate
-3. REVIEW -> POST /api/plan-db/review -> Thor pre-review (GATE: must pass)
-4. START -> POST /api/plan-db/start/:id (blocked senza review pass)
-5. ESECUZIONE -> spawn -> worktree -> monitor -> commit -> push -> PR
-   -> task submitted -> TaskCompleted event -> SSE
-6. REACTOR CHAIN -> task_done -> wave_done -> auto-validate
-   -> tasks promoted to done -> wave done -> plan_done
-7. COMPLETAMENTO -> plan status=done -> PlanCompleted event -> Telegram
-8. POST-REVIEW -> POST /api/plan-db/validate-completion (evidence, cost)
-9. CLEANUP -> worktree/branch cleanup [MANCA]
-10. LEARNING -> PM aggrega [MANCA: manuale]
-```
+create -> validate -> Thor pre-review -> start -> spawn/worktree/monitor -> submit
+-> reactor chain (task->wave->plan done) -> PlanCompleted -> Telegram -> post-review
+MANCA: cleanup worktree/branch, learning automatico.
 
-## 9. LEARNINGS (cronologico, 1-24)
-
-| # | Titolo | Root cause | Fix/Regola |
-|---|--------|-----------|------------|
-| 1 | 10056: 38 task submitted senza verifica | Workflow senza match commit->task | Evidence verificabile |
-| 2 | 10056: 4 task fraudolenti | Evidence self-reported | Verifica indipendente |
-| 3 | 10056: Thor mai invocato | Wave completion senza trigger | Thor automatico su wave |
-| 4 | Agenti paralleli senza worktree | Nessun isolamento filesystem | Worktree obbligatori (R3) |
-| 5 | Regole aggiunte a sessione in corso non lette | Agenti gia' partiti | Regole PRIMA degli agenti (R4) |
-| 6 | Agenti non fanno checklist se non la conoscono | Checklist assente al lancio | Checklist nel tracker dall'inizio |
-| 7 | `claude -p` con prompt >3000 chars = hang | Prompt troppo lungo come arg shell | Prompt corto + file istruzioni |
-| 8 | `</dev/null` con `claude -p` = errore | stdin chiuso con -p | Non usare </dev/null con -p |
-| 9 | Heredoc con backtick = unexpected EOF | Backtick in heredoc bash | Prompt in file separati |
-| 10 | Pattern funzionante Claude non-interattivo | -- | `timeout N claude --dangerously-skip-permissions -p "Leggi <file>"` |
-| 11 | Orchestratore non pulisce worktree post-merge | Prompt incompleto | Cleanup in checklist |
-| 12 | Orchestratore autonomo funziona (6 fasi) | -- | Pattern prototipo per agent runtime |
-| 13 | GRAVE: crate isolati senza integration testing | Ogni fase testa solo il suo crate | Integration test per wave (R2) |
-| 14 | Orchestratore automatico produce crate vuoti | Ottimizza per "compila", non "funziona" | routes()->Some + curl obbligatorio |
-| 15 | Bottom-up building senza composizione | Piano tratta crate come unita' indipendenti | Integration test cross-crate |
-| 16 | Agenti delegati non fanno cargo fmt | Pre-commit hook assente | cargo fmt in checklist |
-| 17 | Delegation accoppiata a singolo modello | Spawner solo per Claude | Multi-provider (inference router -> spawner) |
-| 18 | Health/metrics wired ma non registrati | main.rs non completa il loop | Wiring completo in main.rs |
-| 19 | Agenti non aggiornano i piani | Monitor non chiude il loop | Fase 32b: monitor->task->plan |
-| 20 | CLAUDE.md accoppiato a un solo provider | Solo Claude legge CLAUDE.md | AGENTS.md universale |
-| 21 | kill(pid,0) non rileva zombie | kill ritorna 0 per zombie | waitpid(WNOHANG) |
-| 22 | nohup + cd chain = tutti stessa directory | cd nella stessa shell | Subshell isolata per agente |
-| 23 | Squash merge perde lavoro agenti paralleli | Squash riscrive storia | Solo merge commit (enforced) |
-| 24 | EventBus->SSE ma non->DB = eventi persi | Nessun sink persistente | Observatory sink->obs_timeline |
-
-| 25 | Evidence gate column mismatch | Gate usa task_id/kind, tabella ha task_db_id/evidence_type | Fix nomi colonne (#65) |
-| 26 | IPC self-message skip breaks chain | Reactor skips msg from ali-orchestrator, tutti gli emit usano ali-orchestrator | Sender diverso: task-updater, orchestrator-reactor (#66,#67) |
-| 27 | SQL predicate "submitted" non escluso | on_task_done conta submitted come pending | Aggiungere submitted alla exclusion list (#63) |
-| 28 | Tracing logs su stderr, non stdout | launchd scrive stdout/stderr separati, tracing va su stderr | Guardare /tmp/convergio-daemon.err |
+## 9. LEARNINGS (28 totali — solo meta-pattern qui, dettaglio in git history)
 
 **META-LEARNING**: Il sistema costruisce pezzi ma non li collega (pattern ricorrente).
 Pianificazione bottom-up -> pezzi sconnessi. Fix: top-down, loop E2E prima, poi implementa.
 Le 4 domande: chi produce input? chi consuma output? come l'utente lo vede? come il sistema registra?
 
-## 10. ARCHITECTURE REVIEW (04 Aprile 2026 — feedback esterno)
+Key learnings: worktree obbligatori (#4), integration test per wave (#13), AGENTS.md universale (#20),
+solo merge commit (#23), waitpid non kill(0) (#21), sender diversi per IPC chain (#26).
 
-### Giudizio
-> Convergio ha una base forte e rara. Ma il centro di gravita' oggi e':
-> daemon modulare + worktree runtime + DB/SSE observability
-> non ancora: sistema che pianifica/esegue/valida/sincronizza/chiude il loop da solo.
+## 10. ARCHITECTURE REVIEW (04 Aprile 2026)
 
-### Cosa e' vero nel codice
-1. Architettura plugin-based reale (Extension, Manifest, AppContext)
-2. Boot daemon serio (registra, migra, monta, health, metrics, on_start)
-3. Spawn agenti reale (worktree, TASK.md, processo, log, monitor, push, PR)
-4. Mesh sync con background loop reale
-5. Observatory persiste in DB (non solo SSE volatile)
-6. Inference con backend HTTP reali (Ollama/OpenAI-compatible)
-
-### Dove il codice NON chiude il loop (aggiornato sessione 6)
-1. ~~Spawn monitor incompleto~~ FIXED (#63): monitor -> task submitted -> reactor chain
-2. ~~Eventi sottoutilizzati~~ FIXED (#63): PlanCompleted, WaveCompleted, TaskCompleted emessi
-3. ~~Gate non enforced~~ FIXED (#68,#69): StartGate + ThorPreReview enforced
-4. ~~tasks_done mai aggiornato~~ FIXED (#63): incrementato in emit_task_lifecycle
-5. Extension contract parziale (subscriptions/on_event/scheduled_tasks no dispatcher)
-6. Runtime provider-coupled (solo ClaudeCli e Script)
-
-### Confronto competitivo
-
-| vs | Convergio piu' forte | Convergio piu' debole |
-|---|---|---|
-| CrewAI/AutoGen | Infrastruttura: DB, routes, health, Git/PR | Collaboration patterns |
-| LangGraph | Piu' "OS" e meno libreria | State machine/debuggability |
-| Temporal | Piu' vicino al mondo agenti/coding | Durable workflow, compensation |
-| OpenHands | Governance, modularita', control plane | Loop esecutivo agentico puro |
-
-### Rischi -> fasi aggiunte
-Artifact model (41), Human approval (42), Compensation (43),
-Scheduler policy (44), Security remote (45), Evaluation (46).
+> Base forte: plugin-based, daemon serio, spawn reale, mesh sync, observatory DB, inference HTTP.
+> Gap rimanenti: extension contract parziale (no dispatcher), runtime provider-coupled.
+> 4/6 gap originali FIXED in sessione 5 (monitor, eventi, gates, tasks_done).
+> Rischi mitigati in Step 4: artifact, approval, compensation, scheduler, security, evaluation.
 
 ## 11. APPENDICI
 
 ### Daemon info
-- Porta: 8420. Token: `Bearer dev-local`
-- CLI: `cvg status`, `cvg plan list`, `cvg agents list`, `cvg cheatsheet`
-- Build: `cd daemon && cargo build --release`
-- Logs: `/tmp/convergio-daemon.log`, `/tmp/convergio-daemon.err`
-- Service: launchd `com.convergio.daemon.plist`
+Porta: 8420 | Token: `Bearer dev-local` | Build: `cd daemon && cargo build --release`
+Logs: `/tmp/convergio-daemon.{log,err}` | Service: launchd `com.convergio.daemon.plist`
+CLI: `cvg status`, `cvg plan list`, `cvg agents list`, `cvg cheatsheet`
 
-### Repo coinvolti
+### Repo
+convergio (daemon), convergio-frontend (cockpit), convergio-design (DS), ConvergioPlatform (archive)
 
-| Repo | Path | Scopo |
-|------|------|-------|
-| convergio | `/Users/Roberdan/GitHub/convergio` | Daemon + backend |
-| convergio-frontend | `/Users/Roberdan/GitHub/convergio-frontend` | Cockpit UI |
-| ConvergioPlatform | `/Users/Roberdan/GitHub/ConvergioPlatform` | Vecchio monolite (archive) |
-| convergio-design | `/Users/Roberdan/GitHub/convergio-design` | Design system |
+### Guardrails
+G1-G5: git hooks (MainGuard, FileSizeGuard 250, SecretScan, SqliteBlock, CommitLint)
+C1-C10: Claude hooks in `.claude/settings.json`
 
-### Frontend stato
-Fasi 29-38 DONE. CI verde, 96 unit test, 58 E2E.
-Bug aperti: mobile search, Manettino responsive, SteppedRotary, 13 lint warnings.
-E2E Playwright e responsive deferred.
+### Fase 32g: Long-run autonomo (future)
+Daemon gestisce checkpoint/resume/respawn. Piano con N task completato senza intervento umano.
+Contesto pieno -> checkpoint -> nuovo agente -> riprende. Deps: 32b (done), 32e, 32f.
 
-### Come delegare a Copilot
-```bash
-cd .worktrees/<task> && gh copilot --model claude-opus-4-6
-```
-Delegare: merge worktree, migrazione singoli crate (meccanico).
-NON delegare: decisioni architetturali, risoluzione conflitti, validazione finale.
-
-### Piano 10056 — Task assorbiti
-
-| Task | Assorbito in |
-|------|-------------|
-| F-41 Remove CRSQLite | Fase 0 |
-| F-42 Remove __disabled | Fase 0 |
-| F-49 Circuit breaker mesh | Fase 6 |
-| F-50 HMAC replay | Fase 6 |
-| F-51 In-memory IPC | Fase 5 |
-| F-20/21 Rate limiter/conn limit | Fase 5 |
-| F-44/47 Delta/parallel sync | Fase 6 |
-| F-60 Prometheus metrics | Fase 2 |
-| F-34/35/37/38 Stub removal | Fase 0 |
-
-### DB ownership
-
-| Modulo | Tabelle |
-|--------|---------|
-| db (core) | _schema_registry, _sync_meta, _sync_conflicts |
-| orchestrator | plans, tasks, waves, plan_reviews, deliverables, projects, workspaces, token_usage, agent_activity, plan_metadata, delegation_log |
-| ipc | ipc_agents, ipc_messages, ipc_subscriptions, ipc_budget_log, ipc_model_registry, ipc_node_capabilities, ipc_file_locks, ipc_org_members, ipc_agent_skills |
-| mesh | mesh_sync_stats, mesh_peer_state, peer_heartbeats, host_heartbeats, coordinator_events, delegation_progress |
-| security | audit_log, ipc_auth_tokens |
-| kernel | kernel_config, kernel_events, knowledge_base, domain_skill_map |
-| org | notification_queue, notifications, decision_log |
-
-### Guardrails (Fase 27a)
-
-| # | Guard | File |
-|---|-------|------|
-| G1 | MainGuard | `scripts/hooks/git-pre-commit.sh` |
-| G2 | FileSizeGuard (250 lines) | `scripts/hooks/git-pre-commit.sh` |
-| G3 | SecretScan | `scripts/hooks/git-pre-commit.sh` |
-| G4 | SqliteBlock | `scripts/hooks/git-pre-commit.sh` |
-| G5 | CommitLint | `scripts/hooks/git-commit-msg.sh` |
-| C1-C10 | Claude hooks | `.claude/settings.json` |
-
-### Fase 47: ADR + documentazione completa
-
-### Fase 32g: Long-run autonomo — il daemon gestisce checkpoint/resume/respawn
-
-**Obiettivo**: Un piano con 20 task viene completato SENZA intervento umano, anche se richiede
-piu' sessioni Claude (contesto pieno → checkpoint → nuovo agente → riprende).
-**Motivazione**: Roberto: "e da li e' in grado di finire tutti i task in autonomia?"
-Oggi no — quando Claude esaurisce il contesto, si ferma e serve Roberto per rilanciare.
-Lo script run-mission.sh e' un workaround. La feature nativa usa i pezzi gia' esistenti:
-LongRunnable trait (checkpoint/resume), agent runtime (spawn/monitor), orchestrator (wave ordering).
-**Committente**: Roberto
-**Deps**: Fase 32b (lifecycle wiring), 32e (context API), 32f (live adaptation)
-
-**Come funziona**:
-```
-1. Piano con N task nelle wave
-2. Daemon spawna agente per task 1
-3. Agente lavora → contesto al 80% → salva checkpoint via API
-4. Agente esce con exit code 0 + checkpoint salvato
-5. Monitor rileva exit → legge checkpoint → task non completato
-6. Daemon spawna NUOVO agente per lo stesso task con checkpoint
-7. Nuovo agente legge checkpoint via context API → riprende da dove si era fermato
-8. Task completato → monitor aggiorna → reactor avanza wave → prossimo task
-9. Ripete fino a piano done
-```
-
-**Differenza da run-mission.sh**: NON e' uno script che rilancia Claude.
-E' il DAEMON che gestisce il ciclo. Il daemon sa: quale task, quale checkpoint,
-quale agente, quale contesto. Lo script non sa niente di questo.
-
-**Task**:
-- Checkpoint API gia' esiste: POST /api/plan-db/checkpoint/save
-- Aggiungere: salvataggio stato agente (file modificati, ultimo commit, progresso)
-- Monitor: se agente esce con checkpoint ma task non done → respawn con context
-- LongRunnable: usare il trait per gestire heartbeat + checkpoint + resume
-- Test: piano con 3 task, limite contesto basso → verifica auto-resume
-
-### Fase 47: ADR + documentazione completa
-
-**Obiettivo**: Estrarre tutte le decisioni architetturali dal tracker e dal codice, generare docs.
-**Motivazione**: Zero ADR documentate. Zero documentazione API. Zero guide per contributor.
-Il tracker ha le decisioni implicite ma nessun documento formale. Un nuovo sviluppatore
-non può capire PERCHÉ le cose sono fatte in un certo modo.
-**Committente**: Roberto — "non ci sono ADR documentate e in generale non c'è documentazione"
-**Deps**: Step 3 (il sistema deve funzionare E2E prima di documentarlo)
-
-**ADR da estrarre dal tracker e dal codice** (ogni decisione ha un PERCHÉ):
-
-| # | Decisione | Dove nel tracker | Perche' |
-|---|-----------|-----------------|---------|
-| ADR-001 | Nuovo repo vs refactor | Sezione "Decisione strategica" | 845 commit, 784MB .git, cruft ovunque |
-| ADR-002 | Extension trait come unico contratto | Sezione "Extension Contract" | Zero alternative, zero workaround |
-| ADR-003 | SQLite + WAL vs Postgres | Fase 3 | Portabilita', zero setup, embedded |
-| ADR-004 | CLI = pure HTTP client | Regola | Disaccoppiamento, testabilita' |
-| ADR-005 | Worktree isolati per ogni task | Learning #4 | Agenti paralleli si pestano i piedi |
-| ADR-006 | No squash merge | Learning #23 | Merge paralleli perdono lavoro |
-| ADR-007 | AGENTS.md universale vs CLAUDE.md | Learning #20 | Provider-agnostic |
-| ADR-008 | DomainEventSink via AppContext | Fase 23d | Cross-crate event sharing senza dipendenze circolari |
-| ADR-009 | Agent spawning con processo reale | Fase 32 | Non solo DB insert, processo fork+exec |
-| ADR-010 | Thor pre+post review | Fase 32d | Challenger del piano, non solo validatore wave |
-| ADR-011 | Merge commit only | Learning #23-24 | Regole enforced dal sistema, non dai doc |
-| ADR-012 | launchd + PATH assoluti | Learning #19-20 | Daemon come servizio, non processo manuale |
-| ADR-013 | Inference multi-tier | Fase 11, 32 | t1-t4 con routing budget-aware |
-| ADR-014 | Monitor con waitpid | Learning sessione 4 | kill(0) non rileva zombie |
-
-**Task**:
-- Generare `docs/adr/` con un file per ADR (formato: titolo, contesto, decisione, conseguenze)
-- Generare `docs/api/` con OpenAPI spec (il crate depgraph gia' lo genera, servire via endpoint)
-- Generare `docs/guides/` con: getting-started, architecture, contributing, deployment
-- Aggiornare README.md con link alla documentazione
-- L'agente puo' estrarre le ADR direttamente dal WORKSPACE-SPLIT.md — ogni learning e' una ADR implicita
-
-### Competitive analysis detail
-- **vs mesh-llm**: orthogonal (GPU pooling vs agent orchestration). Da rubare: subprocess plugin, blackboard gossip, Nostr discovery.
-- **vs claw-code/oh-my-codex/openclaw**: nessuno ha Extension system, semantic manifest, org-as-package.
-- Differenziatore: rete di organizzazioni autonome con marketplace.
+### Competitive positioning
+Differenziatore: rete di organizzazioni autonome con marketplace.
+Piu' forte di CrewAI/AutoGen (infrastruttura), LangGraph (piu' "OS"), OpenHands (governance).
+Da rubare da mesh-llm: subprocess plugin, blackboard gossip, Nostr discovery.
