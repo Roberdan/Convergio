@@ -20,6 +20,18 @@
     <key>KeepAlive</key>
     <true/>
 
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOME</key>
+        <string>/Users/Roberdan</string>
+        <key>PATH</key>
+        <string>/Users/Roberdan/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>CONVERGIO_CLAUDE_BIN</key>
+        <string>/Users/Roberdan/.local/bin/claude</string>
+        <key>CONVERGIO_GH_BIN</key>
+        <string>/opt/homebrew/bin/gh</string>
+    </dict>
+
     <key>StandardOutPath</key>
     <string>/tmp/convergio-daemon.log</string>
 
