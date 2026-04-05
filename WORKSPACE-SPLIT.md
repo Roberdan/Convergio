@@ -194,6 +194,108 @@ Sessione 8: Fase 26 — self-hosting (Convergio costruisce convergio) — in cor
 ### Step 5: Self-hosting — IN CORSO (sessione 8)
 - **26**: Convergio costruisce convergio
 
+<<<<<<< Updated upstream
+||||||| Stash base
+### Fase 48: Node provisioning — il daemon sincronizza TUTTO su un nuovo nodo
+
+**Obiettivo**: Quando il daemon delega a un nodo remoto, quel nodo deve avere TUTTO:
+non solo il repo, ma config, chiavi, memory degli agenti, hook, rules, prompt.
+**Motivazione**: Roberto ha delegato al M1 Pro e l'agente non aveva contesto, API keys,
+memory, regole globali. Il nodo era "nudo" — solo il repo clonato. Il daemon deve
+provisionare un nodo completo automaticamente.
+**Committente**: Roberto — "ste robe devono essere fatte dal daemon quando sincronizza"
+
+**Cosa deve sincronizzare il daemon quando aggiunge/aggiorna un nodo**:
+
+| Cosa | Sorgente | Destinazione | Come |
+|------|----------|-------------|------|
+| Repo convergio | git | git clone/pull | git |
+| .convergio/env (API keys) | ~/.convergio/env | remoto:~/.convergio/env | scp (encrypted) |
+| .claude/settings.json | repo | gia' nel repo | git |
+| Claude project memory | ~/.claude/projects/ | remoto:~/.claude/projects/ | rsync |
+| Global rules | ConvergioPlatform/claude-config/rules/ | remoto: stessa path | rsync |
+| Copilot instructions | repo .github/ | gia' nel repo | git |
+| Daemon binary | target/release/convergio | remoto: stessa path | scp |
+| launchd plist | scripts/ | remoto:~/Library/LaunchAgents/ | scp + sed path |
+| Ollama models | ollama list | remoto: ollama pull | SSH + ollama |
+
+**Task**:
+- [ ] API: POST /api/mesh/provision/:node — provisiona un nodo completo
+- [ ] Il provisioning include: repo sync, env sync, binary deploy, service install
+- [ ] Secrets filtering: .env con API keys sincronizzato solo a nodi trusted
+- [ ] Claude memory sync: rsync ~/.claude/projects/*convergio* al nodo remoto
+- [ ] Post-provision health check: verifica che daemon remoto risponda
+- [ ] Idempotente: puo' essere chiamato piu' volte senza danni
+
+=======
+### Fase 49: Harness Engineering — pattern Anthropic per agenti long-run
+
+**Obiettivo**: Implementare il pattern initializer/coder/evaluator di Anthropic nel daemon.
+**Motivazione**: Articolo "Anthropic's Harness Engineering Playbook" descrive esattamente i
+nostri failure modes (context anxiety, declaring victory, self-evaluation bias) e la soluzione:
+3 agenti separati con ruoli chiari + file strutturati + baseline test.
+**Committente**: Roberto — ref. Anthropic research Nov 2025 + Mar 2026
+**Deps**: Fase 32c (planner), 32d (Thor)
+
+**Cosa implementare** (adattato al nostro sistema):
+
+1. **feature_list.json** (non .md!): il planner genera un JSON con feature granulari,
+   ognuna con status pass/fail. JSON perche' i modelli non lo riformattano accidentalmente.
+   Oggi usiamo WORKSPACE-SPLIT.md che ogni agente rischia di riscrivere.
+
+2. **convergio-progress.txt**: ogni sessione agente DEVE scrivere cosa ha fatto alla fine.
+   Il prossimo agente lo legge PRIMA di iniziare. Senza questo, il successore parte cieco.
+
+3. **init.sh / baseline test**: prima di ogni sessione, l'agente esegue un test E2E baseline.
+   Se il baseline fallisce, NON inizia a lavorare — prima fixa il baseline.
+
+4. **Evaluatore SEPARATO**: Thor deve essere un agente DIVERSO dal coding agent.
+   Non lo stesso modello che giudica se stesso. Idealmente modello diverso o prompt diverso.
+   Anthropic: "separating the generator from the evaluator is more tractable than making
+   a generator critical of its own output."
+
+5. **Una feature alla volta**: ogni sessione lavora su UNA feature, la testa, la committa.
+   Non tenta di fare 5 cose in parallelo.
+
+**Task**:
+- [ ] Sostituire checkbox WORKSPACE-SPLIT con feature_list.json per le fasi future
+- [ ] Creare template convergio-progress.txt nel spawner (scritto a fine sessione)
+- [ ] init.sh: cargo test --workspace + curl health come baseline obbligatorio
+- [ ] Thor usa modello/prompt diverso dal coding agent
+- [ ] Enforced nel spawner: TASK.md dice "UNA feature alla volta"
+
+### Fase 48: Node provisioning — il daemon sincronizza TUTTO su un nuovo nodo
+
+**Obiettivo**: Quando il daemon delega a un nodo remoto, quel nodo deve avere TUTTO:
+non solo il repo, ma config, chiavi, memory degli agenti, hook, rules, prompt.
+**Motivazione**: Roberto ha delegato al M1 Pro e l'agente non aveva contesto, API keys,
+memory, regole globali. Il nodo era "nudo" — solo il repo clonato. Il daemon deve
+provisionare un nodo completo automaticamente.
+**Committente**: Roberto — "ste robe devono essere fatte dal daemon quando sincronizza"
+
+**Cosa deve sincronizzare il daemon quando aggiunge/aggiorna un nodo**:
+
+| Cosa | Sorgente | Destinazione | Come |
+|------|----------|-------------|------|
+| Repo convergio | git | git clone/pull | git |
+| .convergio/env (API keys) | ~/.convergio/env | remoto:~/.convergio/env | scp (encrypted) |
+| .claude/settings.json | repo | gia' nel repo | git |
+| Claude project memory | ~/.claude/projects/ | remoto:~/.claude/projects/ | rsync |
+| Global rules | ConvergioPlatform/claude-config/rules/ | remoto: stessa path | rsync |
+| Copilot instructions | repo .github/ | gia' nel repo | git |
+| Daemon binary | target/release/convergio | remoto: stessa path | scp |
+| launchd plist | scripts/ | remoto:~/Library/LaunchAgents/ | scp + sed path |
+| Ollama models | ollama list | remoto: ollama pull | SSH + ollama |
+
+**Task**:
+- [ ] API: POST /api/mesh/provision/:node — provisiona un nodo completo
+- [ ] Il provisioning include: repo sync, env sync, binary deploy, service install
+- [ ] Secrets filtering: .env con API keys sincronizzato solo a nodi trusted
+- [ ] Claude memory sync: rsync ~/.claude/projects/*convergio* al nodo remoto
+- [ ] Post-provision health check: verifica che daemon remoto risponda
+- [ ] Idempotente: puo' essere chiamato piu' volte senza danni
+
+>>>>>>> Stashed changes
 ### Fasi non completate (bassa priorita')
 - **22**: Cutover (manuale, quando Roberto decide)
 - **25**: Script->daemon (deprecare script bash)
