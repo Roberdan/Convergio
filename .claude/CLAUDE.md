@@ -10,4 +10,4 @@ Read `WORKSPACE-SPLIT.md` for full project history and detailed phase status.
 - Use `--max-turns 50` when spawning sub-agents via daemon
 - Co-Authored-By: use your model name (e.g. `Claude Opus 4.6`)
 - Delegate mechanical tasks to sub-agents or Copilot to save context
-- At 70-80% context: save checkpoint in WORKSPACE-SPLIT.md, tell user to start new session
+- At 70-80% context: save checkpoint in WORKSPACE-SPLIT.md, spawn new agent via daemon (see MISSION.md "Long-run" section), then exit
