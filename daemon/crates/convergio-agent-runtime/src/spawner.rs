@@ -52,36 +52,23 @@ pub fn create_worktree(repo_root: &Path, name: &str) -> RuntimeResult<PathBuf> {
     Ok(wt_path)
 }
 
-/// Write task instructions to a file the agent will read.
-/// Prepends delegation rules to save tokens.
+/// Write task instructions and baseline script to the worktree.
+/// Prepends delegation rules and harness engineering rules.
 pub fn write_instructions(workspace: &Path, instructions: &str) -> RuntimeResult<PathBuf> {
+    use crate::harness;
     let path = workspace.join("TASK.md");
     let content = format!(
-        "{DELEGATION_HEADER}\n\n---\n\n{instructions}",
-        DELEGATION_HEADER = DELEGATION_HEADER
+        "{header}\n\n---\n\n{instructions}",
+        header = harness::DELEGATION_HEADER
     );
-    std::fs::write(&path, content)
+    std::fs::write(&path, &content)
         .map_err(|e| RuntimeError::Internal(format!("write TASK.md: {e}")))?;
+
+    // Write baseline test script (Fase 49: harness engineering)
+    harness::write_baseline_script(workspace)?;
+
     Ok(path)
 }
-
-const DELEGATION_HEADER: &str = "\
-# REGOLE OPERATIVE (leggere PRIMA di iniziare)
-
-## Risparmia token — DELEGA il lavoro meccanico
-Tu sei il COORDINATORE. Non scrivere codice meccanico direttamente.
-Per ogni task >50 righe che non richiede decisioni architetturali:
-```bash
-cd <worktree> && gh copilot --model claude-opus-4-6
-```
-Tu decidi COSA fare. Copilot fa il lavoro. Tu verifichi il risultato.
-
-## Regole
-- Leggi AGENTS.md per tutte le regole
-- Worktree isolato, max 250 righe/file
-- cargo check + test + fmt prima di commit
-- Loop chiuso: chi produce input? chi consuma output? l'utente lo vede?
-- NO squash merge (repo setting: solo merge commit)";
 
 /// Spawn the agent process in the workspace.
 /// `instruction_file` overrides the default "TASK.md" prompt target.
@@ -219,12 +206,16 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn write_instructions_creates_file() {
+    fn write_instructions_creates_task_and_init() {
         let tmp = tempfile::tempdir().unwrap();
         let path = write_instructions(tmp.path(), "Test task").unwrap();
         assert!(path.exists());
         let content = fs::read_to_string(path).unwrap();
         assert!(content.contains("Test task"));
+        assert!(content.contains("UNA feature alla volta"));
+        // init.sh also created
+        let init = tmp.path().join("init.sh");
+        assert!(init.exists());
     }
 
     #[test]
