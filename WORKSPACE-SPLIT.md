@@ -60,11 +60,25 @@ types (zero deps)
 |---------|--------|
 | Crate nel workspace | 27 |
 | Extension registrate in main.rs | 20 (tutte con `routes()` -> `Some`) |
+<<<<<<< HEAD
+| Test passanti (`cargo test --workspace`) | 971 |
+| Righe Rust totali | ~51.500 |
+| Endpoint HTTP unici | ~145 |
+| Tabelle DB (via migrations) | 59+ |
+| PR mergiate | 97 |
+||||||| ceff144
+| Test passanti (`cargo test --workspace`) | 949 |
+| Righe Rust totali | ~51.000 |
+| Endpoint HTTP unici | ~145 |
+| Tabelle DB (via migrations) | 59+ |
+| PR mergiate | 91 |
+=======
 | Test passanti (`cargo test --workspace`) | ~1010 |
 | Righe Rust totali | ~52.200 |
 | Endpoint HTTP unici | ~155 |
 | Tabelle DB (via migrations) | 60+ |
 | PR mergiate | 97 |
+>>>>>>> origin/main
 
 ### Cosa funziona realmente (verificato con smoke test)
 
@@ -83,10 +97,18 @@ types (zero deps)
 - **Evidence gates**: record/query/gates/preflight (column names fixed sessione 5)
 - **Billing metering**: usage/invoices/rates/alerts
 - **Observatory**: timeline/search/dashboard/anomaly (persiste in DB)
+<<<<<<< HEAD
+- **Agent spawning**: reale con monitor, worktree, push, PR automatica
+- **Worktree cleanup**: auto-cleanup worktrees+branches on PlanCompleted (sessione 7)
+- **Auto-learning**: key_learnings_json auto-extracted on PlanCompleted (sessione 7)
+||||||| ceff144
+- **Agent spawning**: reale con monitor, worktree, push, PR automatica
+=======
 - **Agent spawning**: reale con monitor, worktree, push, PR automatica + auto-respawn
 - **Agent context API**: per-agent live KV dal DB, seed da task/plan, CRUD endpoint
 - **Agent live adaptation**: poll updates (plan/task/context/messages), sentinel files (STOP/PRIORITY_CHANGE)
 - **Long-run autonomo**: auto-respawn su checkpoint, max 5 tentativi, budget propagation
+>>>>>>> origin/main
 - **Inference**: HTTP calls reali Ollama/OpenAI-compatible + echo fallback
 - **Depgraph**: wired in main.rs, 19 componenti, graph validation
 - **Health/Metrics**: /api/health/deep (19 componenti), /api/metrics (33+ metriche)
@@ -105,12 +127,17 @@ types (zero deps)
 - **ADR documentation**: 14 ADR + getting-started + architecture guide
 
 ### Remaining gaps
-- **Worktree cleanup**: worktree e branch non puliti dopo plan done
-- **Learning automatico**: PM compila manualmente, non automatico
+- **Frontend**: convergio-frontend non ancora integrato (deferred)
 
+<<<<<<< HEAD
+Diagnosi sessione 7: Step 0-4 COMPLETI + Step 3 remaining quasi completo. 27 crate, 20 extension, 971 test, 97 PR. Worktree cleanup e learning automatico ora integrati nel plan lifecycle. Prossimo: Step 5 (self-hosting) o frontend.
+||||||| ceff144
+Diagnosi sessione 6: Step 0-4 tutti completi. 27 crate, 20 extension, 949 test, 91 PR. Sistema ha: plan lifecycle E2E, delegation multi-nodo, inference reale, artifact bundles, human approval, compensation, scheduler policy, security trust levels, evaluation framework. Prossimo: Step 5 (self-hosting) o completamento Step 3 remaining (agent context, live adaptation, long-run autonomo, frontend).
+=======
 Diagnosi sessione 7: Step 0-4 completi, Step 3 remaining quasi completo (manca solo frontend). 27 crate, 20 extension, ~1010 test, 97 PR. Sessione 7 ha completato 32e (context API), 32f (live adaptation), 32g (long-run autonomo). Prossimo: Step 5 (self-hosting, Fase 26) o Frontend.
+>>>>>>> origin/main
 
-### Workflow (10/12 step OK — mancano solo cleanup e learning auto)
+### Workflow (12/12 step OK — COMPLETO)
 
 ## 4. FASI COMPLETATE (storia collassata)
 
@@ -140,13 +167,18 @@ Step 0 (sessione 5): 32b-d lifecycle wiring, planner E2E, Thor review (#63-#69)
 | 34 | Delegation orchestrator monitoring | #79 | Remote tmux monitor, sync_back, DelegationCompleted event |
 | 35 | E2E integration test delegation | #80 | 4 integration test axum::oneshot |
 
-### Step 3: Completamento — PARTIAL (sessione 6)
+### Step 3: Completamento — DONE (sessione 6-7)
 
 | Fase | Titolo | PR | Note |
 |------|--------|-----|------|
 | 36b | Inference model config | #81 | TOML config, startup registration, cloud health check |
 | 39b | Artifact model + non-code | #82 | Upload/download, multipart, new evidence types |
 | 40b | E2E HTTP tests | #83 | 9 plan lifecycle integration tests |
+| 32e | Agent context API | #94 | Live per-agent context from DB |
+| 32f | Agent live adaptation | #95 | Poll updates and sentinel files |
+| 32g | Long-run autonomo | #97 | Auto-respawn on checkpoint |
+| -- | Worktree cleanup | #98 | Auto-cleanup worktrees+branches on PlanCompleted |
+| -- | Auto-learning extraction | #98 | Auto-generate key_learnings_json on PlanCompleted |
 | -- | Frontend | -- | DEFERRED — repo separato, richiede agenti UI |
 
 ### Step 3b: Documentation — DONE (sessione 6)
@@ -177,15 +209,60 @@ Step 0 (sessione 5): 32b-d lifecycle wiring, planner E2E, Thor review (#63-#69)
 
 ## 5. FASI IN CORSO
 
+<<<<<<< HEAD
+Sessione 7: worktree cleanup + auto-learning — in PR.
+||||||| ceff144
+Nessuna fase in corso — in attesa di nuova sessione.
+=======
 Nessuna fase in corso — in attesa di decisione su Step 5 o Frontend.
+>>>>>>> origin/main
 
 ## 6. FASI FUTURE (ordinate per priorita')
 
-### Step 3: Completamento (remaining — solo frontend)
+<<<<<<< HEAD
+### Step 3: Completamento (remaining)
+- **Frontend**: rifare convergio-frontend dentro Convergio (deferred) (agenti via daemon)
+||||||| ceff144
+### Step 3: Completamento (remaining)
+- **32e**: Agent context API (contesto live dal DB, non file statici)
+- **32f**: Agent live adaptation (checkpoint polling, IPC alerts, file sentinel)
+- **32g**: Long-run autonomo (daemon gestisce checkpoint/resume/respawn)
+- **48**: Node provisioning — sync completo config/memory/keys tra nodi (vedi sotto)
 - **Frontend**: rifare convergio-frontend dentro Convergio (agenti via daemon)
 
-### Step 5: Self-hosting (next)
+### Step 5: Self-hosting
 - **26**: Convergio costruisce convergio
+
+### Fase 48: Node provisioning — il daemon sincronizza TUTTO su un nuovo nodo
+
+**Obiettivo**: Quando il daemon delega a un nodo remoto, quel nodo deve avere TUTTO:
+non solo il repo, ma config, chiavi, memory degli agenti, hook, rules, prompt.
+**Motivazione**: Roberto ha delegato al M1 Pro e l'agente non aveva contesto, API keys,
+memory, regole globali. Il nodo era "nudo" — solo il repo clonato. Il daemon deve
+provisionare un nodo completo automaticamente.
+**Committente**: Roberto — "ste robe devono essere fatte dal daemon quando sincronizza"
+
+**Cosa deve sincronizzare il daemon quando aggiunge/aggiorna un nodo**:
+
+| Cosa | Sorgente | Destinazione | Come |
+|------|----------|-------------|------|
+| Repo convergio | git | git clone/pull | git |
+| .convergio/env (API keys) | ~/.convergio/env | remoto:~/.convergio/env | scp (encrypted) |
+| .claude/settings.json | repo | gia' nel repo | git |
+| Claude project memory | ~/.claude/projects/ | remoto:~/.claude/projects/ | rsync |
+| Global rules | ConvergioPlatform/claude-config/rules/ | remoto: stessa path | rsync |
+| Copilot instructions | repo .github/ | gia' nel repo | git |
+| Daemon binary | target/release/convergio | remoto: stessa path | scp |
+| launchd plist | scripts/ | remoto:~/Library/LaunchAgents/ | scp + sed path |
+| Ollama models | ollama list | remoto: ollama pull | SSH + ollama |
+
+**Task**:
+- [ ] API: POST /api/mesh/provision/:node — provisiona un nodo completo
+- [ ] Il provisioning include: repo sync, env sync, binary deploy, service install
+- [ ] Secrets filtering: .env con API keys sincronizzato solo a nodi trusted
+- [ ] Claude memory sync: rsync ~/.claude/projects/*convergio* al nodo remoto
+- [ ] Post-provision health check: verifica che daemon remoto risponda
+- [ ] Idempotente: puo' essere chiamato piu' volte senza danni
 
 ### Fasi non completate (bassa priorita')
 - **22**: Cutover (manuale, quando Roberto decide)
@@ -202,11 +279,11 @@ Root cause sempre (R1), integration test (R2), worktree isolati (R3), regole pri
 evidence verificabile (R5), planner prevede tutto (R6), esplorare prima (R7), no bypass (R8),
 conserva contesto (R9), loop chiuso E2E (R10), workflow=contratto (R11), osservabilita' (R12).
 
-## 8. WORKFLOW CONTRATTO (tutto OK tranne cleanup/learning)
+## 8. WORKFLOW CONTRATTO (COMPLETO 12/12)
 
 create -> validate -> Thor pre-review -> start -> spawn/worktree/monitor -> submit
 -> reactor chain (task->wave->plan done) -> PlanCompleted -> Telegram -> post-review
-MANCA: cleanup worktree/branch, learning automatico.
+-> auto-learning extraction -> worktree cleanup
 
 ## 9. LEARNINGS (28 totali — solo meta-pattern qui, dettaglio in git history)
 

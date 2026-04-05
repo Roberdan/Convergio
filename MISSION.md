@@ -59,10 +59,11 @@ Non passare a Step 1 senza questa verifica.
 4. Fase 23e: Wire DepgraphExtension in main.rs
 
 ### Step 2: Delegation pipeline
-5. Fase 31: File transport (rsync tra nodi)
-6. Fase 37b: Node capability registry (GPU, voice, compute)
-7. Fase 34: Delegation orchestrator (rsync + remote spawn + sync + notify)
-8. Fase 35: E2E integration test
+5. Fase 48: Node provisioning (sync config/memory/keys/binary a nodi remoti)
+6. Fase 31: File transport (rsync tra nodi)
+7. Fase 37b: Node capability registry (GPU, voice, compute)
+8. Fase 34: Delegation orchestrator (rsync + remote spawn + sync + notify)
+9. Fase 35: E2E integration test
 
 ### Step 3: Completamento
 9. Fase 36b: Inference reale (Ollama/API, non echo)
