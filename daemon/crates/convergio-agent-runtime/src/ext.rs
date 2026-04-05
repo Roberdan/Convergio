@@ -216,7 +216,7 @@ mod tests {
     fn migrations_are_returned() {
         let ext = AgentRuntimeExtension::default();
         let migs = ext.migrations();
-        assert_eq!(migs.len(), 4);
+        assert_eq!(migs.len(), 5);
     }
 
     #[test]

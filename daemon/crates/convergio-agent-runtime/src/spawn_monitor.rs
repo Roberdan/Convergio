@@ -88,6 +88,28 @@ pub fn monitor_agent(
             update_plan_task(&pool, &agent_id, "failed");
         }
 
+        // Auto-respawn if checkpoint exists
+        if stage == "stopped" || stage == "failed" {
+            let repo = std::env::current_dir()
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_else(|_| ".".into());
+            let daemon = std::env::var("CONVERGIO_DAEMON_URL")
+                .unwrap_or_else(|_| "http://localhost:8420".into());
+            match crate::respawn::try_respawn(&pool, &agent_id, &daemon, &repo) {
+                Ok(Some(new_id)) => {
+                    tracing::info!(
+                        agent_id = agent_id.as_str(),
+                        new = new_id.as_str(),
+                        "continuation spawned"
+                    );
+                }
+                Ok(None) => tracing::debug!(agent_id = agent_id.as_str(), "no respawn needed"),
+                Err(e) => {
+                    tracing::warn!(agent_id = agent_id.as_str(), error = %e, "respawn failed")
+                }
+            }
+        }
+
         // Log summary
         if !err_tail.is_empty() {
             tracing::warn!(agent_id = agent_id.as_str(), "agent stderr:\n{err_tail}");
@@ -209,30 +231,11 @@ fn create_pr(workspace: &Path, branch: &str) -> Option<String> {
 }
 
 fn read_tail(path: &Path, lines: usize) -> String {
-    std::fs::read_to_string(path)
-        .unwrap_or_default()
-        .lines()
-        .rev()
-        .take(lines)
-        .collect::<Vec<_>>()
-        .into_iter()
-        .rev()
-        .collect::<Vec<_>>()
-        .join("\n")
+    crate::monitor_helpers::read_tail(path, lines)
 }
 
-/// Resolve gh CLI path (same issue as claude — launchd minimal PATH).
 fn resolve_gh_path() -> String {
-    if let Ok(p) = std::env::var("CONVERGIO_GH_BIN") {
-        return p;
-    }
-    let candidates = ["/opt/homebrew/bin/gh", "/usr/local/bin/gh"];
-    for c in &candidates {
-        if Path::new(c).exists() {
-            return c.to_string();
-        }
-    }
-    "gh".into()
+    crate::monitor_helpers::resolve_gh_path()
 }
 
 #[path = "plan_task_update.rs"]

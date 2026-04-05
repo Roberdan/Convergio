@@ -103,6 +103,14 @@ CREATE TABLE IF NOT EXISTS art_context (
 );
 CREATE INDEX IF NOT EXISTS idx_art_context_agent ON art_context(agent_id);",
         },
+        Migration {
+            version: 5,
+            description: "respawn tracking columns",
+            up: "\
+ALTER TABLE art_agents ADD COLUMN respawn_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE art_agents ADD COLUMN parent_agent_id TEXT;
+ALTER TABLE art_agents ADD COLUMN max_respawns INTEGER NOT NULL DEFAULT 5;",
+        },
     ]
 }
 
@@ -113,7 +121,7 @@ mod tests {
     #[test]
     fn migrations_have_sequential_versions() {
         let migs = migrations();
-        assert_eq!(migs.len(), 4);
+        assert_eq!(migs.len(), 5);
         for (i, m) in migs.iter().enumerate() {
             assert_eq!(m.version, (i + 1) as u32);
         }
