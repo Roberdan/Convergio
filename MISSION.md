@@ -66,24 +66,22 @@ Non passare a Step 1 senza questa verifica.
 9. Fase 35: E2E integration test
 
 ### Step 3: Completamento
-9. Fase 36b: Inference reale (Ollama/API, non echo)
-10. Fase 39b: Progetti non-codice (report, business docs)
-11. Fase 40b: Integration test HTTP (830 unit + E2E)
-12. Frontend: rifare convergio-frontend dentro Convergio
-    - Spawnare agenti via daemon (sara-ux, jony, nasra, baccio)
-    - Admin + monitoring completo
-    - Repo: /Users/Roberdan/GitHub/convergio-frontend
+9. Fase 51: MLX diretto + TurboQuant (inference locale senza Ollama, context 128K)
+10. Fase 52: Kernel/Jarvis su M1 Pro (voice, Telegram, watchdog locale)
+11. Frontend: rifare convergio-frontend dentro Convergio
 
-### Step 3b: Documentation (quando Step 3 e' done)
-13. Fase 47: ADR + docs completa (estrarre ADR dal tracker, OpenAPI, guide contributor)
+### Step 3b: Ottimizzazione continua
+12. Fase 50: Autoresearch loop (ottimizzazione notturna codice + token, modelli locali)
+13. Fase 47: ADR + docs
 
-### Step 4: Production hardening (Wave I)
-13. Fase 41: Artifact model (output non-code: report, PDF, screenshot, bundle)
-14. Fase 42: Human-in-the-loop (approvazione umana formale con soglie)
-15. Fase 43: Compensation/rollback (se wave fallisce, compensazione automatica)
-16. Fase 44: Scheduler policy (capability, costo, privacy, locality, load balancing)
-17. Fase 45: Security remote execution (trust levels, secrets filtering, sandbox, mTLS)
-18. Fase 46: Evaluation framework (misurare planner e Thor: precision, recall, false positive)
+### Step 4: Production hardening (Wave I — gia' implementato sessione 6-8)
+Fasi 41-46 completate. Vedi sezione 4 nel WORKSPACE-SPLIT.md.
+
+### NOTA sulla Fase 49 (Harness Engineering)
+NON duplicare nel filesystem quello che sta nel DB. Il DB ha gia' plans/tasks
+(= feature_list), agent_activity (= progress), plan_metadata (= learnings).
+L'agente legge dal DB via context API (32e), non da file .md statici.
+Tenere: baseline test obbligatorio, Thor separato, una feature alla volta.
 
 ### Step 5: Self-hosting
 19. Fase 26: Convergio costruisce convergio

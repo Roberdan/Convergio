@@ -30,7 +30,7 @@ impl std::fmt::Display for BuildStatus {
 }
 
 impl BuildStatus {
-    pub fn from_str(s: &str) -> Self {
+    pub fn parse_status(s: &str) -> Self {
         match s {
             "queued" => Self::Queued,
             "building" => Self::Building,
