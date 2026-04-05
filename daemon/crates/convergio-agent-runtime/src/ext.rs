@@ -75,6 +75,11 @@ impl Extension for AgentRuntimeExtension {
                     description: "GC for dead agents, orphan tasks, expired delegations"
                         .to_string(),
                 },
+                Capability {
+                    name: "agent-context".to_string(),
+                    version: "1.0".to_string(),
+                    description: "Per-agent live context from DB".to_string(),
+                },
             ],
             requires: vec![],
             agent_tools: vec![],
@@ -97,8 +102,12 @@ impl Extension for AgentRuntimeExtension {
             repo_root,
             daemon_url,
         });
-        let router =
-            runtime_routes(self.state()).merge(crate::spawn_routes::spawn_routes(spawn_state));
+        let ctx_state = Arc::new(crate::context_routes::ContextState {
+            pool: self.pool.clone(),
+        });
+        let router = runtime_routes(self.state())
+            .merge(crate::spawn_routes::spawn_routes(spawn_state))
+            .merge(crate::context_routes::context_routes(ctx_state));
         Some(router)
     }
 
@@ -191,14 +200,14 @@ mod tests {
         let ext = AgentRuntimeExtension::default();
         let m = ext.manifest();
         assert_eq!(m.id, "convergio-agent-runtime");
-        assert_eq!(m.provides.len(), 5);
+        assert_eq!(m.provides.len(), 6);
     }
 
     #[test]
     fn migrations_are_returned() {
         let ext = AgentRuntimeExtension::default();
         let migs = ext.migrations();
-        assert_eq!(migs.len(), 3);
+        assert_eq!(migs.len(), 4);
     }
 
     #[test]

@@ -1,7 +1,7 @@
 //! DB migrations for the agent runtime.
 //!
 //! Tables: art_agents, art_heartbeats, art_delegations, art_queue,
-//! art_scope_rules.
+//! art_scope_rules, art_context.
 
 use convergio_types::extension::Migration;
 
@@ -86,6 +86,23 @@ CREATE TABLE IF NOT EXISTS art_scope_rules (
 );
 CREATE INDEX IF NOT EXISTS idx_art_scope_agent ON art_scope_rules(agent_id);",
         },
+        Migration {
+            version: 4,
+            description: "per-agent live context",
+            up: "\
+CREATE TABLE IF NOT EXISTS art_context (
+    agent_id    TEXT NOT NULL,
+    key         TEXT NOT NULL,
+    value       TEXT NOT NULL,
+    version     INTEGER NOT NULL DEFAULT 1,
+    set_by      TEXT NOT NULL DEFAULT 'system',
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (agent_id, key),
+    FOREIGN KEY (agent_id) REFERENCES art_agents(id)
+);
+CREATE INDEX IF NOT EXISTS idx_art_context_agent ON art_context(agent_id);",
+        },
     ]
 }
 
@@ -96,7 +113,7 @@ mod tests {
     #[test]
     fn migrations_have_sequential_versions() {
         let migs = migrations();
-        assert_eq!(migs.len(), 3);
+        assert_eq!(migs.len(), 4);
         for (i, m) in migs.iter().enumerate() {
             assert_eq!(m.version, (i + 1) as u32);
         }
@@ -116,6 +133,6 @@ mod tests {
                 |r| r.get(0),
             )
             .unwrap();
-        assert_eq!(count, 5);
+        assert_eq!(count, 6);
     }
 }
