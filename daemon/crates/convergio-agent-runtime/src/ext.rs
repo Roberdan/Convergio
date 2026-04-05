@@ -80,6 +80,11 @@ impl Extension for AgentRuntimeExtension {
                     version: "1.0".to_string(),
                     description: "Per-agent live context from DB".to_string(),
                 },
+                Capability {
+                    name: "agent-adaptation".to_string(),
+                    version: "1.0".to_string(),
+                    description: "Live adaptation: poll updates, sentinel files".to_string(),
+                },
             ],
             requires: vec![],
             agent_tools: vec![],
@@ -105,9 +110,13 @@ impl Extension for AgentRuntimeExtension {
         let ctx_state = Arc::new(crate::context_routes::ContextState {
             pool: self.pool.clone(),
         });
+        let adapt_state = Arc::new(crate::adaptation_routes::AdaptationState {
+            pool: self.pool.clone(),
+        });
         let router = runtime_routes(self.state())
             .merge(crate::spawn_routes::spawn_routes(spawn_state))
-            .merge(crate::context_routes::context_routes(ctx_state));
+            .merge(crate::context_routes::context_routes(ctx_state))
+            .merge(crate::adaptation_routes::adaptation_routes(adapt_state));
         Some(router)
     }
 
@@ -200,7 +209,7 @@ mod tests {
         let ext = AgentRuntimeExtension::default();
         let m = ext.manifest();
         assert_eq!(m.id, "convergio-agent-runtime");
-        assert_eq!(m.provides.len(), 6);
+        assert_eq!(m.provides.len(), 7);
     }
 
     #[test]

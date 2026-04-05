@@ -512,6 +512,7 @@ dependencies = [
  "convergio-org",
  "convergio-org-package",
  "convergio-prompts",
+ "convergio-scheduler",
  "convergio-security",
  "convergio-server",
  "convergio-telemetry",
@@ -856,14 +857,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-scheduler"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "convergio-db",
+ "convergio-telemetry",
+ "convergio-types",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
 name = "convergio-security"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "base64",
  "chrono",
+ "convergio-db",
  "convergio-types",
  "getrandom 0.2.17",
  "hmac",
+ "rusqlite",
  "serde",
  "serde_json",
  "sha2",
