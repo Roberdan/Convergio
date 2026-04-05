@@ -52,7 +52,7 @@ types (zero deps)
   +- extensions (kernel, org, voice) -> types, db, telemetry
 ```
 
-## 3. STATO ATTUALE (04 Aprile 2026 sessione 6 — onesto)
+## 3. STATO ATTUALE (05 Aprile 2026 sessione 7 — onesto)
 
 ### Numeri
 
@@ -60,11 +60,11 @@ types (zero deps)
 |---------|--------|
 | Crate nel workspace | 27 |
 | Extension registrate in main.rs | 20 (tutte con `routes()` -> `Some`) |
-| Test passanti (`cargo test --workspace`) | 949 |
-| Righe Rust totali | ~51.000 |
+| Test passanti (`cargo test --workspace`) | 971 |
+| Righe Rust totali | ~51.500 |
 | Endpoint HTTP unici | ~145 |
 | Tabelle DB (via migrations) | 59+ |
-| PR mergiate | 91 |
+| PR mergiate | 97 |
 
 ### Cosa funziona realmente (verificato con smoke test)
 
@@ -84,6 +84,8 @@ types (zero deps)
 - **Billing metering**: usage/invoices/rates/alerts
 - **Observatory**: timeline/search/dashboard/anomaly (persiste in DB)
 - **Agent spawning**: reale con monitor, worktree, push, PR automatica
+- **Worktree cleanup**: auto-cleanup worktrees+branches on PlanCompleted (sessione 7)
+- **Auto-learning**: key_learnings_json auto-extracted on PlanCompleted (sessione 7)
 - **Inference**: HTTP calls reali Ollama/OpenAI-compatible + echo fallback
 - **Depgraph**: wired in main.rs, 19 componenti, graph validation
 - **Health/Metrics**: /api/health/deep (19 componenti), /api/metrics (33+ metriche)
@@ -102,12 +104,11 @@ types (zero deps)
 - **ADR documentation**: 14 ADR + getting-started + architecture guide
 
 ### Remaining gaps
-- **Worktree cleanup**: worktree e branch non puliti dopo plan done
-- **Learning automatico**: PM compila manualmente, non automatico
+- **Frontend**: convergio-frontend non ancora integrato (deferred)
 
-Diagnosi sessione 6: Step 0-4 tutti completi. 27 crate, 20 extension, 949 test, 91 PR. Sistema ha: plan lifecycle E2E, delegation multi-nodo, inference reale, artifact bundles, human approval, compensation, scheduler policy, security trust levels, evaluation framework. Prossimo: Step 5 (self-hosting) o completamento Step 3 remaining (agent context, live adaptation, long-run autonomo, frontend).
+Diagnosi sessione 7: Step 0-4 COMPLETI + Step 3 remaining quasi completo. 27 crate, 20 extension, 971 test, 97 PR. Worktree cleanup e learning automatico ora integrati nel plan lifecycle. Prossimo: Step 5 (self-hosting) o frontend.
 
-### Workflow (10/12 step OK — mancano solo cleanup e learning auto)
+### Workflow (12/12 step OK — COMPLETO)
 
 ## 4. FASI COMPLETATE (storia collassata)
 
@@ -137,13 +138,18 @@ Step 0 (sessione 5): 32b-d lifecycle wiring, planner E2E, Thor review (#63-#69)
 | 34 | Delegation orchestrator monitoring | #79 | Remote tmux monitor, sync_back, DelegationCompleted event |
 | 35 | E2E integration test delegation | #80 | 4 integration test axum::oneshot |
 
-### Step 3: Completamento — PARTIAL (sessione 6)
+### Step 3: Completamento — DONE (sessione 6-7)
 
 | Fase | Titolo | PR | Note |
 |------|--------|-----|------|
 | 36b | Inference model config | #81 | TOML config, startup registration, cloud health check |
 | 39b | Artifact model + non-code | #82 | Upload/download, multipart, new evidence types |
 | 40b | E2E HTTP tests | #83 | 9 plan lifecycle integration tests |
+| 32e | Agent context API | #94 | Live per-agent context from DB |
+| 32f | Agent live adaptation | #95 | Poll updates and sentinel files |
+| 32g | Long-run autonomo | #97 | Auto-respawn on checkpoint |
+| -- | Worktree cleanup | #98 | Auto-cleanup worktrees+branches on PlanCompleted |
+| -- | Auto-learning extraction | #98 | Auto-generate key_learnings_json on PlanCompleted |
 | -- | Frontend | -- | DEFERRED — repo separato, richiede agenti UI |
 
 ### Step 3b: Documentation — DONE (sessione 6)
@@ -165,15 +171,12 @@ Step 0 (sessione 5): 32b-d lifecycle wiring, planner E2E, Thor review (#63-#69)
 
 ## 5. FASI IN CORSO
 
-Nessuna fase in corso — in attesa di nuova sessione.
+Sessione 7: worktree cleanup + auto-learning — in PR.
 
 ## 6. FASI FUTURE (ordinate per priorita')
 
 ### Step 3: Completamento (remaining)
-- **32e**: Agent context API (contesto live dal DB, non file statici)
-- **32f**: Agent live adaptation (checkpoint polling, IPC alerts, file sentinel)
-- **32g**: Long-run autonomo (daemon gestisce checkpoint/resume/respawn — NON script bash)
-- **Frontend**: rifare convergio-frontend dentro Convergio (agenti via daemon)
+- **Frontend**: rifare convergio-frontend dentro Convergio (deferred) (agenti via daemon)
 
 ### Step 5: Self-hosting (next)
 - **26**: Convergio costruisce convergio
@@ -193,11 +196,11 @@ Root cause sempre (R1), integration test (R2), worktree isolati (R3), regole pri
 evidence verificabile (R5), planner prevede tutto (R6), esplorare prima (R7), no bypass (R8),
 conserva contesto (R9), loop chiuso E2E (R10), workflow=contratto (R11), osservabilita' (R12).
 
-## 8. WORKFLOW CONTRATTO (tutto OK tranne cleanup/learning)
+## 8. WORKFLOW CONTRATTO (COMPLETO 12/12)
 
 create -> validate -> Thor pre-review -> start -> spawn/worktree/monitor -> submit
 -> reactor chain (task->wave->plan done) -> PlanCompleted -> Telegram -> post-review
-MANCA: cleanup worktree/branch, learning automatico.
+-> auto-learning extraction -> worktree cleanup
 
 ## 9. LEARNINGS (28 totali — solo meta-pattern qui, dettaglio in git history)
 

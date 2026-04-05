@@ -211,6 +211,12 @@ pub fn on_plan_done(
     // Send Telegram notification (fire-and-forget)
     notify_plan_done(plan_id, &plan_name);
 
+    // Auto-extract learnings (fire-and-forget)
+    learning::extract_plan_learnings(pool.clone(), plan_id);
+
+    // Cleanup worktrees for agents that worked on this plan (fire-and-forget)
+    cleanup::cleanup_plan_worktrees(pool.clone(), plan_id);
+
     let parent_id: Option<i64> = match conn.query_row(
         "SELECT parent_plan_id FROM plans WHERE id = ?1",
         params![plan_id],
@@ -236,6 +242,12 @@ pub fn on_plan_done(
 #[path = "handlers_notify.rs"]
 mod notify;
 use notify::notify_plan_done;
+
+#[path = "handlers_cleanup.rs"]
+mod cleanup;
+
+#[path = "handlers_learning.rs"]
+mod learning;
 
 #[path = "handlers_delegation.rs"]
 mod delegation;
