@@ -112,6 +112,28 @@ Il tuo contesto è prezioso — non sprecarlo a scrivere codice meccanico.
 **Regola del contesto**: se un task richiede >50 righe di codice e non richiede
 decisioni architetturali → delegalo. Se richiede decisioni → fallo tu.
 
+## Long-run: quando il contesto si riempie, spawna te stesso
+
+NON fermarti. NON chiedere a Roberto di rilanciare. Fai tu:
+
+1. Aggiorna WORKSPACE-SPLIT.md con lo stato esatto (cosa hai fatto, cosa manca)
+2. Spawna un nuovo agente via daemon con le istruzioni di continuare:
+   ```bash
+   curl -X POST -H "Authorization: Bearer dev-local" -H "Content-Type: application/json" \
+     -d '{
+       "agent_name": "mission-continuator",
+       "org_id": "convergio",
+       "instructions": "Leggi MISSION.md. Poi esegui. Riprendi da dove si è fermata la sessione precedente. Quando il contesto si riempie, spawna un nuovo te stesso e ripeti.",
+       "tier": "t1",
+       "budget_usd": 50.0,
+       "timeout_secs": 7200
+     }' http://localhost:8420/api/agents/spawn
+   ```
+3. Termina la tua sessione
+
+Il daemon si occupa di: worktree, monitor, push, PR. Il nuovo agente legge MISSION.md,
+vede lo stato in WORKSPACE-SPLIT.md, e riprende. Nessun intervento umano necessario.
+
 ## Regole NON negoziabili
 
 1. **Loop chiuso** (Regola 10): ogni feature deve avere input→output→feedback→stato→visibile all'utente
