@@ -42,6 +42,7 @@ pub fn record_artifact(
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 /// Record an artifact with optional mime_type and content_hash.
 pub fn record_artifact_full(
     conn: &Connection,

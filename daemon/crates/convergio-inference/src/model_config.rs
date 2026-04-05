@@ -26,7 +26,7 @@ pub fn load_model_endpoints(config_path: Option<&str>) -> Vec<ModelEndpoint> {
         Some(contents) => parse_toml(&contents),
         None => hardcoded_defaults(),
     };
-    entries.into_iter().map(|e| entry_to_endpoint(e)).collect()
+    entries.into_iter().map(entry_to_endpoint).collect()
 }
 
 /// Parse TOML string into model entries.
