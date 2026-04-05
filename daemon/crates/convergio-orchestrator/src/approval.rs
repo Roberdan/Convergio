@@ -134,7 +134,7 @@ pub fn check_threshold(conn: &Connection, trigger: &str, value: f64) -> bool {
             Ok((require, threshold, auto_below))
         },
     )
-    .map(|(require, threshold, auto_below)| {
+    .map(|(require, _threshold, auto_below)| {
         if !require {
             return false;
         }
