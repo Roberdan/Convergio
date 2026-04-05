@@ -163,7 +163,7 @@ pub fn get_build(pool: &ConnPool, id: &str) -> BuildResult<BuildRecord> {
         |row| {
             Ok(BuildRecord {
                 id: row.get(0)?,
-                status: BuildStatus::from_str(&row.get::<_, String>(1)?),
+                status: BuildStatus::parse_status(&row.get::<_, String>(1)?),
                 commit_hash: row.get(2)?,
                 test_count: row.get(3)?,
                 binary_hash: row.get(4)?,
@@ -192,7 +192,7 @@ pub fn list_builds(pool: &ConnPool, limit: i64) -> BuildResult<Vec<BuildRecord>>
     let rows = stmt.query_map([limit], |row| {
         Ok(BuildRecord {
             id: row.get(0)?,
-            status: BuildStatus::from_str(&row.get::<_, String>(1)?),
+            status: BuildStatus::parse_status(&row.get::<_, String>(1)?),
             commit_hash: row.get(2)?,
             test_count: row.get(3)?,
             binary_hash: row.get(4)?,
