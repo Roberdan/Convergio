@@ -69,6 +69,8 @@ pub struct InferenceResponse {
 pub enum ModelProvider {
     Local,
     Cloud,
+    /// MLX backend — direct subprocess call, no HTTP server needed.
+    Mlx,
 }
 
 /// A registered model endpoint.

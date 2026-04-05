@@ -59,6 +59,17 @@ impl ModelRouter {
         let endpoint = self.models.get(&decision.selected_model);
 
         let response = match endpoint {
+            Some(ep) if ep.provider == ModelProvider::Mlx => {
+                match crate::backend_mlx::call_mlx(&ep.name, &request.prompt, request.max_tokens)
+                    .await
+                {
+                    Ok(resp) => resp,
+                    Err(e) => {
+                        tracing::warn!(model = %ep.name, error = %e, "MLX call failed, echo");
+                        self.echo_response(request, &decision)
+                    }
+                }
+            }
             Some(ep) if !ep.url.is_empty() => {
                 match crate::backend::call_model(ep, &request.prompt, request.max_tokens).await {
                     Ok(resp) => resp,
@@ -132,17 +143,15 @@ impl ModelRouter {
             return Err(format!("no healthy model for tier {:?}", tier));
         }
 
-        // Sort: local first, then by input cost ascending
+        // Sort: local/MLX first, then by input cost ascending
         candidates.sort_by(|a, b| {
-            let local_a = if a.provider == ModelProvider::Local {
-                0
-            } else {
-                1
+            let local_a = match a.provider {
+                ModelProvider::Local | ModelProvider::Mlx => 0,
+                ModelProvider::Cloud => 1,
             };
-            let local_b = if b.provider == ModelProvider::Local {
-                0
-            } else {
-                1
+            let local_b = match b.provider {
+                ModelProvider::Local | ModelProvider::Mlx => 0,
+                ModelProvider::Cloud => 1,
             };
             local_a.cmp(&local_b).then(
                 a.cost_per_1k_input

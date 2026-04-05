@@ -4,6 +4,7 @@
 //! static fallback chains with intelligent, budget-aware selection.
 
 pub mod backend;
+pub mod backend_mlx;
 pub mod budget;
 pub mod classifier;
 pub mod ext;
