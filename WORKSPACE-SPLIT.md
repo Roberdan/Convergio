@@ -1,6 +1,6 @@
 # Convergio — Master Tracker
 
-> Creato: 03 Aprile 2026 | Ultimo aggiornamento: 04 Aprile 2026 (sessione 6)
+> Creato: 03 Aprile 2026 | Ultimo aggiornamento: 05 Aprile 2026 (sessione 7)
 > Da monolite (129K righe) a sistema modulare espandibile.
 
 ## 1. VISION
@@ -52,7 +52,7 @@ types (zero deps)
   +- extensions (kernel, org, voice) -> types, db, telemetry
 ```
 
-## 3. STATO ATTUALE (04 Aprile 2026 sessione 6 — onesto)
+## 3. STATO ATTUALE (05 Aprile 2026 sessione 7 — onesto)
 
 ### Numeri
 
@@ -60,11 +60,11 @@ types (zero deps)
 |---------|--------|
 | Crate nel workspace | 27 |
 | Extension registrate in main.rs | 20 (tutte con `routes()` -> `Some`) |
-| Test passanti (`cargo test --workspace`) | 949 |
-| Righe Rust totali | ~51.000 |
-| Endpoint HTTP unici | ~145 |
-| Tabelle DB (via migrations) | 59+ |
-| PR mergiate | 91 |
+| Test passanti (`cargo test --workspace`) | ~1010 |
+| Righe Rust totali | ~52.200 |
+| Endpoint HTTP unici | ~155 |
+| Tabelle DB (via migrations) | 60+ |
+| PR mergiate | 97 |
 
 ### Cosa funziona realmente (verificato con smoke test)
 
@@ -83,7 +83,10 @@ types (zero deps)
 - **Evidence gates**: record/query/gates/preflight (column names fixed sessione 5)
 - **Billing metering**: usage/invoices/rates/alerts
 - **Observatory**: timeline/search/dashboard/anomaly (persiste in DB)
-- **Agent spawning**: reale con monitor, worktree, push, PR automatica
+- **Agent spawning**: reale con monitor, worktree, push, PR automatica + auto-respawn
+- **Agent context API**: per-agent live KV dal DB, seed da task/plan, CRUD endpoint
+- **Agent live adaptation**: poll updates (plan/task/context/messages), sentinel files (STOP/PRIORITY_CHANGE)
+- **Long-run autonomo**: auto-respawn su checkpoint, max 5 tentativi, budget propagation
 - **Inference**: HTTP calls reali Ollama/OpenAI-compatible + echo fallback
 - **Depgraph**: wired in main.rs, 19 componenti, graph validation
 - **Health/Metrics**: /api/health/deep (19 componenti), /api/metrics (33+ metriche)
@@ -105,7 +108,7 @@ types (zero deps)
 - **Worktree cleanup**: worktree e branch non puliti dopo plan done
 - **Learning automatico**: PM compila manualmente, non automatico
 
-Diagnosi sessione 6: Step 0-4 tutti completi. 27 crate, 20 extension, 949 test, 91 PR. Sistema ha: plan lifecycle E2E, delegation multi-nodo, inference reale, artifact bundles, human approval, compensation, scheduler policy, security trust levels, evaluation framework. Prossimo: Step 5 (self-hosting) o completamento Step 3 remaining (agent context, live adaptation, long-run autonomo, frontend).
+Diagnosi sessione 7: Step 0-4 completi, Step 3 remaining quasi completo (manca solo frontend). 27 crate, 20 extension, ~1010 test, 97 PR. Sessione 7 ha completato 32e (context API), 32f (live adaptation), 32g (long-run autonomo). Prossimo: Step 5 (self-hosting, Fase 26) o Frontend.
 
 ### Workflow (10/12 step OK — mancano solo cleanup e learning auto)
 
@@ -163,16 +166,22 @@ Step 0 (sessione 5): 32b-d lifecycle wiring, planner E2E, Thor review (#63-#69)
 | 45 | Security remote execution | #89 | 5 trust levels, secret filtering, sandbox per peer |
 | 46 | Evaluation framework | #91 | Plan evaluation, Thor precision/recall/F1, review outcomes |
 
+### Step 3: Completamento (remaining) — DONE except Frontend (sessione 7)
+
+| Fase | Titolo | PR | Note |
+|------|--------|-----|------|
+| 32e | Agent context API | #94 | Per-agent KV dal DB, CRUD, seed da task/plan |
+| 32f | Agent live adaptation | #95 | Poll updates, sentinel files, STOP detection |
+| 32g | Long-run autonomo | #97 | Auto-respawn su checkpoint, max 5 tentativi, budget propagation |
+| -- | Frontend | -- | DEFERRED — repo separato, richiede agenti UI |
+
 ## 5. FASI IN CORSO
 
-Nessuna fase in corso — in attesa di nuova sessione.
+Nessuna fase in corso — in attesa di decisione su Step 5 o Frontend.
 
 ## 6. FASI FUTURE (ordinate per priorita')
 
-### Step 3: Completamento (remaining)
-- **32e**: Agent context API (contesto live dal DB, non file statici)
-- **32f**: Agent live adaptation (checkpoint polling, IPC alerts, file sentinel)
-- **32g**: Long-run autonomo (daemon gestisce checkpoint/resume/respawn — NON script bash)
+### Step 3: Completamento (remaining — solo frontend)
 - **Frontend**: rifare convergio-frontend dentro Convergio (agenti via daemon)
 
 ### Step 5: Self-hosting (next)
@@ -208,12 +217,13 @@ Le 4 domande: chi produce input? chi consuma output? come l'utente lo vede? come
 Key learnings: worktree obbligatori (#4), integration test per wave (#13), AGENTS.md universale (#20),
 solo merge commit (#23), waitpid non kill(0) (#21), sender diversi per IPC chain (#26).
 
-## 10. ARCHITECTURE REVIEW (04 Aprile 2026)
+## 10. ARCHITECTURE REVIEW (05 Aprile 2026)
 
 > Base forte: plugin-based, daemon serio, spawn reale, mesh sync, observatory DB, inference HTTP.
 > Gap rimanenti: extension contract parziale (no dispatcher), runtime provider-coupled.
 > 4/6 gap originali FIXED in sessione 5 (monitor, eventi, gates, tasks_done).
 > Rischi mitigati in Step 4: artifact, approval, compensation, scheduler, security, evaluation.
+> Sessione 7: agent runtime completo (context API, live adaptation, auto-respawn).
 
 ## 11. APPENDICI
 
@@ -229,9 +239,9 @@ convergio (daemon), convergio-frontend (cockpit), convergio-design (DS), Converg
 G1-G5: git hooks (MainGuard, FileSizeGuard 250, SecretScan, SqliteBlock, CommitLint)
 C1-C10: Claude hooks in `.claude/settings.json`
 
-### Fase 32g: Long-run autonomo (future)
-Daemon gestisce checkpoint/resume/respawn. Piano con N task completato senza intervento umano.
-Contesto pieno -> checkpoint -> nuovo agente -> riprende. Deps: 32b (done), 32e, 32f.
+### Fase 32g: Long-run autonomo (DONE — sessione 7)
+Daemon gestisce checkpoint/resume/respawn. Auto-respawn con max 5 tentativi, budget propagation.
+Contesto pieno -> checkpoint -> spawn continuation -> riprende. PR #97.
 
 ### Competitive positioning
 Differenziatore: rete di organizzazioni autonome con marketplace.
