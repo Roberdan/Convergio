@@ -52,23 +52,23 @@ types (zero deps)
   +- extensions (kernel, org, voice) -> types, db, telemetry
 ```
 
-## 3. STATO ATTUALE (05 Aprile 2026 sessione 7 — onesto)
+## 3. STATO ATTUALE (05 Aprile 2026 sessione 8 — onesto)
 
 ### Numeri
 
 | Metrica | Valore |
 |---------|--------|
-| Crate nel workspace | 27 |
-| Extension registrate in main.rs | 20 (tutte con `routes()` -> `Some`) |
-| Test passanti (`cargo test --workspace`) | 971 (verificato sessione 8) |
-| Righe Rust totali | ~52.200 |
-| Endpoint HTTP unici | ~155 |
-| Tabelle DB (via migrations) | 60+ |
-| PR mergiate | 98 |
+| Crate nel workspace | 28 |
+| Extension registrate in main.rs | 21 (tutte con `routes()` -> `Some`) |
+| Test passanti (`cargo test --workspace`) | 990 (verificato sessione 8) |
+| Righe Rust totali | ~53.400 |
+| Endpoint HTTP unici | ~160 |
+| Tabelle DB (via migrations) | 61+ |
+| PR mergiate | 103 |
 
 ### Cosa funziona realmente (verificato con smoke test)
 
-- **Daemon boot**: main.rs -> pool -> migrations -> 19 extension -> routes -> serve
+- **Daemon boot**: main.rs -> pool -> migrations -> 21 extension -> routes -> serve
 - **Auth**: Bearer token + dev-mode localhost bypass
 - **Config hot-reload**: watcher con debounce 500ms
 - **WAL checkpoint**: graceful shutdown
@@ -78,7 +78,7 @@ types (zero deps)
 - **Thor plan review**: pre-review required before plan start, post-review on completion
 - **IPC**: agents, messages, channels, context, SSE stream
 - **Mesh batch sync**: export/import via HTTP con HMAC auth + background loop
-- **Extension routes**: 19/19 registrate, tutte rispondono a curl
+- **Extension routes**: 21/21 registrate, tutte rispondono a curl
 - **SSE domain events**: PlanCreated, TaskCompleted, WaveCompleted, PlanCompleted
 - **Evidence gates**: record/query/gates/preflight (column names fixed sessione 5)
 - **Billing metering**: usage/invoices/rates/alerts
@@ -105,11 +105,12 @@ types (zero deps)
 - **Security remote**: trust levels (5 livelli), secret filtering, sandbox policies per peer
 - **Evaluation framework**: plan evaluation, Thor precision/recall/F1, review outcome tracking
 - **ADR documentation**: 14 ADR + getting-started + architecture guide
+- **Self-build**: POST /api/build/self triggers check+test+build, deploy+rollback, history (sessione 8)
 
 ### Remaining gaps
 - **Frontend**: convergio-frontend non ancora integrato (deferred)
 
-Diagnosi sessione 8: Step 0-4 COMPLETI, Step 3 remaining DONE (manca solo frontend). 27 crate, 20 extension, 971 test, 98 PR. Sessione 7 ha completato 32e (context API), 32f (live adaptation), 32g (long-run autonomo), worktree cleanup, auto-learning. Sessione 8: Fase 26 (self-hosting).
+Diagnosi sessione 8: Step 0-5 COMPLETI (Fase 26 self-build DONE, PR #103). 28 crate, 21 extension, 990 test, 103 PR. Sessione 8 in corso: Fase 49 (harness engineering).
 
 ### Workflow (12/12 step OK — COMPLETO)
 
@@ -181,121 +182,32 @@ Step 0 (sessione 5): 32b-d lifecycle wiring, planner E2E, Thor review (#63-#69)
 | 32g | Long-run autonomo | #97 | Auto-respawn su checkpoint, max 5 tentativi, budget propagation |
 | -- | Frontend | -- | DEFERRED — repo separato, richiede agenti UI |
 
+### Step 5: Self-hosting — DONE (sessione 8)
+
+| Fase | Titolo | PR | Note |
+|------|--------|-----|------|
+| 26 | Self-build extension | #103 | Build/test/deploy pipeline, CLI, 5 endpoint, 15 test |
+
 ## 5. FASI IN CORSO
 
-Sessione 8: Fase 26 — self-hosting (Convergio costruisce convergio) — in corso.
+Sessione 8: Fase 49 (harness engineering) — in corso.
 
 ## 6. FASI FUTURE (ordinate per priorita')
 
-### Step 3: Completamento (remaining)
-- **Frontend**: rifare convergio-frontend dentro Convergio (deferred) (agenti via daemon)
-- **48**: Node provisioning — sync completo config/memory/keys tra nodi (deferred)
+### Fase 49: Harness Engineering — IN CORSO (sessione 8)
 
-### Step 5: Self-hosting — IN CORSO (sessione 8)
-- **26**: Convergio costruisce convergio
-
-<<<<<<< Updated upstream
-||||||| Stash base
-### Fase 48: Node provisioning — il daemon sincronizza TUTTO su un nuovo nodo
-
-**Obiettivo**: Quando il daemon delega a un nodo remoto, quel nodo deve avere TUTTO:
-non solo il repo, ma config, chiavi, memory degli agenti, hook, rules, prompt.
-**Motivazione**: Roberto ha delegato al M1 Pro e l'agente non aveva contesto, API keys,
-memory, regole globali. Il nodo era "nudo" — solo il repo clonato. Il daemon deve
-provisionare un nodo completo automaticamente.
-**Committente**: Roberto — "ste robe devono essere fatte dal daemon quando sincronizza"
-
-**Cosa deve sincronizzare il daemon quando aggiunge/aggiorna un nodo**:
-
-| Cosa | Sorgente | Destinazione | Come |
-|------|----------|-------------|------|
-| Repo convergio | git | git clone/pull | git |
-| .convergio/env (API keys) | ~/.convergio/env | remoto:~/.convergio/env | scp (encrypted) |
-| .claude/settings.json | repo | gia' nel repo | git |
-| Claude project memory | ~/.claude/projects/ | remoto:~/.claude/projects/ | rsync |
-| Global rules | ConvergioPlatform/claude-config/rules/ | remoto: stessa path | rsync |
-| Copilot instructions | repo .github/ | gia' nel repo | git |
-| Daemon binary | target/release/convergio | remoto: stessa path | scp |
-| launchd plist | scripts/ | remoto:~/Library/LaunchAgents/ | scp + sed path |
-| Ollama models | ollama list | remoto: ollama pull | SSH + ollama |
+Pattern Anthropic per agenti long-run. Deps: 32c (planner), 32d (Thor).
 
 **Task**:
-- [ ] API: POST /api/mesh/provision/:node — provisiona un nodo completo
-- [ ] Il provisioning include: repo sync, env sync, binary deploy, service install
-- [ ] Secrets filtering: .env con API keys sincronizzato solo a nodi trusted
-- [ ] Claude memory sync: rsync ~/.claude/projects/*convergio* al nodo remoto
-- [ ] Post-provision health check: verifica che daemon remoto risponda
-- [ ] Idempotente: puo' essere chiamato piu' volte senza danni
-
-=======
-### Fase 49: Harness Engineering — pattern Anthropic per agenti long-run
-
-**Obiettivo**: Implementare il pattern initializer/coder/evaluator di Anthropic nel daemon.
-**Motivazione**: Articolo "Anthropic's Harness Engineering Playbook" descrive esattamente i
-nostri failure modes (context anxiety, declaring victory, self-evaluation bias) e la soluzione:
-3 agenti separati con ruoli chiari + file strutturati + baseline test.
-**Committente**: Roberto — ref. Anthropic research Nov 2025 + Mar 2026
-**Deps**: Fase 32c (planner), 32d (Thor)
-
-**Cosa implementare** (adattato al nostro sistema):
-
-1. **feature_list.json** (non .md!): il planner genera un JSON con feature granulari,
-   ognuna con status pass/fail. JSON perche' i modelli non lo riformattano accidentalmente.
-   Oggi usiamo WORKSPACE-SPLIT.md che ogni agente rischia di riscrivere.
-
-2. **convergio-progress.txt**: ogni sessione agente DEVE scrivere cosa ha fatto alla fine.
-   Il prossimo agente lo legge PRIMA di iniziare. Senza questo, il successore parte cieco.
-
-3. **init.sh / baseline test**: prima di ogni sessione, l'agente esegue un test E2E baseline.
-   Se il baseline fallisce, NON inizia a lavorare — prima fixa il baseline.
-
-4. **Evaluatore SEPARATO**: Thor deve essere un agente DIVERSO dal coding agent.
-   Non lo stesso modello che giudica se stesso. Idealmente modello diverso o prompt diverso.
-   Anthropic: "separating the generator from the evaluator is more tractable than making
-   a generator critical of its own output."
-
-5. **Una feature alla volta**: ogni sessione lavora su UNA feature, la testa, la committa.
-   Non tenta di fare 5 cose in parallelo.
-
-**Task**:
-- [ ] Sostituire checkbox WORKSPACE-SPLIT con feature_list.json per le fasi future
-- [ ] Creare template convergio-progress.txt nel spawner (scritto a fine sessione)
-- [ ] init.sh: cargo test --workspace + curl health come baseline obbligatorio
+- [ ] feature_list.json: planner genera JSON con feature pass/fail (non .md)
+- [ ] convergio-progress.txt: template nel spawner, scritto a fine sessione
+- [ ] init.sh: cargo test + curl health come baseline obbligatorio
 - [ ] Thor usa modello/prompt diverso dal coding agent
 - [ ] Enforced nel spawner: TASK.md dice "UNA feature alla volta"
 
-### Fase 48: Node provisioning — il daemon sincronizza TUTTO su un nuovo nodo
-
-**Obiettivo**: Quando il daemon delega a un nodo remoto, quel nodo deve avere TUTTO:
-non solo il repo, ma config, chiavi, memory degli agenti, hook, rules, prompt.
-**Motivazione**: Roberto ha delegato al M1 Pro e l'agente non aveva contesto, API keys,
-memory, regole globali. Il nodo era "nudo" — solo il repo clonato. Il daemon deve
-provisionare un nodo completo automaticamente.
-**Committente**: Roberto — "ste robe devono essere fatte dal daemon quando sincronizza"
-
-**Cosa deve sincronizzare il daemon quando aggiunge/aggiorna un nodo**:
-
-| Cosa | Sorgente | Destinazione | Come |
-|------|----------|-------------|------|
-| Repo convergio | git | git clone/pull | git |
-| .convergio/env (API keys) | ~/.convergio/env | remoto:~/.convergio/env | scp (encrypted) |
-| .claude/settings.json | repo | gia' nel repo | git |
-| Claude project memory | ~/.claude/projects/ | remoto:~/.claude/projects/ | rsync |
-| Global rules | ConvergioPlatform/claude-config/rules/ | remoto: stessa path | rsync |
-| Copilot instructions | repo .github/ | gia' nel repo | git |
-| Daemon binary | target/release/convergio | remoto: stessa path | scp |
-| launchd plist | scripts/ | remoto:~/Library/LaunchAgents/ | scp + sed path |
-| Ollama models | ollama list | remoto: ollama pull | SSH + ollama |
-
-**Task**:
-- [ ] API: POST /api/mesh/provision/:node — provisiona un nodo completo
-- [ ] Il provisioning include: repo sync, env sync, binary deploy, service install
-- [ ] Secrets filtering: .env con API keys sincronizzato solo a nodi trusted
-- [ ] Claude memory sync: rsync ~/.claude/projects/*convergio* al nodo remoto
-- [ ] Post-provision health check: verifica che daemon remoto risponda
-- [ ] Idempotente: puo' essere chiamato piu' volte senza danni
-
->>>>>>> Stashed changes
+### Remaining
+- **Frontend**: rifare convergio-frontend (deferred, agenti via daemon)
+- **48**: Node provisioning (sync config/memory/keys a nodi remoti)
 ### Fasi non completate (bassa priorita')
 - **22**: Cutover (manuale, quando Roberto decide)
 - **25**: Script->daemon (deprecare script bash)
