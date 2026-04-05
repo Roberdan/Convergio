@@ -15,6 +15,7 @@ pub mod context;
 pub mod context_routes;
 pub mod delegation;
 pub mod ext;
+pub mod harness;
 pub mod heartbeat;
 pub mod monitor_helpers;
 pub mod reaper;
