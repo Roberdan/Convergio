@@ -7,6 +7,8 @@
 //! Implements Extension: provides scheduling, isolation, and lifecycle
 //! management for AI agents.
 
+pub mod adaptation;
+pub mod adaptation_routes;
 pub mod allocator;
 pub mod concurrency;
 pub mod context;

@@ -22,8 +22,25 @@ pub fn monitor_agent(
     _repo_root: String,
 ) -> JoinHandle<()> {
     tokio::spawn(async move {
+        // Sentinel watcher: kill agent on STOP signal
+        let ws_clone = workspace.clone();
+        let sentinel_handle = tokio::spawn(async move {
+            loop {
+                tokio::time::sleep(std::time::Duration::from_secs(10)).await;
+                if let Some(s) = crate::adaptation::check_sentinel(&ws_clone) {
+                    if s == "STOP" {
+                        tracing::info!(pid, "STOP sentinel detected, killing agent");
+                        unsafe {
+                            libc::kill(pid as i32, libc::SIGTERM);
+                        }
+                        break;
+                    }
+                }
+            }
+        });
         // Wait for process to exit (poll every 5s)
         let exited = wait_for_exit(pid).await;
+        sentinel_handle.abort();
         tracing::info!(
             agent_id = agent_id.as_str(),
             pid,
