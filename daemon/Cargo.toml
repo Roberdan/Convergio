@@ -30,6 +30,7 @@ members = [
     "crates/convergio-file-transport",
     "crates/convergio-delegation",
     "crates/convergio-scheduler",
+    "crates/convergio-build",
 ]
 
 [package]
@@ -70,6 +71,7 @@ convergio-observatory = { path = "crates/convergio-observatory" }
 convergio-file-transport = { path = "crates/convergio-file-transport" }
 convergio-delegation = { path = "crates/convergio-delegation" }
 convergio-scheduler = { path = "crates/convergio-scheduler" }
+convergio-build = { path = "crates/convergio-build" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 dirs = { workspace = true }

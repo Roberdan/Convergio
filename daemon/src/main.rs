@@ -60,6 +60,7 @@ fn register_extensions(
             pool.clone(),
         )),
         Arc::new(convergio_scheduler::SchedulerExtension::new(pool.clone())),
+        Arc::new(convergio_build::BuildExtension::new(pool.clone())),
     ]
 }
 

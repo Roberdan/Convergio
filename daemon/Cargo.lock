@@ -466,6 +466,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "convergio-build"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "convergio-db",
+ "convergio-telemetry",
+ "convergio-types",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "convergio-cli"
 version = "0.1.0"
 dependencies = [
@@ -495,6 +515,7 @@ dependencies = [
  "convergio-agents",
  "convergio-backup",
  "convergio-billing",
+ "convergio-build",
  "convergio-db",
  "convergio-delegation",
  "convergio-depgraph",
