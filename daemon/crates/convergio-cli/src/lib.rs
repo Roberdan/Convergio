@@ -22,6 +22,7 @@ pub mod cli_api_list;
 pub mod cli_ask;
 pub mod cli_audit;
 pub mod cli_audit_project;
+pub mod cli_build;
 pub mod cli_bus;
 pub mod cli_bus_ask;
 pub mod cli_bus_org;
