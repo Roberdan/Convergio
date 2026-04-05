@@ -43,6 +43,15 @@ fn parse_toml(contents: &str) -> Vec<ModelEntry> {
 fn hardcoded_defaults() -> Vec<ModelEntry> {
     vec![
         ModelEntry {
+            name: "${CONVERGIO_MLX_MODEL:-mlx-community/Qwen2.5-Coder-32B-Instruct-4bit}".into(),
+            provider: "mlx".into(),
+            url: String::new(), // MLX uses subprocess, not HTTP
+            cost_per_1k_input: 0.0,
+            cost_per_1k_output: 0.0,
+            tier_min: "t1".into(),
+            tier_max: "t3".into(),
+        },
+        ModelEntry {
             name: "llama3".into(),
             provider: "local".into(),
             url: "${CONVERGIO_OLLAMA_URL:-http://localhost:11434}/v1/chat/completions".into(),
@@ -85,10 +94,12 @@ fn entry_to_endpoint(e: ModelEntry) -> ModelEndpoint {
     let url = resolve_env(&e.url);
     let provider = match e.provider.as_str() {
         "local" => ModelProvider::Local,
+        "mlx" => ModelProvider::Mlx,
         _ => ModelProvider::Cloud,
     };
     let healthy = match provider {
         ModelProvider::Local => true,
+        ModelProvider::Mlx => crate::backend_mlx::mlx_available(),
         ModelProvider::Cloud => is_cloud_model_available(&url),
     };
     ModelEndpoint {
@@ -171,12 +182,14 @@ mod tests {
     #[test]
     fn test_load_defaults() {
         let endpoints = load_model_endpoints(None);
-        assert_eq!(endpoints.len(), 4);
+        assert_eq!(endpoints.len(), 5);
         let names: Vec<&str> = endpoints.iter().map(|e| e.name.as_str()).collect();
         assert!(names.contains(&"llama3"));
         assert!(names.contains(&"claude-sonnet"));
         assert!(names.contains(&"claude-opus"));
         assert!(names.contains(&"gpt-4o"));
+        // MLX model present (name resolved from env or default)
+        assert!(endpoints.iter().any(|e| e.provider == ModelProvider::Mlx));
     }
 
     #[test]
