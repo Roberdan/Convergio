@@ -108,7 +108,7 @@ types (zero deps)
 - **Self-build**: POST /api/build/self triggers check+test+build, deploy+rollback, history (sessione 8)
 
 ### Remaining gaps
-- **Frontend**: convergio-frontend non ancora integrato (deferred)
+- **Frontend / Cockpit operativo**: backend forte ma ancora poco visibile; manca la superficie per vedere, capire e governare agenti/piani in tempo reale
 
 Diagnosi sessione 8: Step 0-5 COMPLETI (Fase 26 self-build DONE, PR #103). 28 crate, 21 extension, 990 test, 103 PR. Sessione 8 in corso: Fase 49 (harness engineering).
 
@@ -180,7 +180,7 @@ Step 0 (sessione 5): 32b-d lifecycle wiring, planner E2E, Thor review (#63-#69)
 | 32e | Agent context API | #94 | Per-agent KV dal DB, CRUD, seed da task/plan |
 | 32f | Agent live adaptation | #95 | Poll updates, sentinel files, STOP detection |
 | 32g | Long-run autonomo | #97 | Auto-respawn su checkpoint, max 5 tentativi, budget propagation |
-| -- | Frontend | -- | DEFERRED — repo separato, richiede agenti UI |
+| -- | Frontend / Cockpit operativo | -- | DA FARE — control plane realtime sopra DB/SSE/API esistenti, non dashboard passiva |
 
 ### Step 5: Self-hosting — DONE (sessione 8)
 
@@ -211,6 +211,32 @@ plan_metadata (= learnings), task_evidence (= pass/fail). Il pattern Anthropic
 - NON creare feature_list.json — usare i task nel piano
 - NON creare progress.txt — usare agent_activity nel DB
 - NON duplicare stato in file quando il DB e' la source of truth
+
+### Frontend / Cockpit operativo — PRIORITA' ALTA
+
+**Obiettivo**: rendere il daemon visibile e governabile in tempo reale.
+Convergio ha gia' orchestrazione, monitor, event bus, observatory, Thor,
+approval, evidence e agent runtime. Quello che manca e' la superficie operativa
+unificata per l'umano.
+
+**Perche'**: oggi il backend puo' anche fare la cosa giusta, ma se Roberto non
+vede in un colpo d'occhio piani, agenti, blocchi, costi, evidence e review,
+il sistema sembra morto o opaco. Il cockpit chiude il loop lato operatore.
+
+**Scope minimo del primo rilascio**:
+- [ ] Plan/Agent board realtime via SSE: plans, waves, tasks, agents, status, progress
+- [ ] Observatory UI: timeline, search, dashboard, anomaly, metriche gia' presenti nel daemon
+- [ ] Agent debugger: log tail, stato corrente, ultimi eventi, worktree/branch/PR/diff, interrupt/retry/priority change
+- [ ] Gates visibili: Thor pre/post review, approval requests, blocker reason, evidence status
+- [ ] Context panel: scope org/plan/task/repo/node, pins, artifact, learnings, convenzioni, token budget
+- [ ] Cost surface: token/costo per agente, piano e sessione
+
+**Regole di implementazione**:
+- [ ] Source of truth = DB + SSE + API esistenti; NON duplicare stato in file frontend
+- [ ] Prima control plane operativo, poi visual polish
+- [ ] Prima superfici read/debug/control, poi editor/terminal avanzati
+- [ ] Ogni widget deve rispondere alle 4 domande: input, consumatore, visibilita', stato registrato
+- [ ] Ogni action dal cockpit deve lasciare evidence nel DB o in domain events
 
 ### Fase 50: Autoresearch loop — ottimizzazione continua notturna
 
@@ -290,7 +316,7 @@ Il kernel classifica messaggi Telegram, risponde se semplice, delega se compless
 - [ ] Test: manda messaggio Telegram → kernel classifica → risponde
 
 ### Remaining
-- **Frontend**: rifare convergio-frontend (deferred, agenti via daemon)
+- **Frontend / Cockpit operativo**: rifare convergio-frontend come control plane realtime del daemon
 - **48**: Node provisioning (sync config/memory/keys a nodi remoti)
 
 ### Fasi non completate (bassa priorita')
@@ -326,6 +352,7 @@ solo merge commit (#23), waitpid non kill(0) (#21), sender diversi per IPC chain
 > 4/6 gap originali FIXED in sessione 5 (monitor, eventi, gates, tasks_done).
 > Rischi mitigati in Step 4: artifact, approval, compensation, scheduler, security, evaluation.
 > Sessione 7: agent runtime completo (context API, live adaptation, auto-respawn).
+> Prossimo salto di potenza: cockpit operativo che renda tutto questo visibile, debuggabile e governabile in tempo reale.
 
 ## 11. APPENDICI
 
@@ -335,7 +362,7 @@ Logs: `/tmp/convergio-daemon.{log,err}` | Service: launchd `com.convergio.daemon
 CLI: `cvg status`, `cvg plan list`, `cvg agents list`, `cvg cheatsheet`
 
 ### Repo
-convergio (daemon), convergio-frontend (cockpit), convergio-design (DS), ConvergioPlatform (archive)
+convergio (daemon), convergio-frontend (cockpit operativo), convergio-design (DS), ConvergioPlatform (archive)
 
 ### Guardrails
 G1-G5: git hooks (MainGuard, FileSizeGuard 250, SecretScan, SqliteBlock, CommitLint)

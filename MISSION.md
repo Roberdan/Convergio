@@ -68,7 +68,14 @@ Non passare a Step 1 senza questa verifica.
 ### Step 3: Completamento
 9. Fase 51: MLX diretto + TurboQuant (inference locale senza Ollama, context 128K)
 10. Fase 52: Kernel/Jarvis su M1 Pro (voice, Telegram, watchdog locale)
-11. Frontend: rifare convergio-frontend dentro Convergio
+11. Frontend / Cockpit operativo: rifare convergio-frontend dentro Convergio
+    - NON dashboard passiva: deve essere la superficie operativa del daemon
+    - Mostrare in tempo reale: plans, waves, tasks, agents, domain events, costi, anomaly, approval state
+    - Esporre agent debugger: log tail, stato corrente, worktree/branch/PR/diff, interrupt/retry/priority change
+    - Esporre evidence e gate: Thor pre/post review, blocker reason, task evidence, submission status
+    - Esporre context panel: org/plan/task/repo/node scope, pins, artifact, learnings, convenzioni, token budget
+    - Source of truth = DB + SSE + API esistenti, NON file di stato duplicati nel frontend
+    - Perche': se Roberto non puo' vedere, capire e intervenire sugli agenti mentre lavorano, il sistema sembra morto anche quando funziona
 
 ### Step 3b: Ottimizzazione continua
 12. Fase 50: Autoresearch loop (ottimizzazione notturna codice + token, modelli locali)
@@ -82,6 +89,12 @@ NON duplicare nel filesystem quello che sta nel DB. Il DB ha gia' plans/tasks
 (= feature_list), agent_activity (= progress), plan_metadata (= learnings).
 L'agente legge dal DB via context API (32e), non da file .md statici.
 Tenere: baseline test obbligatorio, Thor separato, una feature alla volta.
+
+### NOTA sul Frontend / Cockpit
+Il frontend non e' un "nice to have" grafico. E' il pezzo che rende il loop
+visibile, debuggabile e governabile da un umano. La priorita' non e' il polish:
+prima control plane operativo, poi UX raffinata. Se una feature backend non ha
+una superficie visibile nel cockpit, per l'utente finale non esiste ancora.
 
 ### Step 5: Self-hosting
 19. Fase 26: Convergio costruisce convergio
