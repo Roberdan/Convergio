@@ -92,7 +92,13 @@ impl Extension for InferenceExtension {
             .unwrap_or_else(|_| "config/inference-models.toml".to_string());
         let endpoints = crate::model_config::load_model_endpoints(Some(&config_path));
 
-        let mut router = self.router.blocking_write();
+        let mut router = match self.router.try_write() {
+            Ok(r) => r,
+            Err(_) => {
+                tracing::warn!("inference: could not acquire router lock on start");
+                return Ok(());
+            }
+        };
         for ep in endpoints {
             tracing::info!(
                 model = ep.name.as_str(),
