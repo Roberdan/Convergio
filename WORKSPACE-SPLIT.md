@@ -60,11 +60,11 @@ types (zero deps)
 |---------|--------|
 | Crate nel workspace | 28 |
 | Extension registrate in main.rs | 21 (tutte con `routes()` -> `Some`) |
-| Test passanti (`cargo test --workspace`) | 990 (verificato sessione 8) |
-| Righe Rust totali | ~53.400 |
+| Test passanti (`cargo test --workspace`) | 995 (verificato sessione 8) |
+| Righe Rust totali | ~53.800 |
 | Endpoint HTTP unici | ~160 |
 | Tabelle DB (via migrations) | 61+ |
-| PR mergiate | 103 |
+| PR mergiate | 109 |
 
 ### Cosa funziona realmente (verificato con smoke test)
 
@@ -89,7 +89,8 @@ types (zero deps)
 - **Long-run autonomo**: auto-respawn su checkpoint, max 5 tentativi, budget propagation
 - **Worktree cleanup**: auto-cleanup worktrees+branches on PlanCompleted (sessione 7)
 - **Auto-learning**: key_learnings_json auto-extracted on PlanCompleted (sessione 7)
-- **Inference**: HTTP calls reali Ollama/OpenAI-compatible + echo fallback
+- **Inference**: HTTP (Ollama/OpenAI-compatible) + MLX subprocess diretto (sessione 8)
+- **Harness engineering**: init.sh baseline, Thor separato, one-feature-at-a-time (sessione 8)
 - **Depgraph**: wired in main.rs, 19 componenti, graph validation
 - **Health/Metrics**: /api/health/deep (19 componenti), /api/metrics (33+ metriche)
 - **launchd**: plist con PATH completo, daemon rebuild dopo PR merge
@@ -110,7 +111,7 @@ types (zero deps)
 ### Remaining gaps
 - **Frontend**: convergio-frontend non ancora integrato (deferred)
 
-Diagnosi sessione 8: Step 0-5 COMPLETI (Fase 26 self-build DONE, PR #103). 28 crate, 21 extension, 990 test, 103 PR. Sessione 8 in corso: Fase 49 (harness engineering).
+Diagnosi sessione 8: Step 0-5 COMPLETI. 28 crate, 21 extension, 995 test, 109 PR. Sessione 8 ha completato: Fase 26 (self-build, PR #103), Fase 49 (harness, PR #107), Fase 51 (MLX backend, PR #109). In corso: benchmark MLX vs Ollama per Kernel/Jarvis.
 
 ### Workflow (12/12 step OK — COMPLETO)
 
@@ -188,106 +189,56 @@ Step 0 (sessione 5): 32b-d lifecycle wiring, planner E2E, Thor review (#63-#69)
 |------|--------|-----|------|
 | 26 | Self-build extension | #103 | Build/test/deploy pipeline, CLI, 5 endpoint, 15 test |
 
+### Sessione 8 fasi completate
+
+| Fase | Titolo | PR | Note |
+|------|--------|-----|------|
+| 26 | Self-build extension | #103 | Build/test/deploy pipeline, CLI, 5 endpoint, 15 test |
+| 49 | Harness engineering (minimal) | #107 | init.sh baseline, Thor separato, one-feature, harness.rs |
+| 51 | MLX backend diretto | #109 | backend_mlx.rs subprocess, ModelProvider::Mlx, TurboQuant config |
+
 ## 5. FASI IN CORSO
 
-Sessione 8 su M5 Max. Sessione M1 Pro prossima.
+Sessione 8: benchmark MLX completato, prossimo Fase 52 (Kernel/Jarvis).
 
 ## 6. FASI FUTURE (ordinate per priorita')
 
-### Fase 49: Harness Engineering — REVISIONE
+### Benchmark MLX sessione 8 (M1 Pro 32GB) — RISULTATI
 
-**IMPORTANTE**: NON duplicare nel filesystem quello che sta gia' nel DB.
-Il DB ha gia': plans/tasks (= feature_list), agent_activity (= progress),
-plan_metadata (= learnings), task_evidence (= pass/fail). Il pattern Anthropic
-(feature_list.json, progress.txt) e' per chi NON ha un daemon con DB. Noi ce l'abbiamo.
+| Modello | Task | Gen (s) | tok/s | Qualita' |
+|---------|------|---------|-------|----------|
+| Qwen 0.5B 4bit | classify | 0.90 | 222 | Verboso, non si ferma |
+| Qwen 0.5B 4bit | code | 0.87 | 230 | Buono |
+| **Qwen 7B Coder 4bit** | **classify** | **0.58** | 9 | **PERFETTO** ("domanda") |
+| **Qwen 7B Coder 4bit** | **code** | **1.30** | 32 | **ECCELLENTE** (usa std::net) |
+| **Qwen 7B Coder 4bit** | **reason** | **5.23** | 38 | Buono |
+| Gemma 3 4B 4bit | classify | 4.21 | 48 | PESSIMO (loop infinito) |
+| Gemma 3 4B 4bit | code | 2.97 | 55 | Mediocre (buggato) |
 
-**Cosa tenere del pattern Anthropic**:
-- [ ] Baseline test obbligatorio prima di ogni sessione (cargo test + curl health)
-- [ ] Thor come evaluatore SEPARATO (modello/prompt diverso dal coding agent)
-- [ ] UNA feature alla volta per sessione (enforced nel TASK.md)
-- [ ] L'agente LEGGE dal DB via context API (32e), NON da file .md statici
-
-**Cosa NON fare**:
-- NON creare feature_list.json — usare i task nel piano
-- NON creare progress.txt — usare agent_activity nel DB
-- NON duplicare stato in file quando il DB e' la source of truth
-
-### Fase 50: Autoresearch loop — ottimizzazione continua notturna
-
-**Obiettivo**: Applicare il pattern Karpathy (modifica->test->misura->keep/discard) a
-tutti i progetti gestiti da convergio, non solo al daemon stesso.
-**Motivazione**: Roberto: "non riusciamo ad applicarlo a tutti i progetti e alle org?"
-Il loop gira di notte, locale, gratis. Ottimizza codice E costi token.
-
-**Per il codice (ogni progetto)**:
-- Agente locale (Qwen 27B su MLX) prova un'ottimizzazione su un crate
-- cargo test + cargo bench = metrica oggettiva
-- Migliore? keep + commit. Peggiore? revert.
-- 100+ esperimenti a notte, zero costi API
-
-**Per le organizzazioni (ottimizzazione token)**:
-- Stesso task eseguito con Haiku vs Sonnet vs locale → misura qualita' + costo
-- Se Haiku produce risultato accettabile → downgrade tier per quel tipo di task
-- Il model router impara: "per task tipo X, Haiku basta" → 90% risparmio
-- Dati in token_usage + agent_activity, gia' nel DB
-
-**Task**:
-- [ ] Loop controller nel daemon: scheduled task notturno (cron 02:00)
-- [ ] Metrica oggettiva per tipo progetto: Rust=cargo test+bench, TS=vitest, Python=pytest
-- [ ] Registra ogni esperimento in DB (tentativo, risultato, keep/discard)
-- [ ] Usa modelli LOCALI (MLX), non API cloud — gratis
-- [ ] Dashboard esperimenti: GET /api/autoresearch/results
-
-### Fase 51: MLX diretto + TurboQuant — niente Ollama
-
-**Obiettivo**: Inference locale via MLX diretto (non Ollama) con TurboQuant per context lunghi.
-**Motivazione**: L'ADR 0302 di ConvergioPlatform gia' prevedeva "replace Ollama with lighter
-embedded model". MLX e' nativo Apple Silicon, TurboQuant fa 4.6x compressione KV cache.
-Su M1 Pro (32GB): Qwen 27B con context 128K invece di 16K.
-
-**Architettura** (senza Ollama):
-```
-daemon → inference router → backend_mlx.rs → subprocess:
-  python3 -m mlx_lm.generate --model qwen3.5-27b --turboquant --prompt "..."
-```
-
-Gia' usiamo questo pattern per TTS:
-```
-convergio-voice/tts_backends.rs → subprocess mlx_audio
-```
-
-**Vantaggi TurboQuant su M1 Pro (32GB)**:
-- Senza: Qwen 27B Q4 = 16GB modello + 8GB KV = 24GB, context ~16K
-- Con: 16GB modello + 1.7GB KV = 17.7GB, context **128K+**
-- Oppure: modello 32-40B che prima non ci stava
-
-**Task**:
-- [ ] backend_mlx.rs in convergio-inference (subprocess mlx-lm, come tts_backends)
-- [ ] Installare mlx-lm + turboquant su entrambi i nodi
-- [ ] Config: CONVERGIO_MLX_MODEL=qwen3.5-27b, CONVERGIO_MLX_TURBOQUANT=true
-- [ ] Test: inference locale con context 64K su M1 Pro
-- [ ] Rimuovere dipendenza da Ollama dal daemon
+**Decisione**: Qwen 7B Coder su MLX e' il modello per Kernel/Jarvis.
+Classificazione in 0.58s, codice eccellente, daemon lo tiene caldo in memoria.
+Gemma 3 4B scartata (qualita' inaccettabile). Qwen 0.5B come fallback veloce.
 
 ### Fase 52: Kernel/Jarvis su M1 Pro — nodo voice/assistant
 
-**Obiettivo**: M1 Pro e' il nodo per kernel, voice e Telegram. Non M5 Max.
-**Motivazione**: Roberto: "voglio il kernel/jarvis sul m1pro"
-M1 Pro con 32GB + TurboQuant MLX = Qwen 27B locale con context 128K.
-Il kernel classifica messaggi Telegram, risponde se semplice, delega se complesso.
-
-**Setup**:
-- M1 Pro registrato nel mesh con capabilities: {voice: true, kernel: true, telegram: true}
-- Daemon routing: task voice/kernel → M1 Pro
-- Qwen 27B MLX come modello locale per classificazione e risposte
-- TTS gia' funziona (mlx_audio). STT da completare (Whisper MLX).
-- Telegram client gia' implementato (PR #44). Serve solo bot token in env.
+**Modello scelto**: Qwen 7B Coder 4bit su MLX (benchmark sessione 8).
+Classificazione Telegram: 0.58s. Codice: 1.3s. Ragionamento: 5.2s. Gratis.
 
 **Task**:
 - [ ] Registrare M1 Pro nel node capability registry con voice/kernel/telegram
 - [ ] Configurare Telegram bot token su M1 Pro (~/.convergio/env)
-- [ ] Watchdog locale: Qwen 27B classifica, risponde o escala (pattern ADR 0302)
+- [ ] Watchdog locale: Qwen 7B classifica, risponde o escala
 - [ ] Telegram → kernel → risposta locale O delega a M5 Max/cloud
 - [ ] Test: manda messaggio Telegram → kernel classifica → risponde
+
+### Fase 50: Autoresearch loop — ottimizzazione continua notturna
+
+**Task**:
+- [ ] Loop controller nel daemon: scheduled task notturno (cron 02:00)
+- [ ] Metrica oggettiva per tipo progetto: Rust=cargo test+bench, TS=vitest
+- [ ] Registra ogni esperimento in DB (tentativo, risultato, keep/discard)
+- [ ] Usa modelli LOCALI (MLX Qwen 7B), non API cloud — gratis
+- [ ] Dashboard esperimenti: GET /api/autoresearch/results
 
 ### Remaining
 - **Frontend**: rifare convergio-frontend (deferred, agenti via daemon)
@@ -326,6 +277,7 @@ solo merge commit (#23), waitpid non kill(0) (#21), sender diversi per IPC chain
 > 4/6 gap originali FIXED in sessione 5 (monitor, eventi, gates, tasks_done).
 > Rischi mitigati in Step 4: artifact, approval, compensation, scheduler, security, evaluation.
 > Sessione 7: agent runtime completo (context API, live adaptation, auto-respawn).
+> Sessione 8: self-build, harness engineering, MLX backend. Benchmark: Qwen 7B Coder MLX > Gemma 3 4B.
 
 ## 11. APPENDICI
 
