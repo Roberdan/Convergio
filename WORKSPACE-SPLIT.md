@@ -226,15 +226,43 @@ Nessuna fase in corso — in attesa di decisione su Step 5 o Frontend.
 ### Step 3: Completamento (remaining)
 - **32e**: Agent context API (contesto live dal DB, non file statici)
 - **32f**: Agent live adaptation (checkpoint polling, IPC alerts, file sentinel)
-- **32g**: Long-run autonomo (daemon gestisce checkpoint/resume/respawn — NON script bash)
+- **32g**: Long-run autonomo (daemon gestisce checkpoint/resume/respawn)
+- **48**: Node provisioning — sync completo config/memory/keys tra nodi (vedi sotto)
 - **Frontend**: rifare convergio-frontend dentro Convergio (agenti via daemon)
-=======
-### Step 3: Completamento (remaining — solo frontend)
-- **Frontend**: rifare convergio-frontend dentro Convergio (agenti via daemon)
->>>>>>> origin/main
 
-### Step 5: Self-hosting (next)
+### Step 5: Self-hosting
 - **26**: Convergio costruisce convergio
+
+### Fase 48: Node provisioning — il daemon sincronizza TUTTO su un nuovo nodo
+
+**Obiettivo**: Quando il daemon delega a un nodo remoto, quel nodo deve avere TUTTO:
+non solo il repo, ma config, chiavi, memory degli agenti, hook, rules, prompt.
+**Motivazione**: Roberto ha delegato al M1 Pro e l'agente non aveva contesto, API keys,
+memory, regole globali. Il nodo era "nudo" — solo il repo clonato. Il daemon deve
+provisionare un nodo completo automaticamente.
+**Committente**: Roberto — "ste robe devono essere fatte dal daemon quando sincronizza"
+
+**Cosa deve sincronizzare il daemon quando aggiunge/aggiorna un nodo**:
+
+| Cosa | Sorgente | Destinazione | Come |
+|------|----------|-------------|------|
+| Repo convergio | git | git clone/pull | git |
+| .convergio/env (API keys) | ~/.convergio/env | remoto:~/.convergio/env | scp (encrypted) |
+| .claude/settings.json | repo | gia' nel repo | git |
+| Claude project memory | ~/.claude/projects/ | remoto:~/.claude/projects/ | rsync |
+| Global rules | ConvergioPlatform/claude-config/rules/ | remoto: stessa path | rsync |
+| Copilot instructions | repo .github/ | gia' nel repo | git |
+| Daemon binary | target/release/convergio | remoto: stessa path | scp |
+| launchd plist | scripts/ | remoto:~/Library/LaunchAgents/ | scp + sed path |
+| Ollama models | ollama list | remoto: ollama pull | SSH + ollama |
+
+**Task**:
+- [ ] API: POST /api/mesh/provision/:node — provisiona un nodo completo
+- [ ] Il provisioning include: repo sync, env sync, binary deploy, service install
+- [ ] Secrets filtering: .env con API keys sincronizzato solo a nodi trusted
+- [ ] Claude memory sync: rsync ~/.claude/projects/*convergio* al nodo remoto
+- [ ] Post-provision health check: verifica che daemon remoto risponda
+- [ ] Idempotente: puo' essere chiamato piu' volte senza danni
 
 ### Fasi non completate (bassa priorita')
 - **22**: Cutover (manuale, quando Roberto decide)
